@@ -34,6 +34,8 @@ INC_FILES 				= \
 						core/color.h \
 						core/pixfmt.h \
 						core/matrix.h \
+						core/3d/prefix.h \
+						core/3d/3d.h \
 						game/game.h \
 						game/prefix.h 		
 
