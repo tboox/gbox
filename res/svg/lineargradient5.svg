@@ -1,0 +1,32 @@
+<svg width="640" height="220" viewBox="-20 -20 640 220">
+  <defs>
+    <linearGradient id="MyGradient1">
+      <stop offset="30%" stop-color="red"/>
+      <stop offset="70%" stop-color="yellow"/>
+    </linearGradient>
+    <linearGradient id="MyGradient2" gradientTransform="rotate(45)">
+      <stop offset="30%" stop-color="red"/>
+      <stop offset="70%" stop-color="yellow"/>
+    </linearGradient>
+    <linearGradient id="MyGradient3" gradientTransform="scale(0.5)">
+      <stop offset="30%" stop-color="red"/>
+      <stop offset="70%" stop-color="yellow"/>
+    </linearGradient>
+    <linearGradient id="MyGradient4" gradientTransform="skewX(45)">
+      <stop offset="30%" stop-color="red"/>
+      <stop offset="70%" stop-color="yellow"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="150" height="150" 
+        style="fill:url(#MyGradient1)"/>
+  <rect x="150" y="0" width="150" height="150" 
+        style="fill:url(#MyGradient2)"/>
+  <rect x="300" y="0" width="150" height="150" 
+        style="fill:url(#MyGradient3)"/>
+  <rect x="450" y="0" width="150" height="150" 
+        style="fill:url(#MyGradient4)"/>
+  <text x="75" y="175" style="text-anchor:middle">identity</text>
+  <text x="225" y="175" style="text-anchor:middle">rotate(45)</text>
+  <text x="375" y="175" style="text-anchor:middle">scale(0.5)</text>
+  <text x="525" y="175" style="text-anchor:middle">skewX(45)</text>
+</svg>

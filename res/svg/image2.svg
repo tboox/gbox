@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink" width="600.000000" height="600.000000">
+	<rect id="bar" fill="#ff0000" x="0" y="0" width="600" height="600" />
+	<image id="bar" xlink:href="http://farm1.static.flickr.com/234/535566372_33c1025c7b_o.jpg" x="0" y="0" width="300" height="300" />
+	<image id="bar" xlink:href="http://farm1.static.flickr.com/234/535566372_33c1025c7b_o.jpg" x="0" y="300" width="300" height="300" />
+	<image id="bar" xlink:href="http://farm1.static.flickr.com/234/535566372_33c1025c7b_o.jpg" x="300" y="0" width="300" height="300" />
+	<image id="bar" xlink:href="http://farm1.static.flickr.com/234/535566372_33c1025c7b_o.jpg" x="300" y="300" width="300" height="300" />
+
+</svg>
