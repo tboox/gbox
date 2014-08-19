@@ -9,7 +9,8 @@ gbox_TYPE 				= LIB
 
 # basic files
 gbox_C_FILES 			+= \
-						gbox
+						gbox \
+						prefix/color
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
 
@@ -21,6 +22,10 @@ INC_FILES 				= \
 						prefix/prefix.h \
 						prefix/config.h \
 						prefix/version.h \
+						prefix/type.h \
+						prefix/float.h \
+						prefix/color.h \
+						prefix/pixfmt.h \
 						ui/ui.h \
 						ui/prefix.h \
 						svg/svg.h \

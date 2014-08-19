@@ -16,4 +16,7 @@
 // small
 #define GB_CONFIG_SMALL                 [small]
 
+// the fixed type for float
+#define GB_CONFIG_FLOAT_FIXED
+
 #endif

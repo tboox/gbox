@@ -16,8 +16,8 @@
  * 
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
- * @author		ruki
- * @file		prefix.h
+ * @author      ruki
+ * @file        prefix.h
  *
  */
 #ifndef GB_PREFIX_PREFIX_H
@@ -28,6 +28,10 @@
  */
 #include "config.h"
 #include "version.h"
+#include "type.h"
+#include "float.h"
+#include "color.h"
+#include "pixfmt.h"
 
 
 #endif
