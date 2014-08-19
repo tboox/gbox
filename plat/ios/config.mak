@@ -1,0 +1,11 @@
+# demo
+GB_CONFIG_DEMO_LIBS							= stdc++ m dl pthread 
+#GB_CONFIG_DEMO_CMD1						= -@ldid -S $(1)$(BIN_SUFFIX)
+
+# third party
+GB_CONFIG_THIRD_HAVE_ZLIB 					= y
+GB_CONFIG_THIRD_HAVE_OPENSSL 				= n
+GB_CONFIG_THIRD_HAVE_POLARSSL 				= y
+GB_CONFIG_THIRD_HAVE_MYSQL 					= n
+GB_CONFIG_THIRD_HAVE_SQLITE3 				= y
+
