@@ -11,7 +11,8 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/color \
-						core/matrix
+						core/matrix \
+						core/pixmap
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
 
@@ -33,6 +34,7 @@ INC_FILES 				= \
 						core/float.h \
 						core/color.h \
 						core/pixfmt.h \
+						core/pixmap.h \
 						core/matrix.h \
 						core/3d/prefix.h \
 						core/3d/3d.h \

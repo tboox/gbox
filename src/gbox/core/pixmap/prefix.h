@@ -18,19 +18,16 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @defgroup    core
+ *
  */
-#ifndef GB_CORE_H
-#define GB_CORE_H
+#ifndef GB_CORE_PIXMAP_PREFIX_H
+#define GB_CORE_PIXMAP_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "matrix.h"
-#include "pixmap.h"
-#include "3d/3d.h"
+#include "../prefix.h"
+
 
 #endif
-
 
