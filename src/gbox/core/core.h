@@ -27,6 +27,7 @@
  * includes
  */
 #include "prefix.h"
+#include "matrix.h"
 
 #endif
 

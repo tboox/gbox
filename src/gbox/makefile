@@ -7,10 +7,11 @@ NAMES 					= gbox
 # module type
 gbox_TYPE 				= LIB
 
-# basic files
+# core files
 gbox_C_FILES 			+= \
 						gbox \
-						prefix/color
+						core/color \
+						core/matrix
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
 
@@ -22,16 +23,17 @@ INC_FILES 				= \
 						prefix/prefix.h \
 						prefix/config.h \
 						prefix/version.h \
-						prefix/type.h \
-						prefix/float.h \
-						prefix/color.h \
-						prefix/pixfmt.h \
 						ui/ui.h \
 						ui/prefix.h \
 						svg/svg.h \
 						svg/prefix.h \
 						core/core.h \
 						core/prefix.h \
+						core/type.h \
+						core/float.h \
+						core/color.h \
+						core/pixfmt.h \
+						core/matrix.h \
 						game/game.h \
 						game/prefix.h 		
 

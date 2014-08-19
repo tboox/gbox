@@ -23,15 +23,11 @@
 #ifndef GB_PREFIX_PREFIX_H
 #define GB_PREFIX_PREFIX_H
 
-/* ///////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "config.h"
 #include "version.h"
-#include "type.h"
-#include "float.h"
-#include "color.h"
-#include "pixfmt.h"
 
 
 #endif

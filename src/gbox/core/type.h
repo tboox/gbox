@@ -18,49 +18,20 @@
  *
  * @author      ruki
  * @file        type.h
+ * @ingroup     core
  *
  */
-#ifndef GB_PREFIX_TYPE_H
-#define GB_PREFIX_TYPE_H
+#ifndef GB_CORE_TYPE_H
+#define GB_CORE_TYPE_H
 
-/* ///////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "config.h"
+#include "../prefix.h"
 #include "pixfmt.h"
 #include "float.h"
 
-/* ///////////////////////////////////////////////////////////////////////
- * macros
- */
-
-// the color contants
-#define GB_COLOR_BLACK                  gb_color_from_index(0)
-#define GB_COLOR_BLUE                   gb_color_from_index(1)
-#define GB_COLOR_BROWN                  gb_color_from_index(2)
-#define GB_COLOR_DARKBLUE               gb_color_from_index(3)
-#define GB_COLOR_GOLD                   gb_color_from_index(4)
-#define GB_COLOR_GRAY                   gb_color_from_index(5)
-#define GB_COLOR_GREEN                  gb_color_from_index(6)
-#define GB_COLOR_GREY                   gb_color_from_index(7)
-#define GB_COLOR_LIGHTBLUE              gb_color_from_index(8)
-#define GB_COLOR_LIGHTGRAY              gb_color_from_index(9)
-#define GB_COLOR_LIGHTGREY              gb_color_from_index(10)
-#define GB_COLOR_LIGHTPINK              gb_color_from_index(11)
-#define GB_COLOR_LIGHTYELLOW            gb_color_from_index(12)
-#define GB_COLOR_NAVY                   gb_color_from_index(13)
-#define GB_COLOR_ORANGE                 gb_color_from_index(14)
-#define GB_COLOR_PINK                   gb_color_from_index(15)
-#define GB_COLOR_PURPLE                 gb_color_from_index(16)
-#define GB_COLOR_RED                    gb_color_from_index(17)
-#define GB_COLOR_SNOW                   gb_color_from_index(18)
-#define GB_COLOR_TOMATO                 gb_color_from_index(19)
-#define GB_COLOR_YELLOW                 gb_color_from_index(20)
-#define GB_COLOR_WHEAT                  gb_color_from_index(21)
-#define GB_COLOR_WHITE                  gb_color_from_index(22)
-#define GB_COLOR_DEFAULT                GB_COLOR_BLACK
-
-/* ///////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -86,7 +57,9 @@ typedef tb_float_t      gb_float_t;
 /// the pixel type
 typedef tb_uint32_t     gb_pixel_t;
 
-/*! the color type
+/*! @def gb_color_t 
+ *
+ * the color type
  *
  * @code
  * union __gb_c2p_t
@@ -120,6 +93,47 @@ typedef struct __gb_color_t
 }gb_color_t;
 #endif
 
+/// the color ref type
+typedef gb_color_t*     gb_color_ref_t;
+
+/*! the matrix type
+ *
+ * <pre>
+ * sx: the x-scale
+ * sy: the y-scale
+ * kx: the x-skew
+ * ky: the y-skew
+ * tx: the x-translate
+ * ty: the y-translate
+ *
+ * x' = x * sx + y * kx + tx
+ * y' = x * ky + y * sy + ty
+ *
+ * x'           sx kx tx    x * sx + y * kx + tx
+ * y' = x y 1 * ky sy ty =  x * ky + y * sy + ty
+ * 1             0  0  1                       1
+ *
+ * the following table describes how the members of the matrix are used for each type of
+ * operation:
+ *                    sx                kx               ky              sy                tx     ty
+ * rotation           sx * cos          sx * -sin        sy * sin        sy * cos          0      0
+ * scaling            sx                0                0               sy                0      0
+ * translation        0                 0                0               0                 tx     ty
+ * ...
+ *
+ * </pre>
+ *
+ */
+typedef struct __gb_matrix_t
+{
+	gb_float_t 		sx, kx, tx;
+	gb_float_t 		ky, sy, ty;
+
+}gb_matrix_t;
+
+/// the matrix ref type
+typedef gb_matrix_t*    gb_matrix_ref_t;
+
 /// the point type
 typedef struct __gb_point_t
 {
@@ -127,6 +141,9 @@ typedef struct __gb_point_t
     gb_float_t          y;
 
 }gb_point_t;
+
+/// the point ref type
+typedef gb_point_t*     gb_point_ref_t;
 
 /// the line type
 typedef struct __gb_line_t
@@ -136,6 +153,9 @@ typedef struct __gb_line_t
 
 }gb_line_t;
 
+/// the line ref type
+typedef gb_line_t*      gb_line_ref_t;
+
 /// the triangle type
 typedef struct __gb_triangle_t
 {
@@ -144,6 +164,9 @@ typedef struct __gb_triangle_t
     gb_point_t          p2;
 
 }gb_triangle_t;
+
+/// the triangle ref type
+typedef gb_triangle_t*  gb_triangle_ref_t;
 
 /// the rect type
 typedef struct __gb_rect_t
@@ -155,6 +178,9 @@ typedef struct __gb_rect_t
 
 }gb_rect_t;
 
+/// the rect ref type
+typedef gb_rect_t*      gb_rect_ref_t;
+
 /// the circle type
 typedef struct __gb_circle_t
 {
@@ -165,6 +191,9 @@ typedef struct __gb_circle_t
     gb_float_t          r;
 
 }gb_circle_t;
+
+/// the circle ref type
+typedef gb_circle_t*    gb_circle_ref_t;
 
 /// the ellipse type
 typedef struct __gb_ellipse_t
@@ -179,6 +208,9 @@ typedef struct __gb_ellipse_t
     gb_float_t          ry;
 
 }gb_ellipse_t;
+
+/// the ellipse ref type
+typedef gb_ellipse_t*    gb_ellipse_ref_t;
 
 /// the arc type
 typedef struct __gb_arc_t
@@ -200,6 +232,9 @@ typedef struct __gb_arc_t
 
 }gb_arc_t;
 
+/// the arc ref type
+typedef gb_arc_t*       gb_arc_ref_t;
+
 /// the gradient type
 typedef struct __gb_gradient_t
 {
@@ -213,6 +248,9 @@ typedef struct __gb_gradient_t
     tb_size_t           count;
 
 }gb_gradient_t;
+
+/// the gradient ref type
+typedef gb_gradient_t*  gb_gradient_ref_t;
 
 /// the path ref type
 typedef struct{}*       gb_path_ref_t;
@@ -269,7 +307,10 @@ typedef struct __gb_shape_t
 
 }gb_shape_t;
 
-/* ////////////////////////////////////////////////////////////////////////
+/// the shape ref type
+typedef gb_shape_t*     gb_shape_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * inline
  */
 __tb_extern_c_enter__

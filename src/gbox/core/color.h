@@ -18,22 +18,18 @@
  *
  * @author      ruki
  * @file        color.h
+ * @ingroup     core
  *
  */
-#ifndef GB_PREFIX_COLOR_H
-#define GB_PREFIX_COLOR_H
+#ifndef GB_CORE_COLOR_H
+#define GB_CORE_COLOR_H
 
-// c plus plus
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* ///////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "type.h"
 
-/* ///////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * macros
  */
 
@@ -63,20 +59,21 @@ extern "C" {
 #define GB_COLOR_WHITE                  gb_color_from_index(22)
 #define GB_COLOR_DEFAULT                GB_COLOR_BLACK
 
-/* ////////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * inline
  */
+__tb_extern_c_enter__
 
 /*! make color
  *
- * @param a                     the alpha
- * @param r                     the red
- * @param g                     the green
- * @param b                     the blue
+ * @param a                         the alpha
+ * @param r                         the red
+ * @param g                         the green
+ * @param b                         the blue
  *
- * @return                      the color
+ * @return                          the color
  */
-static __tb_inline__ gb_color_t gb_color_make(tb_byte_t a, tb_byte_t r, tb_byte_t g, tb_byte_t b)
+static __tb_inline__ gb_color_t     gb_color_make(tb_byte_t a, tb_byte_t r, tb_byte_t g, tb_byte_t b)
 {
     gb_color_t c;
 
@@ -90,11 +87,11 @@ static __tb_inline__ gb_color_t gb_color_make(tb_byte_t a, tb_byte_t r, tb_byte_
 
 /*! convert color to the pixel
  *
- * @param color                 the color
+ * @param color                     the color
  *
- * @return                      the pixel value
+ * @return                          the pixel value
  */
-static __tb_inline__ tb_uint32_t gb_color_pixel(gb_color_t color)
+static __tb_inline__ tb_uint32_t    gb_color_pixel(gb_color_t color)
 {
     union __gb_c2p_t
     {
@@ -108,11 +105,11 @@ static __tb_inline__ tb_uint32_t gb_color_pixel(gb_color_t color)
 
 /*! convert pixel to the color
  *
- * @param pixel                 the pixel value
+ * @param pixel                     the pixel value
  *
- * @return                      the color
+ * @return                          the color
  */
-static __tb_inline__ gb_color_t gb_pixel_color(gb_pixel_t pixel)
+static __tb_inline__ gb_color_t     gb_pixel_color(gb_pixel_t pixel)
 {
     union __gb_p2c_t
     {
@@ -124,14 +121,13 @@ static __tb_inline__ gb_color_t gb_pixel_color(gb_pixel_t pixel)
     return p2c.c;
 }
 
-/* ////////////////////////////////////////////////////////////////////////
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
-__tb_extern_c_enter__
 
 /*! get color from the name
  *
- * @param name     the color name
+ * @param name      the color name
  *
  * @return          the color
  */
@@ -146,12 +142,6 @@ gb_color_t const    gb_color_from_name(tb_char_t const* name);
 gb_color_t const    gb_color_from_index(tb_size_t index);
 
 __tb_extern_c_leave__
-// c plus plus
-#ifdef __cplusplus
-}
-#endif
-
-
 #endif
 
 

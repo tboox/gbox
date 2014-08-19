@@ -26,6 +26,10 @@
  * includes
  */
 #include "../prefix.h"
+#include "type.h"
+#include "float.h"
+#include "color.h"
+#include "pixfmt.h"
 
 #endif
 
