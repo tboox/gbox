@@ -17,6 +17,7 @@ gbox_C_FILES 			+= \
 						core/bitmap \
 						core/paint \
 						core/canvas \
+						core/quality \
 						core/image/decoder \
 						core/image/decoder/bmp 
 
@@ -42,6 +43,7 @@ INC_FILES 				= \
 						core/pixmap.h \
 						core/bitmap.h \
 						core/matrix.h \
+						core/quality.h \
 						core/paint.h \
 						core/canvas.h \
 						core/3d/prefix.h \

@@ -35,15 +35,6 @@
  * types
  */
 
-/// the quality enum
-typedef enum __gb_quality_e
-{
-    GB_QUALITY_LOW  = 0
-,   GB_QUALITY_MID  = 1
-,   GB_QUALITY_TOP  = 2
-
-}gb_quality_e;
-
 /*! @def gb_float_t
  *
  * the float type

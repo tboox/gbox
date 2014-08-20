@@ -192,7 +192,7 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
 
         // bitfields?
         gb_pixmap_ref_t sp = tb_null;
-        gb_pixmap_ref_t dp = gb_pixmap(pixfmt, 0xff, GB_QUALITY_TOP);
+        gb_pixmap_ref_t dp = gb_pixmap(pixfmt, 0xff);
         if (bc == GB_BMP_BITFIELDS)
         {
             // seek to the color mask position
@@ -208,17 +208,17 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
             {
                 // rgb565?
                 if (rm == 0xf800 && gm == 0x07e0 && bm == 0x001f)
-                    sp = gb_pixmap(GB_PIXFMT_RGB565 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                    sp = gb_pixmap(GB_PIXFMT_RGB565 | GB_PIXFMT_LENDIAN, 0xff);
                 // xrgb1555?
                 else if (rm == 0x7c00 && gm == 0x03e0 && bm == 0x001f)
-                    sp = gb_pixmap(GB_PIXFMT_XRGB1555 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                    sp = gb_pixmap(GB_PIXFMT_XRGB1555 | GB_PIXFMT_LENDIAN, 0xff);
             }
             // 32-bits?
             else if (bpp == 32)
             {
                 // rgbx8888?
                 if (rm == 0xff000000 && gm == 0xff0000 && bm == 0xff00)
-                    sp = gb_pixmap(GB_PIXFMT_RGBX8888 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                    sp = gb_pixmap(GB_PIXFMT_RGBX8888 | GB_PIXFMT_LENDIAN, 0xff);
             }
         }
         // rgb?
@@ -228,21 +228,21 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
             {
             case 32:
                 // argb8888
-                sp = gb_pixmap(GB_PIXFMT_ARGB8888 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                sp = gb_pixmap(GB_PIXFMT_ARGB8888 | GB_PIXFMT_LENDIAN, 0xff);
                 break;
             case 24:
                 // rgb888
-                sp = gb_pixmap(GB_PIXFMT_RGB888 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                sp = gb_pixmap(GB_PIXFMT_RGB888 | GB_PIXFMT_LENDIAN, 0xff);
                 break;
             case 16:
                 // xrgb1555
-                sp = gb_pixmap(GB_PIXFMT_XRGB1555 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                sp = gb_pixmap(GB_PIXFMT_XRGB1555 | GB_PIXFMT_LENDIAN, 0xff);
                 break;
             case 8:
             case 4:
             case 1:
                 // pal8
-                sp = gb_pixmap(GB_PIXFMT_PAL8 | GB_PIXFMT_LENDIAN, 0xff, GB_QUALITY_TOP);
+                sp = gb_pixmap(GB_PIXFMT_PAL8 | GB_PIXFMT_LENDIAN, 0xff);
                 break;
             default:
                 // trace

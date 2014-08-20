@@ -17,31 +17,37 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        quality.c
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_PREFIX_H
-#define GB_CORE_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
-#include "type.h"
-#include "float.h"
-#include "color.h"
-#include "pixfmt.h"
 #include "quality.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * macros
+ * globals
  */
 
-/// the width maxn
-#define GB_WIDTH_MAXN           (8192)
+// the quality
+static tb_atomic_t g_quality = GB_QUALITY_TOP;
 
-/// the height maxn
-#define GB_HEIGHT_MAXN          (8192)
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
 
-#endif
+tb_size_t gb_quality(tb_noarg_t)
+{
+    return (tb_size_t)tb_atomic_get(&g_quality);
+}
+tb_void_t gb_quality_set(tb_size_t quality)
+{
+    // check
+    tb_assert_and_check_return(quality <= GB_QUALITY_TOP);
 
+    // save quality
+    tb_atomic_set(&g_quality, quality);
+}
 

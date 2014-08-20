@@ -80,7 +80,7 @@ gb_bitmap_ref_t gb_bitmap_init(tb_pointer_t data, tb_size_t pixfmt, tb_size_t wi
         tb_assert_and_check_break(impl);
 
         // the pixmap, only using btp
-        gb_pixmap_ref_t pixmap = gb_pixmap(pixfmt, 0xff, GB_QUALITY_TOP);
+        gb_pixmap_ref_t pixmap = gb_pixmap(pixfmt, 0xff);
         tb_assert_and_check_break(pixmap);
 
         // the row bytes
@@ -197,7 +197,7 @@ tb_bool_t gb_bitmap_data_set(gb_bitmap_ref_t bitmap, tb_pointer_t data, tb_size_
         tb_assert_and_check_break(width && width <= GB_WIDTH_MAXN && height && height <= GB_HEIGHT_MAXN);
 
         // the pixmap, only using btp
-        gb_pixmap_ref_t pixmap = gb_pixmap(pixfmt, 0xff, GB_QUALITY_TOP);
+        gb_pixmap_ref_t pixmap = gb_pixmap(pixfmt, 0xff);
         tb_assert_and_check_break(pixmap);
 
         // the row bytes
@@ -235,7 +235,7 @@ tb_bool_t gb_bitmap_resize(gb_bitmap_ref_t bitmap, tb_size_t width, tb_size_t he
 	tb_check_return_val(impl->width != width || impl->height != height, tb_true);
 
     // the pixmap, only using btp
-    gb_pixmap_ref_t pixmap = gb_pixmap(impl->pixfmt, 0xff, GB_QUALITY_TOP);
+    gb_pixmap_ref_t pixmap = gb_pixmap(impl->pixfmt, 0xff);
     tb_assert_and_check_return_val(pixmap, tb_false);
 
     // space enough?

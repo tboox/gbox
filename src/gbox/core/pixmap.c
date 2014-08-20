@@ -192,11 +192,8 @@ static gb_pixmap_ref_t g_pixmaps_ba[] =
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementions
  */
-gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality)
+gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
 {
-    // check
-    tb_assert_abort(quality <= GB_QUALITY_TOP);
-
     // the endian
 	tb_size_t endian = pixfmt & GB_PIXFMT_MENDIAN; 
     
@@ -205,7 +202,7 @@ gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality)
     tb_assert_abort(pixfmt);
 
     // opaque?
-	tb_byte_t alpha_min = (GB_QUALITY_TOP - quality) << 3;
+	tb_byte_t alpha_min = (GB_QUALITY_TOP - gb_quality()) << 3;
 	if (alpha >= (0xff - alpha_min))
 	{
         // check

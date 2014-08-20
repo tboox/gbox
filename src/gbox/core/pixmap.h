@@ -148,11 +148,10 @@ __tb_extern_c_enter__
  *
  * @param pixfmt        the pixfmt with endian
  * @param alpha         the alpha value
- * @param quality       the quality
  *
  * @return              the pixmap
  */
-gb_pixmap_ref_t 		gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality);
+gb_pixmap_ref_t 		gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha);
 
 __tb_extern_c_leave__
 #endif
