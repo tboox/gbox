@@ -230,6 +230,21 @@ tb_size_t           gb_paint_rule(gb_paint_ref_t paint);
  */
 tb_void_t           gb_paint_rule_set(gb_paint_ref_t paint, tb_size_t rule);
 
+/*! the paint quality
+ *
+ * @param paint     the paint 
+ *
+ * @return          the paint quality
+ */
+tb_size_t           gb_paint_quality(gb_paint_ref_t paint);
+
+/*! set the paint alpha
+ *
+ * @param paint     the paint 
+ * @param alpha     the paint alpha
+ */
+tb_void_t           gb_paint_quality_set(gb_paint_ref_t paint, tb_size_t quality);
+
 /*! the paint shader
  *
  * @param paint     the paint 
