@@ -18,28 +18,33 @@
  *
  * @author      ruki
  * @file        prefix.h
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_PREFIX_H
-#define GB_CORE_PREFIX_H
+#ifndef GB_CORE_IMAGE_PREFIX_H
+#define GB_CORE_IMAGE_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "../prefix.h"
-#include "type.h"
-#include "float.h"
-#include "color.h"
-#include "pixfmt.h"
+#include "../pixmap.h"
+#include "../bitmap.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * macros
+ * types
  */
 
-/// the width maxn
-#define GB_WIDTH_MAXN           (8192)
+/// the image type
+typedef enum __gb_image_type_t
+{
+    GB_IMAGE_TYPE_NONE  = 0
+,   GB_IMAGE_TYPE_BMP   = 1
+,   GB_IMAGE_TYPE_GIF   = 2
+,   GB_IMAGE_TYPE_JPG   = 3
+,   GB_IMAGE_TYPE_PNG   = 4
 
-/// the height maxn
-#define GB_HEIGHT_MAXN          (8192)
+}gb_image_type_t;
 
 #endif
 

@@ -14,7 +14,7 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
  * @file        bitmap.c
@@ -26,6 +26,7 @@
  */
 #include "bitmap.h"
 #include "pixmap.h"
+#include "image/image.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -137,9 +138,8 @@ gb_bitmap_ref_t gb_bitmap_init_from_stream(tb_size_t pixfmt, tb_stream_ref_t str
     // check
     tb_assert_and_check_return_val(GB_PIXFMT_OK(pixfmt) && stream, tb_null);
 
-#if 0
     // init image decoder
-    gb_image_decoder_t* decoder = gb_image_decoder_init(pixfmt, stream);
+    gb_image_decoder_ref_t decoder = gb_image_decoder_init(pixfmt, stream);
     tb_assert_and_check_return_val(decoder, tb_null);
 
     // done image decoder
@@ -151,9 +151,6 @@ gb_bitmap_ref_t gb_bitmap_init_from_stream(tb_size_t pixfmt, tb_stream_ref_t str
 
     // ok?
     return bitmap;
-#else
-    return tb_null;
-#endif
 }
 tb_void_t gb_bitmap_exit(gb_bitmap_ref_t bitmap)
 {

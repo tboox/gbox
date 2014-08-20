@@ -14,7 +14,7 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
  * @file        rgbx4444.h

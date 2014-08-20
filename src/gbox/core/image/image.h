@@ -17,29 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        image.h
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_PREFIX_H
-#define GB_CORE_PREFIX_H
+#ifndef GB_CORE_IMAGE_H
+#define GB_CORE_IMAGE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
-#include "type.h"
-#include "float.h"
-#include "color.h"
-#include "pixfmt.h"
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * macros
- */
-
-/// the width maxn
-#define GB_WIDTH_MAXN           (8192)
-
-/// the height maxn
-#define GB_HEIGHT_MAXN          (8192)
+#include "decoder.h"
 
 #endif
 
