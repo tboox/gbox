@@ -106,6 +106,9 @@ tb_bool_t gb_init_(tb_size_t mode, tb_hize_t build)
     // check version
     tb_version_check(build);
 
+    // init core
+    if (!gb_core_init()) return tb_false;
+
     // trace
     tb_trace_d("init: ok");
 
@@ -120,6 +123,9 @@ tb_void_t gb_exit()
 
     // check
     tb_assert_and_check_return(!init);
+
+    // exit core
+    gb_core_exit();
 }
 tb_version_t const* gb_version()
 {

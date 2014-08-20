@@ -10,6 +10,7 @@ gbox_TYPE 				= LIB
 # core files
 gbox_C_FILES 			+= \
 						gbox \
+						core/core \
 						core/color \
 						core/matrix \
 						core/pixmap \
