@@ -319,6 +319,9 @@ typedef struct{}*       gb_canvas_ref_t;
 /// the paint ref type
 typedef struct{}*       gb_paint_ref_t;
 
+/// the bitmap ref type
+typedef struct{}*       gb_bitmap_ref_t;
+
 /// the shader ref type
 typedef struct{}*       gb_shader_ref_t;
 

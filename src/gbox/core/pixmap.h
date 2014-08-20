@@ -136,6 +136,9 @@ typedef struct __gb_pixmap_t
 
 }gb_pixmap_t;
 
+/// the pixmap ref type
+typedef gb_pixmap_t const*      gb_pixmap_ref_t;
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
@@ -149,7 +152,7 @@ __tb_extern_c_enter__
  *
  * @return              the pixmap
  */
-gb_pixmap_t const* 		gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality);
+gb_pixmap_ref_t 		gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality);
 
 __tb_extern_c_leave__
 #endif

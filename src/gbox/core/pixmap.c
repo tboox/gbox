@@ -46,7 +46,7 @@
  */
 
 // the pixmaps for opaque and little endian
-static gb_pixmap_t const* g_pixmaps_lo[] =
+static gb_pixmap_ref_t g_pixmaps_lo[] =
 {
 	&g_pixmap_o_pal8
 ,	&g_pixmap_lo_rgb565
@@ -82,7 +82,7 @@ static gb_pixmap_t const* g_pixmaps_lo[] =
 };
 
 // the pixmaps for opaque and big endian
-static gb_pixmap_t const* g_pixmaps_bo[] =
+static gb_pixmap_ref_t g_pixmaps_bo[] =
 {
 	&g_pixmap_o_pal8
 ,	&g_pixmap_bo_rgb565
@@ -118,7 +118,7 @@ static gb_pixmap_t const* g_pixmaps_bo[] =
 };
 
 // the pixmaps for alpha and little endian
-static gb_pixmap_t const* g_pixmaps_la[] =
+static gb_pixmap_ref_t g_pixmaps_la[] =
 {
 	&g_pixmap_a_pal8
 ,	&g_pixmap_la_rgb565
@@ -154,7 +154,7 @@ static gb_pixmap_t const* g_pixmaps_la[] =
 };
 
 // the pixmaps for alpha and big endian
-static gb_pixmap_t const* g_pixmaps_ba[] =
+static gb_pixmap_ref_t g_pixmaps_ba[] =
 {
 	&g_pixmap_a_pal8
 ,	&g_pixmap_ba_rgb565
@@ -192,7 +192,7 @@ static gb_pixmap_t const* g_pixmaps_ba[] =
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementions
  */
-gb_pixmap_t const* gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality)
+gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality)
 {
     // check
     tb_assert_abort(quality <= GB_QUALITY_TOP);

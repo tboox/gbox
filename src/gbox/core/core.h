@@ -29,6 +29,7 @@
 #include "prefix.h"
 #include "matrix.h"
 #include "pixmap.h"
+#include "bitmap.h"
 #include "paint.h"
 #include "canvas.h"
 #include "3d/3d.h"

@@ -21,8 +21,8 @@
  * @ingroup     core
  *
  */
-#ifndef G2_CORE_CANVAS_H
-#define G2_CORE_CANVAS_H
+#ifndef GB_CORE_CANVAS_H
+#define GB_CORE_CANVAS_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -41,6 +41,22 @@ __tb_extern_c_enter__
  * @return          the canvas
  */
 gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
+
+/*! init canvas from gl
+ *
+ * @param bitmap    the bitmap
+ *
+ * @return          the canvas
+ */
+gb_canvas_ref_t     gb_canvas_init_from_gl(tb_noarg_t);
+
+/*! init canvas from the given bitmap
+ *
+ * @param bitmap    the bitmap
+ *
+ * @return          the canvas
+ */
+gb_canvas_ref_t     gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap);
 
 /*! exit canvas
  *

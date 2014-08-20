@@ -31,6 +31,16 @@
 #include "color.h"
 #include "pixfmt.h"
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/// the width maxn
+#define GB_WIDTH_MAXN           (8192)
+
+/// the height maxn
+#define GB_HEIGHT_MAXN          (8192)
+
 #endif
 
 

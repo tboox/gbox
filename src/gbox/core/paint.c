@@ -87,6 +87,7 @@ gb_paint_ref_t gb_paint_init()
     // failed?
     if (!ok)
     {
+        // exit it
         if (impl) gb_paint_exit((gb_paint_ref_t)impl);
         impl = tb_null;
     }

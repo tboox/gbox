@@ -13,6 +13,7 @@ gbox_C_FILES 			+= \
 						core/color \
 						core/matrix \
 						core/pixmap \
+						core/bitmap \
 						core/paint \
 						core/canvas 
 # flags
@@ -35,6 +36,7 @@ INC_FILES 				= \
 						core/color.h \
 						core/pixfmt.h \
 						core/pixmap.h \
+						core/bitmap.h \
 						core/matrix.h \
 						core/paint.h \
 						core/canvas.h \
