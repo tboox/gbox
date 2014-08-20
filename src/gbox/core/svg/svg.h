@@ -18,21 +18,15 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @defgroup    core
+ * @ingroup     core
  */
-#ifndef GB_CORE_H
-#define GB_CORE_H
+#ifndef GB_CORE_SVG_H
+#define GB_CORE_SVG_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "matrix.h"
-#include "pixmap.h"
-#include "paint.h"
-#include "canvas.h"
-#include "3d/3d.h"
-#include "svg/svg.h"
 
 #endif
 

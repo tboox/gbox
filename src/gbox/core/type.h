@@ -310,6 +310,21 @@ typedef struct __gb_shape_t
 /// the shape ref type
 typedef gb_shape_t*     gb_shape_ref_t;
 
+/// the device ref type
+typedef struct{}*       gb_device_ref_t;
+
+/// the canvas ref type
+typedef struct{}*       gb_canvas_ref_t;
+
+/// the paint ref type
+typedef struct{}*       gb_paint_ref_t;
+
+/// the shader ref type
+typedef struct{}*       gb_shader_ref_t;
+
+/// the clipper ref type
+typedef struct{}*       gb_clipper_ref_t;
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * inline
  */

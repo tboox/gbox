@@ -386,8 +386,7 @@ tb_bool_t 		    gb_matrix_translate_lhs(gb_matrix_ref_t matrix, gb_float_t dx, g
  * matrix = matrix * factor
  *
  * @param matrix    the matrix
- * @param dx        the x-translate value
- * @param dy        the y-translate value
+ * @param factor    the factor
  *
  * @return          tb_true or tb_false
  */
@@ -398,8 +397,7 @@ tb_bool_t 		    gb_matrix_multiply(gb_matrix_ref_t matrix, gb_matrix_ref_t facto
  * matrix = factor * matrix
  *
  * @param matrix    the matrix
- * @param dx        the x-translate value
- * @param dy        the y-translate value
+ * @param factor    the factor
  *
  * @return          tb_true or tb_false
  */

@@ -12,7 +12,9 @@ gbox_C_FILES 			+= \
 						gbox \
 						core/color \
 						core/matrix \
-						core/pixmap
+						core/pixmap \
+						core/paint \
+						core/canvas 
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
 
@@ -26,8 +28,6 @@ INC_FILES 				= \
 						prefix/version.h \
 						ui/ui.h \
 						ui/prefix.h \
-						svg/svg.h \
-						svg/prefix.h \
 						core/core.h \
 						core/prefix.h \
 						core/type.h \
@@ -36,8 +36,12 @@ INC_FILES 				= \
 						core/pixfmt.h \
 						core/pixmap.h \
 						core/matrix.h \
+						core/paint.h \
+						core/canvas.h \
 						core/3d/prefix.h \
 						core/3d/3d.h \
+						core/svg/svg.h \
+						core/svg/prefix.h \
 						game/game.h \
 						game/prefix.h 		
 

@@ -28,7 +28,6 @@
  */
 #include "prefix.h"
 #include "ui/ui.h"
-#include "svg/svg.h"
 #include "core/core.h"
 #include "game/game.h"
 

@@ -17,17 +17,15 @@
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
- * @defgroup    svg
+ * @file        paint.c
+ * @ingroup     core
+ *
  */
-#ifndef GB_SVG_H
-#define GB_SVG_H
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "paint.h"
 
-#endif
-
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
