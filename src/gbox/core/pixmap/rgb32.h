@@ -79,15 +79,15 @@ static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixel_set_bo(tb_pointer_t data, g
 {
     tb_bits_set_u32_be(data, pixel);
 }
-static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixel_cpy_o(tb_pointer_t data, tb_cpointer_t pixel, tb_byte_t alpha)
+static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixel_cpy_o(tb_pointer_t data, tb_cpointer_t source, tb_byte_t alpha)
 {
-    *((tb_uint32_t*)data) = *((tb_uint32_t*)pixel);
+    *((tb_uint32_t*)data) = *((tb_uint32_t*)source);
 }
-static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixels_set_lo(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
+static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixels_fill_lo(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
 {
     tb_memset_u32(data, tb_bits_ne_to_le_u32(pixel), count);
 }
-static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixels_set_bo(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
+static __tb_inline__ tb_void_t gb_pixmap_rgb32_pixels_fill_bo(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
 {
     tb_memset_u32(data, tb_bits_ne_to_be_u32(pixel), count);
 }

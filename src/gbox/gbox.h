@@ -36,6 +36,18 @@
  * macros
  */
 
+#ifdef __gb_debug__
+#   define __gb_mode_debug__    TB_MODE_DEBUG
+#else
+#   define __gb_mode_debug__    (0)
+#endif
+
+#ifdef __gb_small__
+#   define __gb_mode_small__    TB_MODE_SMALL
+#else
+#   define __gb_mode_small__    (0)
+#endif
+
 /*! init gbox
  *
  * @return          tb_true or tb_false
@@ -55,7 +67,7 @@
     }
  * @endcode
  */
-#define gb_init()     gb_init_((tb_size_t)(__tb_mode_debug__ | __tb_mode_small__), GB_VERSION_BUILD)
+#define gb_init()     gb_init_((tb_size_t)(__gb_mode_debug__ | __gb_mode_small__), GB_VERSION_BUILD)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

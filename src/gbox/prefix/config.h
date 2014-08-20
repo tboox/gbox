@@ -16,8 +16,8 @@
  * 
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
- * @author		ruki
- * @file		config.h
+ * @author      ruki
+ * @file        config.h
  *
  */
 #ifndef GB_PREFIX_CONFIG_H
@@ -28,6 +28,26 @@
  */
 #include "../config.h"
 #include "tbox/tbox.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/*! @def __gb_small__
+ *
+ * small mode
+ */
+#if GB_CONFIG_SMALL
+#   define __gb_small__
+#endif
+
+/*! @def __gb_debug__
+ *
+ * debug mode
+ */
+#ifdef __tb_debug__
+#   define __gb_debug__
+#endif
 
 #endif
 

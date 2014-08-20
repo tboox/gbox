@@ -55,13 +55,13 @@ static tb_void_t gb_pixmap_pal8_pixel_set_a(tb_pointer_t data, gb_pixel_t pixel,
 {
     ((tb_byte_t*)data)[0] = (tb_byte_t)(pixel & 0xff);
 }
-static tb_void_t gb_pixmap_pal8_pixel_cpy_o(tb_pointer_t data, tb_cpointer_t pixel, tb_byte_t alpha)
+static tb_void_t gb_pixmap_pal8_pixel_cpy_o(tb_pointer_t data, tb_cpointer_t source, tb_byte_t alpha)
 {
-    tb_memcpy(data, pixel, 1);
+    ((tb_byte_t*)data)[0] = ((tb_byte_t*)source)[0];
 }
-static tb_void_t gb_pixmap_pal8_pixel_cpy_a(tb_pointer_t data, tb_cpointer_t pixel, tb_byte_t alpha)
+static tb_void_t gb_pixmap_pal8_pixel_cpy_a(tb_pointer_t data, tb_cpointer_t source, tb_byte_t alpha)
 {
-    tb_memcpy(data, pixel, 1);
+    ((tb_byte_t*)data)[0] = ((tb_byte_t*)source)[0];
 }
 static gb_color_t gb_pixmap_pal8_color_get(tb_cpointer_t data)
 {
@@ -76,11 +76,11 @@ static tb_void_t gb_pixmap_pal8_color_set_a(tb_pointer_t data, gb_color_t color)
 {
     tb_trace_noimpl();
 }
-static tb_void_t gb_pixmap_pal8_pixels_set_o(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
+static tb_void_t gb_pixmap_pal8_pixels_fill_o(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
 {
     tb_memset(data, (tb_byte_t)pixel, count);
 }
-static tb_void_t gb_pixmap_pal8_pixels_set_a(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
+static tb_void_t gb_pixmap_pal8_pixels_fill_a(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha)
 {
     tb_memset(data, (tb_byte_t)pixel, count);
 }
@@ -102,7 +102,7 @@ static gb_pixmap_t const g_pixmap_o_pal8 =
 ,   gb_pixmap_pal8_pixel_cpy_o
 ,   gb_pixmap_pal8_color_get
 ,   gb_pixmap_pal8_color_set_o
-,   gb_pixmap_pal8_pixels_set_o
+,   gb_pixmap_pal8_pixels_fill_o
 };
 
 static gb_pixmap_t const g_pixmap_a_pal8 =
@@ -118,7 +118,7 @@ static gb_pixmap_t const g_pixmap_a_pal8 =
 ,   gb_pixmap_pal8_pixel_cpy_a
 ,   gb_pixmap_pal8_color_get
 ,   gb_pixmap_pal8_color_set_a
-,   gb_pixmap_pal8_pixels_set_a
+,   gb_pixmap_pal8_pixels_fill_a
 };
 
 #endif

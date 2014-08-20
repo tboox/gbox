@@ -192,22 +192,36 @@ static gb_pixmap_t const* g_pixmaps_ba[] =
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementions
  */
-gb_pixmap_t const* gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
+gb_pixmap_t const* gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha, tb_size_t quality)
 {
-    // FIXME
-	tb_size_t e = pixfmt & GB_PIXFMT_MENDIAN; pixfmt &= ~GB_PIXFMT_MENDIAN;
-	tb_byte_t a = 0;//(GB_QUALITY_TOP - gb_quality()) << 3;
-	if (alpha >= (0xff - a))
+    // check
+    tb_assert_abort(quality <= GB_QUALITY_TOP);
+
+    // the endian
+	tb_size_t endian = pixfmt & GB_PIXFMT_MENDIAN; 
+    
+    // the pixfmt
+    pixfmt &= ~GB_PIXFMT_MENDIAN;
+    tb_assert_abort(pixfmt);
+
+    // opaque?
+	tb_byte_t alpha_min = (GB_QUALITY_TOP - quality) << 3;
+	if (alpha >= (0xff - alpha_min))
 	{
-		// opaque
-		tb_assert_and_check_return_val(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_lo), tb_null);
-		return e == GB_PIXFMT_LENDIAN? g_pixmaps_lo[pixfmt - 1] : g_pixmaps_bo[pixfmt - 1];
+        // check
+		tb_assert_abort(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_lo));
+
+        // ok
+		return endian == GB_PIXFMT_LENDIAN? g_pixmaps_lo[pixfmt - 1] : g_pixmaps_bo[pixfmt - 1];
 	}
-	else if (alpha > a)
+    // alpha?
+	else if (alpha > alpha_min)
 	{
-		// alpha
-		tb_assert_and_check_return_val(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_la), tb_null);
-		return e == GB_PIXFMT_LENDIAN? g_pixmaps_la[pixfmt - 1] : g_pixmaps_ba[pixfmt - 1];
+        // check
+		tb_assert_abort(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_la));
+
+        // ok
+		return endian == GB_PIXFMT_LENDIAN? g_pixmaps_la[pixfmt - 1] : g_pixmaps_ba[pixfmt - 1];
 	}
 
 	// transparent
