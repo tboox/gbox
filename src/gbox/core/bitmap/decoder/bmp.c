@@ -364,7 +364,7 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
         tb_assert_and_check_break(!(height + 1));
 
         // set alpha
-        gb_bitmap_set_alpha(bitmap, has_alpha? tb_true : tb_false);
+        gb_bitmap_set_alpha(bitmap, (has_alpha && GB_PIXFMT_HAS_ALPHA(pixfmt))? tb_true : tb_false);
 
         // ok
         ok = tb_true;

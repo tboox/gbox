@@ -17,41 +17,52 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        core.h
- * @defgroup    core
+ * @file        device.h
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_H
-#define GB_CORE_H
+#ifndef GB_CORE_DEVICE_H
+#define GB_CORE_DEVICE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "matrix.h"
-#include "pixmap.h"
-#include "bitmap.h"
-#include "paint.h"
-#include "canvas.h"
-#include "device.h"
-#include "3d/3d.h"
-#include "svg/svg.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 __tb_extern_c_enter__
 
-/*! init core
+/*! init gl device
  *
- * @return  tb_true or tb_false
+ * @return          the device
  */
-tb_bool_t   gb_core_init(tb_noarg_t);
+gb_device_ref_t     gb_device_init_gl(tb_noarg_t);
 
-/*! exit core
+/*! init bitmap device
+ *
+ * @param bitmap    the bitmap
+ *
+ * @return          the device
  */
-tb_void_t   gb_core_exit(tb_noarg_t);
+gb_device_ref_t     gb_device_init_bitmap(gb_bitmap_ref_t bitmap);
+
+#ifdef GB_CONFIG_CORE_DEVICE_HAVE_SKIA
+/*! init skia device
+ *
+ * @param bitmap    the bitmap
+ *
+ * @return          the device
+ */
+gb_device_ref_t     gb_device_init_skia(gb_bitmap_ref_t bitmap);
+#endif
+
+/*! exit device 
+ *
+ * @param device    the device
+ */
+tb_void_t           gb_device_exit(gb_device_ref_t device);
 
 __tb_extern_c_leave__
 #endif
-
-

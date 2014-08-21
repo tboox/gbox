@@ -16,4 +16,12 @@
 // small
 #define GB_CONFIG_SMALL                 [small]
 
+// the fixed type for float
+#define GB_CONFIG_FLOAT_FIXED
+
+// the device
+#define GB_CONFIG_CORE_DEVICE_HAVE_GL
+#define GB_CONFIG_CORE_DEVICE_HAVE_BITMAP
+#define GB_CONFIG_CORE_DEVICE_HAVE_SKIA
+
 #endif

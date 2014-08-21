@@ -16,10 +16,23 @@ gbox_C_FILES 			+= \
 						core/bitmap \
 						core/paint \
 						core/canvas \
+						core/device \
 						core/prefix/color \
 						core/prefix/quality \
 						core/bitmap/decoder \
 						core/bitmap/decoder/bmp 
+
+# gl core files
+gbox_C_FILES-$(GB_CONFIG_CORE_DEVICE_HAVE_GL) += \
+						core/device/gl
+
+# bitmap core files
+gbox_C_FILES-$(GB_CONFIG_CORE_DEVICE_HAVE_BITMAP) += \
+						core/device/bitmap
+
+# skia core files
+gbox_C_FILES-$(GB_CONFIG_CORE_DEVICE_HAVE_SKIA) += \
+						core/device/skia
 
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
@@ -47,6 +60,7 @@ INC_FILES 				= \
 						core/matrix.h \
 						core/paint.h \
 						core/canvas.h \
+						core/device.h \
 						core/3d/prefix.h \
 						core/3d/3d.h \
 						core/svg/svg.h \

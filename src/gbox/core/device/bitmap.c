@@ -17,41 +17,15 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        core.h
- * @defgroup    core
+ * @file        bitmap.c
+ *
  */
-#ifndef GB_CORE_H
-#define GB_CORE_H
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "matrix.h"
-#include "pixmap.h"
-#include "bitmap.h"
-#include "paint.h"
-#include "canvas.h"
-#include "device.h"
-#include "3d/3d.h"
-#include "svg/svg.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
+ * implementation
  */
-__tb_extern_c_enter__
-
-/*! init core
- *
- * @return  tb_true or tb_false
- */
-tb_bool_t   gb_core_init(tb_noarg_t);
-
-/*! exit core
- */
-tb_void_t   gb_core_exit(tb_noarg_t);
-
-__tb_extern_c_leave__
-#endif
-
 

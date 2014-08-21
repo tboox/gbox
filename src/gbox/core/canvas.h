@@ -44,8 +44,6 @@ gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
 
 /*! init canvas from gl
  *
- * @param bitmap    the bitmap
- *
  * @return          the canvas
  */
 gb_canvas_ref_t     gb_canvas_init_from_gl(tb_noarg_t);
