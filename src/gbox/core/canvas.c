@@ -80,8 +80,7 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
     // ok?
     return (gb_canvas_ref_t)impl;
 }
-
-#ifdef GB_CONFIG_CORE_DEVICE_HAVE_GL
+#ifdef GB_CONFIG_THIRD_HAVE_GL
 gb_canvas_ref_t gb_canvas_init_from_gl()
 {
     // done
@@ -110,25 +109,16 @@ gb_canvas_ref_t gb_canvas_init_from_gl()
     return canvas;
 }
 #endif
-
-#if defined(GB_CONFIG_CORE_DEVICE_HAVE_BITMAP) \
-    || defined(GB_CONFIG_CORE_DEVICE_HAVE_SKIA)
-gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
+#ifdef GB_CONFIG_THIRD_HAVE_SKIA
+gb_canvas_ref_t gb_canvas_init_from_skia(gb_bitmap_ref_t bitmap)
 {
-    // check
-    tb_assert_and_check_return_val(bitmap, tb_null);
-
     // done
     gb_canvas_ref_t canvas = tb_null;
     gb_device_ref_t device = tb_null;
     do
     {
         // init device 
-#ifdef GB_CONFIG_CORE_DEVICE_HAVE_BITMAP
-        device = gb_device_init_bitmap(bitmap);
-#else
         device = gb_device_init_skia(bitmap);
-#endif
         tb_assert_and_check_break(device);
 
         // init canvas 
@@ -148,7 +138,40 @@ gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
     return canvas;
 }
 #endif
+gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
+{
+    // check
+    tb_assert_and_check_return_val(bitmap, tb_null);
 
+    // done
+    gb_canvas_ref_t canvas = tb_null;
+    gb_device_ref_t device = tb_null;
+    do
+    {
+        // init device 
+#if 0//def GB_CONFIG_THIRD_HAVE_SKIA
+        device = gb_device_init_skia(bitmap);
+#else
+        device = gb_device_init_bitmap(bitmap);
+#endif
+        tb_assert_and_check_break(device);
+
+        // init canvas 
+        canvas = gb_canvas_init(device);
+
+    } while (0);
+
+    // failed?
+    if (!canvas)
+    {
+        // exit device
+        if (device) gb_device_exit(device);
+        device = tb_null;
+    }
+
+    // ok?
+    return canvas;
+}
 tb_void_t gb_canvas_exit(gb_canvas_ref_t canvas)
 {
     // check

@@ -17,15 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        gl.h
+ * @ingroup     core
  */
-#ifndef GB_CORE_3D_H
-#define GB_CORE_3D_H
+#ifndef GB_CORE_GL_H
+#define GB_CORE_GL_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
+#include "view.h"
 
 #endif
 

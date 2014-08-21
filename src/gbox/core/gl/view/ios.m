@@ -17,62 +17,16 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        ios.m
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_H
-#define GB_CORE_DEVICE_H
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
+ * implementation
  */
-__tb_extern_c_enter__
 
-#ifdef GB_CONFIG_THIRD_HAVE_GL
-/*! init gl device
- *
- * @return          the device
- */
-gb_device_ref_t     gb_device_init_gl(tb_noarg_t);
-#endif
-
-#ifdef GB_CONFIG_THIRD_HAVE_SKIA
-/*! init skia device
- *
- * @param bitmap    the bitmap
- *
- * @return          the device
- */
-gb_device_ref_t     gb_device_init_skia(gb_bitmap_ref_t bitmap);
-#endif
-
-/*! init bitmap device
- *
- * @param bitmap    the bitmap
- *
- * @return          the device
- */
-gb_device_ref_t     gb_device_init_bitmap(gb_bitmap_ref_t bitmap);
-
-/*! exit device 
- *
- * @param device    the device
- */
-tb_void_t           gb_device_exit(gb_device_ref_t device);
-
-/*! get the pixfmt 
- *
- * @param device    the device
- *
- * @return          the pixfmt
- */
-tb_size_t           gb_device_pixfmt(gb_device_ref_t device);
-
-__tb_extern_c_leave__
-#endif

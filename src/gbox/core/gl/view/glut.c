@@ -17,16 +17,16 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        glut.c
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_3D_PREFIX_H
-#define GB_CORE_3D_PREFIX_H
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "prefix.h"
 
-#endif
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
 

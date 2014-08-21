@@ -17,22 +17,34 @@ gbox_C_FILES 			+= \
 						core/paint \
 						core/canvas \
 						core/device \
+						core/device/bitmap \
 						core/prefix/color \
 						core/prefix/quality \
 						core/bitmap/decoder \
 						core/bitmap/decoder/bmp 
 
 # gl core files
-gbox_C_FILES-$(GB_CONFIG_CORE_DEVICE_HAVE_GL) += \
-						core/device/gl
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
+						core/device/gl 
 
-# bitmap core files
-gbox_C_FILES-$(GB_CONFIG_CORE_DEVICE_HAVE_BITMAP) += \
-						core/device/bitmap
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
+						core/gl/view/glut
 
 # skia core files
-gbox_C_FILES-$(GB_CONFIG_CORE_DEVICE_HAVE_SKIA) += \
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
 						core/device/skia
+
+# ios files
+ifeq ($(PLAT),ios)
+gbox_M_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
+ 						core/gl/view/ios
+endif
+
+# android files
+ifeq ($(PLAT),android)
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
+ 						core/gl/view/android
+endif
 
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
@@ -61,8 +73,9 @@ INC_FILES 				= \
 						core/paint.h \
 						core/canvas.h \
 						core/device.h \
-						core/3d/prefix.h \
-						core/3d/3d.h \
+						core/gl/prefix.h \
+						core/gl/gl.h \
+						core/gl/view.h \
 						core/svg/svg.h \
 						core/svg/prefix.h \
 						game/game.h \

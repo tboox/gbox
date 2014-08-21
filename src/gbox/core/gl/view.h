@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        gl_view.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_H
-#define GB_CORE_DEVICE_H
+#ifndef GB_CORE_GL_VIEW_H
+#define GB_CORE_GL_VIEW_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -30,49 +30,30 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+/// the gl view type
+typedef struct{}*       gb_gl_view_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 __tb_extern_c_enter__
 
-#ifdef GB_CONFIG_THIRD_HAVE_GL
-/*! init gl device
+/*! init view 
  *
- * @return          the device
+ * @param name          the view name
+ *
+ * @return              the view
  */
-gb_device_ref_t     gb_device_init_gl(tb_noarg_t);
-#endif
+gb_gl_view_ref_t        gb_gl_view_init(tb_char_t const* name);
 
-#ifdef GB_CONFIG_THIRD_HAVE_SKIA
-/*! init skia device
+/*! exit view 
  *
- * @param bitmap    the bitmap
- *
- * @return          the device
+ * @param gl_view       the view
  */
-gb_device_ref_t     gb_device_init_skia(gb_bitmap_ref_t bitmap);
-#endif
-
-/*! init bitmap device
- *
- * @param bitmap    the bitmap
- *
- * @return          the device
- */
-gb_device_ref_t     gb_device_init_bitmap(gb_bitmap_ref_t bitmap);
-
-/*! exit device 
- *
- * @param device    the device
- */
-tb_void_t           gb_device_exit(gb_device_ref_t device);
-
-/*! get the pixfmt 
- *
- * @param device    the device
- *
- * @return          the pixfmt
- */
-tb_size_t           gb_device_pixfmt(gb_device_ref_t device);
+tb_void_t               gb_gl_view_exit(gb_gl_view_ref_t gl_view);
 
 __tb_extern_c_leave__
 #endif
