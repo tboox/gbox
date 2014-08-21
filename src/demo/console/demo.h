@@ -41,6 +41,9 @@
  * interfaces
  */
 
+// core
+TB_DEMO_MAIN_DECL(core_bitmap);
+
 // other
 TB_DEMO_MAIN_DECL(other_test);
 

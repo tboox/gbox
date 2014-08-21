@@ -132,7 +132,7 @@ static gb_pixmap_t const g_pixmap_lo_rgbx8888 =
     "rgbx8888"
 ,   32
 ,   4
-,   GB_PIXFMT_RGBX8888 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_RGBX8888 
 ,   gb_pixmap_rgbx8888_pixel
 ,   gb_pixmap_rgbx8888_color
 ,   gb_pixmap_rgb32_pixel_get_l
@@ -164,7 +164,7 @@ static gb_pixmap_t const g_pixmap_la_rgbx8888 =
     "rgbx8888"
 ,   32
 ,   4
-,   GB_PIXFMT_RGBX8888 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_RGBX8888 
 ,   gb_pixmap_rgbx8888_pixel
 ,   gb_pixmap_rgbx8888_color
 ,   gb_pixmap_rgb32_pixel_get_l

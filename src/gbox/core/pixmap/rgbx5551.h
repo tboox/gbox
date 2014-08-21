@@ -173,7 +173,7 @@ static gb_pixmap_t const g_pixmap_lo_rgbx5551 =
     "rgbx5551"
 ,   16
 ,   2
-,   GB_PIXFMT_RGBX5551 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_RGBX5551 
 ,   gb_pixmap_rgbx5551_pixel
 ,   gb_pixmap_rgbx5551_color
 ,   gb_pixmap_rgb16_pixel_get_l
@@ -205,7 +205,7 @@ static gb_pixmap_t const g_pixmap_la_rgbx5551 =
     "rgbx5551"
 ,   16
 ,   2
-,   GB_PIXFMT_RGBX5551 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_RGBX5551 
 ,   gb_pixmap_rgbx5551_pixel
 ,   gb_pixmap_rgbx5551_color
 ,   gb_pixmap_rgb16_pixel_get_l

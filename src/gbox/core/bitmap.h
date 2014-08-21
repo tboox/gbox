@@ -143,6 +143,13 @@ tb_size_t           gb_bitmap_pixfmt(gb_bitmap_ref_t bitmap);
  */
 tb_bool_t           gb_bitmap_has_alpha(gb_bitmap_ref_t bitmap);
 
+/*! set the bitmap alpha: exists or not?
+ *
+ * @param bitmap    the bitmap
+ * @param has_alpha has alpha value?
+ */
+tb_void_t           gb_bitmap_set_alpha(gb_bitmap_ref_t bitmap, tb_bool_t has_alpha);
+
 /*! the bitmap row bytes
  *
  * @param bitmap    the bitmap

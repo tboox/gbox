@@ -118,23 +118,32 @@
 #define GB_RGBX_8888_G(c)           (((c) >> 16) & 0x000000ff)
 #define GB_RGBX_8888_B(c)           (((c) >> 8) & 0x000000ff)
 
-// the endian for the stored pixfmt
-#define GB_PIXFMT_LENDIAN           (0x0000)
+/// the big-endian mask
 #define GB_PIXFMT_BENDIAN           (0x0100)
-#define GB_PIXFMT_MENDIAN           (0x0100)
+
+/*! @def  GB_PIXFMT_NENDIAN
+ *
+ * the native endian mask
+ */
 #ifdef TB_WORDS_BIGENDIAN
 #   define GB_PIXFMT_NENDIAN        (GB_PIXFMT_BENDIAN)
 #else
-#   define GB_PIXFMT_NENDIAN        (GB_PIXFMT_LENDIAN)
+#   define GB_PIXFMT_NENDIAN        (0x0000)
 #endif
 
-// pixfmt
-#define GB_PIXFMT(pixfmt)           (((pixfmt) & ~GB_PIXFMT_MENDIAN))
+/// the alpha mask?
+#define GB_PIXFMT_ALPHA             (0x0200)
 
-// is big endian?
-#define GB_PIXFMT_BE(pixfmt)        (((pixfmt) & GB_PIXFMT_MENDIAN))
+/// pixfmt
+#define GB_PIXFMT(pixfmt)           (((pixfmt) & 0xff))
 
-// ok?
+/// is big endian?
+#define GB_PIXFMT_BE(pixfmt)        (((pixfmt) & GB_PIXFMT_BENDIAN))
+
+/// has alpha
+#define GB_PIXFMT_HAS_ALPHA(pixfmt) (((pixfmt) & GB_PIXFMT_ALPHA))
+
+/// pixfmt ok?
 #define GB_PIXFMT_OK(pixfmt)        (GB_PIXFMT(pixfmt) != GB_PIXFMT_NONE)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -145,37 +154,37 @@
 typedef enum __gb_pixfmt_t
 {
     GB_PIXFMT_NONE          = 0     
-,   GB_PIXFMT_PAL8          = 1     //!< 8-bit palette
+,   GB_PIXFMT_PAL8          = 1     | GB_PIXFMT_ALPHA       //!< 8-bit palette
 
-,   GB_PIXFMT_RGB565        = 2     //!< 16-bit r g b: 5 6 5 r: 11111000 g: 11111100 b: 11111000
-,   GB_PIXFMT_RGB888        = 3     //!< 24-bit r g b: 8 8 8
-,   GB_PIXFMT_ARGB1555      = 4     //!< 16-bit a r g b: 1 5 5 5 a: 10000000 r: 11111000 g: 11111000 b: 11111000
-,   GB_PIXFMT_XRGB1555      = 5     //!< 16-bit x r g b: 1 5 5 5 x: 10000000 r: 11111000 g: 11111000 b: 11111000
-,   GB_PIXFMT_ARGB4444      = 6     //!< 16-bit a r g b: 4 4 4 4
-,   GB_PIXFMT_XRGB4444      = 7     //!< 16-bit x r g b: 4 4 4 4
-,   GB_PIXFMT_ARGB8888      = 8     //!< 32-bit a r g b: 8 8 8 8
-,   GB_PIXFMT_XRGB8888      = 9     //!< 32-bit x r g b: 8 8 8 8
-,   GB_PIXFMT_RGBA5551      = 10    //!< 16-bit r g b a: 5 5 5 1 r: 11111000 g: 11111000 b: 11111000 a: 10000000
-,   GB_PIXFMT_RGBX5551      = 11    //!< 16-bit r g b x: 5 5 5 1 r: 11111000 g: 11111000 b: 11111000 x: 10000000
-,   GB_PIXFMT_RGBA4444      = 12    //!< 16-bit r g b a: 4 4 4 4
-,   GB_PIXFMT_RGBX4444      = 13    //!< 16-bit r g b x: 4 4 4 4
-,   GB_PIXFMT_RGBA8888      = 14    //!< 32-bit r g b a: 8 8 8 8
-,   GB_PIXFMT_RGBX8888      = 15    //!< 32-bit r g b x: 8 8 8 8
+,   GB_PIXFMT_RGB565        = 2                             //!< 16-bit r g b: 5 6 5 r: 11111000 g: 11111100 b: 11111000
+,   GB_PIXFMT_RGB888        = 3                             //!< 24-bit r g b: 8 8 8
+,   GB_PIXFMT_ARGB1555      = 4     | GB_PIXFMT_ALPHA       //!< 16-bit a r g b: 1 5 5 5 a: 10000000 r: 11111000 g: 11111000 b: 11111000
+,   GB_PIXFMT_XRGB1555      = 5                             //!< 16-bit x r g b: 1 5 5 5 x: 10000000 r: 11111000 g: 11111000 b: 11111000
+,   GB_PIXFMT_ARGB4444      = 6     | GB_PIXFMT_ALPHA       //!< 16-bit a r g b: 4 4 4 4
+,   GB_PIXFMT_XRGB4444      = 7                             //!< 16-bit x r g b: 4 4 4 4
+,   GB_PIXFMT_ARGB8888      = 8     | GB_PIXFMT_ALPHA       //!< 32-bit a r g b: 8 8 8 8
+,   GB_PIXFMT_XRGB8888      = 9                             //!< 32-bit x r g b: 8 8 8 8
+,   GB_PIXFMT_RGBA5551      = 10    | GB_PIXFMT_ALPHA       //!< 16-bit r g b a: 5 5 5 1 r: 11111000 g: 11111000 b: 11111000 a: 10000000
+,   GB_PIXFMT_RGBX5551      = 11                            //!< 16-bit r g b x: 5 5 5 1 r: 11111000 g: 11111000 b: 11111000 x: 10000000
+,   GB_PIXFMT_RGBA4444      = 12    | GB_PIXFMT_ALPHA       //!< 16-bit r g b a: 4 4 4 4
+,   GB_PIXFMT_RGBX4444      = 13                            //!< 16-bit r g b x: 4 4 4 4
+,   GB_PIXFMT_RGBA8888      = 14    | GB_PIXFMT_ALPHA       //!< 32-bit r g b a: 8 8 8 8
+,   GB_PIXFMT_RGBX8888      = 15                            //!< 32-bit r g b x: 8 8 8 8
 
-,   GB_PIXFMT_BGR565        = 16    //!< 16-bit b g r: 5 6 5 b: 11111000 g: 11111100 r: 11111000
-,   GB_PIXFMT_BGR888        = 17    //!< 24-bit b g r: 8 8 8
-,   GB_PIXFMT_ABGR1555      = 18    //!< 16-bit a b g r: 1 5 5 5 a: 10000000 b: 11111000 g: 11111000 r: 11111000
-,   GB_PIXFMT_XBGR1555      = 19    //!< 16-bit x b g r: 1 5 5 5 x: 10000000 b: 11111000 g: 11111000 r: 11111000
-,   GB_PIXFMT_ABGR4444      = 20    //!< 16-bit a b g r: 4 4 4 4
-,   GB_PIXFMT_XBGR4444      = 21    //!< 16-bit x b g r: 4 4 4 4
-,   GB_PIXFMT_ABGR8888      = 22    //!< 32-bit a b g r: 8 8 8 8
-,   GB_PIXFMT_XBGR8888      = 23    //!< 32-bit x b g r: 8 8 8 8
-,   GB_PIXFMT_BGRA5551      = 24    //!< 16-bit b g r a: 5 5 5 1 b: 11111000 g: 11111000 r: 11111000 a: 10000000 
-,   GB_PIXFMT_BGRX5551      = 25    //!< 16-bit b g r x: 5 5 5 1 b: 11111000 g: 11111000 r: 11111000 x: 10000000
-,   GB_PIXFMT_BGRA4444      = 26    //!< 16-bit b g r a: 4 4 4 4
-,   GB_PIXFMT_BGRX4444      = 27    //!< 16-bit b g r x: 4 4 4 4
-,   GB_PIXFMT_BGRA8888      = 28    //!< 32-bit b g r a: 8 8 8 8
-,   GB_PIXFMT_BGRX8888      = 29    //!< 32-bit b g r x: 8 8 8 8
+,   GB_PIXFMT_BGR565        = 16                            //!< 16-bit b g r: 5 6 5 b: 11111000 g: 11111100 r: 11111000
+,   GB_PIXFMT_BGR888        = 17                            //!< 24-bit b g r: 8 8 8
+,   GB_PIXFMT_ABGR1555      = 18    | GB_PIXFMT_ALPHA       //!< 16-bit a b g r: 1 5 5 5 a: 10000000 b: 11111000 g: 11111000 r: 11111000
+,   GB_PIXFMT_XBGR1555      = 19                            //!< 16-bit x b g r: 1 5 5 5 x: 10000000 b: 11111000 g: 11111000 r: 11111000
+,   GB_PIXFMT_ABGR4444      = 20    | GB_PIXFMT_ALPHA       //!< 16-bit a b g r: 4 4 4 4
+,   GB_PIXFMT_XBGR4444      = 21                            //!< 16-bit x b g r: 4 4 4 4
+,   GB_PIXFMT_ABGR8888      = 22    | GB_PIXFMT_ALPHA       //!< 32-bit a b g r: 8 8 8 8
+,   GB_PIXFMT_XBGR8888      = 23                            //!< 32-bit x b g r: 8 8 8 8
+,   GB_PIXFMT_BGRA5551      = 24    | GB_PIXFMT_ALPHA       //!< 16-bit b g r a: 5 5 5 1 b: 11111000 g: 11111000 r: 11111000 a: 10000000 
+,   GB_PIXFMT_BGRX5551      = 25                            //!< 16-bit b g r x: 5 5 5 1 b: 11111000 g: 11111000 r: 11111000 x: 10000000
+,   GB_PIXFMT_BGRA4444      = 26    | GB_PIXFMT_ALPHA       //!< 16-bit b g r a: 4 4 4 4
+,   GB_PIXFMT_BGRX4444      = 27                            //!< 16-bit b g r x: 4 4 4 4
+,   GB_PIXFMT_BGRA8888      = 28    | GB_PIXFMT_ALPHA       //!< 32-bit b g r a: 8 8 8 8
+,   GB_PIXFMT_BGRX8888      = 29                            //!< 32-bit b g r x: 8 8 8 8
 
 }gb_pixfmt_t;
 

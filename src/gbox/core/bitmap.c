@@ -302,6 +302,15 @@ tb_bool_t gb_bitmap_has_alpha(gb_bitmap_ref_t bitmap)
     // has alpha?
 	return impl->has_alpha? tb_true : tb_false;
 }
+tb_void_t gb_bitmap_set_alpha(gb_bitmap_ref_t bitmap, tb_bool_t has_alpha)
+{
+    // check
+	gb_bitmap_impl_t* impl = (gb_bitmap_impl_t*)bitmap;
+	tb_assert_and_check_return(impl);
+
+    // done
+    impl->has_alpha = has_alpha;
+}
 tb_size_t gb_bitmap_row_bytes(gb_bitmap_ref_t bitmap)
 {
     // check

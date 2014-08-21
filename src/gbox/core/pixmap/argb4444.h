@@ -174,7 +174,7 @@ static gb_pixmap_t const g_pixmap_lo_argb4444 =
     "argb4444"
 ,   16
 ,   2
-,   GB_PIXFMT_ARGB4444 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_ARGB4444 
 ,   gb_pixmap_argb4444_pixel
 ,   gb_pixmap_argb4444_color
 ,   gb_pixmap_rgb16_pixel_get_l
@@ -206,7 +206,7 @@ static gb_pixmap_t const g_pixmap_la_argb4444 =
     "argb4444"
 ,   16
 ,   2
-,   GB_PIXFMT_ARGB4444 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_ARGB4444 
 ,   gb_pixmap_argb4444_pixel
 ,   gb_pixmap_argb4444_color
 ,   gb_pixmap_rgb16_pixel_get_l

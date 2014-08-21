@@ -173,7 +173,7 @@ static gb_pixmap_t const g_pixmap_lo_rgb565 =
     "rgb565"
 ,   16
 ,   2
-,   GB_PIXFMT_RGB565 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_RGB565 
 ,   gb_pixmap_rgb565_pixel
 ,   gb_pixmap_rgb565_color
 ,   gb_pixmap_rgb16_pixel_get_l
@@ -205,7 +205,7 @@ static gb_pixmap_t const g_pixmap_la_rgb565 =
     "rgb565"
 ,   16
 ,   2
-,   GB_PIXFMT_RGB565 | GB_PIXFMT_LENDIAN
+,   GB_PIXFMT_RGB565 
 ,   gb_pixmap_rgb565_pixel
 ,   gb_pixmap_rgb565_color
 ,   gb_pixmap_rgb16_pixel_get_l

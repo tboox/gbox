@@ -32,8 +32,11 @@ typedef struct __tb_demo_t
 // the demos
 static tb_demo_t g_demo[] = 
 {
+    // core
+    TB_DEMO_MAIN_ITEM(core_bitmap)
+
     // ohter
-    TB_DEMO_MAIN_ITEM(other_test)
+,   TB_DEMO_MAIN_ITEM(other_test)
 };
 
 /* //////////////////////////////////////////////////////////////////////////////////////

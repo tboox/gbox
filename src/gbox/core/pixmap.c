@@ -194,11 +194,11 @@ static gb_pixmap_ref_t g_pixmaps_ba[] =
  */
 gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
 {
-    // the endian
-	tb_size_t endian = pixfmt & GB_PIXFMT_MENDIAN; 
+    // big endian?
+	tb_size_t bendian = GB_PIXFMT_BE(pixfmt); 
     
     // the pixfmt
-    pixfmt &= ~GB_PIXFMT_MENDIAN;
+    pixfmt = GB_PIXFMT(pixfmt);
     tb_assert_abort(pixfmt);
 
     // opaque?
@@ -208,7 +208,7 @@ gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
 		tb_assert_abort(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_lo));
 
         // ok
-		return endian == GB_PIXFMT_LENDIAN? g_pixmaps_lo[pixfmt - 1] : g_pixmaps_bo[pixfmt - 1];
+		return bendian? g_pixmaps_bo[pixfmt - 1] : g_pixmaps_lo[pixfmt - 1];
 	}
     // alpha?
 	else if (alpha > GB_ALPHA_MINN)
@@ -217,7 +217,7 @@ gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
 		tb_assert_abort(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_la));
 
         // ok
-		return endian == GB_PIXFMT_LENDIAN? g_pixmaps_la[pixfmt - 1] : g_pixmaps_ba[pixfmt - 1];
+		return bendian? g_pixmaps_ba[pixfmt - 1] : g_pixmaps_la[pixfmt - 1];
 	}
 
 	// transparent

@@ -208,17 +208,17 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
             {
                 // rgb565?
                 if (rm == 0xf800 && gm == 0x07e0 && bm == 0x001f)
-                    sp = gb_pixmap(GB_PIXFMT_RGB565 | GB_PIXFMT_LENDIAN, 0xff);
+                    sp = gb_pixmap(GB_PIXFMT_RGB565, 0xff);
                 // xrgb1555?
                 else if (rm == 0x7c00 && gm == 0x03e0 && bm == 0x001f)
-                    sp = gb_pixmap(GB_PIXFMT_XRGB1555 | GB_PIXFMT_LENDIAN, 0xff);
+                    sp = gb_pixmap(GB_PIXFMT_XRGB1555, 0xff);
             }
             // 32-bits?
             else if (bpp == 32)
             {
                 // rgbx8888?
                 if (rm == 0xff000000 && gm == 0xff0000 && bm == 0xff00)
-                    sp = gb_pixmap(GB_PIXFMT_RGBX8888 | GB_PIXFMT_LENDIAN, 0xff);
+                    sp = gb_pixmap(GB_PIXFMT_RGBX8888, 0xff);
             }
         }
         // rgb?
@@ -228,21 +228,21 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
             {
             case 32:
                 // argb8888
-                sp = gb_pixmap(GB_PIXFMT_ARGB8888 | GB_PIXFMT_LENDIAN, 0xff);
+                sp = gb_pixmap(GB_PIXFMT_ARGB8888, 0xff);
                 break;
             case 24:
                 // rgb888
-                sp = gb_pixmap(GB_PIXFMT_RGB888 | GB_PIXFMT_LENDIAN, 0xff);
+                sp = gb_pixmap(GB_PIXFMT_RGB888, 0xff);
                 break;
             case 16:
                 // xrgb1555
-                sp = gb_pixmap(GB_PIXFMT_XRGB1555 | GB_PIXFMT_LENDIAN, 0xff);
+                sp = gb_pixmap(GB_PIXFMT_XRGB1555, 0xff);
                 break;
             case 8:
             case 4:
             case 1:
                 // pal8
-                sp = gb_pixmap(GB_PIXFMT_PAL8 | GB_PIXFMT_LENDIAN, 0xff);
+                sp = gb_pixmap(GB_PIXFMT_PAL8, 0xff);
                 break;
             default:
                 // trace
@@ -269,6 +269,7 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
         tb_assert_and_check_break(data);
         
         // done
+        gb_color_t  c;
         tb_byte_t   row_data[8192];
         tb_size_t   btp_dst = dp->btp;
         tb_size_t   btp_src = sp->btp;
@@ -285,18 +286,19 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
                 // read line
                 if (!tb_stream_bread(stream, row_data, row_bytes_align4)) break;
                 
-                // save bitmap data, FIXME: for rgba32 alpha
+                // save bitmap data
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
-                if (sp == dp)
+                for (i = 0; i < linesize; i += btp_src, d += btp_dst)
                 {
-                    for (i = 0; i < linesize; i += btp_src, d += btp_dst)
-                        dp->pixel_cpy(d, row_data + i, 0xff);
-                }
-                else
-                {
-                    for (i = 0; i < linesize; i += btp_src, d += btp_dst)
-                        dp->color_set(d, sp->color_get(row_data + i));
+                    // load color
+                    c = sp->color_get(row_data + i);
+
+                    // save color
+                    dp->color_set(d, c);
+
+                    // has alpha?
+                    if (!has_alpha) has_alpha = c.a < max_alpha;
                 }
 
                 // next line
@@ -313,10 +315,9 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
                 // save bitmap data
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
-                gb_color_t  c;
                 for (i = 0; i < linesize; i++, d += btp_dst)
                 {
-                    // the color
+                    // load color
                     c = pals[row_data[i]];
 
                     // save color
@@ -339,13 +340,12 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
                 if (!tb_stream_bread(stream, row_data, row_bytes_align4)) break;
                 
                 // save bitmap data
-                gb_color_t  c;
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
                 tb_size_t   m = linesize << 3;
                 for (i = 0; i < m; i += bpp, d += btp_dst)
                 {
-                    // the color
+                    // load color
                     c = pals[tb_bits_get_ubits32(&row_data[i / 8], i & 7, bpp)];
 
                     // save color
@@ -361,7 +361,10 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
         }
 
         // check
-        tb_assert_and_check_break(!height);
+        tb_assert_and_check_break(!(height + 1));
+
+        // set alpha
+        gb_bitmap_set_alpha(bitmap, has_alpha? tb_true : tb_false);
 
         // ok
         ok = tb_true;

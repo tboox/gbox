@@ -10,6 +10,7 @@ demo_TYPE 									= BIN
 # files
 demo_C_FILES 								+= \
 											demo \
+											core/bitmap \
 											other/test
 
 # libs
