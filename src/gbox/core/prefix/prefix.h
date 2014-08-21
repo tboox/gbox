@@ -17,49 +17,45 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        quality.h
- * @ingroup     core
- *
+ * @file        prefix.h
  */
-#ifndef GB_CORE_QUALITY_H
-#define GB_CORE_QUALITY_H
+#ifndef GB_CORE_PREFIX_PREFIX_H
+#define GB_CORE_PREFIX_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
+#include "../../prefix.h"
 #include "type.h"
+#include "float.h"
+#include "color.h"
+#include "pixfmt.h"
+#include "quality.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * macros
  */
 
-/// the quality enum
-typedef enum __gb_quality_e
-{
-    GB_QUALITY_LOW  = 0
-,   GB_QUALITY_MID  = 1
-,   GB_QUALITY_TOP  = 2
+/// the width maxn
+#define GB_WIDTH_MAXN           (8192)
 
-}gb_quality_e;
+/// the height maxn
+#define GB_HEIGHT_MAXN          (8192)
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
- */
-__tb_extern_c_enter__
-
-/*! get quality
+/*! the min-alpha
  *
- * @return          the quality
+ * is_transparent = alpha < GB_ALPHA_MINN? tb_true : tb_false
  */
-tb_size_t           gb_quality(tb_noarg_t);
+#define GB_ALPHA_MINN           ((tb_byte_t)((GB_QUALITY_TOP - gb_quality()) << 3))
 
-/*! set quality
+/*! the max-alpha 
  *
- * @param quality   the quality 
+ * @code
+ * has_alpha = alpha < GB_QUALITY_ALPHA_MAXN? tb_true : tb_false
+ * @endcode
  */
-tb_void_t           gb_quality_set(tb_size_t quality);
+#define GB_ALPHA_MAXN           ((tb_byte_t)(0xff - ((GB_QUALITY_TOP - gb_quality()) << 3)))
 
-__tb_extern_c_leave__
 #endif
 
 

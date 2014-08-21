@@ -21,13 +21,13 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_PIXFMT_H
-#define GB_CORE_PIXFMT_H
+#ifndef GB_CORE_PREFIX_PIXFMT_H
+#define GB_CORE_PREFIX_PIXFMT_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "../../prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

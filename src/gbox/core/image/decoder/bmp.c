@@ -272,7 +272,8 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
         tb_byte_t   row_data[8192];
         tb_size_t   btp_dst = dp->btp;
         tb_size_t   btp_src = sp->btp;
-//        tb_bool_t   has_alpha = tb_false;
+        tb_size_t   has_alpha = 0;
+	    tb_byte_t 	max_alpha = GB_ALPHA_MAXN;
         tb_size_t   row_bytes = gb_bitmap_row_bytes(bitmap);
         tb_size_t   row_bytes_align4 = tb_align4(linesize);
         tb_byte_t*  p = data + (height - 1) * row_bytes;
@@ -322,7 +323,7 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
                     dp->color_set(d, c);
 
                     // has alpha?
-                    //has_alpha = c.a;
+                    if (!has_alpha) has_alpha = c.a < max_alpha;
                 }
 
                 // next line
@@ -338,11 +339,21 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
                 if (!tb_stream_bread(stream, row_data, row_bytes_align4)) break;
                 
                 // save image data
+                gb_color_t  c;
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
                 tb_size_t   m = linesize << 3;
                 for (i = 0; i < m; i += bpp, d += btp_dst)
-                    dp->color_set(d, pals[tb_bits_get_ubits32(&row_data[i / 8], i & 7, bpp)]);
+                {
+                    // the color
+                    c = pals[tb_bits_get_ubits32(&row_data[i / 8], i & 7, bpp)];
+
+                    // save color
+                    dp->color_set(d, c);
+
+                    // has alpha?
+                    if (!has_alpha) has_alpha = c.a < max_alpha;
+                }
 
                 // next line
                 p -= row_bytes;

@@ -21,13 +21,13 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_FLOAT_H
-#define GB_CORE_FLOAT_H
+#ifndef GB_CORE_PREFIX_FLOAT_H
+#define GB_CORE_PREFIX_FLOAT_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "../../prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

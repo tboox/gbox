@@ -21,8 +21,8 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_COLOR_H
-#define GB_CORE_COLOR_H
+#ifndef GB_CORE_PREFIX_COLOR_H
+#define GB_CORE_PREFIX_COLOR_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

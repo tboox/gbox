@@ -21,13 +21,13 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_TYPE_H
-#define GB_CORE_TYPE_H
+#ifndef GB_CORE_PREFIX_TYPE_H
+#define GB_CORE_PREFIX_TYPE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "../../prefix.h"
 #include "pixfmt.h"
 #include "float.h"
 

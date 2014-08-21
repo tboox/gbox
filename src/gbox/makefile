@@ -11,13 +11,13 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
-						core/color \
 						core/matrix \
 						core/pixmap \
 						core/bitmap \
 						core/paint \
 						core/canvas \
-						core/quality \
+						core/prefix/color \
+						core/prefix/quality \
 						core/image/decoder \
 						core/image/decoder/bmp 
 
@@ -36,14 +36,15 @@ INC_FILES 				= \
 						ui/prefix.h \
 						core/core.h \
 						core/prefix.h \
-						core/type.h \
-						core/float.h \
-						core/color.h \
-						core/pixfmt.h \
+						core/prefix/type.h \
+						core/prefix/float.h \
+						core/prefix/color.h \
+						core/prefix/pixfmt.h \
+						core/prefix/prefix.h \
+						core/prefix/quality.h \
 						core/pixmap.h \
 						core/bitmap.h \
 						core/matrix.h \
-						core/quality.h \
 						core/paint.h \
 						core/canvas.h \
 						core/3d/prefix.h \
