@@ -42,12 +42,16 @@ __tb_extern_c_enter__
  */
 gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
 
+#ifdef GB_CONFIG_CORE_DEVICE_HAVE_GL
 /*! init canvas from gl
  *
  * @return          the canvas
  */
 gb_canvas_ref_t     gb_canvas_init_from_gl(tb_noarg_t);
+#endif
 
+#if defined(GB_CONFIG_CORE_DEVICE_HAVE_BITMAP) \
+    || defined(GB_CONFIG_CORE_DEVICE_HAVE_SKIA)
 /*! init canvas from the given bitmap
  *
  * @param bitmap    the bitmap
@@ -55,6 +59,7 @@ gb_canvas_ref_t     gb_canvas_init_from_gl(tb_noarg_t);
  * @return          the canvas
  */
 gb_canvas_ref_t     gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap);
+#endif
 
 /*! exit canvas
  *

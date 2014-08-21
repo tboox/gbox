@@ -30,4 +30,22 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+tb_void_t gb_device_exit(gb_device_ref_t device)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+    // exit it
+    if (impl->exit) impl->exit(device);
+}
+tb_size_t gb_device_pixfmt(gb_device_ref_t device)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return_val(impl, GB_PIXFMT_NONE);
+
+    // the pixfmt
+    return impl->pixfmt;
+}
 

@@ -3,7 +3,7 @@ GB_CONFIG_DEMO_LIBS							= stdc++ m dl pthread
 #GB_CONFIG_DEMO_CMD1						= -@ldid -S $(1)$(BIN_SUFFIX)
 
 # device
-GB_CONFIG_CORE_DEVICE_HAVE_GL 	 			= y		
+GB_CONFIG_CORE_DEVICE_HAVE_GL 	 			= y
 GB_CONFIG_CORE_DEVICE_HAVE_BITMAP 			= y
 GB_CONFIG_CORE_DEVICE_HAVE_SKIA 			= y
 

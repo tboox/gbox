@@ -17,20 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        skia.c
+ * @file        prefix.h
  * @ingroup     core
- *
  */
+#ifndef GB_CORE_DEVICE_GL_PREFIX_H
+#define GB_CORE_DEVICE_GL_PREFIX_H
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "../prefix.h"
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
- */
-gb_device_ref_t gb_device_init_skia(gb_bitmap_ref_t bitmap)
-{
-    return tb_null;
-}
+#endif
+
 

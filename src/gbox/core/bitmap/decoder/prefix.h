@@ -18,6 +18,7 @@
  *
  * @author      ruki
  * @file        prefix.h
+ * @ingroup     core
  *
  */
 #ifndef GB_CORE_BITMAP_DECODER_PREFIX_H

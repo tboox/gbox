@@ -18,6 +18,7 @@
  *
  * @author      ruki
  * @file        gl.c
+ * @ingroup     core
  *
  */
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +27,58 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * types
  */
 
+// the gl device impl type
+typedef struct __gb_device_gl_impl_t
+{
+    // the base
+    gb_device_impl_t            base;
+
+}gb_device_gl_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_void_t gb_device_gl_exit(gb_device_ref_t device)
+{
+    // exit it
+    if (device) tb_free(device);
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+gb_device_ref_t gb_device_init_gl()
+{
+    // done
+    tb_bool_t               ok = tb_false;
+    gb_device_gl_impl_t*    impl = tb_null;
+    do
+    {
+        // make device
+        impl = tb_malloc0_type(gb_device_gl_impl_t);
+        tb_assert_and_check_break(impl);
+
+        // init base 
+        impl->base.type     = GB_DEVICE_TYPE_GL;
+        impl->base.pixfmt   = GB_PIXFMT_NONE;       // TODO
+        impl->base.exit     = gb_device_gl_exit;
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed?
+    if (!ok)
+    {
+        // exit it
+        if (impl) gb_device_exit((gb_device_ref_t)impl);
+        impl = tb_null;
+    }
+
+    // ok?
+    return (gb_device_ref_t)impl;
+}

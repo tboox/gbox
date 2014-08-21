@@ -21,11 +21,163 @@
  * @ingroup     core
  *
  */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "canvas"
+#define TB_TRACE_MODULE_DEBUG           (1)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "canvas.h"
+#include "device.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+// the canvas impl type
+typedef struct __gb_canvas_impl_t
+{
+    // the device
+    gb_device_ref_t         device;
+
+}gb_canvas_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+
+gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
+{
+    // done
+    tb_bool_t           ok = tb_false;
+    gb_canvas_impl_t*   impl = tb_null;
+    do
+    {
+        // make canvas
+        impl = tb_malloc0_type(gb_canvas_impl_t);
+        tb_assert_and_check_break(impl);
+
+        // init canvas 
+        impl->device = device;
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed?
+    if (!ok)
+    {
+        // exit it
+        if (impl) gb_canvas_exit((gb_canvas_ref_t)impl);
+        impl = tb_null;
+    }
+
+    // ok?
+    return (gb_canvas_ref_t)impl;
+}
+
+#ifdef GB_CONFIG_CORE_DEVICE_HAVE_GL
+gb_canvas_ref_t gb_canvas_init_from_gl()
+{
+    // done
+    gb_canvas_ref_t canvas = tb_null;
+    gb_device_ref_t device = tb_null;
+    do
+    {
+        // init device 
+        device = gb_device_init_gl();
+        tb_assert_and_check_break(device);
+
+        // init canvas 
+        canvas = gb_canvas_init(device);
+
+    } while (0);
+
+    // failed?
+    if (!canvas)
+    {
+        // exit device
+        if (device) gb_device_exit(device);
+        device = tb_null;
+    }
+
+    // ok?
+    return canvas;
+}
+#endif
+
+#if defined(GB_CONFIG_CORE_DEVICE_HAVE_BITMAP) \
+    || defined(GB_CONFIG_CORE_DEVICE_HAVE_SKIA)
+gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
+{
+    // check
+    tb_assert_and_check_return_val(bitmap, tb_null);
+
+    // done
+    gb_canvas_ref_t canvas = tb_null;
+    gb_device_ref_t device = tb_null;
+    do
+    {
+        // init device 
+#ifdef GB_CONFIG_CORE_DEVICE_HAVE_BITMAP
+        device = gb_device_init_bitmap(bitmap);
+#else
+        device = gb_device_init_skia(bitmap);
+#endif
+        tb_assert_and_check_break(device);
+
+        // init canvas 
+        canvas = gb_canvas_init(device);
+
+    } while (0);
+
+    // failed?
+    if (!canvas)
+    {
+        // exit device
+        if (device) gb_device_exit(device);
+        device = tb_null;
+    }
+
+    // ok?
+    return canvas;
+}
+#endif
+
+tb_void_t gb_canvas_exit(gb_canvas_ref_t canvas)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl);
+
+    // exit device
+    if (impl->device) gb_device_exit(impl->device);
+    impl->device = tb_null;
+
+    // exit it
+    tb_free(canvas);
+}
+tb_size_t gb_canvas_pixfmt(gb_canvas_ref_t canvas)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl && impl->device, GB_PIXFMT_NONE);
+
+    // the pixfmt
+    return gb_device_pixfmt(impl->device);
+}
+gb_device_ref_t gb_canvas_device(gb_canvas_ref_t canvas)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // the device
+    return impl->device;
+}
+
