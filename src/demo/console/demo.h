@@ -26,7 +26,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../../gbox/gbox.h"
+#include "gbox/gbox.h"
 #include <stdio.h>
 #include <stdlib.h>
 
