@@ -18,8 +18,8 @@ gbox_C_FILES 			+= \
 						core/canvas \
 						core/prefix/color \
 						core/prefix/quality \
-						core/image/decoder \
-						core/image/decoder/bmp 
+						core/bitmap/decoder \
+						core/bitmap/decoder/bmp 
 
 # flags
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
@@ -49,9 +49,6 @@ INC_FILES 				= \
 						core/canvas.h \
 						core/3d/prefix.h \
 						core/3d/3d.h \
-						core/image/image.h \
-						core/image/prefix.h \
-						core/image/decoder.h \
 						core/svg/svg.h \
 						core/svg/prefix.h \
 						game/game.h \

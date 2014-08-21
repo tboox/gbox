@@ -20,8 +20,8 @@
  * @file        prefix.h
  *
  */
-#ifndef GB_CORE_IMAGE_DECODER_PREFIX_H
-#define GB_CORE_IMAGE_DECODER_PREFIX_H
+#ifndef GB_CORE_BITMAP_DECODER_PREFIX_H
+#define GB_CORE_BITMAP_DECODER_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -33,10 +33,10 @@
  * types
  */
 
-// the image decoder impl type
-typedef struct __gb_image_decoder_impl_t
+// the bitmap decoder impl type
+typedef struct __gb_bitmap_decoder_impl_t
 {
-    // the image type
+    // the bitmap type
     tb_uint8_t      type;
 
     // the pixfmt
@@ -52,34 +52,34 @@ typedef struct __gb_image_decoder_impl_t
     tb_stream_ref_t stream;
 
     // done
-    gb_bitmap_ref_t (*done)(struct __gb_image_decoder_impl_t* decoder);
+    gb_bitmap_ref_t (*done)(struct __gb_bitmap_decoder_impl_t* decoder);
 
     // free
-    tb_void_t       (*exit)(struct __gb_image_decoder_impl_t* decoder);
+    tb_void_t       (*exit)(struct __gb_bitmap_decoder_impl_t* decoder);
 
-}gb_image_decoder_impl_t;
+}gb_bitmap_decoder_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 __tb_extern_c_enter__ 
 
-/* probe bmp image foramt
+/* probe bmp bitmap foramt
  *
  * @param stream        the stream
  *
  * @return              the score: [0, 100]
  */
-tb_size_t               gb_image_decoder_bmp_probe(tb_stream_ref_t stream);
+tb_size_t               gb_bitmap_decoder_bmp_probe(tb_stream_ref_t stream);
 
-/* init bmp image decoder
+/* init bmp bitmap decoder
  *
  * @param pixfmt        the pixfmt
  * @param stream        the stream
  *
  * @return              the decoder
  */
-gb_image_decoder_ref_t  gb_image_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref_t stream);
+gb_bitmap_decoder_ref_t  gb_bitmap_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref_t stream);
 
 __tb_extern_c_leave__
 #endif

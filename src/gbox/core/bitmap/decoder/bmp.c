@@ -39,8 +39,8 @@
 // the bpp offset
 #define GB_BMP_OFFSET_BPP               (28)
 
-// the image size offset
-#define GB_BMP_OFFSET_IMAGE_SIZE        (34)
+// the bitmap size offset
+#define GB_BMP_OFFSET_BITMAP_SIZE        (34)
 
 // the palette offset
 #define GB_BMP_OFFSET_PALETTE           (54)
@@ -60,7 +60,7 @@
  *      gb_bmp_file_header_t    header;
  *      gb_bmp_info_t           info;
  *  
- * }gb_image_t;
+ * }gb_bitmap_t;
  *
  * typedef struct __gb_bmp_file_header_t
  * {
@@ -87,7 +87,7 @@
  *      tb_uint16_t             planes; 
  *      tb_uint16_t             bpp;                // bst per pixels
  *      tb_uint32_t             compression;        // GB_BMP_RGB, GB_BMP_RLE4, GB_BMP_RLE8, GB_BMP_BITFIELDS 
- *      tb_uint32_t             image_size;         // image size for GB_BMP_RGB 
+ *      tb_uint32_t             bitmap_size;         // bitmap size for GB_BMP_RGB 
  *      tb_int32_t              x_pels_per_meter; 
  *      tb_int32_t              y_pels_per_meter; 
  *      tb_uint32_t             clr_used; 
@@ -110,10 +110,10 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decoder)
+static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* decoder)
 {
     // check
-    tb_assert_and_check_return_val(decoder && decoder->type == GB_IMAGE_TYPE_BMP, tb_null);
+    tb_assert_and_check_return_val(decoder && decoder->type == GB_BITMAP_TYPE_BMP, tb_null);
 
     // done
     tb_bool_t       ok = tb_false;
@@ -285,7 +285,7 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
                 // read line
                 if (!tb_stream_bread(stream, row_data, row_bytes_align4)) break;
                 
-                // save image data, FIXME: for rgba32 alpha
+                // save bitmap data, FIXME: for rgba32 alpha
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
                 if (sp == dp)
@@ -310,7 +310,7 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
                 // read line
                 if (!tb_stream_bread(stream, row_data, row_bytes_align4)) break;
                 
-                // save image data
+                // save bitmap data
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
                 gb_color_t  c;
@@ -338,7 +338,7 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
                 // read line
                 if (!tb_stream_bread(stream, row_data, row_bytes_align4)) break;
                 
-                // save image data
+                // save bitmap data
                 gb_color_t  c;
                 tb_byte_t*  d = p;
                 tb_size_t   i = 0;
@@ -383,7 +383,7 @@ static gb_bitmap_ref_t gb_image_decoder_bmp_done(gb_image_decoder_impl_t* decode
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_size_t gb_image_decoder_bmp_probe(tb_stream_ref_t stream)
+tb_size_t gb_bitmap_decoder_bmp_probe(tb_stream_ref_t stream)
 {
     // check
     tb_assert_and_check_return_val(stream, 0);
@@ -396,14 +396,14 @@ tb_size_t gb_image_decoder_bmp_probe(tb_stream_ref_t stream)
     // ok?
     return (p[0] == 'B' && p[1] == 'M')? 80 : 0;
 }
-gb_image_decoder_ref_t gb_image_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref_t stream)
+gb_bitmap_decoder_ref_t gb_bitmap_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref_t stream)
 {
     // check
     tb_assert_and_check_return_val(GB_PIXFMT_OK(pixfmt) && stream, tb_null);
 
     // done
     tb_bool_t                   ok = tb_false;
-    gb_image_decoder_impl_t*    impl = tb_null;
+    gb_bitmap_decoder_impl_t*    impl = tb_null;
     do
     {
         // seek to the width and height position
@@ -415,16 +415,16 @@ gb_image_decoder_ref_t gb_image_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref
         tb_assert_and_check_break(width && height && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
 
         // make decoder
-        impl = tb_malloc0_type(gb_image_decoder_impl_t);
+        impl = tb_malloc0_type(gb_bitmap_decoder_impl_t);
         tb_assert_and_check_break(impl);
 
         // init decoder
-        impl->type          = GB_IMAGE_TYPE_BMP;
+        impl->type          = GB_BITMAP_TYPE_BMP;
         impl->stream        = stream;
         impl->pixfmt        = pixfmt;
         impl->width         = width;
         impl->height        = height;
-        impl->done          = gb_image_decoder_bmp_done;
+        impl->done          = gb_bitmap_decoder_bmp_done;
 
         // ok
         ok = tb_true;
@@ -435,10 +435,10 @@ gb_image_decoder_ref_t gb_image_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref
     if (!ok)
     {
         // exit it
-        if (impl) gb_image_decoder_exit((gb_image_decoder_ref_t)impl);
+        if (impl) gb_bitmap_decoder_exit((gb_bitmap_decoder_ref_t)impl);
         impl = tb_null;
     }
 
     // ok?
-    return (gb_image_decoder_ref_t)impl;
+    return (gb_bitmap_decoder_ref_t)impl;
 }

@@ -34,7 +34,6 @@
 #include "canvas.h"
 #include "3d/3d.h"
 #include "svg/svg.h"
-#include "image/image.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

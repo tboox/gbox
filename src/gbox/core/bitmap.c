@@ -26,7 +26,7 @@
  */
 #include "bitmap.h"
 #include "pixmap.h"
-#include "image/image.h"
+#include "bitmap/decoder.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -138,16 +138,16 @@ gb_bitmap_ref_t gb_bitmap_init_from_stream(tb_size_t pixfmt, tb_stream_ref_t str
     // check
     tb_assert_and_check_return_val(GB_PIXFMT_OK(pixfmt) && stream, tb_null);
 
-    // init image decoder
-    gb_image_decoder_ref_t decoder = gb_image_decoder_init(pixfmt, stream);
+    // init bitmap decoder
+    gb_bitmap_decoder_ref_t decoder = gb_bitmap_decoder_init(pixfmt, stream);
     tb_assert_and_check_return_val(decoder, tb_null);
 
-    // done image decoder
-    gb_bitmap_ref_t bitmap = gb_image_decoder_done(decoder);
+    // done bitmap decoder
+    gb_bitmap_ref_t bitmap = gb_bitmap_decoder_done(decoder);
     tb_assert(bitmap);
 
-    // exit image decoder
-    gb_image_decoder_exit(decoder);
+    // exit bitmap decoder
+    gb_bitmap_decoder_exit(decoder);
 
     // ok?
     return bitmap;

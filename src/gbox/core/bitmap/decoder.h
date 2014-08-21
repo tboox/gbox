@@ -17,35 +17,54 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        decoder.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_IMAGE_PREFIX_H
-#define GB_CORE_IMAGE_PREFIX_H
+#ifndef GB_CORE_BITMAP_DECODER_H
+#define GB_CORE_BITMAP_DECODER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
-#include "../pixmap.h"
-#include "../bitmap.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-/// the image type
-typedef enum __gb_image_type_t
-{
-    GB_IMAGE_TYPE_NONE  = 0
-,   GB_IMAGE_TYPE_BMP   = 1
-,   GB_IMAGE_TYPE_GIF   = 2
-,   GB_IMAGE_TYPE_JPG   = 3
-,   GB_IMAGE_TYPE_PNG   = 4
+/// the bitmap decoder ref type
+typedef struct{}*       gb_bitmap_decoder_ref_t;
 
-}gb_image_type_t;
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
+__tb_extern_c_enter__
 
+/*! init bitmap decoder 
+ *
+ * @param pixfmt        the pixfmt, convert bitmap to the given pixfmt
+ * @param stream        the stream
+ *
+ * @return              the decoder
+ */
+gb_bitmap_decoder_ref_t  gb_bitmap_decoder_init(tb_size_t pixfmt, tb_stream_ref_t stream);
+
+/*! exit bitmap decoder
+ *
+ * @param decoder       decoder
+ */
+tb_void_t               gb_bitmap_decoder_exit(gb_bitmap_decoder_ref_t decoder);
+
+/*! done bitmap decoder 
+ *
+ * @param decoder       decoder 
+ *
+ * @return              the bitmap
+ */
+gb_bitmap_ref_t         gb_bitmap_decoder_done(gb_bitmap_decoder_ref_t decoder);
+
+__tb_extern_c_leave__
 #endif
 
 

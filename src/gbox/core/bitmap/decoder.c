@@ -34,20 +34,20 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_image_decoder_ref_t gb_image_decoder_init(tb_size_t pixfmt, tb_stream_ref_t stream)
+gb_bitmap_decoder_ref_t gb_bitmap_decoder_init(tb_size_t pixfmt, tb_stream_ref_t stream)
 {
-    // the image decoder probe list
+    // the bitmap decoder probe list
     static tb_size_t (*probe[])(tb_stream_ref_t ) =
     {
         tb_null
-    ,   gb_image_decoder_bmp_probe
+    ,   gb_bitmap_decoder_bmp_probe
     };
 
-    // the image decoder init list
-    static gb_image_decoder_ref_t (*init[])(tb_size_t , tb_stream_ref_t ) =
+    // the bitmap decoder init list
+    static gb_bitmap_decoder_ref_t (*init[])(tb_size_t , tb_stream_ref_t ) =
     {
         tb_null
-    ,   gb_image_decoder_bmp_init
+    ,   gb_bitmap_decoder_bmp_init
     };
     tb_assert_static(tb_arrayn(probe) == tb_arrayn(init));
 
@@ -71,10 +71,10 @@ gb_image_decoder_ref_t gb_image_decoder_init(tb_size_t pixfmt, tb_stream_ref_t s
     // found? init it
     return (p < n)? init[p](pixfmt, stream) : tb_null;
 }
-tb_void_t gb_image_decoder_exit(gb_image_decoder_ref_t decoder)
+tb_void_t gb_bitmap_decoder_exit(gb_bitmap_decoder_ref_t decoder)
 {
     // check
-    gb_image_decoder_impl_t* impl = (gb_image_decoder_impl_t*)decoder;
+    gb_bitmap_decoder_impl_t* impl = (gb_bitmap_decoder_impl_t*)decoder;
     tb_assert_and_check_return(impl);
 
     // exit decoder
@@ -83,10 +83,10 @@ tb_void_t gb_image_decoder_exit(gb_image_decoder_ref_t decoder)
     // exit it
     tb_free(decoder);
 }
-gb_bitmap_ref_t gb_image_decoder_done(gb_image_decoder_ref_t decoder)
+gb_bitmap_ref_t gb_bitmap_decoder_done(gb_bitmap_decoder_ref_t decoder)
 {
     // check
-    gb_image_decoder_impl_t* impl = (gb_image_decoder_impl_t*)decoder;
+    gb_bitmap_decoder_impl_t* impl = (gb_bitmap_decoder_impl_t*)decoder;
     tb_assert_and_check_return_val(impl && impl->done, tb_null);
 
     // done
