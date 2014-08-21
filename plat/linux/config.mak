@@ -1,5 +1,5 @@
 # demo
-GB_CONFIG_DEMO_LIBS 						= polarssl sqlite3 z rt m dl pthread
+GB_CONFIG_DEMO_LIBS 						= glut GLU GL polarssl sqlite3 z rt m dl pthread
 GB_CONFIG_DEMO_CMD1 						=
 
 # third party

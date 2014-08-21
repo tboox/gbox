@@ -81,7 +81,7 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
     return (gb_canvas_ref_t)impl;
 }
 #ifdef GB_CONFIG_THIRD_HAVE_GL
-gb_canvas_ref_t gb_canvas_init_from_gl()
+gb_canvas_ref_t gb_canvas_init_from_gl(gb_gl_view_ref_t view)
 {
     // done
     gb_canvas_ref_t canvas = tb_null;
@@ -89,7 +89,7 @@ gb_canvas_ref_t gb_canvas_init_from_gl()
     do
     {
         // init device 
-        device = gb_device_init_gl();
+        device = gb_device_init_gl(view);
         tb_assert_and_check_break(device);
 
         // init canvas 

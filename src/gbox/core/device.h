@@ -28,6 +28,9 @@
  * includes
  */
 #include "prefix.h"
+#ifdef GB_CONFIG_THIRD_HAVE_GL
+#   include "gl/gl.h"
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -37,9 +40,11 @@ __tb_extern_c_enter__
 #ifdef GB_CONFIG_THIRD_HAVE_GL
 /*! init gl device
  *
+ * @param view      the gl view
+ *
  * @return          the device
  */
-gb_device_ref_t     gb_device_init_gl(tb_noarg_t);
+gb_device_ref_t     gb_device_init_gl(gb_gl_view_ref_t view);
 #endif
 
 #ifdef GB_CONFIG_THIRD_HAVE_SKIA

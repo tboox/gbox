@@ -28,6 +28,7 @@
  * includes
  */
 #include "matrix.h"
+#include "device.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -45,9 +46,11 @@ gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
 #ifdef GB_CONFIG_THIRD_HAVE_GL
 /*! init canvas from gl
  *
+ * @param view      the gl view
+ *
  * @return          the canvas
  */
-gb_canvas_ref_t     gb_canvas_init_from_gl(tb_noarg_t);
+gb_canvas_ref_t     gb_canvas_init_from_gl(gb_gl_view_ref_t view);
 #endif
 
 #ifdef GB_CONFIG_THIRD_HAVE_SKIA

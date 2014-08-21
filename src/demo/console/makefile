@@ -22,6 +22,7 @@ demo_LIB_DIR 								+= ../../gbox
 
 # flags
 demo_CXFLAGS 								+= -D__tb_prefix__=\"demo\"
+demo_LDFLAGS 								+= $(GB_CONFIG_DEMO_LDFLAGS)
 
 # command
 demo_SUFFIX_CMD1 							+= $(GB_CONFIG_DEMO_CMD1)

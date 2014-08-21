@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        gl_view.h
+ * @file        view.h
  * @ingroup     core
  *
  */
@@ -41,19 +41,74 @@ typedef struct{}*       gb_gl_view_ref_t;
  */
 __tb_extern_c_enter__
 
-/*! init view 
+#if defined(GB_CONFIG_THIRD_HAVE_GLUT)
+/*! init glut view 
+ *
+ * init and create a new view window
+ *
+ * @param name          the view name
+ * @param pixfmt        the view pixfmt, supports: 
+ *                      - rgba8888_be
+ *                      - rgb565_le
+ *                      - rgb888_be
+ *                      - rgba4444_be
+ *                      - rgba5551_le
+ * @param width         the view width 
+ * @param height        the view height
+ *
+ * @return              the view
+ */
+gb_gl_view_ref_t        gb_gl_view_init(tb_char_t const* name, tb_size_t pixfmt, tb_size_t width, tb_size_t height);
+
+#elif defined(TB_CONFIG_OS_IOS)
+/*! init ios view 
  *
  * @param name          the view name
  *
  * @return              the view
  */
 gb_gl_view_ref_t        gb_gl_view_init(tb_char_t const* name);
+#elif defined(TB_CONFIG_OS_ANDROID)
+/*! init android view 
+ *
+ * @param name          the view name
+ *
+ * @return              the view
+ */
+gb_gl_view_ref_t        gb_gl_view_init(tb_char_t const* name);
+#else
+#   error no gl view
+#endif
 
 /*! exit view 
  *
- * @param gl_view       the view
+ * @param view          the view
  */
-tb_void_t               gb_gl_view_exit(gb_gl_view_ref_t gl_view);
+tb_void_t               gb_gl_view_exit(gb_gl_view_ref_t view);
+
+/*! the pixfmt
+ *
+ * @param view          the view
+ *
+ * @return              the pixfmt
+ */
+tb_size_t               gb_gl_view_pixfmt(gb_gl_view_ref_t view);
+
+/*! the width
+ *
+ * @param view          the view
+ *
+ * @return              the width
+ */
+tb_size_t               gb_gl_view_width(gb_gl_view_ref_t view);
+
+/*! the height
+ *
+ * @param view          the view
+ *
+ * @return              the height
+ */
+tb_size_t               gb_gl_view_height(gb_gl_view_ref_t view);
 
 __tb_extern_c_leave__
 #endif

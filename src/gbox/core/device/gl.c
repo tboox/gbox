@@ -36,6 +36,9 @@ typedef struct __gb_device_gl_impl_t
     // the base
     gb_device_impl_t            base;
 
+    // the view
+    gb_gl_view_ref_t            view;
+
 }gb_device_gl_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -50,8 +53,11 @@ static tb_void_t gb_device_gl_exit(gb_device_ref_t device)
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_device_ref_t gb_device_init_gl()
+gb_device_ref_t gb_device_init_gl(gb_gl_view_ref_t view)
 {
+    // check
+    tb_assert_and_check_return_val(view, tb_null);
+
     // done
     tb_bool_t               ok = tb_false;
     gb_device_gl_impl_t*    impl = tb_null;
@@ -63,8 +69,11 @@ gb_device_ref_t gb_device_init_gl()
 
         // init base 
         impl->base.type     = GB_DEVICE_TYPE_GL;
-        impl->base.pixfmt   = GB_PIXFMT_NONE;       // TODO
+        impl->base.pixfmt   = gb_gl_view_pixfmt(view); 
         impl->base.exit     = gb_device_gl_exit;
+
+        // init view
+        impl->view          = view;
 
         // ok
         ok = tb_true;

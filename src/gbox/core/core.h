@@ -33,8 +33,10 @@
 #include "paint.h"
 #include "canvas.h"
 #include "device.h"
-#include "gl/gl.h"
 #include "svg/svg.h"
+#ifdef GB_CONFIG_THIRD_HAVE_GL
+#   include "gl/gl.h"
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
