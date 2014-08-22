@@ -26,7 +26,8 @@ gbox_C_FILES 			+= \
 
 # gl core files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
-						core/device/gl 
+						core/device/gl \
+						core/device/gl/interface 
 
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
 						core/window/glut

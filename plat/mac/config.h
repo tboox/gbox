@@ -19,6 +19,9 @@
 // the fixed type for float
 #define GB_CONFIG_FLOAT_FIXED
 
+// gl
+#define GB_CONFIG_GL_APICALL            __tb_cdecl__
+
 // third party
 #define GB_CONFIG_THIRD_HAVE_GL
 #define GB_CONFIG_THIRD_HAVE_GLUT

@@ -32,12 +32,7 @@
  * includes
  */
 #include "prefix.h"
-#ifdef TB_CONFIG_OS_MAC
-# 	include <GLUT/glut.h>
-#else
-# 	define GL_GLEXT_PROTOTYPES
-# 	include <GL/glut.h>
-#endif
+#include "gl/gl.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -60,8 +55,8 @@ typedef struct __gb_device_gl_impl_t
 static tb_void_t gb_device_gl_draw_clear(gb_device_ref_t device, gb_color_t color)
 {
     // clear it
-	glClearColor((tb_float_t)color.r / 0xff, (tb_float_t)color.g / 0xff, (tb_float_t)color.b / 0xff, (tb_float_t)color.a / 0xff);
-	glClear(GL_COLOR_BUFFER_BIT);
+	gb_glClearColor((tb_float_t)color.r / 0xff, (tb_float_t)color.g / 0xff, (tb_float_t)color.b / 0xff, (tb_float_t)color.a / 0xff);
+	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
 static tb_void_t gb_device_gl_exit(gb_device_ref_t device)
 {
