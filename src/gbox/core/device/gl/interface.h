@@ -34,19 +34,19 @@
  */
 
 // gl apicall
-#define GB_GL_APICALL                           GB_CONFIG_GL_APICALL
+#define GB_GL_APICALL                                       GB_CONFIG_GL_APICALL
 
 // type
-#define GB_GL_INTERFACE_TYPE(func)              GB_GL_APICALL *gb_##func##_t
+#define GB_GL_INTERFACE_TYPE(func)                          GB_GL_APICALL *gb_##func##_t
 
 // extern
-#define GB_GL_INTERFACE_EXTERN(func)            extern gb_##func##_t gb_##func
+#define GB_GL_INTERFACE_EXTERN(func)                        extern gb_##func##_t gb_##func
 
 // load the static function
-#define GB_GL_INTERFACE_LOAD_S(func)            gb_##func = func
+#define GB_GL_INTERFACE_LOAD_S(func)                        gb_##func = func
 
 // load the dynamic function
-#define GB_GL_INTERFACE_LOAD_D(library, func)   gb_##func = (gb_##func##_t)tb_dynamic_func(library, #func)
+#define GB_GL_INTERFACE_LOAD_D(library, func)               gb_##func = (gb_##func##_t)tb_dynamic_func(library, #func); tb_assert_and_check_break(gb_##func)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros for gl
@@ -320,7 +320,7 @@ typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glPushMatrix))            
 typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glRotatef))                   (gb_GLfloat_t angle, gb_GLfloat_t x, gb_GLfloat_t y, gb_GLfloat_t z);
 typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glScalef))                    (gb_GLfloat_t x, gb_GLfloat_t y, gb_GLfloat_t z);
 typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glScissor))                   (gb_GLint_t x, gb_GLint_t y, gb_GLsizei_t width, gb_GLsizei_t height);
-typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glShaderSource))              (gb_GLuint_t shader, gb_GLsizei_t count, gb_GLchar_t const** string, const gb_GLint_t* length);
+typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glShaderSource))              (gb_GLuint_t shader, gb_GLsizei_t count, gb_GLchar_t const* const* string, const gb_GLint_t* length);
 typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glStencilFunc))               (gb_GLenum_t func, gb_GLint_t ref, gb_GLuint_t mask);
 typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glStencilMask))               (gb_GLuint_t mask);
 typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glStencilOp))                 (gb_GLenum_t fail, gb_GLenum_t zfail, gb_GLenum_t zpass);
@@ -413,13 +413,11 @@ GB_GL_INTERFACE_EXTERN(glViewport);
  * interface
  */
 
-/* check gl interface for the given version
+/* load gl interfaces
  *
- * @param version   the gl version
- *
- * @return          tb_true or tb_false
+ * @return          the gl version
  */
-tb_bool_t           gb_gl_interface_check(tb_byte_t version);
+tb_bool_t           gb_gl_interface_load(tb_noarg_t);
 
 __tb_extern_c_leave__
 #endif

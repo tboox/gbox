@@ -43,6 +43,12 @@ typedef struct __gb_device_impl_t
     // the pixfmt
     tb_uint16_t             pixfmt;
 
+    // the width
+    tb_uint16_t             width;
+
+    // the height
+    tb_uint16_t             height;
+
     /* clear draw
      *
      * @param device        the device

@@ -97,6 +97,22 @@ tb_size_t           gb_device_type(gb_device_ref_t device);
  */
 tb_size_t           gb_device_pixfmt(gb_device_ref_t device);
 
+/*! the device width
+ *
+ * @param device    the device
+ *
+ * @return          the width
+ */
+tb_size_t           gb_device_width(gb_device_ref_t device);
+
+/*! the device height
+ *
+ * @param device    the device
+ *
+ * @return          the height
+ */
+tb_size_t           gb_device_height(gb_device_ref_t device);
+
 /*! clear draw and fill the given color
  *
  * @param device    the device

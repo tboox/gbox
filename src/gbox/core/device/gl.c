@@ -35,6 +35,13 @@
 #include "gl/gl.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// testing gl v1 interfaces
+//#define GB_DEVICE_GL_TEST_v1
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -47,11 +54,36 @@ typedef struct __gb_device_gl_impl_t
     // the window
     gb_window_ref_t             window;
 
+    // the version: 1.0, 2.x, ...
+    tb_size_t                   version;
+
 }gb_device_gl_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_size_t gb_device_gl_version()
+{
+	// version 
+	tb_char_t const* version = (tb_char_t const*)gb_glGetString(GB_GL_VERSION);
+	tb_assert_and_check_return_val(version, 0);
+
+	// find
+	tb_char_t const* p = version;
+	tb_char_t const* e = version + tb_strlen(version);
+	for (; p < e && *p && !tb_isdigit(*p); p++) ;
+	tb_assert_and_check_return_val(p + 2 < e && p[1] == '.' && tb_isdigit(p[2]), 0);
+
+	// major & minor
+	tb_byte_t major = p[0] - '0';
+	tb_byte_t minor = p[2] - '0';
+
+	// trace
+	tb_trace_d("version: %s: %x", version, ((major << 4) + minor));
+
+	// [0x10, 0x19] 
+	return ((major << 4) + minor);
+}
 static tb_void_t gb_device_gl_draw_clear(gb_device_ref_t device, gb_color_t color)
 {
     // clear it
@@ -83,12 +115,30 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
         // init base 
         impl->base.type             = GB_DEVICE_TYPE_GL;
-        impl->base.pixfmt           = gb_window_pixfmt(window); 
+        impl->base.pixfmt           = (tb_uint16_t)gb_window_pixfmt(window); 
+        impl->base.width            = (tb_uint16_t)gb_window_width(window); 
+        impl->base.height           = (tb_uint16_t)gb_window_height(window); 
         impl->base.draw_clear       = gb_device_gl_draw_clear;
         impl->base.exit             = gb_device_gl_exit;
 
         // init window
-        impl->window          = window;
+        impl->window                = window;
+
+        // init version 
+        if (!impl->version)
+        {
+            // load gl interfaces first
+            if (!gb_gl_interface_load()) break;
+
+            // get version
+            impl->version = gb_device_gl_version();
+            tb_assert_and_check_break(impl->version && impl->version < 0xff);
+
+            // force setting version: v1 for testing
+#ifdef GB_DEVICE_GL_TEST_v1
+            impl->version = 1;
+#endif
+        }
 
         // ok
         ok = tb_true;

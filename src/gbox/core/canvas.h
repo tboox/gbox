@@ -75,13 +75,29 @@ gb_canvas_ref_t     gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap);
  */
 tb_void_t           gb_canvas_exit(gb_canvas_ref_t canvas);
 
-/*! get the pixfmt 
+/*! the pixfmt 
  *
  * @param canvas    the canvas
  *
  * @return          the pixfmt
  */
 tb_size_t           gb_canvas_pixfmt(gb_canvas_ref_t canvas);
+
+/*! the canvas width
+ *
+ * @param canvas    the canvas
+ *
+ * @return          the width
+ */
+tb_size_t           gb_canvas_width(gb_canvas_ref_t canvas);
+
+/*! the canvas height
+ *
+ * @param canvas    the canvas
+ *
+ * @return          the height
+ */
+tb_size_t           gb_canvas_height(gb_canvas_ref_t canvas);
 
 /*! get the device 
  *

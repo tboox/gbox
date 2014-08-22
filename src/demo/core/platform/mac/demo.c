@@ -1,9 +1,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */ 
-#include "gbox/gbox.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "../../demo.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -14,23 +12,6 @@
 
 // the height
 #define GB_DEMO_HEIGHT          (480)
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * demo
- */
-static tb_void_t gb_demo_draw_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
-{
-    // check
-    tb_assert_and_check_return(window && canvas);
-
-    // clear it
-    gb_canvas_draw_clear(canvas, GB_COLOR_RED);
-}
-static tb_void_t gb_demo_clos_func(gb_window_ref_t window, tb_cpointer_t priv)
-{
-    // trace
-    tb_trace_i("clos");
-}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * main
@@ -51,8 +32,10 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     gb_window_info_t info = {0};
     info.title      = "demo";
     info.framerate  = gb_long_to_float(60);
+    info.init       = gb_demo_init_func;
+    info.exit       = gb_demo_exit_func;
     info.draw       = gb_demo_draw_func;
-    info.clos       = gb_demo_clos_func;
+    info.resize     = gb_demo_resize_func;
 
     // init window
     gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);

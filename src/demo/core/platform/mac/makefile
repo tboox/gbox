@@ -9,7 +9,8 @@ demo_TYPE 									= BIN
 
 # files
 demo_C_FILES 								+= \
-											demo 
+											demo \
+											../../demo
 
 # libs
 demo_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE) 

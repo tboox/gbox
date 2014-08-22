@@ -56,6 +56,22 @@ typedef enum __gb_window_mode_e
 /// the window type
 typedef struct{}*           gb_window_ref_t;
 
+/*! the window init func type
+ *
+ * @param window            the window
+ * @param canvas            the canvas
+ * @param priv              the user private data
+ */
+typedef tb_void_t           (*gb_window_init_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+
+/*! the window exit func type
+ *
+ * @param window            the window
+ * @param canvas            the canvas
+ * @param priv              the user private data
+ */
+typedef tb_void_t           (*gb_window_exit_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+
 /*! the window draw func type
  *
  * @param window            the window
@@ -64,12 +80,13 @@ typedef struct{}*           gb_window_ref_t;
  */
 typedef tb_void_t           (*gb_window_draw_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
-/*! the window clos func type
+/*! the window resize func type
  *
  * @param window            the window
+ * @param canvas            the canvas
  * @param priv              the user private data
  */
-typedef tb_void_t           (*gb_window_clos_func_t)(gb_window_ref_t window, tb_cpointer_t priv);
+typedef tb_void_t           (*gb_window_resize_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
 /// the window info type
 typedef struct __gb_window_info_t
@@ -80,11 +97,17 @@ typedef struct __gb_window_info_t
     /// the framerate
     gb_float_t              framerate;
 
+    /// the init func
+    gb_window_init_func_t   init;
+
+    /// the exit func
+    gb_window_exit_func_t   exit;
+
     /// the draw func
     gb_window_draw_func_t   draw;
 
-    /// the clos func
-    gb_window_clos_func_t   clos;
+    /// the resize func
+    gb_window_resize_func_t resize;
 
     /// the user private data
     tb_cpointer_t           priv;

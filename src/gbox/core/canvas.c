@@ -191,6 +191,24 @@ tb_size_t gb_canvas_pixfmt(gb_canvas_ref_t canvas)
     // the pixfmt
     return gb_device_pixfmt(impl->device);
 }
+tb_size_t gb_canvas_width(gb_canvas_ref_t canvas)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl, 0);
+
+    // the width
+    return gb_device_width(impl->device);
+}
+tb_size_t gb_canvas_height(gb_canvas_ref_t canvas)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl, 0);
+
+    // the height
+    return gb_device_height(impl->device);
+}
 gb_device_ref_t gb_canvas_device(gb_canvas_ref_t canvas)
 {
     // check

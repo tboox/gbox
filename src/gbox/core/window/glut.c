@@ -80,6 +80,18 @@ static tb_void_t gb_window_glut_display()
 {
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl && impl->canvas);
+
+    // done init
+    if (impl->base.info.init) impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+
+	// flush
+	glutSwapBuffers();
+}
+static tb_void_t gb_window_glut_idle()
+{
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->base.info.draw && impl->canvas);
 
     // done draw
@@ -94,6 +106,11 @@ static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
 
+    // TODO
+    // ...
+
+    // done resize
+    if (impl->base.info.resize) impl->base.info.resize((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
 }
 static tb_void_t gb_window_glut_keyboard(tb_byte_t key, tb_int_t x, tb_int_t y)
 { 
@@ -130,10 +147,13 @@ static tb_void_t gb_window_glut_close()
 { 
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && impl->canvas);
 
-    // done clos
-    if (impl->base.info.clos) impl->base.info.clos((gb_window_ref_t)impl, impl->base.info.priv);
+    // done exit
+    if (impl->base.info.exit) impl->base.info.exit((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+
+	// flush
+	glutSwapBuffers();
 
     // stop it
     tb_atomic_set(&impl->stop, 1);
@@ -239,7 +259,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutPassiveMotionFunc(gb_window_glut_passive_motion);
         glutMotionFunc(gb_window_glut_motion);
         glutWMCloseFunc(gb_window_glut_close);
-        glutIdleFunc(gb_window_glut_display);
+        glutIdleFunc(gb_window_glut_idle);
 
         // ok
         ok = tb_true;
