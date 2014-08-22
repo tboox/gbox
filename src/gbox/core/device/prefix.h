@@ -34,23 +34,14 @@
  * types
  */
 
-// the device type enum
-typedef enum __gb_device_type_e
-{
-    GB_DEVICE_TYPE_GL       = 0
-,   GB_DEVICE_TYPE_BITMAP   = 1
-,   GB_DEVICE_TYPE_SKIA     = 2
-
-}gb_device_type_e;
-
 // the device impl type
 typedef struct __gb_device_impl_t
 {
     // the device type
-    tb_size_t               type;
+    tb_uint8_t              type;
 
     // the pixfmt
-    tb_size_t               pixfmt;
+    tb_uint16_t             pixfmt;
 
     /* exit device
      *

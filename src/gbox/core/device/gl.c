@@ -21,6 +21,13 @@
  * @ingroup     core
  *
  */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "device_gl"
+#define TB_TRACE_MODULE_DEBUG           (1)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
@@ -36,8 +43,8 @@ typedef struct __gb_device_gl_impl_t
     // the base
     gb_device_impl_t            base;
 
-    // the view
-    gb_gl_view_ref_t            view;
+    // the window
+    gb_window_ref_t             window;
 
 }gb_device_gl_impl_t;
 
@@ -53,10 +60,10 @@ static tb_void_t gb_device_gl_exit(gb_device_ref_t device)
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_device_ref_t gb_device_init_gl(gb_gl_view_ref_t view)
+gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 {
     // check
-    tb_assert_and_check_return_val(view, tb_null);
+    tb_assert_and_check_return_val(window, tb_null);
 
     // done
     tb_bool_t               ok = tb_false;
@@ -69,11 +76,11 @@ gb_device_ref_t gb_device_init_gl(gb_gl_view_ref_t view)
 
         // init base 
         impl->base.type     = GB_DEVICE_TYPE_GL;
-        impl->base.pixfmt   = gb_gl_view_pixfmt(view); 
+        impl->base.pixfmt   = gb_window_pixfmt(window); 
         impl->base.exit     = gb_device_gl_exit;
 
-        // init view
-        impl->view          = view;
+        // init window
+        impl->window          = window;
 
         // ok
         ok = tb_true;

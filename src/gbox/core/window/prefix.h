@@ -20,13 +20,51 @@
  * @file        prefix.h
  * @ingroup     core
  */
-#ifndef GB_CORE_GL_PREFIX_H
-#define GB_CORE_GL_PREFIX_H
+#ifndef GB_CORE_WINDOW_PREFIX_H
+#define GB_CORE_WINDOW_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "../prefix.h"
+#include "../window.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+// the window impl type
+typedef struct __gb_window_impl_t
+{
+    // the window type
+    tb_uint8_t              type;
+
+    // the window mode
+    tb_uint8_t              mode;
+
+    // the window pixfmt
+    tb_uint16_t             pixfmt;
+
+    // the window width
+    tb_uint16_t             width;
+
+    // the window height
+    tb_uint16_t             height;
+
+    // the window info
+    gb_window_info_t        info;
+
+    // the bitmap for the bitmap mode
+    gb_bitmap_ref_t         bitmap;
+
+    /* exit window
+     *
+     * @param window        the window
+     */
+    tb_void_t               (*exit)(gb_window_ref_t window);
+
+}gb_window_impl_t;
+
 
 #endif
 

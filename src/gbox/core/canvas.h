@@ -43,15 +43,13 @@ __tb_extern_c_enter__
  */
 gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
 
-#ifdef GB_CONFIG_THIRD_HAVE_GL
-/*! init canvas from gl
+/*! init canvas from the given window
  *
- * @param view      the gl view
+ * @param window    the window
  *
  * @return          the canvas
  */
-gb_canvas_ref_t     gb_canvas_init_from_gl(gb_gl_view_ref_t view);
-#endif
+gb_canvas_ref_t     gb_canvas_init_from_window(gb_window_ref_t window);
 
 #ifdef GB_CONFIG_THIRD_HAVE_SKIA
 /*! init canvas from skia

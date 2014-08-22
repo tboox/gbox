@@ -16,6 +16,7 @@ gbox_C_FILES 			+= \
 						core/bitmap \
 						core/paint \
 						core/canvas \
+						core/window \
 						core/device \
 						core/device/bitmap \
 						core/prefix/color \
@@ -28,7 +29,10 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
 						core/device/gl 
 
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
-						core/gl/view/glut
+						core/window/glut
+
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLFW) += \
+						core/window/glfw
 
 # skia core files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
@@ -36,14 +40,20 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
 
 # ios files
 ifeq ($(PLAT),ios)
-gbox_M_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
- 						core/gl/view/ios
+gbox_M_FILES 			+= \
+						core/window/ios
 endif
 
 # android files
 ifeq ($(PLAT),android)
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
- 						core/gl/view/android
+gbox_C_FILES 			+= \
+ 						core/window/android
+endif
+
+# linux files
+ifeq ($(PLAT),linux)
+gbox_C_FILES 			+= \
+ 						core/window/framebuffer
 endif
 
 # flags
@@ -69,13 +79,11 @@ INC_FILES 				= \
 						core/prefix/quality.h \
 						core/pixmap.h \
 						core/bitmap.h \
+						core/window.h \
 						core/matrix.h \
 						core/paint.h \
 						core/canvas.h \
 						core/device.h \
-						core/gl/prefix.h \
-						core/gl/gl.h \
-						core/gl/view.h \
 						core/svg/svg.h \
 						core/svg/prefix.h \
 						game/game.h \

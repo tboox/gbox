@@ -30,13 +30,11 @@
 #include "matrix.h"
 #include "pixmap.h"
 #include "bitmap.h"
+#include "window.h"
 #include "paint.h"
 #include "canvas.h"
 #include "device.h"
 #include "svg/svg.h"
-#ifdef GB_CONFIG_THIRD_HAVE_GL
-#   include "gl/gl.h"
-#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

@@ -15,12 +15,17 @@
 // the height
 #define GB_DEMO_HEIGHT          (480)
 
-// the pixfmt
-#define GB_DEMO_PIXFMT          (GB_PIXFMT_RGB565)
-//#define GB_DEMO_PIXFMT            (GB_PIXFMT_RGB888 | GB_PIXFMT_BENDIAN)
-//#define GB_DEMO_PIXFMT            (GB_PIXFMT_RGBA5551)
-//#define GB_DEMO_PIXFMT            (GB_PIXFMT_RGBA4444)
-//#define GB_DEMO_PIXFMT            (GB_PIXFMT_RGBA8888 | GB_PIXFMT_BENDIAN)
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * demo
+ */
+static tb_void_t gb_demo_draw_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
+{
+    tb_trace_i("draw");
+}
+static tb_void_t gb_demo_clos_func(gb_window_ref_t window, tb_cpointer_t priv)
+{
+    tb_trace_i("clos");
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * main
@@ -37,15 +42,22 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     // init gbox
     if (!gb_init()) return 0;
 
-    // init view
-    gb_gl_view_ref_t view = gb_gl_view_init("demo", GB_DEMO_PIXFMT, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);
-    if (view)
+    // init window info
+    gb_window_info_t info = {0};
+    info.title      = "demo";
+    info.framerate  = gb_long_to_float(60);
+    info.draw       = gb_demo_draw_func;
+    info.clos       = gb_demo_clos_func;
+
+    // init window
+    gb_window_ref_t window = gb_window_init_glfw(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);
+    if (window)
     {
         // wait 
         getchar();
 
-        // exit view
-        gb_gl_view_exit(view);
+        // exit window
+        gb_window_exit(window);
     }
 
     // exit gbox

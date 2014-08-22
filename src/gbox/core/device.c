@@ -21,6 +21,13 @@
  * @ingroup     core
  *
  */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "device"
+#define TB_TRACE_MODULE_DEBUG           (1)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
@@ -28,8 +35,45 @@
 #include "device/prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * declaration
+ */
+#ifdef GB_CONFIG_THIRD_HAVE_GL
+__tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+gb_device_ref_t gb_device_init(gb_window_ref_t window)
+{
+    // check
+    tb_assert_and_check_return_val(window, tb_null);
+
+    // the window mode
+    tb_size_t mode = gb_window_mode(window);
+    tb_assert_and_check_return_val(mode, tb_null);
+
+    // done
+    gb_device_ref_t device = tb_null;
+    switch (mode)
+    {
+#ifdef GB_CONFIG_THIRD_HAVE_GL
+    case GB_WINDOW_MODE_GL:
+        device = gb_device_init_gl(window);
+        break;
+#endif
+    case GB_WINDOW_MODE_BITMAP:
+        device = gb_device_init_bitmap(gb_window_bitmap(window));
+        break;
+    default:
+        // trace
+        tb_trace_e("unknown window mode: %lu", mode);
+        break;
+    }
+
+    // ok?
+    return device;
+}
 tb_void_t gb_device_exit(gb_device_ref_t device)
 {
     // check
@@ -38,6 +82,15 @@ tb_void_t gb_device_exit(gb_device_ref_t device)
 
     // exit it
     if (impl->exit) impl->exit(device);
+}
+tb_size_t gb_device_type(gb_device_ref_t device)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return_val(impl, GB_DEVICE_TYPE_NONE);
+
+    // the type
+    return impl->type;
 }
 tb_size_t gb_device_pixfmt(gb_device_ref_t device)
 {

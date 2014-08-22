@@ -28,24 +28,34 @@
  * includes
  */
 #include "prefix.h"
-#ifdef GB_CONFIG_THIRD_HAVE_GL
-#   include "gl/gl.h"
-#endif
+#include "window.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+/// the device type enum
+typedef enum __gb_device_type_e
+{
+    GB_DEVICE_TYPE_NONE     = 0
+,   GB_DEVICE_TYPE_GL       = 1
+,   GB_DEVICE_TYPE_BITMAP   = 2
+,   GB_DEVICE_TYPE_SKIA     = 3
+
+}gb_device_type_e;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 __tb_extern_c_enter__
 
-#ifdef GB_CONFIG_THIRD_HAVE_GL
-/*! init gl device
+/*! init device from window
  *
- * @param view      the gl view
+ * @param window    the window
  *
  * @return          the device
  */
-gb_device_ref_t     gb_device_init_gl(gb_gl_view_ref_t view);
-#endif
+gb_device_ref_t     gb_device_init(gb_window_ref_t window);
 
 #ifdef GB_CONFIG_THIRD_HAVE_SKIA
 /*! init skia device
@@ -71,7 +81,15 @@ gb_device_ref_t     gb_device_init_bitmap(gb_bitmap_ref_t bitmap);
  */
 tb_void_t           gb_device_exit(gb_device_ref_t device);
 
-/*! get the pixfmt 
+/*! the type 
+ *
+ * @param device    the device
+ *
+ * @return          the type
+ */
+tb_size_t           gb_device_type(gb_device_ref_t device);
+
+/*! the pixfmt 
  *
  * @param device    the device
  *
