@@ -101,4 +101,12 @@ tb_size_t gb_device_pixfmt(gb_device_ref_t device)
     // the pixfmt
     return impl->pixfmt;
 }
+tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl && impl->draw_clear);
 
+    // clear it
+    impl->draw_clear(device, color);
+}

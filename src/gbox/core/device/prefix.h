@@ -43,6 +43,13 @@ typedef struct __gb_device_impl_t
     // the pixfmt
     tb_uint16_t             pixfmt;
 
+    /* clear draw
+     *
+     * @param device        the device
+     * @param color         the color
+     */
+    tb_void_t               (*draw_clear)(gb_device_ref_t device, gb_color_t color);
+
     /* exit device
      *
      * @param device        the device

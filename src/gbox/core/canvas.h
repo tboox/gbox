@@ -171,7 +171,7 @@ tb_void_t           gb_canvas_load_matrix(gb_canvas_ref_t canvas);
  *
  * @return          the saved clipper
  */
-tb_handle_t         gb_canvas_save_clipper(gb_canvas_ref_t canvas);
+gb_clipper_ref_t    gb_canvas_save_clipper(gb_canvas_ref_t canvas);
 
 /*! load clipper 
  *
@@ -653,10 +653,6 @@ tb_void_t           gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_
  */
 tb_void_t           gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * clipper
- */
-
 /*! clip path
  *
  * @param canvas    the canvas
@@ -786,10 +782,6 @@ tb_void_t           gb_canvas_clip_ellipse2(gb_canvas_ref_t canvas, tb_size_t mo
  * @param ry        the y-radius
  */
 tb_void_t           gb_canvas_clip_ellipse2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * drawer
- */
 
 /*! clear draw and fill the given color
  *

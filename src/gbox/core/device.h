@@ -97,5 +97,12 @@ tb_size_t           gb_device_type(gb_device_ref_t device);
  */
 tb_size_t           gb_device_pixfmt(gb_device_ref_t device);
 
+/*! clear draw and fill the given color
+ *
+ * @param device    the device
+ * @param color     the color
+ */
+tb_void_t           gb_device_draw_clear(gb_device_ref_t device, gb_color_t color);
+
 __tb_extern_c_leave__
 #endif

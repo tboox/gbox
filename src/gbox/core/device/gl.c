@@ -32,6 +32,12 @@
  * includes
  */
 #include "prefix.h"
+#ifdef TB_CONFIG_OS_MAC
+# 	include <GLUT/glut.h>
+#else
+# 	define GL_GLEXT_PROTOTYPES
+# 	include <GL/glut.h>
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -51,6 +57,12 @@ typedef struct __gb_device_gl_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_void_t gb_device_gl_draw_clear(gb_device_ref_t device, gb_color_t color)
+{
+    // clear it
+	glClearColor((tb_float_t)color.r / 0xff, (tb_float_t)color.g / 0xff, (tb_float_t)color.b / 0xff, (tb_float_t)color.a / 0xff);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
 static tb_void_t gb_device_gl_exit(gb_device_ref_t device)
 {
     // exit it
@@ -75,9 +87,10 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         tb_assert_and_check_break(impl);
 
         // init base 
-        impl->base.type     = GB_DEVICE_TYPE_GL;
-        impl->base.pixfmt   = gb_window_pixfmt(window); 
-        impl->base.exit     = gb_device_gl_exit;
+        impl->base.type             = GB_DEVICE_TYPE_GL;
+        impl->base.pixfmt           = gb_window_pixfmt(window); 
+        impl->base.draw_clear       = gb_device_gl_draw_clear;
+        impl->base.exit             = gb_device_gl_exit;
 
         // init window
         impl->window          = window;

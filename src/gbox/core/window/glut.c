@@ -80,7 +80,7 @@ static tb_void_t gb_window_glut_display()
 {
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
-    tb_assert_abort(impl && impl->base.info.draw && impl->canvas);
+    tb_assert_and_check_return(impl && impl->base.info.draw && impl->canvas);
 
     // clear
     glClearColor(0.0, 0.0, 0.0, 0.0);
