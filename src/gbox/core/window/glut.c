@@ -104,9 +104,13 @@ static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
 {
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && width > 0 && width <= GB_WIDTH_MAXN && height > 0 && height <= GB_HEIGHT_MAXN);
 
-    // TODO
+    // update the window width and height
+    impl->base.info.width   = width;
+    impl->base.info.height  = height;
+
+    // TODO: resize the canvas
     // ...
 
     // done resize

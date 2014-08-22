@@ -113,6 +113,14 @@ tb_size_t           gb_device_width(gb_device_ref_t device);
  */
 tb_size_t           gb_device_height(gb_device_ref_t device);
 
+/*! resize the device
+ *
+ * @param device    the device
+ * @param width     the width
+ * @param height    the height
+ */
+tb_void_t           gb_device_resize(gb_device_ref_t device, tb_size_t width, tb_size_t height);
+
 /*! clear draw and fill the given color
  *
  * @param device    the device

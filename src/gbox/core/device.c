@@ -119,6 +119,15 @@ tb_size_t gb_device_height(gb_device_ref_t device)
     // the height
     return impl->height;
 }
+tb_void_t gb_device_resize(gb_device_ref_t device, tb_size_t width, tb_size_t height)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl && impl->resize);
+
+    // resize
+    impl->resize(device, width, height);
+}
 tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
 {
     // check

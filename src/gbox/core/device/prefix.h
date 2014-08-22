@@ -49,6 +49,14 @@ typedef struct __gb_device_impl_t
     // the height
     tb_uint16_t             height;
 
+    /* resize
+     *
+     * @param device        the device
+     * @param width         the width
+     * @param height        the height
+     */
+    tb_void_t               (*resize)(gb_device_ref_t device, tb_size_t width, tb_size_t height);
+
     /* clear draw
      *
      * @param device        the device
