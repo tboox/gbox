@@ -31,9 +31,6 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
 						core/window/glut
 
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLFW) += \
-						core/window/glfw
-
 # skia core files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
 						core/device/skia

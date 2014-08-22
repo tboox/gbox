@@ -20,10 +20,15 @@
  */
 static tb_void_t gb_demo_draw_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
-    tb_trace_i("draw");
+    // check
+    tb_assert_abort(window && canvas);
+
+    // clear it
+//    gb_canvas_draw_clear(canvas, GB_COLOR_RED);
 }
 static tb_void_t gb_demo_clos_func(gb_window_ref_t window, tb_cpointer_t priv)
 {
+    // trace
     tb_trace_i("clos");
 }
 
@@ -50,11 +55,11 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     info.clos       = gb_demo_clos_func;
 
     // init window
-    gb_window_ref_t window = gb_window_init_glfw(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);
+    gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);
     if (window)
     {
-        // wait 
-        getchar();
+        // loop window
+        gb_window_loop(window);
 
         // exit window
         gb_window_exit(window);

@@ -22,7 +22,6 @@
 // third party
 #define GB_CONFIG_THIRD_HAVE_GL
 #define GB_CONFIG_THIRD_HAVE_GLUT
-#define GB_CONFIG_THIRD_HAVE_GLFW
 #define GB_CONFIG_THIRD_HAVE_SKIA
 
 #endif

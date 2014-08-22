@@ -57,6 +57,12 @@ typedef struct __gb_window_impl_t
     // the bitmap for the bitmap mode
     gb_bitmap_ref_t         bitmap;
 
+    /* loop window
+     *
+     * @param window        the window
+     */
+    tb_void_t               (*loop)(gb_window_ref_t window);
+
     /* exit window
      *
      * @param window        the window

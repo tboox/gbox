@@ -39,6 +39,15 @@ tb_void_t gb_window_exit(gb_window_ref_t window)
     // exit it
     if (impl->exit) impl->exit(window);
 }
+tb_void_t gb_window_loop(gb_window_ref_t window)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return(impl && impl->loop);
+
+    // loop it
+    impl->loop(window);
+}
 tb_size_t gb_window_type(gb_window_ref_t window)
 {
     // check

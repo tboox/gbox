@@ -32,6 +32,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../canvas.h"
 #ifdef TB_CONFIG_OS_MAC
 # 	include <GLUT/glut.h>
 #else
@@ -49,114 +50,132 @@ typedef struct __gb_window_glut_impl_t
     // the base
     gb_window_impl_t        base;
 
-    // the loop
-    tb_thread_ref_t         loop;
+    // the window id
+    tb_int_t                id;
 
     // is stoped?
     tb_atomic_t             stop;
 
+    // the canvas
+    gb_canvas_ref_t         canvas;
+
 }gb_window_glut_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * globals
+ */
+
+// the windows
+static gb_window_glut_impl_t*   g_windows[16] = {tb_null};
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static __tb_inline__ gb_window_glut_impl_t* gb_window_glut_get()
+{
+    tb_int_t id = glutGetWindow();
+    return (id < tb_arrayn(g_windows))? g_windows[id] : tb_null;
+}
 static tb_void_t gb_window_glut_display()
 {
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_abort(impl && impl->base.info.draw && impl->canvas);
+
     // clear
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-//    tb_trace_i("gb_window_glut_display");
+    // done draw
+    impl->base.info.draw((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+
 	// flush
 	glutSwapBuffers();
 }
 static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
 {
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
+
 }
 static tb_void_t gb_window_glut_keyboard(tb_byte_t key, tb_int_t x, tb_int_t y)
-{
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
+
 }
 static tb_void_t gb_window_glut_special(tb_int_t key, tb_int_t x, tb_int_t y)
-{
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
 }
 static tb_void_t gb_window_glut_mouse(tb_int_t button, tb_int_t state, tb_int_t x, tb_int_t y)
-{
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
 }
 static tb_void_t gb_window_glut_passive_motion(tb_int_t x, tb_int_t y)
-{
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
 }
 static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
-{
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
 }
 static tb_void_t gb_window_glut_close()
-{
-    tb_trace_i("xxxxxxx");
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
+
+    // done clos
+    if (impl->base.info.clos) impl->base.info.clos((gb_window_ref_t)impl, impl->base.info.priv);
+
+    // stop it
+    tb_atomic_set(&impl->stop, 1);
 }
 static tb_void_t gb_window_glut_exit(gb_window_ref_t window)
 {
     // check
     gb_window_glut_impl_t* impl = (gb_window_glut_impl_t*)window;
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && impl->id < tb_arrayn(g_windows));
 
     // stop it
     tb_atomic_set(&impl->stop, 1);
 
-    // exit loop
-    if (impl->loop)
-    {
-        // wait loop
-        tb_thread_wait(impl->loop, -1);
-        tb_thread_exit(impl->loop);
-        impl->loop = tb_null;
-    }
+    // clear it
+    g_windows[impl->id] = tb_null;
+
+    // exit canvas
+    if (impl->canvas) gb_canvas_exit(impl->canvas);
+    impl->canvas = tb_null;
 
     // exit it
     tb_free(window);
 }
-static tb_pointer_t gb_window_glut_loop(tb_cpointer_t priv)
+static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
 {
-    // done
-    do
+    // check
+    gb_window_glut_impl_t* impl = (gb_window_glut_impl_t*)window;
+    tb_assert_and_check_return(impl);
+
+    // init canvas
+    if (!impl->canvas) impl->canvas = gb_canvas_init_from_window(window);
+    tb_assert_abort(impl->canvas);
+
+    // loop
+    while (!tb_atomic_get(&impl->stop))
     {
-        // check
-        gb_window_glut_impl_t* impl = (gb_window_glut_impl_t*)priv;
-        tb_assert_and_check_break(impl);
-
-        // init glut
-        tb_int_t    argc = 0;
-        tb_char_t*  argv[1] = {0};
-        glutInit(&argc, argv);
-        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL | GLUT_MULTISAMPLE);
-        glutInitWindowPosition(0, 0);
-        glutInitWindowSize(impl->base.width, impl->base.height);
-        
-        // make window
-        glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
-        glutDisplayFunc(gb_window_glut_display);
-        glutReshapeFunc(gb_window_glut_reshape);
-        glutKeyboardFunc(gb_window_glut_keyboard);
-        glutSpecialFunc(gb_window_glut_special);
-        glutMouseFunc(gb_window_glut_mouse);
-        glutPassiveMotionFunc(gb_window_glut_passive_motion);
-        glutMotionFunc(gb_window_glut_motion);
-        glutWMCloseFunc(gb_window_glut_close);
-        glutIdleFunc(gb_window_glut_display);
-
-        // loop
-#if 1
-        while (!tb_atomic_get(&impl->stop))
-        {
-            glutCheckLoop();
-        }
-#else
-        glutMainLoop();
-#endif
-
-    } while (0);
-
-    // end
-    tb_thread_return(tb_null);
-    return tb_null;
+        glutCheckLoop();
+    }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -182,6 +201,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         impl->base.mode     = GB_WINDOW_MODE_GL;
         impl->base.width    = width;
         impl->base.height   = height;
+        impl->base.loop     = gb_window_glut_loop;
         impl->base.exit     = gb_window_glut_exit;
         impl->base.info     = *info;
 
@@ -198,8 +218,32 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
 
         // init loop
         impl->stop = 0;
-        impl->loop = tb_thread_init(__tb_lstring__("glut_loop"), gb_window_glut_loop, (tb_cpointer_t)impl, 0);
-        tb_assert_and_check_break(impl->loop);
+
+        // init glut
+        tb_int_t    argc = 0;
+        tb_char_t*  argv[1] = {0};
+        glutInit(&argc, argv);
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL | GLUT_MULTISAMPLE);
+        glutInitWindowPosition(0, 0);
+        glutInitWindowSize(impl->base.width, impl->base.height);
+        
+        // make window
+        impl->id = glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
+        tb_assert_and_check_break(impl->id < tb_arrayn(g_windows));
+
+        // save window
+        g_windows[impl->id] = impl;
+
+        // init window func
+        glutDisplayFunc(gb_window_glut_display);
+        glutReshapeFunc(gb_window_glut_reshape);
+        glutKeyboardFunc(gb_window_glut_keyboard);
+        glutSpecialFunc(gb_window_glut_special);
+        glutMouseFunc(gb_window_glut_mouse);
+        glutPassiveMotionFunc(gb_window_glut_passive_motion);
+        glutMotionFunc(gb_window_glut_motion);
+        glutWMCloseFunc(gb_window_glut_close);
+        glutIdleFunc(gb_window_glut_display);
 
         // ok
         ok = tb_true;

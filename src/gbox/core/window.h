@@ -99,29 +99,15 @@ __tb_extern_c_enter__
 #ifdef GB_CONFIG_THIRD_HAVE_GLUT
 /*! init glut window 
  *
- * init a new window
+ * create a new window and create a fullscreen window if width and height are zero
  *
  * @param info          the window info
- * @param width         the window width 
+ * @param width         the window width
  * @param height        the window height
  *
  * @return              the window
  */
 gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height);
-#endif
-
-#ifdef GB_CONFIG_THIRD_HAVE_GLFW
-/*! init glfw window 
- *
- * init a new window
- *
- * @param info          the window info
- * @param width         the window width 
- * @param height        the window height
- *
- * @return              the window
- */
-gb_window_ref_t         gb_window_init_glfw(gb_window_info_t const* info, tb_size_t width, tb_size_t height);
 #endif
 
 #ifdef TB_CONFIG_OS_IOS
@@ -176,6 +162,12 @@ tb_size_t               gb_window_type(gb_window_ref_t window);
  * @return              the mode
  */
 tb_size_t               gb_window_mode(gb_window_ref_t window);
+
+/*! loop window
+ *
+ * @param window        the window
+ */
+tb_void_t               gb_window_loop(gb_window_ref_t window);
 
 /*! the window pixfmt
  *
