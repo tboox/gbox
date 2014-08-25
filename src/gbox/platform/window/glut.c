@@ -155,6 +155,21 @@ static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
     // trace
     tb_trace_d("motion: %d, %d", x, y);
 }
+static tb_void_t gb_window_glut_timer(tb_int_t value)
+{
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
+
+    // trace
+//    tb_trace_d("timer: %d", value);
+
+    // post to draw it
+    glutPostRedisplay();
+
+    // next timer
+    glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, 1);
+}
 #ifndef TB_CONFIG_OS_WINDOWS
 static tb_void_t gb_window_glut_close()
 { 
@@ -211,6 +226,10 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     }
 #endif
 }
+static gb_float_t gb_window_glut_framerate(gb_window_ref_t window)
+{
+    return 0;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -223,7 +242,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
     do
     {
         // check
-        tb_assert_and_check_break(info);
+        tb_assert_and_check_break(info && info->framerate);
         tb_assert_and_check_break(width && width <= GB_WIDTH_MAXN && height && height <= GB_HEIGHT_MAXN);
 
         // make window
@@ -231,13 +250,14 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         tb_assert_and_check_break(impl);
 
         // init base
-        impl->base.type     = GB_WINDOW_TYPE_GLUT;
-        impl->base.mode     = GB_WINDOW_MODE_GL;
-        impl->base.width    = (tb_uint16_t)width;
-        impl->base.height   = (tb_uint16_t)height;
-        impl->base.loop     = gb_window_glut_loop;
-        impl->base.exit     = gb_window_glut_exit;
-        impl->base.info     = *info;
+        impl->base.type         = GB_WINDOW_TYPE_GLUT;
+        impl->base.mode         = GB_WINDOW_MODE_GL;
+        impl->base.width        = (tb_uint16_t)width;
+        impl->base.height       = (tb_uint16_t)height;
+        impl->base.loop         = gb_window_glut_loop;
+        impl->base.exit         = gb_window_glut_exit;
+        impl->base.framerate    = gb_window_glut_framerate;
+        impl->base.info         = *info;
 
         /* init pixfmt
          * 
@@ -260,7 +280,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL | GLUT_MULTISAMPLE);
         glutInitWindowPosition(0, 0);
         glutInitWindowSize(impl->base.width, impl->base.height);
-        
+
         // make window
         impl->id = glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
         tb_assert_and_check_break(impl->id < tb_arrayn(g_windows));
@@ -276,7 +296,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutMouseFunc(gb_window_glut_mouse);
         glutPassiveMotionFunc(gb_window_glut_passive_motion);
         glutMotionFunc(gb_window_glut_motion);
-        glutIdleFunc(gb_window_glut_display);
+        glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, 1);
 #ifndef TB_CONFIG_OS_WINDOWS
         glutWMCloseFunc(gb_window_glut_close);
 #endif

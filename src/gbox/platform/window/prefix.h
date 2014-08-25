@@ -69,6 +69,12 @@ typedef struct __gb_window_impl_t
      */
     tb_void_t               (*exit)(gb_window_ref_t window);
 
+    /* the window framerate
+     *
+     * @param window        the window
+     */
+    gb_float_t              (*framerate)(gb_window_ref_t window);
+
 }gb_window_impl_t;
 
 
