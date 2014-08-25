@@ -1,5 +1,5 @@
 # demo
-GB_CONFIG_DEMO_LIBS							= polarssl sqlite3 z ws2_32
+GB_CONFIG_DEMO_LIBS							= glut32 glu32 opengl32 polarssl sqlite3 z ws2_32
 GB_CONFIG_DEMO_CMD1 						=
 
 # third party

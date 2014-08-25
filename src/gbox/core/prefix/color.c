@@ -123,7 +123,7 @@ static tb_long_t gb_named_color_comp(tb_iterator_ref_t iterator, tb_cpointer_t i
     tb_assert_return_val(item && name, 0);
 
     // comp
-    return tb_strnicmp(((gb_named_color_t const*)item)->name, name, tb_strlen(((gb_named_color_t const*)item)->name));
+    return tb_strnicmp(((gb_named_color_t const*)item)->name, (tb_char_t const*)name, tb_strlen(((gb_named_color_t const*)item)->name));
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

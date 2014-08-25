@@ -91,7 +91,7 @@ gb_bitmap_ref_t gb_bitmap_init(tb_pointer_t data, tb_size_t pixfmt, tb_size_t wi
         impl->pixfmt        = (tb_uint16_t)pixfmt;
         impl->width 	    = (tb_uint16_t)width;
         impl->height 	    = (tb_uint16_t)height;
-        impl->row_bytes 	= row_bytes;
+        impl->row_bytes 	= (tb_uint16_t)row_bytes;
         impl->size 	        = row_bytes * height;
         impl->data          = data? data : tb_malloc0(impl->size);
         impl->has_alpha     = !!has_alpha;
@@ -213,7 +213,7 @@ tb_bool_t gb_bitmap_data_set(gb_bitmap_ref_t bitmap, tb_pointer_t data, tb_size_
         impl->height 	    = (tb_uint16_t)height;
         impl->data          = data;
         impl->size          = row_bytes * height;
-        impl->row_bytes 	= row_bytes;
+        impl->row_bytes 	= (tb_uint16_t)row_bytes;
         impl->is_owner      = 1;
         impl->has_alpha     = !!has_alpha;
 
@@ -242,9 +242,9 @@ tb_bool_t gb_bitmap_resize(gb_bitmap_ref_t bitmap, tb_size_t width, tb_size_t he
     if (height * width * pixmap->btp <= impl->size)
     {
         // resize
-        impl->width     = width;
-        impl->height    = height;
-        if (impl->is_owner) impl->row_bytes = width * pixmap->btp;
+        impl->width     = (tb_uint16_t)width;
+        impl->height    = (tb_uint16_t)height;
+        if (impl->is_owner) impl->row_bytes = (tb_uint16_t)(width * pixmap->btp);
         impl->size      = impl->row_bytes * height;
     }
     // grow?
@@ -255,9 +255,9 @@ tb_bool_t gb_bitmap_resize(gb_bitmap_ref_t bitmap, tb_size_t width, tb_size_t he
         tb_check_return_val(impl->is_owner, tb_false);
 
 		// resize 
-        impl->width     = width;
-        impl->height    = height;
-		impl->row_bytes = width * pixmap->btp;
+        impl->width     = (tb_uint16_t)width;
+        impl->height    = (tb_uint16_t)height;
+		impl->row_bytes = (tb_uint16_t)(width * pixmap->btp);
         impl->size      = impl->row_bytes * height;
         impl->data      = tb_ralloc(impl->data, impl->size);
         tb_assert_and_check_return_val(impl->data, tb_false);

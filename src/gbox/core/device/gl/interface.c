@@ -35,7 +35,6 @@
 #if defined(TB_CONFIG_OS_MAC)
 # 	include <OpenGL/gl.h>
 # 	include <OpenGL/glu.h>
-# 	include <GLUT/glut.h>
 #elif defined(TB_CONFIG_OS_ANDROID)
 # 	include <GLES/gl.h>
 # 	include <GLES/glext.h>
@@ -44,9 +43,11 @@
 # 	include <OpenGLES/ES1/glext.h>
 # 	include <OpenGLES/ES2/gl.h>
 # 	include <OpenGLES/ES2/glext.h>
+#elif defined(TB_CONFIG_OS_WINDOWS)
+# 	include <GL/gl.h>
 #else
 # 	define GL_GLEXT_PROTOTYPES
-# 	include <GL/glut.h>
+# 	include <GL/gl.h>
 # 	include <GL/glext.h>
 #endif
 
@@ -242,7 +243,9 @@ tb_bool_t gb_gl_interface_load()
 
 #else
         // load interfaces for common
+#ifndef TB_CONFIG_OS_WINDOWS
         GB_GL_INTERFACE_LOAD_S(glActiveTexture);
+#endif
         GB_GL_INTERFACE_LOAD_S(glAlphaFunc);
         GB_GL_INTERFACE_LOAD_S(glBindTexture);
         GB_GL_INTERFACE_LOAD_S(glBlendFunc);
@@ -278,11 +281,11 @@ tb_bool_t gb_gl_interface_load()
         GB_GL_INTERFACE_LOAD_S(glLoadMatrixf);
         GB_GL_INTERFACE_LOAD_S(glMatrixMode);
         GB_GL_INTERFACE_LOAD_S(glMultMatrixf);
-#ifdef TB_CONFIG_OS_IOS
+#   ifdef TB_CONFIG_OS_IOS
         GB_GL_INTERFACE_LOAD_S(glOrthof);
-#else
+#   else
         GB_GL_INTERFACE_LOAD_S(glOrtho);
-#endif
+#   endif
         GB_GL_INTERFACE_LOAD_S(glPopMatrix);
         GB_GL_INTERFACE_LOAD_S(glPushMatrix);
         GB_GL_INTERFACE_LOAD_S(glRotatef);
@@ -292,6 +295,7 @@ tb_bool_t gb_gl_interface_load()
         GB_GL_INTERFACE_LOAD_S(glTranslatef);
         GB_GL_INTERFACE_LOAD_S(glVertexPointer);
 
+#   ifndef TB_CONFIG_OS_WINDOWS
         // load interfaces for gl >= 2.0
         GB_GL_INTERFACE_LOAD_S(glAttachShader);
         GB_GL_INTERFACE_LOAD_S(glCompileShader);
@@ -314,6 +318,7 @@ tb_bool_t gb_gl_interface_load()
         GB_GL_INTERFACE_LOAD_S(glUseProgram);
         GB_GL_INTERFACE_LOAD_S(glVertexAttrib4f);
         GB_GL_INTERFACE_LOAD_S(glVertexAttribPointer);
+#   endif
 #endif
 
         // ok

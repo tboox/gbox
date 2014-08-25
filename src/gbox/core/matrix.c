@@ -31,7 +31,7 @@
  * types
  */
 #ifdef GB_CONFIG_FLOAT_FIXED
-typedef tb_hong_t       gb_invdet_t;
+typedef gb_float_t      gb_invdet_t;
 #else
 typedef tb_double_t     gb_invdet_t;
 #endif
@@ -41,19 +41,19 @@ typedef tb_double_t     gb_invdet_t;
  */
 
 #ifdef GB_CONFIG_FLOAT_FIXED
-static __tb_inline__ tb_hong_t gb_matrix_mul_add(gb_float_t a, gb_float_t b, gb_float_t c, gb_float_t d)
+static __tb_inline__ gb_float_t gb_matrix_mul_add(gb_float_t a, gb_float_t b, gb_float_t c, gb_float_t d)
 {
     return (gb_float_t)(((tb_hong_t)a * b + (tb_hong_t)c * d) >> 16);
 }
-static __tb_inline__ tb_hong_t gb_matrix_mul_sub(gb_float_t a, gb_float_t b, gb_float_t c, gb_float_t d)
+static __tb_inline__ gb_float_t gb_matrix_mul_sub(gb_float_t a, gb_float_t b, gb_float_t c, gb_float_t d)
 {
     return (gb_float_t)(((tb_hong_t)a * b - (tb_hong_t)c * d) >> 16);
 }
-static __tb_inline__ tb_hong_t gb_matrix_det(gb_float_t sx, gb_float_t sy, gb_float_t kx, gb_float_t ky)
+static __tb_inline__ gb_float_t gb_matrix_det(gb_float_t sx, gb_float_t sy, gb_float_t kx, gb_float_t ky)
 {
     tb_hong_t det = (tb_hong_t)sx * sy - (tb_hong_t)kx * ky;
     if (!det) return 0;
-    return ((tb_hong_t)1 << 48) / det;
+    return (gb_float_t)(((tb_hong_t)1 << 48) / det);
 }
 #else
 static __tb_inline__ gb_float_t gb_matrix_mul_add(gb_float_t a, gb_float_t b, gb_float_t c, gb_float_t d)

@@ -60,6 +60,13 @@ typedef struct __gb_device_gl_impl_t
 }gb_device_gl_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * declaration
+ */
+#ifdef GB_CONFIG_THIRD_HAVE_GL
+__tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
 static tb_size_t gb_device_gl_version()

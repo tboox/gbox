@@ -424,9 +424,9 @@ gb_bitmap_decoder_ref_t gb_bitmap_decoder_bmp_init(tb_size_t pixfmt, tb_stream_r
         // init decoder
         impl->type          = GB_BITMAP_TYPE_BMP;
         impl->stream        = stream;
-        impl->pixfmt        = pixfmt;
-        impl->width         = width;
-        impl->height        = height;
+        impl->pixfmt        = (tb_uint16_t)pixfmt;
+        impl->width         = (tb_uint16_t)width;
+        impl->height        = (tb_uint16_t)height;
         impl->done          = gb_bitmap_decoder_bmp_done;
 
         // ok

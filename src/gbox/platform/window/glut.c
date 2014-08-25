@@ -36,7 +36,6 @@
 #ifdef TB_CONFIG_OS_MAC
 # 	include <GLUT/glut.h>
 #else
-# 	define GL_GLEXT_PROTOTYPES
 # 	include <GL/glut.h>
 #endif
 
@@ -156,6 +155,7 @@ static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
     // trace
     tb_trace_d("motion: %d, %d", x, y);
 }
+#ifndef TB_CONFIG_OS_WINDOWS
 static tb_void_t gb_window_glut_close()
 { 
     // check
@@ -171,6 +171,7 @@ static tb_void_t gb_window_glut_close()
     // stop it
     tb_atomic_set(&impl->stop, 1);
 }
+#endif
 static tb_void_t gb_window_glut_exit(gb_window_ref_t window)
 {
     // check
@@ -201,10 +202,14 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     tb_assert_abort(impl->canvas);
 
     // loop
+#ifdef TB_CONFIG_OS_WINDOWS
+    glutMainLoop();
+#else
     while (!tb_atomic_get(&impl->stop))
     {
         glutCheckLoop();
     }
+#endif
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -228,8 +233,8 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         // init base
         impl->base.type     = GB_WINDOW_TYPE_GLUT;
         impl->base.mode     = GB_WINDOW_MODE_GL;
-        impl->base.width    = width;
-        impl->base.height   = height;
+        impl->base.width    = (tb_uint16_t)width;
+        impl->base.height   = (tb_uint16_t)height;
         impl->base.loop     = gb_window_glut_loop;
         impl->base.exit     = gb_window_glut_exit;
         impl->base.info     = *info;
@@ -249,8 +254,8 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         impl->stop = 0;
 
         // init glut
-        tb_int_t    argc = 0;
-        tb_char_t*  argv[1] = {0};
+        tb_int_t    argc = 1;
+        tb_char_t*  argv[] = {"", tb_null};
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL | GLUT_MULTISAMPLE);
         glutInitWindowPosition(0, 0);
@@ -271,8 +276,10 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutMouseFunc(gb_window_glut_mouse);
         glutPassiveMotionFunc(gb_window_glut_passive_motion);
         glutMotionFunc(gb_window_glut_motion);
-        glutWMCloseFunc(gb_window_glut_close);
         glutIdleFunc(gb_window_glut_display);
+#ifndef TB_CONFIG_OS_WINDOWS
+        glutWMCloseFunc(gb_window_glut_close);
+#endif
 
         // ok
         ok = tb_true;
