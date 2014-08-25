@@ -6,24 +6,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_demo_init_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
+tb_void_t gb_demo_clos_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
     tb_assert_and_check_return(window && canvas);
 
     // trace
-    tb_trace_i("init");
-
-    // clear it
-    gb_canvas_draw_clear(canvas, GB_COLOR_BLACK);
-}
-tb_void_t gb_demo_exit_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
-{
-    // check
-    tb_assert_and_check_return(window && canvas);
-
-    // trace
-    tb_trace_i("exit");
+    tb_trace_i("clos");
 
     // clear it
     gb_canvas_draw_clear(canvas, GB_COLOR_BLACK);

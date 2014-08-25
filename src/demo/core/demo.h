@@ -9,22 +9,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interface
  */
-
-/* init window
+/* clos window
  *
  * @param window    the window
  * @param canvas    the canvas
  * @param priv      the user private data
  */
-tb_void_t           gb_demo_init_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
-
-/* exit window
- *
- * @param window    the window
- * @param canvas    the canvas
- * @param priv      the user private data
- */
-tb_void_t           gb_demo_exit_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+tb_void_t           gb_demo_clos_func(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
 /* draw window
  *

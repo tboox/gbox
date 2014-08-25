@@ -14,43 +14,19 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2014 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        core.h
- * @defgroup    core
+ * @file        prefix.h
  */
-#ifndef GB_CORE_H
-#define GB_CORE_H
+#ifndef GB_PLATFORM_PREFIX_H
+#define GB_PLATFORM_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "matrix.h"
-#include "pixmap.h"
-#include "bitmap.h"
-#include "paint.h"
-#include "canvas.h"
-#include "device.h"
-#include "svg/svg.h"
+#include "../prefix.h"
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
- */
-__tb_extern_c_enter__
-
-/*! init core
- *
- * @return  tb_true or tb_false
- */
-tb_bool_t   gb_core_init(tb_noarg_t);
-
-/*! exit core
- */
-tb_void_t   gb_core_exit(tb_noarg_t);
-
-__tb_extern_c_leave__
 #endif
 
 

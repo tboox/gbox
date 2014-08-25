@@ -30,6 +30,7 @@
 #include "ui/ui.h"
 #include "core/core.h"
 #include "game/game.h"
+#include "platform/platform.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

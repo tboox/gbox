@@ -18,7 +18,7 @@
  *
  * @author      ruki
  * @file        glut.c
- * @ingroup     core
+ * @ingroup     platform
  *
  */
 
@@ -32,7 +32,7 @@
  * includes
  */
 #include "prefix.h"
-#include "../canvas.h"
+#include "../../core/canvas.h"
 #ifdef TB_CONFIG_OS_MAC
 # 	include <GLUT/glut.h>
 #else
@@ -82,18 +82,6 @@ static tb_void_t gb_window_glut_display()
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->canvas);
 
-    // done init
-    if (impl->base.info.init) impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
-
-	// flush
-	glutSwapBuffers();
-}
-static tb_void_t gb_window_glut_idle()
-{
-    // check
-    gb_window_glut_impl_t* impl = gb_window_glut_get();
-    tb_assert_and_check_return(impl && impl->base.info.draw && impl->canvas);
-
     // done draw
     impl->base.info.draw((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
 
@@ -106,12 +94,16 @@ static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && width > 0 && width <= GB_WIDTH_MAXN && height > 0 && height <= GB_HEIGHT_MAXN);
 
-    // update the window width and height
-    impl->base.info.width   = width;
-    impl->base.info.height  = height;
+    // the device
+    gb_device_ref_t device = gb_canvas_device(impl->canvas);
+    tb_assert_and_check_return(device);
 
-    // TODO: resize the canvas
-    // ...
+    // update the window width and height
+    impl->base.width   = width;
+    impl->base.height  = height;
+
+    // resize the device
+    gb_device_resize(device, width, height);
 
     // done resize
     if (impl->base.info.resize) impl->base.info.resize((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
@@ -153,8 +145,8 @@ static tb_void_t gb_window_glut_close()
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->canvas);
 
-    // done exit
-    if (impl->base.info.exit) impl->base.info.exit((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+    // done clos
+    if (impl->base.info.clos) impl->base.info.clos((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
 
 	// flush
 	glutSwapBuffers();
@@ -263,7 +255,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutPassiveMotionFunc(gb_window_glut_passive_motion);
         glutMotionFunc(gb_window_glut_motion);
         glutWMCloseFunc(gb_window_glut_close);
-        glutIdleFunc(gb_window_glut_idle);
+        glutIdleFunc(gb_window_glut_display);
 
         // ok
         ok = tb_true;

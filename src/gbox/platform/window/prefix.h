@@ -18,10 +18,10 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @ingroup     core
+ * @ingroup     platform
  */
-#ifndef GB_CORE_WINDOW_PREFIX_H
-#define GB_CORE_WINDOW_PREFIX_H
+#ifndef GB_PLATFORM_WINDOW_PREFIX_H
+#define GB_PLATFORM_WINDOW_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

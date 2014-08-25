@@ -31,9 +31,8 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     // init window info
     gb_window_info_t info = {0};
     info.title      = "demo";
-    info.framerate  = gb_long_to_float(60);
-    info.init       = gb_demo_init_func;
-    info.exit       = gb_demo_exit_func;
+    info.framerate  = 60;
+    info.clos       = gb_demo_clos_func;
     info.draw       = gb_demo_draw_func;
     info.resize     = gb_demo_resize_func;
 

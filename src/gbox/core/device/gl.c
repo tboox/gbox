@@ -84,6 +84,9 @@ static tb_size_t gb_device_gl_version()
 	// [0x10, 0x19] 
 	return ((major << 4) + minor);
 }
+static tb_void_t gb_device_gl_resize(gb_device_ref_t device, tb_size_t width, tb_size_t height)
+{
+}
 static tb_void_t gb_device_gl_draw_clear(gb_device_ref_t device, gb_color_t color)
 {
     // clear it
@@ -118,6 +121,7 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->base.pixfmt           = (tb_uint16_t)gb_window_pixfmt(window); 
         impl->base.width            = (tb_uint16_t)gb_window_width(window); 
         impl->base.height           = (tb_uint16_t)gb_window_height(window); 
+        impl->base.resize           = gb_device_gl_resize;
         impl->base.draw_clear       = gb_device_gl_draw_clear;
         impl->base.exit             = gb_device_gl_exit;
 

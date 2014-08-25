@@ -18,16 +18,17 @@
  *
  * @author      ruki
  * @file        window.h
- * @ingroup     core
+ * @ingroup     platform
  *
  */
-#ifndef GB_CORE_WINDOWH
-#define GB_CORE_WINDOWH
+#ifndef GB_PLATFORM_WINDOW_H
+#define GB_PLATFORM_WINDOW_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
+#include "../core/prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -56,21 +57,13 @@ typedef enum __gb_window_mode_e
 /// the window type
 typedef struct{}*           gb_window_ref_t;
 
-/*! the window init func type
+/*! the window clos func type
  *
  * @param window            the window
  * @param canvas            the canvas
  * @param priv              the user private data
  */
-typedef tb_void_t           (*gb_window_init_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
-
-/*! the window exit func type
- *
- * @param window            the window
- * @param canvas            the canvas
- * @param priv              the user private data
- */
-typedef tb_void_t           (*gb_window_exit_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+typedef tb_void_t           (*gb_window_clos_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
 /*! the window draw func type
  *
@@ -95,13 +88,10 @@ typedef struct __gb_window_info_t
     tb_char_t const*        title;
 
     /// the framerate
-    gb_float_t              framerate;
+    tb_size_t               framerate;
 
-    /// the init func
-    gb_window_init_func_t   init;
-
-    /// the exit func
-    gb_window_exit_func_t   exit;
+    /// the clos func
+    gb_window_clos_func_t   clos;
 
     /// the draw func
     gb_window_draw_func_t   draw;

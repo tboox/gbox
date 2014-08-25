@@ -14,19 +14,21 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2014 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        ios.m
- * @ingroup     core
- *
+ * @file        prefix.h
+ * @defgroup    platform
  */
+#ifndef GB_PLATFORM_H
+#define GB_PLATFORM_H
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
+#include "window.h"
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
- */
+#endif
+
 
