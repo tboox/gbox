@@ -14,20 +14,19 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
- * @defgroup    game
+ * @file        event.c
+ * @ingroup     platform
+ *
  */
-#ifndef GB_GAME_H
-#define GB_GAME_H
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "event.h"
 
-#endif
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
 

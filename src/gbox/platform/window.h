@@ -60,10 +60,9 @@ typedef struct{}*           gb_window_ref_t;
 /*! the window clos func type
  *
  * @param window            the window
- * @param canvas            the canvas
  * @param priv              the user private data
  */
-typedef tb_void_t           (*gb_window_clos_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+typedef tb_void_t           (*gb_window_clos_func_t)(gb_window_ref_t window, tb_cpointer_t priv);
 
 /*! the window draw func type
  *
@@ -81,26 +80,70 @@ typedef tb_void_t           (*gb_window_draw_func_t)(gb_window_ref_t window, gb_
  */
 typedef tb_void_t           (*gb_window_resize_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
+/*! the window touch begin func
+ *
+ * @param window            the window
+ * @param points            the points
+ * @param count             the count
+ */
+typedef tb_void_t           (*gb_window_touch_begin_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
+
+/*! the window touch move func
+ *
+ * @param window            the window
+ * @param points            the points
+ * @param count             the count
+ */
+typedef tb_void_t           (*gb_window_touch_move_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
+
+/*! the window touch end func
+ *
+ * @param window            the window
+ * @param points            the points
+ * @param count             the count
+ */
+typedef tb_void_t           (*gb_window_touch_end_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
+
+/*! the window touch cancel func
+ *
+ * @param window            the window
+ * @param points            the points
+ * @param count             the count
+ */
+typedef tb_void_t           (*gb_window_touch_cancel_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
+
 /// the window info type
 typedef struct __gb_window_info_t
 {
     /// the window title
-    tb_char_t const*        title;
+    tb_char_t const*                title;
 
     /// the framerate
-    tb_size_t               framerate;
+    tb_size_t                       framerate;
 
     /// the clos func
-    gb_window_clos_func_t   clos;
+    gb_window_clos_func_t           clos;
 
     /// the draw func
-    gb_window_draw_func_t   draw;
+    gb_window_draw_func_t           draw;
 
     /// the resize func
-    gb_window_resize_func_t resize;
+    gb_window_resize_func_t         resize;
+
+    /// the touch begin func
+    gb_window_touch_begin_func_t    touch_begin;
+
+    /// the touch move func
+    gb_window_touch_move_func_t     touch_move;
+
+    /// the touch end func
+    gb_window_touch_end_func_t      touch_end;
+
+    /// the touch cancel func
+    gb_window_touch_cancel_func_t   touch_cancel;
 
     /// the user private data
-    tb_cpointer_t           priv;
+    tb_cpointer_t                   priv;
 
 }gb_window_info_t;
 

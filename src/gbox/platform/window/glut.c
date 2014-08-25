@@ -94,6 +94,9 @@ static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && width > 0 && width <= GB_WIDTH_MAXN && height > 0 && height <= GB_HEIGHT_MAXN);
 
+    // trace
+    tb_trace_d("reshape: %dx%d", width, height);
+
     // the device
     gb_device_ref_t device = gb_canvas_device(impl->canvas);
     tb_assert_and_check_return(device);
@@ -114,30 +117,44 @@ static tb_void_t gb_window_glut_keyboard(tb_byte_t key, tb_int_t x, tb_int_t y)
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
 
+    // trace
+    tb_trace_d("keyboard: %d at: %d, %d", key, x, y);
 }
 static tb_void_t gb_window_glut_special(tb_int_t key, tb_int_t x, tb_int_t y)
 { 
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
+
+    // trace
+    tb_trace_d("special: %d at: %d, %d", key, x, y);
 }
 static tb_void_t gb_window_glut_mouse(tb_int_t button, tb_int_t state, tb_int_t x, tb_int_t y)
 { 
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
+
+    // trace
+    tb_trace_d("passive_mouse: button: %d, state: %d at: %d, %d", button, state, x, y);
 }
 static tb_void_t gb_window_glut_passive_motion(tb_int_t x, tb_int_t y)
 { 
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
+
+    // trace
+    tb_trace_d("passive_motion: %d, %d", x, y);
 }
 static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
 { 
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
+
+    // trace
+    tb_trace_d("motion: %d, %d", x, y);
 }
 static tb_void_t gb_window_glut_close()
 { 
@@ -145,11 +162,11 @@ static tb_void_t gb_window_glut_close()
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->canvas);
 
-    // done clos
-    if (impl->base.info.clos) impl->base.info.clos((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+    // trace
+    tb_trace_d("clos");
 
-	// flush
-	glutSwapBuffers();
+    // done clos
+    if (impl->base.info.clos) impl->base.info.clos((gb_window_ref_t)impl, impl->base.info.priv);
 
     // stop it
     tb_atomic_set(&impl->stop, 1);

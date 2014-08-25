@@ -29,12 +29,16 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     if (!gb_init()) return 0;
 
     // init window info
-    gb_window_info_t info = {0};
-    info.title      = "demo";
-    info.framerate  = 60;
-    info.clos       = gb_demo_clos_func;
-    info.draw       = gb_demo_draw_func;
-    info.resize     = gb_demo_resize_func;
+    gb_window_info_t info   = {0};
+    info.title              = "demo";
+    info.framerate          = 60;
+    info.clos               = gb_demo_clos;
+    info.draw               = gb_demo_draw;
+    info.resize             = gb_demo_resize;
+    info.touch_begin        = gb_demo_touch_begin;
+    info.touch_move         = gb_demo_touch_move;
+    info.touch_end          = gb_demo_touch_end;
+    info.touch_cancel       = gb_demo_touch_cancel;
 
     // init window
     gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);

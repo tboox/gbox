@@ -26,6 +26,7 @@
  * includes
  */
 #include "prefix/prefix.h"
+#include "../platform/prefix.h"
 
 #endif
 

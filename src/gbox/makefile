@@ -22,6 +22,7 @@ gbox_C_FILES 			+= \
 						core/prefix/quality \
 						core/bitmap/decoder \
 						core/bitmap/decoder/bmp \
+						platform/event \
 						platform/window 
 
 # gl core files
@@ -84,9 +85,11 @@ INC_FILES 				= \
 						core/device.h \
 						core/svg/svg.h \
 						core/svg/prefix.h \
+						platform/prefix.h \
+						platform/event.h \
 						platform/window.h \
-						game/game.h \
-						game/prefix.h 		
+						engine/engine.h \
+						engine/prefix.h 		
 
 # demo
 SUB_PROS-$(DEMO) 		+= ../demo

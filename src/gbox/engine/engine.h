@@ -18,17 +18,15 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @defgroup    platform
+ * @defgroup    engine
  */
-#ifndef GB_PLATFORM_H
-#define GB_PLATFORM_H
+#ifndef GB_ENGINE_H
+#define GB_ENGINE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "event.h"
-#include "window.h"
 
 #endif
 
