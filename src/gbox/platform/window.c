@@ -48,15 +48,6 @@ tb_void_t gb_window_loop(gb_window_ref_t window)
     // loop it
     impl->loop(window);
 }
-gb_float_t gb_window_framerate(gb_window_ref_t window)
-{
-    // check
-    gb_window_impl_t* impl = (gb_window_impl_t*)window;
-    tb_assert_and_check_return(impl && impl->framerate);
-
-    // the framerate
-    return impl->framerate(window);
-}
 tb_size_t gb_window_type(gb_window_ref_t window)
 {
     // check
@@ -119,4 +110,13 @@ gb_bitmap_ref_t gb_window_bitmap(gb_window_ref_t window)
 
     // the bitmap
     return impl->bitmap;
+}
+gb_float_t gb_window_framerate(gb_window_ref_t window)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return_val(impl, 0);
+
+    // the framerate
+    return impl->framerate;
 }

@@ -35,6 +35,13 @@
 
 #ifdef GB_CONFIG_FLOAT_FIXED
 
+// format
+#ifdef TB_CONFIG_TYPE_FLOAT
+#   define GB_FMT               "%0.3F"
+#else
+#   define GB_FMT               "%F"
+#endif
+
 // constant
 #define GB_ONE                  TB_FIXED_ONE
 #define GB_TWO                  (TB_FIXED_ONE + TB_FIXED_ONE)
@@ -84,6 +91,8 @@
 #define gb_rsh(x, y)            tb_fixed_rsh(x, y)
 #define gb_imul(x, y)           tb_fixed_imul(x, y)
 #define gb_idiv(x, y)           tb_fixed_idiv(x, y)
+#define gb_imuldiv(x, y, z)     tb_fixed_imuldiv(x, y, z)
+#define gb_imulsub(x, y, z)     tb_fixed_imulsub(x, y, z)
 #define gb_invert(x)            tb_fixed_invert(x)
 #define gb_sqre(x)              tb_fixed_sqre(x)
 #define gb_sqrt(x)              tb_fixed_sqrt(x)
@@ -111,6 +120,9 @@
 #define gb_b1(x)                ((x) > GB_ONE)
 
 #elif defined(TB_CONFIG_TYPE_FLOAT)
+
+// format
+#define GB_FMT                  "%0.3f"
 
 // constant
 #define GB_ONE                  (1.0f)
@@ -157,6 +169,8 @@
 #define gb_div(x, y)            ((x) / (y))
 #define gb_imul(x, y)           ((x) * (tb_float_t)(y))
 #define gb_idiv(x, y)           ((x) / (tb_float_t)(y))
+#define gb_imuldiv(x, y, z)     (((x) * (tb_float_t)(y)) / (tb_float_t)(z))
+#define gb_imulsub(x, y, z)     (((x) * (tb_float_t)(y)) - (tb_float_t)(z))
 #define gb_invert(x)            (1.0f / (x))
 #define gb_sqre(x)              ((x) * (x))
 #define gb_sqrt(x)              tb_sqrtf(x)

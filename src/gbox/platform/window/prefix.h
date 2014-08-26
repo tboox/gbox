@@ -56,6 +56,15 @@ typedef struct __gb_window_impl_t
 
     // the bitmap for the bitmap mode
     gb_bitmap_ref_t         bitmap;
+   
+    // the framerate: fps
+    gb_float_t              framerate;
+
+    // the base time for fps
+    tb_size_t               fps_time;
+
+    // the frame count for fps
+    tb_size_t               fps_count;
 
     /* loop window
      *
@@ -69,15 +78,21 @@ typedef struct __gb_window_impl_t
      */
     tb_void_t               (*exit)(gb_window_ref_t window);
 
-    /* the window framerate
-     *
-     * @param window        the window
-     */
-    gb_float_t              (*framerate)(gb_window_ref_t window);
-
 }gb_window_impl_t;
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
+ */
+__tb_extern_c_enter__
 
+/* draw window
+ *
+ * @param window            the window
+ * @param canvas            the canvas
+ */
+tb_void_t                   gb_window_impl_draw(gb_window_ref_t window, gb_canvas_ref_t canvas);
+
+__tb_extern_c_leave__
 #endif
 
 

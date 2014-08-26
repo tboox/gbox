@@ -82,7 +82,7 @@ static tb_void_t gb_window_glut_display()
     tb_assert_and_check_return(impl && impl->canvas);
 
     // done draw
-    impl->base.info.draw((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+    gb_window_impl_draw((gb_window_ref_t)impl, impl->canvas);
 
 	// flush
 	glutSwapBuffers();
@@ -226,10 +226,6 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     }
 #endif
 }
-static gb_float_t gb_window_glut_framerate(gb_window_ref_t window)
-{
-    return 0;
-}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -256,7 +252,6 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         impl->base.height       = (tb_uint16_t)height;
         impl->base.loop         = gb_window_glut_loop;
         impl->base.exit         = gb_window_glut_exit;
-        impl->base.framerate    = gb_window_glut_framerate;
         impl->base.info         = *info;
 
         /* init pixfmt

@@ -23,7 +23,8 @@ gbox_C_FILES 			+= \
 						core/bitmap/decoder \
 						core/bitmap/decoder/bmp \
 						platform/event \
-						platform/window 
+						platform/window \
+						platform/window/prefix 
 
 # gl core files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
