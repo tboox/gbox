@@ -57,6 +57,33 @@ tb_void_t gb_window_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen)
     // fullscreen it
     impl->fullscreen(window, fullscreen);
 }
+tb_void_t gb_window_maximum(gb_window_ref_t window, tb_bool_t maximum)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return(impl && impl->maximum);
+
+    // maximum it
+    impl->maximum(window, maximum);
+}
+tb_void_t gb_window_minimum(gb_window_ref_t window, tb_bool_t minimum)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return(impl && impl->minimum);
+
+    // minimum it
+    impl->minimum(window, minimum);
+}
+tb_void_t gb_window_show(gb_window_ref_t window, tb_bool_t show)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return(impl && impl->show);
+
+    // show it
+    impl->show(window, show);
+}
 tb_size_t gb_window_type(gb_window_ref_t window)
 {
     // check

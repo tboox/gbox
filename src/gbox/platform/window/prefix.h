@@ -88,6 +88,27 @@ typedef struct __gb_window_impl_t
      */
     tb_void_t               (*fullscreen)(gb_window_ref_t window, tb_bool_t fullscreen);
 
+    /*! enter or leave maximum
+     *
+     * @param window        the window
+     * @param maximum       is maximum?
+     */
+    tb_void_t               (*maximum)(gb_window_ref_t window, tb_bool_t maximum);
+
+    /*! enter or leave minimum
+     *
+     * @param window        the window
+     * @param maximum       is maximum?
+     */
+    tb_void_t               (*minimum)(gb_window_ref_t window, tb_bool_t minimum);
+
+    /*! show or hide the window
+     *
+     * @param window        the window
+     * @param show          is show?
+     */
+    tb_void_t               (*show)(gb_window_ref_t window, tb_bool_t show);
+
 }gb_window_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////

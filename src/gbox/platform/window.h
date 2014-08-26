@@ -58,7 +58,13 @@ typedef enum __gb_window_mode_e
 typedef enum __gb_window_flag_e
 {
     GB_WINDOW_FLAG_NONE             = 0
-,   GB_WINDOW_FLAG_FULLSCREEN       = 1
+,   GB_WINDOW_FLAG_MAXIMUM          = 1
+,   GB_WINDOW_FLAG_MINIMUM          = 2
+,   GB_WINDOW_FLAG_FULLSCREEN       = 4
+,   GB_WINDOW_FLAG_HIHE             = 8
+,   GB_WINDOW_FLAG_HIHE_TITLE       = 16
+,   GB_WINDOW_FLAG_HIHE_CURSOR      = 32
+,   GB_WINDOW_FLAG_NOT_REISZE       = 64
 
 }gb_window_flag_e;
 
@@ -166,11 +172,11 @@ __tb_extern_c_enter__
  * @param info          the window info
  * @param width         the window width
  * @param height        the window height
- * @param fullscreen    is fullscreen?
+ * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_bool_t fullscreen);
+gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
 #endif
 
 #ifdef TB_CONFIG_OS_IOS
@@ -288,12 +294,33 @@ gb_bitmap_ref_t         gb_window_bitmap(gb_window_ref_t window);
  */
 gb_float_t              gb_window_framerate(gb_window_ref_t window);
 
-/*! enter or leave the fullscreen
+/*! enter or leave the fullscreen only for the desktop window
  *
  * @param window        the window
  * @param fullscreen    is fullscreen?
  */
 tb_void_t               gb_window_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen);
+
+/*! enter or leave the maximum only for the desktop window
+ *
+ * @param window        the window
+ * @param maximum       is maximum?
+ */
+tb_void_t               gb_window_maximum(gb_window_ref_t window, tb_bool_t maximum);
+
+/*! enter or leave the minimum only for the desktop window
+ *
+ * @param window        the window
+ * @param minimum       is minimum?
+ */
+tb_void_t               gb_window_minimum(gb_window_ref_t window, tb_bool_t minimum);
+
+/*! show or hide the desktop window
+ *
+ * @param window        the window
+ * @param show          is show?
+ */
+tb_void_t               gb_window_show(gb_window_ref_t window, tb_bool_t show);
 
 __tb_extern_c_leave__
 #endif
