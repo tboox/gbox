@@ -159,12 +159,29 @@ typedef struct __gb_window_info_t
     /// the user private data
     tb_cpointer_t                   priv;
 
+    /*! the hint data
+     *
+     * - framebuffer: the device name, .e.g: "/dev/fb0", ...
+     */
+    tb_cpointer_t                   hint;
+
 }gb_window_info_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 __tb_extern_c_enter__
+
+/*! init window 
+ *
+ * @param info          the window info
+ * @param width         the window width
+ * @param height        the window height
+ * @param flag          the window flag
+ *
+ * @return              the window
+ */
+gb_window_ref_t         gb_window_init(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
 
 #ifdef GB_CONFIG_THIRD_HAVE_GLUT
 /*! init glut window 
@@ -179,35 +196,43 @@ __tb_extern_c_enter__
 gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
 #endif
 
-#ifdef TB_CONFIG_OS_IOS
-/*! init ios window 
+#ifdef GB_CONFIG_THIRD_HAVE_SDL
+/*! init sdl window 
  *
  * @param info          the window info
+ * @param width         the window width
+ * @param height        the window height
+ * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_ios(gb_window_info_t const* info);
+gb_window_ref_t         gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
 #endif
 
-#ifdef TB_CONFIG_OS_ANDROID
-/*! init android window 
+#ifdef GB_CONFIG_THIRD_HAVE_X11
+/*! init x11 window 
  *
  * @param info          the window info
+ * @param width         the window width
+ * @param height        the window height
+ * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_android(gb_window_info_t const* info);
+gb_window_ref_t         gb_window_init_x11(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
 #endif
 
-#ifdef TB_CONFIG_OS_LINUX
+#ifdef GB_CONFIG_THIRD_HAVE_FRAMEBUFFER
 /*! init framebuffer window 
  *
  * @param info          the window info
- * @param device_name   the framebuffer device name
+ * @param width         the window width
+ * @param height        the window height
+ * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_framebuffer(gb_window_info_t const* info, tb_char_t const* device_name);
+gb_window_ref_t         gb_window_init_framebuffer(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
 #endif
 
 /*! exit window 

@@ -39,6 +39,15 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
 						platform/window/glut
 
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_X11) += \
+ 						platform/window/x11
+
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SDL) += \
+ 						platform/window/sdl
+
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_FRAMEBUFFER) += \
+ 						platform/window/framebuffer
+
 # ios files
 ifeq ($(PLAT),ios)
 gbox_M_FILES 			+= \
@@ -49,12 +58,6 @@ endif
 ifeq ($(PLAT),android)
 gbox_C_FILES 			+= \
  						platform/window/android
-endif
-
-# linux files
-ifeq ($(PLAT),linux)
-gbox_C_FILES 			+= \
- 						platform/window/framebuffer
 endif
 
 # flags

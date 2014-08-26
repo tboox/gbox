@@ -28,8 +28,38 @@
 #include "window/prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * declaration
+ */
+__tb_extern_c__ gb_window_ref_t gb_window_init_ios(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+__tb_extern_c__ gb_window_ref_t gb_window_init_mac(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+__tb_extern_c__ gb_window_ref_t gb_window_init_windows(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+__tb_extern_c__ gb_window_ref_t gb_window_init_android(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+gb_window_ref_t gb_window_init(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag)
+{
+#if defined(TB_CONFIG_OS_IOS)
+    return gb_window_init_ios(info, width, height, flag);
+#elif defined(TB_CONFIG_OS_ANDROID)
+    return gb_window_init_android(info, width, height, flag);
+#elif 0//defined(TB_CONFIG_OS_MAC)
+    return gb_window_init_mac(info, width, height, flag);
+#elif 0//defined(TB_CONFIG_OS_WINDOWS)
+    return gb_window_init_windows(info, width, height, flag);
+#elif defined(GB_CONFIG_THIRD_HAVE_X11)
+    return gb_window_init_x11(info, width, height, flag);
+#elif defined(GB_CONFIG_THIRD_HAVE_GLUT)
+    return gb_window_init_glut(info, width, height, flag);
+#elif defined(GB_CONFIG_THIRD_HAVE_SDL)
+    return gb_window_init_sdl(info, width, height, flag);
+#elif defined(GB_CONFIG_THIRD_HAVE_FRAMEBUFFER)
+    return gb_window_init_framebuffer(info, width, height, flag);
+#else
+#   error no avaliable window
+#endif
+}
 tb_void_t gb_window_exit(gb_window_ref_t window)
 {
     // check
