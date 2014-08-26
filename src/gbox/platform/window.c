@@ -48,6 +48,15 @@ tb_void_t gb_window_loop(gb_window_ref_t window)
     // loop it
     impl->loop(window);
 }
+tb_void_t gb_window_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return(impl && impl->fullscreen);
+
+    // fullscreen it
+    impl->fullscreen(window, fullscreen);
+}
 tb_size_t gb_window_type(gb_window_ref_t window)
 {
     // check
@@ -65,6 +74,15 @@ tb_size_t gb_window_mode(gb_window_ref_t window)
 
     // the mode
     return impl->mode;
+}
+tb_size_t gb_window_flag(gb_window_ref_t window)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return_val(impl, GB_WINDOW_FLAG_NONE);
+
+    // the flag
+    return impl->flag;
 }
 tb_size_t gb_window_pixfmt(gb_window_ref_t window)
 {

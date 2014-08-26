@@ -20,7 +20,7 @@ tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
     tb_assert_and_check_return(window && canvas);
 
     // clear it
-    gb_canvas_draw_clear(canvas, GB_COLOR_BLACK);
+    gb_canvas_draw_clear(canvas, GB_COLOR_DEFAULT);
 }
 tb_void_t gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
@@ -29,9 +29,6 @@ tb_void_t gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoi
 
     // trace
     tb_trace_i("resize: %lux%lu", gb_window_width(window), gb_window_height(window));
-
-    // clear it
-    gb_canvas_draw_clear(canvas, GB_COLOR_BLACK);
 }
 tb_void_t gb_demo_touch_begin(gb_window_ref_t window, gb_point_t const* points, tb_size_t count)
 {

@@ -42,6 +42,9 @@ typedef struct __gb_window_impl_t
     // the window mode
     tb_uint8_t              mode;
 
+    // the window flag
+    tb_uint8_t              flag;
+
     // the window pixfmt
     tb_uint16_t             pixfmt;
 
@@ -61,7 +64,7 @@ typedef struct __gb_window_impl_t
     gb_float_t              framerate;
 
     // the base time for fps
-    tb_size_t               fps_time;
+    tb_hong_t               fps_time;
 
     // the frame count for fps
     tb_size_t               fps_count;
@@ -77,6 +80,13 @@ typedef struct __gb_window_impl_t
      * @param window        the window
      */
     tb_void_t               (*exit)(gb_window_ref_t window);
+
+    /*! enter or leave fullscreen
+     *
+     * @param window        the window
+     * @param fullscreen    is fullscreen?
+     */
+    tb_void_t               (*fullscreen)(gb_window_ref_t window, tb_bool_t fullscreen);
 
 }gb_window_impl_t;
 

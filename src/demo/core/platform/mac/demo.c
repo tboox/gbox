@@ -41,7 +41,7 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     info.touch_cancel       = gb_demo_touch_cancel;
 
     // init window
-    gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT);
+    gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT, tb_false);
     if (window)
     {
         // loop window

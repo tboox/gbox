@@ -57,7 +57,7 @@
 #define GB_COLOR_YELLOW                 gb_color_from_index(20)
 #define GB_COLOR_WHEAT                  gb_color_from_index(21)
 #define GB_COLOR_WHITE                  gb_color_from_index(22)
-#define GB_COLOR_DEFAULT                GB_COLOR_BLACK
+#define GB_COLOR_DEFAULT                GB_COLOR_LIGHTGRAY
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * inline

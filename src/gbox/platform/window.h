@@ -54,6 +54,14 @@ typedef enum __gb_window_mode_e
 
 }gb_window_mode_e;
 
+/// the window flag enum
+typedef enum __gb_window_flag_e
+{
+    GB_WINDOW_FLAG_NONE             = 0
+,   GB_WINDOW_FLAG_FULLSCREEN       = 1
+
+}gb_window_flag_e;
+
 /// the window type
 typedef struct{}*           gb_window_ref_t;
 
@@ -155,15 +163,14 @@ __tb_extern_c_enter__
 #ifdef GB_CONFIG_THIRD_HAVE_GLUT
 /*! init glut window 
  *
- * create a new window and create a fullscreen window if width and height are zero
- *
  * @param info          the window info
  * @param width         the window width
  * @param height        the window height
+ * @param fullscreen    is fullscreen?
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height);
+gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_bool_t fullscreen);
 #endif
 
 #ifdef TB_CONFIG_OS_IOS
@@ -219,6 +226,14 @@ tb_size_t               gb_window_type(gb_window_ref_t window);
  */
 tb_size_t               gb_window_mode(gb_window_ref_t window);
 
+/*! the window flag
+ *
+ * @param window        the window
+ *
+ * @return              the flag
+ */
+tb_size_t               gb_window_flag(gb_window_ref_t window);
+
 /*! loop window
  *
  * @param window        the window
@@ -272,6 +287,13 @@ gb_bitmap_ref_t         gb_window_bitmap(gb_window_ref_t window);
  * @return              the framerate
  */
 gb_float_t              gb_window_framerate(gb_window_ref_t window);
+
+/*! enter or leave the fullscreen
+ *
+ * @param window        the window
+ * @param fullscreen    is fullscreen?
+ */
+tb_void_t               gb_window_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen);
 
 __tb_extern_c_leave__
 #endif

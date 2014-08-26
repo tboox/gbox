@@ -54,7 +54,7 @@ tb_void_t gb_window_impl_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     if (time > impl->fps_time + 1000)
     {
         // the framerate
-        impl->framerate = gb_imuldiv(gb_long_to_float(1000), impl->fps_count, time - impl->fps_time);
+        impl->framerate = gb_imuldiv(gb_long_to_float(1000), impl->fps_count, (tb_long_t)(time - impl->fps_time));
 
         // trace
         tb_trace_d("framerate: " GB_FMT, impl->framerate);

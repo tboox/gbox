@@ -81,6 +81,9 @@ static tb_void_t gb_window_glut_display()
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->canvas);
 
+    // trace
+//    tb_trace_d("draw");
+
     // done draw
     gb_window_impl_draw((gb_window_ref_t)impl, impl->canvas);
 
@@ -91,7 +94,10 @@ static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
 {
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
-    tb_assert_and_check_return(impl && width > 0 && width <= GB_WIDTH_MAXN && height > 0 && height <= GB_HEIGHT_MAXN);
+    tb_assert_and_check_return(impl && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
+
+    // minimum?
+    tb_check_return(width && height);
 
     // trace
     tb_trace_d("reshape: %dx%d", width, height);
@@ -115,6 +121,8 @@ static tb_void_t gb_window_glut_keyboard(tb_byte_t key, tb_int_t x, tb_int_t y)
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl);
+
+    gb_window_fullscreen((gb_window_ref_t)impl, key == 102? tb_true : tb_false);
 
     // trace
     tb_trace_d("keyboard: %d at: %d, %d", key, x, y);
@@ -144,7 +152,7 @@ static tb_void_t gb_window_glut_passive_motion(tb_int_t x, tb_int_t y)
     tb_assert_and_check_return(impl);
 
     // trace
-    tb_trace_d("passive_motion: %d, %d", x, y);
+//    tb_trace_d("passive_motion: %d, %d", x, y);
 }
 static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
 { 
@@ -158,7 +166,7 @@ static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
 static tb_void_t gb_window_glut_timer(tb_int_t value)
 {
     // check
-    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    gb_window_glut_impl_t* impl = g_windows[value];
     tb_assert_and_check_return(impl);
 
     // trace
@@ -168,7 +176,7 @@ static tb_void_t gb_window_glut_timer(tb_int_t value)
     glutPostRedisplay();
 
     // next timer
-    glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, 1);
+    glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, value);
 }
 #ifndef TB_CONFIG_OS_WINDOWS
 static tb_void_t gb_window_glut_close()
@@ -196,12 +204,17 @@ static tb_void_t gb_window_glut_exit(gb_window_ref_t window)
     // stop it
     tb_atomic_set(&impl->stop, 1);
 
-    // clear it
-    g_windows[impl->id] = tb_null;
-
     // exit canvas
     if (impl->canvas) gb_canvas_exit(impl->canvas);
     impl->canvas = tb_null;
+
+    // exit window
+    if (impl->id) 
+    {
+        glutDestroyWindow(impl->id);
+        g_windows[impl->id] = tb_null;
+        impl->id = 0;
+    }
 
     // exit it
     tb_free(window);
@@ -211,6 +224,24 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     // check
     gb_window_glut_impl_t* impl = (gb_window_glut_impl_t*)window;
     tb_assert_and_check_return(impl);
+
+    // fullscreen
+    if (impl->base.flag & GB_WINDOW_FLAG_FULLSCREEN) 
+    {
+        // remove fullscreen first
+        impl->base.flag &= ~GB_WINDOW_FLAG_FULLSCREEN;
+
+        // enter fullscreen 
+        gb_window_fullscreen((gb_window_ref_t)impl, tb_true);
+    }
+    else
+    {
+        // append fullscreen first
+        impl->base.flag |= GB_WINDOW_FLAG_FULLSCREEN;
+
+        // leave fullscreen 
+        gb_window_fullscreen((gb_window_ref_t)impl, tb_false);
+    }
 
     // init canvas
     if (!impl->canvas) impl->canvas = gb_canvas_init_from_window(window);
@@ -226,11 +257,112 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     }
 #endif
 }
+static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen)
+{
+    // check
+    gb_window_glut_impl_t* impl = (gb_window_glut_impl_t*)window;
+    tb_assert_and_check_return(impl);
 
+    // fullscreen?
+    if (fullscreen && !(impl->base.flag & GB_WINDOW_FLAG_FULLSCREEN)) 
+    {
+        // init mode string
+        tb_char_t mode[64] = {0};
+        tb_snprintf(mode, sizeof(mode) - 1, "%lux%lu", tb_screen_width(), tb_screen_height());
+
+        // trace
+        tb_trace_d("mode: %s", mode);
+
+        // init mode
+//      glutGameModeString("640x480:32@60");
+        glutGameModeString(mode);
+
+        // can fullscreen?
+        if (glutGameModeGet(GLUT_GAME_MODE_POSSIBLE))
+        {
+            // exit the previous window first
+            if (impl->id) glutDestroyWindow(impl->id);
+            impl->id = 0;
+
+            // enter fullscreen
+            tb_int_t id = glutEnterGameMode();
+            tb_assert_abort(id < tb_arrayn(g_windows));
+
+            // trace
+            tb_trace_d("fullscreen: enter: %d", id);
+
+            // save window
+            g_windows[id] = impl;
+
+            // init window func
+            glutDisplayFunc(gb_window_glut_display);
+            glutReshapeFunc(gb_window_glut_reshape);
+            glutKeyboardFunc(gb_window_glut_keyboard);
+            glutSpecialFunc(gb_window_glut_special);
+            glutMouseFunc(gb_window_glut_mouse);
+            glutPassiveMotionFunc(gb_window_glut_passive_motion);
+            glutMotionFunc(gb_window_glut_motion);
+            glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, id);
+
+            // hide cursor
+            glutSetCursor(GLUT_CURSOR_NONE);
+
+            // update flag
+            impl->base.flag |= GB_WINDOW_FLAG_FULLSCREEN;
+        }
+        else
+        {
+            // trace
+            tb_trace_e("cannot enter fullscreen: %s", mode);
+        }
+    }
+    else if (impl->base.flag & GB_WINDOW_FLAG_FULLSCREEN)
+    {
+        // fullscreen now?
+        if (glutGameModeGet(GLUT_GAME_MODE_ACTIVE)) 
+        {
+            // leave fullscreen
+            glutLeaveGameMode();
+
+            // trace
+            tb_trace_d("fullscreen: leave: %d", impl->id);
+        }
+
+        // exit the previous window first
+        if (impl->id) glutDestroyWindow(impl->id);
+        impl->id = 0;
+
+        // make window
+        impl->id = glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
+        tb_assert_abort(impl->id && impl->id < tb_arrayn(g_windows));
+
+        // save window
+        g_windows[impl->id] = impl;
+
+        // init window func
+        glutDisplayFunc(gb_window_glut_display);
+        glutReshapeFunc(gb_window_glut_reshape);
+        glutKeyboardFunc(gb_window_glut_keyboard);
+        glutSpecialFunc(gb_window_glut_special);
+        glutMouseFunc(gb_window_glut_mouse);
+        glutPassiveMotionFunc(gb_window_glut_passive_motion);
+        glutMotionFunc(gb_window_glut_motion);
+        glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, impl->id);
+#ifndef TB_CONFIG_OS_WINDOWS
+        glutWMCloseFunc(gb_window_glut_close);
+#endif
+
+        // hide cursor
+        glutSetCursor(GLUT_CURSOR_NONE);
+
+        // update flag
+        impl->base.flag &= ~GB_WINDOW_FLAG_FULLSCREEN;
+    }
+}
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height)
+gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_bool_t fullscreen)
 {
     // done
     tb_bool_t               ok = tb_false;
@@ -248,10 +380,12 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         // init base
         impl->base.type         = GB_WINDOW_TYPE_GLUT;
         impl->base.mode         = GB_WINDOW_MODE_GL;
+        impl->base.flag         = fullscreen? GB_WINDOW_FLAG_FULLSCREEN : GB_WINDOW_FLAG_NONE;
         impl->base.width        = (tb_uint16_t)width;
         impl->base.height       = (tb_uint16_t)height;
         impl->base.loop         = gb_window_glut_loop;
         impl->base.exit         = gb_window_glut_exit;
+        impl->base.fullscreen   = gb_window_glut_fullscreen;
         impl->base.info         = *info;
 
         /* init pixfmt
@@ -275,26 +409,6 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL | GLUT_MULTISAMPLE);
         glutInitWindowPosition(0, 0);
         glutInitWindowSize(impl->base.width, impl->base.height);
-
-        // make window
-        impl->id = glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
-        tb_assert_and_check_break(impl->id < tb_arrayn(g_windows));
-
-        // save window
-        g_windows[impl->id] = impl;
-
-        // init window func
-        glutDisplayFunc(gb_window_glut_display);
-        glutReshapeFunc(gb_window_glut_reshape);
-        glutKeyboardFunc(gb_window_glut_keyboard);
-        glutSpecialFunc(gb_window_glut_special);
-        glutMouseFunc(gb_window_glut_mouse);
-        glutPassiveMotionFunc(gb_window_glut_passive_motion);
-        glutMotionFunc(gb_window_glut_motion);
-        glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, 1);
-#ifndef TB_CONFIG_OS_WINDOWS
-        glutWMCloseFunc(gb_window_glut_close);
-#endif
 
         // ok
         ok = tb_true;
