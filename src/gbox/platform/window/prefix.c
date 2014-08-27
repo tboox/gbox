@@ -25,7 +25,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "window_prefix"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -65,6 +65,9 @@ tb_void_t gb_window_impl_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
         // update the frame time
 		impl->fps_time = time;
     }
+
+    // spak timer
+    if (impl->timer) tb_timer_spak(impl->timer);
 
     // done draw
     impl->info.draw((gb_window_ref_t)impl, canvas, impl->info.priv);

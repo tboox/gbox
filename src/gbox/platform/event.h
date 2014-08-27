@@ -211,7 +211,7 @@ typedef gb_event_t*         gb_event_ref_t;
  */
 __tb_extern_c_enter__
 
-#ifdef __tb_debug__
+#ifdef __gb_debug__
 /*! dump event 
  *
  * @param event     the event

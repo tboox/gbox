@@ -28,6 +28,17 @@
 #include "window/prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// the timer maxn
+#ifdef __gb_small__
+#   define GB_WINDOW_TIMER_MAXN         (64)
+#else
+#   define GB_WINDOW_TIMER_MAXN         (256)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
  */
 __tb_extern_c__ gb_window_ref_t gb_window_init_ios(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
@@ -65,6 +76,10 @@ tb_void_t gb_window_exit(gb_window_ref_t window)
     // check
     gb_window_impl_t* impl = (gb_window_impl_t*)window;
     tb_assert_and_check_return(impl);
+
+    // exit timer
+    if (impl->timer) tb_timer_exit(impl->timer);
+    impl->timer = tb_null;
 
     // exit it
     if (impl->exit) impl->exit(window);
@@ -194,4 +209,17 @@ gb_float_t gb_window_framerate(gb_window_ref_t window)
 
     // the framerate
     return impl->framerate;
+}
+tb_timer_ref_t gb_window_timer(gb_window_ref_t window)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // init timer
+    if (!impl->timer) impl->timer = tb_timer_init(GB_WINDOW_TIMER_MAXN, tb_true);
+    tb_assert_and_check_return_val(impl->timer, tb_null);
+
+    // the timer
+    return impl->timer;
 }

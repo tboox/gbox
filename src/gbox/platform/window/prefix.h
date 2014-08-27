@@ -56,10 +56,13 @@ typedef struct __gb_window_impl_t
 
     // the window info
     gb_window_info_t        info;
+ 
+    // the timer
+    tb_timer_ref_t          timer;
 
     // the bitmap for the bitmap mode
     gb_bitmap_ref_t         bitmap;
-   
+  
     // the framerate: fps
     gb_float_t              framerate;
 

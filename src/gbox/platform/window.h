@@ -315,5 +315,15 @@ tb_void_t               gb_window_minimum(gb_window_ref_t window, tb_bool_t mini
  */
 tb_void_t               gb_window_show(gb_window_ref_t window, tb_bool_t show);
 
+/*! the window timer
+ *
+ * @note the timer task will be called in the draw loop
+ *
+ * @param window        the window
+ *
+ * @return              the timer
+ */
+tb_timer_ref_t          gb_window_timer(gb_window_ref_t window);
+
 __tb_extern_c_leave__
 #endif

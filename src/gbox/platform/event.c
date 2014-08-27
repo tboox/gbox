@@ -36,7 +36,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-#ifdef __tb_debug__
+#ifdef __gb_debug__
 tb_void_t gb_event_dump(gb_event_ref_t event)
 {
     // check
@@ -131,7 +131,6 @@ tb_void_t gb_event_dump(gb_event_ref_t event)
                 ,   "home"
                 ,   "end"
                 ,   "insert"
-                ,   "delete"
                 ,   "page_up"
                 ,   "page_down"
 
