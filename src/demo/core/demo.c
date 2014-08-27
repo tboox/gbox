@@ -30,35 +30,14 @@ tb_void_t gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoi
     // trace
     tb_trace_i("resize: %lux%lu", gb_window_width(window), gb_window_height(window));
 }
-tb_void_t gb_demo_touch_begin(gb_window_ref_t window, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv)
 {
     // check
-    tb_assert_and_check_return(points && count);
+    tb_assert_and_check_return(window && event);
 
-    // trace
-    tb_trace_i("touch: begin: %ld, %ld", gb_float_to_long(points[0].x), gb_float_to_long(points[0].y));
+#ifdef __tb_debug__
+    // dump event
+    gb_event_dump(event);
+#endif
 }
-tb_void_t gb_demo_touch_move(gb_window_ref_t window, gb_point_t const* points, tb_size_t count)
-{
-    // check
-    tb_assert_and_check_return(points && count);
 
-    // trace
-    tb_trace_i("touch: move: %ld, %ld", gb_float_to_long(points[0].x), gb_float_to_long(points[0].y));
-}
-tb_void_t gb_demo_touch_end(gb_window_ref_t window, gb_point_t const* points, tb_size_t count)
-{
-    // check
-    tb_assert_and_check_return(points && count);
-
-    // trace
-    tb_trace_i("touch: end: %ld, %ld", gb_float_to_long(points[0].x), gb_float_to_long(points[0].y));
-}
-tb_void_t gb_demo_touch_cancel(gb_window_ref_t window, gb_point_t const* points, tb_size_t count)
-{
-    // check
-    tb_assert_and_check_return(points && count);
-
-    // trace
-    tb_trace_i("touch: cancel: %ld, %ld", gb_float_to_long(points[0].x), gb_float_to_long(points[0].y));
-}

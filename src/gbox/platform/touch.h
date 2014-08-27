@@ -14,20 +14,40 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        touch.h
+ * @ingroup     platform
+ *
  */
-#ifndef GB_PLATFORM_PREFIX_H
-#define GB_PLATFORM_PREFIX_H
+#ifndef GB_PLATFORM_TOUCH_H
+#define GB_PLATFORM_TOUCH_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
-#include "../core/prefix.h"
+#include "prefix.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+/// the touch type
+typedef struct __gb_touch_t
+{
+    /// the point
+    gb_point_t          point;
+
+    /// the prev point
+    gb_point_t          prev;
+
+    /// the start point
+    gb_point_t          start;
+
+}gb_touch_t;
+
+/// the touch ref type
+typedef gb_touch_t*     gb_touch_ref_t;
 
 #endif
-
-

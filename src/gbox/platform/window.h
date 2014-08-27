@@ -28,6 +28,7 @@
  * includes
  */
 #include "prefix.h"
+#include "event.h"
 #include "../core/prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -94,37 +95,13 @@ typedef tb_void_t           (*gb_window_draw_func_t)(gb_window_ref_t window, gb_
  */
 typedef tb_void_t           (*gb_window_resize_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
-/*! the window touch begin func
+/*! the window event func type
  *
  * @param window            the window
- * @param points            the points
- * @param count             the count
+ * @param event             the event
+ * @param priv              the user private data
  */
-typedef tb_void_t           (*gb_window_touch_begin_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
-
-/*! the window touch move func
- *
- * @param window            the window
- * @param points            the points
- * @param count             the count
- */
-typedef tb_void_t           (*gb_window_touch_move_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
-
-/*! the window touch end func
- *
- * @param window            the window
- * @param points            the points
- * @param count             the count
- */
-typedef tb_void_t           (*gb_window_touch_end_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
-
-/*! the window touch cancel func
- *
- * @param window            the window
- * @param points            the points
- * @param count             the count
- */
-typedef tb_void_t           (*gb_window_touch_cancel_func_t)(gb_window_ref_t window, gb_point_t const* points, tb_size_t count);
+typedef tb_void_t           (*gb_window_event_func_t)(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv);
 
 /// the window info type
 typedef struct __gb_window_info_t
@@ -144,17 +121,8 @@ typedef struct __gb_window_info_t
     /// the resize func
     gb_window_resize_func_t         resize;
 
-    /// the touch begin func
-    gb_window_touch_begin_func_t    touch_begin;
-
-    /// the touch move func
-    gb_window_touch_move_func_t     touch_move;
-
-    /// the touch end func
-    gb_window_touch_end_func_t      touch_end;
-
-    /// the touch cancel func
-    gb_window_touch_cancel_func_t   touch_cancel;
+    /// the event func
+    gb_window_event_func_t          event;
 
     /// the user private data
     tb_cpointer_t                   priv;

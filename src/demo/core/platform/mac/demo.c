@@ -35,13 +35,10 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     info.clos               = gb_demo_clos;
     info.draw               = gb_demo_draw;
     info.resize             = gb_demo_resize;
-    info.touch_begin        = gb_demo_touch_begin;
-    info.touch_move         = gb_demo_touch_move;
-    info.touch_end          = gb_demo_touch_end;
-    info.touch_cancel       = gb_demo_touch_cancel;
+    info.event              = gb_demo_event;
 
     // init window
-    gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_HIHE_CURSOR);
+    gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_NONE);
     if (window)
     {
         // loop window

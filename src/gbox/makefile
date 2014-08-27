@@ -90,6 +90,7 @@ INC_FILES 				= \
 						core/svg/svg.h \
 						core/svg/prefix.h \
 						platform/prefix.h \
+						platform/touch.h \
 						platform/event.h \
 						platform/window.h \
 						engine/engine.h \

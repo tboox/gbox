@@ -26,7 +26,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "window_glut"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -57,6 +57,9 @@ typedef struct __gb_window_glut_impl_t
 
     // the canvas
     gb_canvas_ref_t         canvas;
+
+    // the button
+    tb_size_t               button;
 
 }gb_window_glut_impl_t;
 
@@ -124,6 +127,72 @@ static tb_void_t gb_window_glut_keyboard(tb_byte_t key, tb_int_t x, tb_int_t y)
 
     // trace
     tb_trace_d("keyboard: %d at: %d, %d", key, x, y);
+
+    // init event
+    gb_event_t event = {0};
+    event.type                  = GB_EVENT_TYPE_KEYBOARD;
+    event.u.keyboard.code       = key;
+    event.u.keyboard.pressed    = tb_true;
+
+    // done event
+    if (event.u.keyboard.code) gb_window_impl_event((gb_window_ref_t)impl, &event);
+}
+static tb_void_t gb_window_glut_keyboard_up(tb_byte_t key, tb_int_t x, tb_int_t y)
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
+
+    // trace
+    tb_trace_d("keyboard: %d at: %d, %d", key, x, y);
+
+    // init event
+    gb_event_t event = {0};
+    event.type                  = GB_EVENT_TYPE_KEYBOARD;
+    event.u.keyboard.code       = key;
+    event.u.keyboard.pressed    = tb_false;
+
+    // done event
+    if (event.u.keyboard.code) gb_window_impl_event((gb_window_ref_t)impl, &event);
+}
+static tb_uint16_t gb_window_glut_special_map(tb_int_t key)
+{
+    // done
+    tb_uint16_t code = GB_KEY_NUL;
+    switch (key)
+    {
+    case GLUT_KEY_F1:           code = GB_KEY_F1;           break;
+    case GLUT_KEY_F2:           code = GB_KEY_F2;           break;
+    case GLUT_KEY_F3:           code = GB_KEY_F3;           break;
+    case GLUT_KEY_F4:           code = GB_KEY_F4;           break;
+    case GLUT_KEY_F5:           code = GB_KEY_F5;           break;
+    case GLUT_KEY_F6:           code = GB_KEY_F6;           break;
+    case GLUT_KEY_F7:           code = GB_KEY_F7;           break;
+    case GLUT_KEY_F8:           code = GB_KEY_F8;           break;
+    case GLUT_KEY_F9:           code = GB_KEY_F9;           break;
+    case GLUT_KEY_F10:          code = GB_KEY_F10;          break;
+    case GLUT_KEY_F11:          code = GB_KEY_F11;          break;
+    case GLUT_KEY_F12:          code = GB_KEY_F12;          break;
+
+    case GLUT_KEY_LEFT:         code = GB_KEY_LEFT;         break;
+    case GLUT_KEY_UP:           code = GB_KEY_UP;           break;
+    case GLUT_KEY_RIGHT:        code = GB_KEY_RIGHT;        break;
+    case GLUT_KEY_DOWN:         code = GB_KEY_DOWN;         break;
+
+    case GLUT_KEY_HOME:         code = GB_KEY_HOME;         break;
+    case GLUT_KEY_END:          code = GB_KEY_END;          break;
+    case GLUT_KEY_INSERT:       code = GB_KEY_INSERT;       break;
+    case GLUT_KEY_PAGE_UP:      code = GB_KEY_PAGE_UP;      break;
+    case GLUT_KEY_PAGE_DOWN:    code = GB_KEY_PAGE_DOWN;    break;
+
+    default:
+        // trace
+        tb_trace_e("unknown key: %d", key);
+        break;
+    }
+
+    // ok?
+    return code;
 }
 static tb_void_t gb_window_glut_special(tb_int_t key, tb_int_t x, tb_int_t y)
 { 
@@ -133,6 +202,33 @@ static tb_void_t gb_window_glut_special(tb_int_t key, tb_int_t x, tb_int_t y)
 
     // trace
     tb_trace_d("special: %d at: %d, %d", key, x, y);
+
+    // init event
+    gb_event_t event = {0};
+    event.type                  = GB_EVENT_TYPE_KEYBOARD;
+    event.u.keyboard.code       = gb_window_glut_special_map(key);
+    event.u.keyboard.pressed    = tb_true;
+
+    // done event
+    if (event.u.keyboard.code) gb_window_impl_event((gb_window_ref_t)impl, &event);
+}
+static tb_void_t gb_window_glut_special_up(tb_int_t key, tb_int_t x, tb_int_t y)
+{ 
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl);
+
+    // trace
+    tb_trace_d("special: %d at: %d, %d", key, x, y);
+
+    // init event
+    gb_event_t event = {0};
+    event.type                  = GB_EVENT_TYPE_KEYBOARD;
+    event.u.keyboard.code       = gb_window_glut_special_map(key);
+    event.u.keyboard.pressed    = tb_false;
+
+    // done event
+    if (event.u.keyboard.code) gb_window_impl_event((gb_window_ref_t)impl, &event);
 }
 static tb_void_t gb_window_glut_mouse(tb_int_t button, tb_int_t state, tb_int_t x, tb_int_t y)
 { 
@@ -141,16 +237,65 @@ static tb_void_t gb_window_glut_mouse(tb_int_t button, tb_int_t state, tb_int_t 
     tb_assert_and_check_return(impl);
 
     // trace
-    tb_trace_d("passive_mouse: button: %d, state: %d at: %d, %d", button, state, x, y);
-}
-static tb_void_t gb_window_glut_passive_motion(tb_int_t x, tb_int_t y)
-{ 
-    // check
-    gb_window_glut_impl_t* impl = gb_window_glut_get();
-    tb_assert_and_check_return(impl);
+    tb_trace_d("mouse: button: %d, state: %d at: %d, %d", button, state, x, y);
 
-    // trace
-//    tb_trace_d("passive_motion: %d, %d", x, y);
+    // init event
+    gb_event_t event = {0};
+    event.u.mouse.cursor = gb_point_imake(x, y);
+
+    // left
+	if (button == GLUT_LEFT_BUTTON) 
+	{
+        // save event
+        event.type              = GB_EVENT_TYPE_MOUSE;
+        event.u.mouse.button    = GB_MOUSE_BUTTON_LEFT;
+        event.u.mouse.code      = (state == GLUT_DOWN)? GB_MOUSE_DOWN : GB_MOUSE_UP;
+
+        // save button
+        impl->button            = (state == GLUT_DOWN)? GB_MOUSE_BUTTON_LEFT : GB_MOUSE_BUTTON_NONE;
+	}
+    // right
+	else if (button == GLUT_RIGHT_BUTTON) 
+	{	
+        // save event
+        event.type              = GB_EVENT_TYPE_MOUSE;
+        event.u.mouse.button    = GB_MOUSE_BUTTON_RIGHT;
+        event.u.mouse.code      = (state == GLUT_DOWN)? GB_MOUSE_DOWN : GB_MOUSE_UP;
+
+        // save button
+        impl->button            = (state == GLUT_DOWN)? GB_MOUSE_BUTTON_RIGHT : GB_MOUSE_BUTTON_NONE;
+	}
+    // middle
+	else if (button == GLUT_MIDDLE_BUTTON) 
+	{	
+        // save event
+        event.type              = GB_EVENT_TYPE_MOUSE;
+        event.u.mouse.button    = GB_MOUSE_BUTTON_MIDDLE;
+        event.u.mouse.code      = (state == GLUT_DOWN)? GB_MOUSE_DOWN : GB_MOUSE_UP;
+
+        // save button
+        impl->button            = (state == GLUT_DOWN)? GB_MOUSE_BUTTON_MIDDLE : GB_MOUSE_BUTTON_NONE;
+	}
+    // scroll: wheelup: 3, wheeldown: 4
+	else if ((button == 3 || button == 4) && (state == GLUT_DOWN))
+	{	
+        // save event
+        event.type              = GB_EVENT_TYPE_MOUSE;
+        event.u.mouse.button    = GB_MOUSE_BUTTON_MIDDLE;
+        event.u.mouse.code      = GB_MOUSE_SCROLL;
+        event.u.mouse.scroll    = gb_point_imake(x, button == 3? y - 10 : y + 10);
+
+        // clear button
+        impl->button            = GB_MOUSE_BUTTON_NONE;
+	}
+    else
+    {
+        // clear button
+        impl->button            = GB_MOUSE_BUTTON_NONE;
+    }
+
+    // done event
+    if (event.type) gb_window_impl_event((gb_window_ref_t)impl, &event);
 }
 static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
 { 
@@ -159,7 +304,17 @@ static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
     tb_assert_and_check_return(impl);
 
     // trace
-    tb_trace_d("motion: %d, %d", x, y);
+//    tb_trace_d("motion: %d, %d", x, y);
+ 
+    // init event
+    gb_event_t event = {0};
+    event.type              = GB_EVENT_TYPE_MOUSE;
+    event.u.mouse.code      = GB_MOUSE_MOVE;
+    event.u.mouse.cursor    = gb_point_imake(x, y);
+    event.u.mouse.button    = impl->button;
+
+    // done event
+    gb_window_impl_event((gb_window_ref_t)impl, &event);
 }
 static tb_void_t gb_window_glut_timer(tb_int_t value)
 {
@@ -301,9 +456,11 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
             glutReshapeFunc(gb_window_glut_reshape);
             glutKeyboardFunc(gb_window_glut_keyboard);
             glutSpecialFunc(gb_window_glut_special);
+            glutKeyboardUpFunc(gb_window_glut_keyboard_up);
+            glutSpecialUpFunc(gb_window_glut_special_up);
             glutMouseFunc(gb_window_glut_mouse);
-            glutPassiveMotionFunc(gb_window_glut_passive_motion);
             glutMotionFunc(gb_window_glut_motion);
+            glutPassiveMotionFunc(gb_window_glut_motion);
             glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, id);
 
             // update flag
@@ -343,9 +500,11 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
         glutReshapeFunc(gb_window_glut_reshape);
         glutKeyboardFunc(gb_window_glut_keyboard);
         glutSpecialFunc(gb_window_glut_special);
+        glutKeyboardUpFunc(gb_window_glut_keyboard_up);
+        glutSpecialUpFunc(gb_window_glut_special_up);
         glutMouseFunc(gb_window_glut_mouse);
-        glutPassiveMotionFunc(gb_window_glut_passive_motion);
         glutMotionFunc(gb_window_glut_motion);
+        glutPassiveMotionFunc(gb_window_glut_motion);
         glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, impl->id);
 #ifndef TB_CONFIG_OS_WINDOWS
         glutWMCloseFunc(gb_window_glut_close);

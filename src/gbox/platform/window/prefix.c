@@ -69,6 +69,14 @@ tb_void_t gb_window_impl_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     // done draw
     impl->info.draw((gb_window_ref_t)impl, canvas, impl->info.priv);
 }
+tb_void_t gb_window_impl_event(gb_window_ref_t window, gb_event_ref_t event)
+{
+    // check
+    gb_window_impl_t* impl = (gb_window_impl_t*)window;
+    tb_assert_and_check_return(impl && impl->info.event && event);
 
+    // done event
+    impl->info.event((gb_window_ref_t)impl, event, impl->info.priv);
+}
 
 

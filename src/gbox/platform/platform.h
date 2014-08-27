@@ -27,6 +27,7 @@
  * includes
  */
 #include "prefix.h"
+#include "touch.h"
 #include "event.h"
 #include "window.h"
 
