@@ -14,7 +14,7 @@ tb_int_t gb_demo_core_bitmap_main(tb_int_t argc, tb_char_t** argv)
     if (bitmap)
     {
         // trace
-        tb_trace_i("bitmap: %lux%lu, pixfmt: %s, size: %lu, row_bytes: %lu, has_alpha: %s", gb_bitmap_width(bitmap), gb_bitmap_height(bitmap), gb_pixmap(gb_bitmap_pixfmt(bitmap), 0xff)->name, gb_bitmap_size(bitmap), gb_bitmap_row_bytes(bitmap), gb_bitmap_has_alpha(bitmap)? "ok" : "no");
+        tb_trace_i("%{bitmap}", bitmap);
 
         // exit bitmap
         gb_bitmap_exit(bitmap);

@@ -25,6 +25,8 @@
  * includes
  */
 #include "prefix.h"
+#include "../pixmap.h"
+#include "../bitmap.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -154,6 +156,47 @@ static tb_long_t gb_prefix_printf_format_arc(tb_cpointer_t object, tb_char_t* cs
     // ok?
     return size;
 }
+static tb_long_t gb_prefix_printf_format_path(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    tb_assert_and_check_return_val(object && cstr && maxn, -1);
+
+    // the path
+    gb_path_ref_t path = (gb_path_ref_t)object;
+
+    // format
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(path: %p)", path);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return size;
+}
+static tb_long_t gb_prefix_printf_format_shape(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    tb_assert_and_check_return_val(object && cstr && maxn, -1);
+
+    // the shape
+    gb_shape_ref_t shape = (gb_shape_ref_t)object;
+
+    // done
+    tb_long_t ok = -1;
+    switch (shape->type)
+    {
+    case GB_SHAPE_TYPE_ARC:         ok = gb_prefix_printf_format_arc(&shape->u.arc, cstr, maxn);            break;
+    case GB_SHAPE_TYPE_PATH:        ok = gb_prefix_printf_format_path(shape->u.path, cstr, maxn);           break;
+    case GB_SHAPE_TYPE_LINE:        ok = gb_prefix_printf_format_line(&shape->u.line, cstr, maxn);          break;
+    case GB_SHAPE_TYPE_RECT:        ok = gb_prefix_printf_format_rect(&shape->u.rect, cstr, maxn);          break;
+    case GB_SHAPE_TYPE_POINT:       ok = gb_prefix_printf_format_point(&shape->u.point, cstr, maxn);        break;
+    case GB_SHAPE_TYPE_CIRCLE:      ok = gb_prefix_printf_format_circle(&shape->u.circle, cstr, maxn);      break;
+    case GB_SHAPE_TYPE_ELLIPSE:     ok = gb_prefix_printf_format_ellipse(&shape->u.ellipse, cstr, maxn);    break;
+    case GB_SHAPE_TYPE_TRIANGLE:    ok = gb_prefix_printf_format_triangle(&shape->u.triangle, cstr, maxn);  break;
+    default:                        ok = tb_snprintf(cstr, maxn, "(unknown: %u)", shape->type);             break;
+    }
+
+    // ok?
+    return ok;
+}
 static tb_long_t gb_prefix_printf_format_matrix(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
@@ -164,6 +207,21 @@ static tb_long_t gb_prefix_printf_format_matrix(tb_cpointer_t object, tb_char_t*
 
     // format
     tb_long_t size = tb_snprintf(cstr, maxn - 1, "(sx: %{float}, sy: %{float}, kx: %{float}, ky: %{float}, tx: %{float}, ty: %{float})", matrix->sx, matrix->sy, matrix->kx, matrix->ky, matrix->tx, matrix->ty);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return size;
+}
+static tb_long_t gb_prefix_printf_format_bitmap(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    tb_assert_and_check_return_val(object && cstr && maxn, -1);
+
+    // the bitmap
+    gb_bitmap_ref_t bitmap = (gb_bitmap_ref_t)object;
+
+    // format
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(%lux%lu, %s, %u)", gb_bitmap_width(bitmap), gb_bitmap_height(bitmap), gb_pixmap(gb_bitmap_pixfmt(bitmap), 0xff)->name, gb_bitmap_has_alpha(bitmap));
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -199,8 +257,17 @@ tb_bool_t gb_prefix_init()
     // register printf("%{arc}", &arc);
     tb_printf_object_register("arc", gb_prefix_printf_format_arc);
 
+    // register printf("%{path}", path);
+    tb_printf_object_register("path", gb_prefix_printf_format_path);
+
+    // register printf("%{shape}", &shape);
+    tb_printf_object_register("shape", gb_prefix_printf_format_shape);
+
     // register printf("%{matrix}", &matrix);
     tb_printf_object_register("matrix", gb_prefix_printf_format_matrix);
+
+    // register printf("%{bitmap}", bitmap);
+    tb_printf_object_register("bitmap", gb_prefix_printf_format_bitmap);
 
     // ok
     return tb_true;
