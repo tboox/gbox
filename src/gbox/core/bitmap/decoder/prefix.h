@@ -31,6 +31,11 @@
 #include "../decoder.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -63,8 +68,6 @@ typedef struct __gb_bitmap_decoder_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
-__tb_extern_c_enter__ 
-
 /* probe bmp bitmap foramt
  *
  * @param stream        the stream
@@ -82,6 +85,9 @@ tb_size_t               gb_bitmap_decoder_bmp_probe(tb_stream_ref_t stream);
  */
 gb_bitmap_decoder_ref_t  gb_bitmap_decoder_bmp_init(tb_size_t pixfmt, tb_stream_ref_t stream);
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
 __tb_extern_c_leave__
 #endif
 

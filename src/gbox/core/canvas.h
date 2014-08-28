@@ -31,9 +31,13 @@
 #include "device.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
+ * extern
  */
 __tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
 
 /*! init canvas from the given device
  *
@@ -1010,5 +1014,8 @@ tb_void_t           gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x
  */
 tb_void_t           gb_canvas_draw_ellipse2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
 __tb_extern_c_leave__
 #endif

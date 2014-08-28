@@ -249,6 +249,11 @@
 #define GB_GL_ACTIVE_TEXTURE            (0x84E0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * basic type
  */
 
@@ -341,8 +346,6 @@ typedef gb_GLvoid_t             (GB_GL_INTERFACE_TYPE(glViewport))              
 /* //////////////////////////////////////////////////////////////////////////////////////
  * functions
  */
-__tb_extern_c_enter__
-
 GB_GL_INTERFACE_EXTERN(glActiveTexture);
 GB_GL_INTERFACE_EXTERN(glAlphaFunc);
 GB_GL_INTERFACE_EXTERN(glAttachShader);
@@ -419,5 +422,8 @@ GB_GL_INTERFACE_EXTERN(glViewport);
  */
 tb_bool_t           gb_gl_interface_load(tb_noarg_t);
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
 __tb_extern_c_leave__
 #endif
