@@ -21,10 +21,8 @@ gbox_C_FILES 			+= \
 						core/prefix/color \
 						core/prefix/quality \
 						core/bitmap/decoder \
-						core/bitmap/decoder/bmp \
-						platform/event \
-						platform/window \
-						platform/window/prefix 
+						core/bitmap/decoder/bmp 
+
 
 # gl core files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
@@ -36,6 +34,12 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
 						core/device/skia
 
 # platform files
+gbox_C_FILES 			+= \
+						platform/platform \
+						platform/event \
+						platform/window \
+						platform/window/prefix 
+
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
 						platform/window/glut
 

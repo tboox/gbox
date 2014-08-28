@@ -14,47 +14,26 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
- * @defgroup    platform
+ * @file        platform.c
+ * @ingroup     platform
  */
-#ifndef GB_PLATFORM_H
-#define GB_PLATFORM_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "touch.h"
-#include "event.h"
-#include "window.h"
+#include "platform.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * extern
+ * implementation
  */
-__tb_extern_c_enter__
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
- */
-
-/*! init platform
- *
- * @return  tb_true or tb_false
- */
-tb_bool_t   gb_platform_init(tb_noarg_t);
-
-/*! exit platform
- */
-tb_void_t   gb_platform_exit(tb_noarg_t);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
-
-#endif
-
+tb_bool_t gb_platform_init()
+{
+    return tb_true;
+}
+tb_void_t gb_platform_exit()
+{
+}
 
