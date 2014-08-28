@@ -19,7 +19,7 @@ static tb_void_t gb_demo_info(tb_bool_t killed, tb_cpointer_t priv)
     tb_assert_and_check_return(window);
 
     // trace
-    tb_trace_i("framerate: " GB_FMT, gb_window_framerate(window));
+    tb_trace_i("framerate: %{float}", gb_window_framerate(window));
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

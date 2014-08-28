@@ -18,6 +18,7 @@ gbox_C_FILES 			+= \
 						core/canvas \
 						core/device \
 						core/device/bitmap \
+						core/prefix/prefix \
 						core/prefix/color \
 						core/prefix/quality \
 						core/bitmap/decoder \

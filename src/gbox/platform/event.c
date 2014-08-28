@@ -69,7 +69,7 @@ tb_void_t gb_event_dump(gb_event_ref_t event)
             tb_assert_and_check_break(event->u.mouse.button < tb_arrayn(button_cstr));
 
             // trace
-            tb_trace_i("mouse: %s %s, cursor: " GB_FMT ", " GB_FMT ", scroll: " GB_FMT ", " GB_FMT, button_cstr[event->u.mouse.button], code_cstr[event->u.mouse.code], event->u.mouse.cursor.x, event->u.mouse.cursor.y, event->u.mouse.scroll.x, event->u.mouse.scroll.y);
+            tb_trace_i("mouse: %s %s, cursor: %{point}, scroll: %{point}", button_cstr[event->u.mouse.button], code_cstr[event->u.mouse.code], &event->u.mouse.cursor, &event->u.mouse.scroll);
         }
         break;
     case GB_EVENT_TYPE_KEYBOARD:

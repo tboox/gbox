@@ -57,7 +57,7 @@ tb_void_t gb_window_impl_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
         impl->framerate = gb_imuldiv(gb_long_to_float(1000), impl->fps_count, (tb_long_t)(time - impl->fps_time));
 
         // trace
-        tb_trace_d("framerate: " GB_FMT, impl->framerate);
+        tb_trace_d("framerate: %{float}", impl->framerate);
 
         // clear the frame count
 		impl->fps_count = 0;

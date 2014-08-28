@@ -31,9 +31,15 @@
  */
 tb_bool_t gb_core_init()
 {
+    // init prefix
+    if (!gb_prefix_init()) return tb_false;
+
+    // ok
     return tb_true;
 }
 tb_void_t gb_core_exit()
 {
+    // exit prefix
+    gb_prefix_exit();
 }
 

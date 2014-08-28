@@ -35,13 +35,6 @@
 
 #ifdef GB_CONFIG_FLOAT_FIXED
 
-// format
-#ifdef TB_CONFIG_TYPE_FLOAT
-#   define GB_FMT               "%0.3F"
-#else
-#   define GB_FMT               "%F"
-#endif
-
 // constant
 #define GB_ONE                  TB_FIXED_ONE
 #define GB_TWO                  (TB_FIXED_ONE + TB_FIXED_ONE)
@@ -120,9 +113,6 @@
 #define gb_b1(x)                ((x) > GB_ONE)
 
 #elif defined(TB_CONFIG_TYPE_FLOAT)
-
-// format
-#define GB_FMT                  "%0.3f"
 
 // constant
 #define GB_ONE                  (1.0f)

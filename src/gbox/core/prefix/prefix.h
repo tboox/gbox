@@ -56,6 +56,29 @@
  */
 #define GB_ALPHA_MAXN           ((tb_byte_t)(0xff - ((GB_QUALITY_TOP - gb_quality()) << 3)))
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
+
+/*! init prefix
+ *
+ * @return  tb_true or tb_false
+ */
+tb_bool_t   gb_prefix_init(tb_noarg_t);
+
+/*! exit prefix
+ */
+tb_void_t   gb_prefix_exit(tb_noarg_t);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 #endif
 
 

@@ -117,8 +117,8 @@ typedef gb_color_t*     gb_color_ref_t;
  */
 typedef struct __gb_matrix_t
 {
-	gb_float_t 		sx, kx, tx;
-	gb_float_t 		ky, sy, ty;
+	gb_float_t 		    sx, kx, tx;
+	gb_float_t 		    ky, sy, ty;
 
 }gb_matrix_t;
 
