@@ -34,6 +34,8 @@
 #include "canvas.h"
 #include "device.h"
 #include "matrix.h"
+#include "paint.h"
+#include "base/cache_stack.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -50,6 +52,9 @@ typedef struct __gb_canvas_impl_t
 
     // the matrix stack
     tb_stack_ref_t          matrix_stack;
+
+    // the paint stack
+    gb_cache_stack_ref_t    paint_stack;
 
 }gb_canvas_impl_t;
 
@@ -74,8 +79,12 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
         gb_matrix_clear(&impl->matrix);
 
         // init matrix stack
-        impl->matrix_stack = tb_stack_init(16, tb_item_func_mem(sizeof(gb_matrix_t), tb_null, tb_null));
+        impl->matrix_stack = tb_stack_init(8, tb_item_func_mem(sizeof(gb_matrix_t), tb_null, tb_null));
         tb_assert_and_check_break(impl->matrix_stack);
+
+        // init paint stack
+        impl->paint_stack = gb_cache_stack_init(8, GB_CACHE_STACK_TYPE_PAINT);
+        tb_assert_and_check_break(impl->paint_stack);
 
         // ok
         ok = tb_true;
@@ -193,6 +202,10 @@ tb_void_t gb_canvas_exit(gb_canvas_ref_t canvas)
     if (impl->matrix_stack) tb_stack_exit(impl->matrix_stack);
     impl->matrix_stack = tb_null;
 
+    // exit paint stack
+    if (impl->paint_stack) gb_cache_stack_exit(impl->paint_stack);
+    impl->paint_stack = tb_null;
+
     // exit device
     if (impl->device) gb_device_exit(impl->device);
     impl->device = tb_null;
@@ -238,8 +251,12 @@ gb_device_ref_t gb_canvas_device(gb_canvas_ref_t canvas)
 }
 gb_paint_ref_t gb_canvas_paint(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // the paint
+    return gb_cache_stack_object(impl->paint_stack);
 }
 gb_path_ref_t gb_canvas_path(gb_canvas_ref_t canvas)
 {
@@ -271,12 +288,21 @@ tb_void_t gb_canvas_load_path(gb_canvas_ref_t canvas)
 }
 gb_paint_ref_t gb_canvas_save_paint(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // save paint
+    return (gb_paint_ref_t)gb_cache_stack_save(impl->paint_stack);
 }
 tb_void_t gb_canvas_load_paint(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl);
+
+    // load paint
+    gb_cache_stack_load(impl->paint_stack);
 }
 gb_matrix_ref_t gb_canvas_save_matrix(gb_canvas_ref_t canvas)
 {
@@ -325,7 +351,7 @@ tb_void_t gb_canvas_clear_paint(gb_canvas_ref_t canvas)
 }
 tb_void_t gb_canvas_clear_matrix(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    gb_matrix_clear(gb_canvas_matrix(canvas));
 }
 tb_void_t gb_canvas_clear_clipper(gb_canvas_ref_t canvas)
 {
@@ -333,135 +359,115 @@ tb_void_t gb_canvas_clear_clipper(gb_canvas_ref_t canvas)
 }
 tb_void_t gb_canvas_mode_set(gb_canvas_ref_t canvas, tb_size_t mode)
 {
-    tb_trace_noimpl();
+    gb_paint_mode_set(gb_canvas_paint(canvas), mode);
 }
 tb_void_t gb_canvas_flag_set(gb_canvas_ref_t canvas, tb_size_t flag)
 {
-    tb_trace_noimpl();
+    gb_paint_flag_set(gb_canvas_paint(canvas), flag);
 }
 tb_void_t gb_canvas_color_set(gb_canvas_ref_t canvas, gb_color_t color)
 {
-    tb_trace_noimpl();
+    gb_paint_color_set(gb_canvas_paint(canvas), color);
 }
 tb_void_t gb_canvas_alpha_set(gb_canvas_ref_t canvas, tb_byte_t alpha)
 {
-    tb_trace_noimpl();
+    gb_paint_alpha_set(gb_canvas_paint(canvas), alpha);
 }
 tb_void_t gb_canvas_width_set(gb_canvas_ref_t canvas, gb_float_t width)
 {
-    tb_trace_noimpl();
+    gb_paint_width_set(gb_canvas_paint(canvas), width);
 }
 tb_void_t gb_canvas_cap_set(gb_canvas_ref_t canvas, tb_size_t cap)
 {
-    tb_trace_noimpl();
+    gb_paint_cap_set(gb_canvas_paint(canvas), cap);
 }
 tb_void_t gb_canvas_join_set(gb_canvas_ref_t canvas, tb_size_t join)
 {
-    tb_trace_noimpl();
+    gb_paint_join_set(gb_canvas_paint(canvas), join);
 }
 tb_void_t gb_canvas_shader_set(gb_canvas_ref_t canvas, gb_shader_ref_t shader)
 {
-    tb_trace_noimpl();
+    gb_paint_shader_set(gb_canvas_paint(canvas), shader);
 }
 tb_bool_t gb_canvas_rotate(gb_canvas_ref_t canvas, gb_float_t degrees)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_rotate(gb_canvas_matrix(canvas), degrees);
 }
 tb_bool_t gb_canvas_rotate_lhs(gb_canvas_ref_t canvas, gb_float_t degrees)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_rotate_lhs(gb_canvas_matrix(canvas), degrees);
 }
 tb_bool_t gb_canvas_rotatep(gb_canvas_ref_t canvas, gb_float_t degrees, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_rotatep(gb_canvas_matrix(canvas), degrees, px, py);
 }
 tb_bool_t gb_canvas_rotatep_lhs(gb_canvas_ref_t canvas, gb_float_t degrees, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_rotatep_lhs(gb_canvas_matrix(canvas), degrees, px, py);
 }
 tb_bool_t gb_canvas_scale(gb_canvas_ref_t canvas, gb_float_t sx, gb_float_t sy)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_scale(gb_canvas_matrix(canvas), sx, sy);
 }
 tb_bool_t gb_canvas_scale_lhs(gb_canvas_ref_t canvas, gb_float_t sx, gb_float_t sy)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_scale_lhs(gb_canvas_matrix(canvas), sx, sy);
 }
 tb_bool_t gb_canvas_scalep(gb_canvas_ref_t canvas, gb_float_t sx, gb_float_t sy, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_scalep(gb_canvas_matrix(canvas), sx, sy, px, py);
 }
 tb_bool_t gb_canvas_scalep_lhs(gb_canvas_ref_t canvas, gb_float_t sx, gb_float_t sy, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_scalep_lhs(gb_canvas_matrix(canvas), sx, sy, px, py);
 }
 tb_bool_t gb_canvas_skew(gb_canvas_ref_t canvas, gb_float_t kx, gb_float_t ky)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_skew(gb_canvas_matrix(canvas), kx, ky);
 }
 tb_bool_t gb_canvas_skew_lhs(gb_canvas_ref_t canvas, gb_float_t kx, gb_float_t ky)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_skew_lhs(gb_canvas_matrix(canvas), kx, ky);
 }
 tb_bool_t gb_canvas_skewp(gb_canvas_ref_t canvas, gb_float_t kx, gb_float_t ky, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_skewp(gb_canvas_matrix(canvas), kx, ky, px, py);
 }
 tb_bool_t gb_canvas_skewp_lhs(gb_canvas_ref_t canvas, gb_float_t kx, gb_float_t ky, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_skewp_lhs(gb_canvas_matrix(canvas), kx, ky, px, py);
 }
 tb_bool_t gb_canvas_sincos(gb_canvas_ref_t canvas, gb_float_t sin, gb_float_t cos)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_sincos(gb_canvas_matrix(canvas), sin, cos);
 }
 tb_bool_t gb_canvas_sincos_lhs(gb_canvas_ref_t canvas, gb_float_t sin, gb_float_t cos)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_sincos_lhs(gb_canvas_matrix(canvas), sin, cos);
 }
 tb_bool_t gb_canvas_sincosp(gb_canvas_ref_t canvas, gb_float_t sin, gb_float_t cos, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_sincosp(gb_canvas_matrix(canvas), sin, cos, px, py);
 }
 tb_bool_t gb_canvas_sincosp_lhs(gb_canvas_ref_t canvas, gb_float_t sin, gb_float_t cos, gb_float_t px, gb_float_t py)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_sincosp_lhs(gb_canvas_matrix(canvas), sin, cos, px, py);
 }
 tb_bool_t gb_canvas_translate(gb_canvas_ref_t canvas, gb_float_t dx, gb_float_t dy)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_translate(gb_canvas_matrix(canvas), dx, dy);
 }
 tb_bool_t gb_canvas_translate_lhs(gb_canvas_ref_t canvas, gb_float_t dx, gb_float_t dy)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_translate_lhs(gb_canvas_matrix(canvas), dx, dy);
 }
 tb_bool_t gb_canvas_multiply(gb_canvas_ref_t canvas, gb_matrix_ref_t factor)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_multiply(gb_canvas_matrix(canvas), factor);
 }
 tb_bool_t gb_canvas_multiply_lhs(gb_canvas_ref_t canvas, gb_matrix_ref_t factor)
 {
-    tb_trace_noimpl();
-    return tb_false;
+    return gb_matrix_multiply_lhs(gb_canvas_matrix(canvas), factor);
 }
 tb_void_t gb_canvas_clos(gb_canvas_ref_t canvas)
 {

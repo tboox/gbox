@@ -20,14 +20,13 @@
  * @file        prefix.h
  * @ingroup     core
  */
-#ifndef GB_CORE_PREFIX_H
-#define GB_CORE_PREFIX_H
+#ifndef GB_CORE_BASE_PREFIX_H
+#define GB_CORE_BASE_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix/prefix.h"
-#include "../platform/prefix.h"
+#include "../prefix.h"
 
 #endif
 

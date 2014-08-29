@@ -11,6 +11,7 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
+						core/base/cache_stack \
 						core/matrix \
 						core/pixmap \
 						core/bitmap \
