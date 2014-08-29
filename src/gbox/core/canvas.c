@@ -347,7 +347,7 @@ tb_void_t gb_canvas_clear_path(gb_canvas_ref_t canvas)
 }
 tb_void_t gb_canvas_clear_paint(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    gb_paint_clear(gb_canvas_paint(canvas));
 }
 tb_void_t gb_canvas_clear_matrix(gb_canvas_ref_t canvas)
 {
@@ -479,11 +479,19 @@ tb_void_t gb_canvas_move_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 }
 tb_void_t gb_canvas_move2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
-    tb_trace_noimpl();
+    // make point
+    gb_point_t point = gb_point_make(x, y);
+
+    // move-to
+    gb_canvas_move_to(canvas, &point);
 }
 tb_void_t gb_canvas_move2i_to(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 {
-    tb_trace_noimpl();
+    // make point
+    gb_point_t point = gb_point_imake(x, y);
+
+    // move-to
+    gb_canvas_move_to(canvas, &point);
 }
 tb_void_t gb_canvas_line_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
@@ -491,11 +499,19 @@ tb_void_t gb_canvas_line_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 }
 tb_void_t gb_canvas_line2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
-    tb_trace_noimpl();
+    // make point
+    gb_point_t point = gb_point_make(x, y);
+
+    // line-to
+    gb_canvas_line_to(canvas, &point);
 }
 tb_void_t gb_canvas_line2i_to(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
-{
-    tb_trace_noimpl();
+{    
+    // make point
+    gb_point_t point = gb_point_imake(x, y);
+
+    // line-to
+    gb_canvas_line_to(canvas, &point);
 }
 tb_void_t gb_canvas_quad_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl, gb_point_ref_t point)
 {
@@ -503,11 +519,25 @@ tb_void_t gb_canvas_quad_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl, gb_poin
 }
 tb_void_t gb_canvas_quad2_to(gb_canvas_ref_t canvas, gb_float_t cx, gb_float_t cy, gb_float_t x, gb_float_t y)
 {
-    tb_trace_noimpl();
+    // make ctrl
+    gb_point_t ctrl = gb_point_make(cx, cy);
+
+    // make point
+    gb_point_t point = gb_point_make(x, y);
+
+    // quad-to
+    gb_canvas_quad_to(canvas, &ctrl, &point);
 }
 tb_void_t gb_canvas_quad2i_to(gb_canvas_ref_t canvas, tb_long_t cx, tb_long_t cy, tb_long_t x, tb_long_t y)
 {
-    tb_trace_noimpl();
+    // make ctrl
+    gb_point_t ctrl = gb_point_imake(cx, cy);
+
+    // make point
+    gb_point_t point = gb_point_imake(x, y);
+
+    // quad-to
+    gb_canvas_quad_to(canvas, &ctrl, &point);
 }
 tb_void_t gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
@@ -515,11 +545,31 @@ tb_void_t gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_poi
 }
 tb_void_t gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {
-    tb_trace_noimpl();
+    // make ctrl0
+    gb_point_t ctrl0 = gb_point_make(cx0, cy0);
+
+    // make ctrl1
+    gb_point_t ctrl1 = gb_point_make(cx1, cy1);
+
+    // make point
+    gb_point_t point = gb_point_make(x, y);
+
+    // cube-to
+    gb_canvas_cube_to(canvas, &ctrl0, &ctrl1, &point);
 }
 tb_void_t gb_canvas_cube2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
 {
-    tb_trace_noimpl();
+    // make ctrl0
+    gb_point_t ctrl0 = gb_point_imake(cx0, cy0);
+
+    // make ctrl1
+    gb_point_t ctrl1 = gb_point_imake(cx1, cy1);
+
+    // make point
+    gb_point_t point = gb_point_imake(x, y);
+
+    // cube-to
+    gb_canvas_cube_to(canvas, &ctrl0, &ctrl1, &point);
 }
 tb_void_t gb_canvas_arc_to(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 {
@@ -527,11 +577,19 @@ tb_void_t gb_canvas_arc_to(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 }
 tb_void_t gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
-    tb_trace_noimpl();
+    // make arc
+    gb_arc_t arc = gb_arc_make(x0, y0, rx, ry, ab, an);
+
+    // arc-to
+    gb_canvas_arc_to(canvas, &arc);
 }
 tb_void_t gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
 {
-    tb_trace_noimpl();
+    // make arc
+    gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
+
+    // arc-to
+    gb_canvas_arc_to(canvas, &arc);
 }
 tb_void_t gb_canvas_clip_path(gb_canvas_ref_t canvas, tb_size_t mode, gb_paint_ref_t path)
 {
@@ -543,11 +601,19 @@ tb_void_t gb_canvas_clip_triangle(gb_canvas_ref_t canvas, tb_size_t mode, gb_tri
 }
 tb_void_t gb_canvas_clip_triangle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
-    tb_trace_noimpl();
+    // make triangle
+    gb_triangle_t triangle = gb_triangle_make(x0, y0, x1, y1, x2, y2);
+
+    // clip triangle
+    gb_canvas_clip_triangle(canvas, mode, &triangle);
 }
 tb_void_t gb_canvas_clip_triangle2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
-    tb_trace_noimpl();
+    // make triangle
+    gb_triangle_t triangle = gb_triangle_imake(x0, y0, x1, y1, x2, y2);
+
+    // clip triangle
+    gb_canvas_clip_triangle(canvas, mode, &triangle);
 }
 tb_void_t gb_canvas_clip_rect(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_ref_t rect)
 {
@@ -555,11 +621,19 @@ tb_void_t gb_canvas_clip_rect(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_re
 }
 tb_void_t gb_canvas_clip_rect2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
-    tb_trace_noimpl();
+    // make rect
+    gb_rect_t rect = gb_rect_make(x, y, w, h);
+
+    // clip rect
+    gb_canvas_clip_rect(canvas, mode, &rect);
 }
 tb_void_t gb_canvas_clip_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
 {
-    tb_trace_noimpl();
+    // make rect
+    gb_rect_t rect = gb_rect_imake(x, y, w, h);
+
+    // clip rect
+    gb_canvas_clip_rect(canvas, mode, &rect);
 }
 tb_void_t gb_canvas_clip_circle(gb_canvas_ref_t canvas, tb_size_t mode, gb_circle_ref_t circle)
 {
@@ -567,11 +641,19 @@ tb_void_t gb_canvas_clip_circle(gb_canvas_ref_t canvas, tb_size_t mode, gb_circl
 }
 tb_void_t gb_canvas_clip_circle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
-    tb_trace_noimpl();
+    // make circle
+    gb_circle_t circle = gb_circle_make(x0, y0, r);
+
+    // clip circle
+    gb_canvas_clip_circle(canvas, mode, &circle);
 }
 tb_void_t gb_canvas_clip_circle2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t r)
 {
-    tb_trace_noimpl();
+    // make circle
+    gb_circle_t circle = gb_circle_imake(x0, y0, r);
+
+    // clip circle
+    gb_canvas_clip_circle(canvas, mode, &circle);
 }
 tb_void_t gb_canvas_clip_ellipse(gb_canvas_ref_t canvas, tb_size_t mode, gb_ellipse_ref_t ellipse)
 {
@@ -579,11 +661,19 @@ tb_void_t gb_canvas_clip_ellipse(gb_canvas_ref_t canvas, tb_size_t mode, gb_elli
 }
 tb_void_t gb_canvas_clip_ellipse2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
-    tb_trace_noimpl();
+    // make ellipse
+    gb_ellipse_t ellipse = gb_ellipse_make(x0, y0, rx, ry);
+
+    // clip ellipse
+    gb_canvas_clip_ellipse(canvas, mode, &ellipse);
 }
 tb_void_t gb_canvas_clip_ellipse2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry)
 {
-    tb_trace_noimpl();
+    // make ellipse
+    gb_ellipse_t ellipse = gb_ellipse_imake(x0, y0, rx, ry);
+
+    // clip ellipse
+    gb_canvas_clip_ellipse(canvas, mode, &ellipse);
 }
 tb_void_t gb_canvas_draw_clear(gb_canvas_ref_t canvas, gb_color_t color)
 {
@@ -608,11 +698,19 @@ tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 }
 tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
-    tb_trace_noimpl();
+    // make point
+    gb_point_t point = gb_point_make(x, y);
+
+    // draw point
+    gb_canvas_draw_point(canvas, &point);
 }
 tb_void_t gb_canvas_draw_point2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 {
-    tb_trace_noimpl();
+    // make point
+    gb_point_t point = gb_point_imake(x, y);
+
+    // draw point
+    gb_canvas_draw_point(canvas, &point);
 }
 tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
 {
@@ -620,11 +718,19 @@ tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
 }
 tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
-    tb_trace_noimpl();
+    // make line
+    gb_line_t line = gb_line_make(x0, y0, x1, y1);
+
+    // draw line
+    gb_canvas_draw_line(canvas, &line);
 }
 tb_void_t gb_canvas_draw_line2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1)
 {
-    tb_trace_noimpl();
+    // make line
+    gb_line_t line = gb_line_imake(x0, y0, x1, y1);
+
+    // draw line
+    gb_canvas_draw_line(canvas, &line);
 }
 tb_void_t gb_canvas_draw_arc(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 {
@@ -632,11 +738,19 @@ tb_void_t gb_canvas_draw_arc(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 }
 tb_void_t gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
-    tb_trace_noimpl();
+    // make arc
+    gb_arc_t arc = gb_arc_make(x0, y0, rx, ry, ab, an);
+
+    // draw arc
+    gb_canvas_draw_arc(canvas, &arc);
 }
 tb_void_t gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
 {
-    tb_trace_noimpl();
+    // make arc
+    gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
+
+    // draw arc
+    gb_canvas_draw_arc(canvas, &arc);
 }
 tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t triangle)
 {
@@ -644,11 +758,19 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
 }
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
-    tb_trace_noimpl();
+    // make triangle
+    gb_triangle_t triangle = gb_triangle_make(x0, y0, x1, y1, x2, y2);
+
+    // draw triangle
+    gb_canvas_draw_triangle(canvas, &triangle);
 }
 tb_void_t gb_canvas_draw_triangle2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
-    tb_trace_noimpl();
+    // make triangle
+    gb_triangle_t triangle = gb_triangle_imake(x0, y0, x1, y1, x2, y2);
+
+    // draw triangle
+    gb_canvas_draw_triangle(canvas, &triangle);
 }
 tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
 {
@@ -656,11 +778,19 @@ tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
 }
 tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
-    tb_trace_noimpl();
+    // make rect
+    gb_rect_t rect = gb_rect_make(x, y, w, h);
+
+    // draw rect
+    gb_canvas_draw_rect(canvas, &rect);
 }
 tb_void_t gb_canvas_draw_rect2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
 {
-    tb_trace_noimpl();
+    // make rect
+    gb_rect_t rect = gb_rect_imake(x, y, w, h);
+
+    // draw rect
+    gb_canvas_draw_rect(canvas, &rect);
 }
 tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 {
@@ -668,11 +798,19 @@ tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 }
 tb_void_t gb_canvas_draw_circle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
-    tb_trace_noimpl();
+    // make circle
+    gb_circle_t circle = gb_circle_make(x0, y0, r);
+
+    // draw circle
+    gb_canvas_draw_circle(canvas, &circle);
 }
 tb_void_t gb_canvas_draw_circle2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t r)
 {
-    tb_trace_noimpl();
+    // make circle
+    gb_circle_t circle = gb_circle_imake(x0, y0, r);
+
+    // draw circle
+    gb_canvas_draw_circle(canvas, &circle);
 }
 tb_void_t gb_canvas_draw_ellipse(gb_canvas_ref_t canvas, gb_ellipse_ref_t ellipse)
 {
@@ -680,9 +818,17 @@ tb_void_t gb_canvas_draw_ellipse(gb_canvas_ref_t canvas, gb_ellipse_ref_t ellips
 }
 tb_void_t gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
-    tb_trace_noimpl();
+    // make ellipse
+    gb_ellipse_t ellipse = gb_ellipse_make(x0, y0, rx, ry);
+
+    // draw ellipse
+    gb_canvas_draw_ellipse(canvas, &ellipse);
 }
 tb_void_t gb_canvas_draw_ellipse2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry)
 {
-    tb_trace_noimpl();
+    // make ellipse
+    gb_ellipse_t ellipse = gb_ellipse_imake(x0, y0, rx, ry);
+
+    // draw ellipse
+    gb_canvas_draw_ellipse(canvas, &ellipse);
 }
