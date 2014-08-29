@@ -25,6 +25,7 @@
  * includes
  */
 #include "cache_stack.h"
+#include "../path.h"
 #include "../paint.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +62,7 @@ static tb_handle_t gb_cache_stack_object_init(tb_size_t type)
     switch (type)
     {
     case GB_CACHE_STACK_TYPE_PATH:
+        object = (tb_handle_t)gb_path_init();
         break;
     case GB_CACHE_STACK_TYPE_PAINT:
         object = (tb_handle_t)gb_paint_init();
@@ -83,6 +85,7 @@ static tb_void_t gb_cache_stack_object_exit(tb_size_t type, tb_handle_t object)
     switch (type)
     {
     case GB_CACHE_STACK_TYPE_PATH:
+        gb_path_exit((gb_path_ref_t)object);
         break;
     case GB_CACHE_STACK_TYPE_PAINT:
         gb_paint_exit((gb_paint_ref_t)object);
@@ -102,6 +105,7 @@ static tb_void_t gb_cache_stack_object_copy(tb_size_t type, tb_handle_t object, 
     switch (type)
     {
     case GB_CACHE_STACK_TYPE_PATH:
+        gb_path_copy((gb_path_ref_t)object, (gb_path_ref_t)copied);
         break;
     case GB_CACHE_STACK_TYPE_PAINT:
         gb_paint_copy((gb_paint_ref_t)object, (gb_paint_ref_t)copied);

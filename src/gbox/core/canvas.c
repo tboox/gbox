@@ -34,6 +34,7 @@
 #include "canvas.h"
 #include "device.h"
 #include "matrix.h"
+#include "path.h"
 #include "paint.h"
 #include "base/cache_stack.h"
 
@@ -391,7 +392,7 @@ tb_void_t gb_canvas_load_clipper(gb_canvas_ref_t canvas)
 }
 tb_void_t gb_canvas_clear_path(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    gb_path_clear(gb_canvas_path(canvas));
 }
 tb_void_t gb_canvas_clear_paint(gb_canvas_ref_t canvas)
 {
@@ -519,11 +520,11 @@ tb_bool_t gb_canvas_multiply_lhs(gb_canvas_ref_t canvas, gb_matrix_ref_t factor)
 }
 tb_void_t gb_canvas_clos(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    gb_path_clos(gb_canvas_path(canvas));
 }
 tb_void_t gb_canvas_move_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
-    tb_trace_noimpl();
+    gb_path_move_to(gb_canvas_path(canvas), point);
 }
 tb_void_t gb_canvas_move2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
@@ -543,7 +544,7 @@ tb_void_t gb_canvas_move2i_to(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 }
 tb_void_t gb_canvas_line_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
-    tb_trace_noimpl();
+    gb_path_line_to(gb_canvas_path(canvas), point);
 }
 tb_void_t gb_canvas_line2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
@@ -563,7 +564,7 @@ tb_void_t gb_canvas_line2i_to(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 }
 tb_void_t gb_canvas_quad_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl, gb_point_ref_t point)
 {
-    tb_trace_noimpl();
+    gb_path_quad_to(gb_canvas_path(canvas), ctrl, point);
 }
 tb_void_t gb_canvas_quad2_to(gb_canvas_ref_t canvas, gb_float_t cx, gb_float_t cy, gb_float_t x, gb_float_t y)
 {
@@ -589,7 +590,7 @@ tb_void_t gb_canvas_quad2i_to(gb_canvas_ref_t canvas, tb_long_t cx, tb_long_t cy
 }
 tb_void_t gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
-    tb_trace_noimpl();
+    gb_path_cube_to(gb_canvas_path(canvas), ctrl0, ctrl1, point);
 }
 tb_void_t gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {
@@ -621,7 +622,7 @@ tb_void_t gb_canvas_cube2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t c
 }
 tb_void_t gb_canvas_arc_to(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 {
-    tb_trace_noimpl();
+    gb_path_arc_to(gb_canvas_path(canvas), arc);
 }
 tb_void_t gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
