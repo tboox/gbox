@@ -19,6 +19,7 @@ gbox_C_FILES 			+= \
 						core/bitmap \
 						core/canvas \
 						core/device \
+						core/clipper \
 						core/device/bitmap \
 						core/prefix/prefix \
 						core/prefix/color \
@@ -95,6 +96,7 @@ INC_FILES 				= \
 						core/matrix.h \
 						core/canvas.h \
 						core/device.h \
+						core/clipper.h \
 						core/svg/svg.h \
 						core/svg/prefix.h \
 						platform/prefix.h \

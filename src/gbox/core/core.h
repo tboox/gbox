@@ -34,6 +34,7 @@
 #include "bitmap.h"
 #include "canvas.h"
 #include "device.h"
+#include "clipper.h"
 #include "svg/svg.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
