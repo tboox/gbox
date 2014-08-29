@@ -67,60 +67,60 @@ typedef struct __gb_device_impl_t
 
     /*! draw the given path
      *
-     * @param device    the device
-     * @param path      the path
-     * @param matrix    the matrix
-     * @param paint     the paint
-     * @param clipper   the clipper
+     * @param device        the device
+     * @param path          the path
+     * @param matrix        the matrix
+     * @param paint         the paint
+     * @param clipper       the clipper
      */
     tb_void_t               (*draw_path)(gb_device_ref_t device, gb_path_ref_t path, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw point
      *
-     * @param device    the device
-     * @param point     the point
+     * @param device        the device
+     * @param point         the point
      */
     tb_void_t               (*draw_point)(gb_device_ref_t device, gb_point_ref_t point, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw line
      *
-     * @param device    the device
-     * @param line      the line
+     * @param device        the device
+     * @param line          the line
      */
     tb_void_t               (*draw_line)(gb_device_ref_t device, gb_line_ref_t line, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw arc
      *
-     * @param device    the device
-     * @param arc       the arc
+     * @param device        the device
+     * @param arc           the arc
      */
     tb_void_t               (*draw_arc)(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw triangle
      *
-     * @param device    the device
-     * @param triangle  the triangle
+     * @param device        the device
+     * @param triangle      the triangle
      */
     tb_void_t               (*draw_triangle)(gb_device_ref_t device, gb_triangle_ref_t triangle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw rect
      *
-     * @param device    the device
-     * @param rect      the rect
+     * @param device        the device
+     * @param rect          the rect
      */
     tb_void_t               (*draw_rect)(gb_device_ref_t device, gb_rect_ref_t rect, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw circle
      *
-     * @param device    the device
-     * @param circle    the circle
+     * @param device        the device
+     * @param circle        the circle
      */
     tb_void_t               (*draw_circle)(gb_device_ref_t device, gb_circle_ref_t circle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! draw ellipse
      *
-     * @param device    the device
-     * @param ellipse   the ellipse
+     * @param device        the device
+     * @param ellipse       the ellipse
      */
     tb_void_t               (*draw_ellipse)(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 

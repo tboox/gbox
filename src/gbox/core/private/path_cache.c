@@ -17,17 +17,38 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        path_cache.c
  * @ingroup     core
  */
-#ifndef GB_CORE_BASE_PREFIX_H
-#define GB_CORE_BASE_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "path_cache.h"
+#include "../path.h"
 
-#endif
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
 
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+gb_path_cache_ref_t gb_path_cache_init()
+{
+    return tb_null;
+}
+tb_void_t gb_path_cache_exit(gb_path_cache_ref_t cache)
+{
+}
+tb_void_t gb_path_cache_clear(gb_path_cache_ref_t cache)
+{
+}
+gb_path_ref_t gb_path_cache_get(gb_path_cache_ref_t cache, gb_shape_ref_t shape)
+{
+    return tb_null;
+}
+gb_path_ref_t gb_path_cache_add(gb_path_cache_ref_t cache, gb_shape_ref_t shape)
+{
+    return tb_null;
+}

@@ -679,7 +679,7 @@ tb_void_t           gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_
  * @param mode      the clip mode
  * @param path      the clip path
  */
-tb_void_t           gb_canvas_clip_path(gb_canvas_ref_t canvas, tb_size_t mode, gb_paint_ref_t path);
+tb_void_t           gb_canvas_clip_path(gb_canvas_ref_t canvas, tb_size_t mode, gb_path_ref_t path);
 
 /*! clip triangle
  *

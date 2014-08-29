@@ -36,7 +36,8 @@
 #include "matrix.h"
 #include "path.h"
 #include "paint.h"
-#include "base/cache_stack.h"
+#include "clipper.h"
+#include "private/cache_stack.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -404,7 +405,7 @@ tb_void_t gb_canvas_clear_matrix(gb_canvas_ref_t canvas)
 }
 tb_void_t gb_canvas_clear_clipper(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    gb_clipper_clear(gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_mode_set(gb_canvas_ref_t canvas, tb_size_t mode)
 {
@@ -640,13 +641,15 @@ tb_void_t gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0,
     // arc-to
     gb_canvas_arc_to(canvas, &arc);
 }
-tb_void_t gb_canvas_clip_path(gb_canvas_ref_t canvas, tb_size_t mode, gb_paint_ref_t path)
+tb_void_t gb_canvas_clip_path(gb_canvas_ref_t canvas, tb_size_t mode, gb_path_ref_t path)
 {
-    tb_trace_noimpl();
+    // clip path
+    gb_clipper_add_path(gb_canvas_clipper(canvas), mode, path);
 }
 tb_void_t gb_canvas_clip_triangle(gb_canvas_ref_t canvas, tb_size_t mode, gb_triangle_ref_t triangle)
 {
-    tb_trace_noimpl();
+    // clip triangle
+    gb_clipper_add_triangle(gb_canvas_clipper(canvas), mode, triangle);
 }
 tb_void_t gb_canvas_clip_triangle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
@@ -666,7 +669,8 @@ tb_void_t gb_canvas_clip_triangle2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_l
 }
 tb_void_t gb_canvas_clip_rect(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_ref_t rect)
 {
-    tb_trace_noimpl();
+    // clip rect
+    gb_clipper_add_rect(gb_canvas_clipper(canvas), mode, rect);
 }
 tb_void_t gb_canvas_clip_rect2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
@@ -686,7 +690,8 @@ tb_void_t gb_canvas_clip_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_
 }
 tb_void_t gb_canvas_clip_circle(gb_canvas_ref_t canvas, tb_size_t mode, gb_circle_ref_t circle)
 {
-    tb_trace_noimpl();
+    // clip circle
+    gb_clipper_add_circle(gb_canvas_clipper(canvas), mode, circle);
 }
 tb_void_t gb_canvas_clip_circle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
@@ -706,7 +711,8 @@ tb_void_t gb_canvas_clip_circle2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_lon
 }
 tb_void_t gb_canvas_clip_ellipse(gb_canvas_ref_t canvas, tb_size_t mode, gb_ellipse_ref_t ellipse)
 {
-    tb_trace_noimpl();
+    // clip ellipse
+    gb_clipper_add_ellipse(gb_canvas_clipper(canvas), mode, ellipse);
 }
 tb_void_t gb_canvas_clip_ellipse2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {

@@ -11,7 +11,6 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
-						core/base/cache_stack \
 						core/path \
 						core/paint \
 						core/matrix \
@@ -25,7 +24,9 @@ gbox_C_FILES 			+= \
 						core/prefix/color \
 						core/prefix/quality \
 						core/bitmap/decoder \
-						core/bitmap/decoder/bmp 
+						core/bitmap/decoder/bmp \
+						core/private/path_cache \
+						core/private/cache_stack 
 
 
 # gl core files
