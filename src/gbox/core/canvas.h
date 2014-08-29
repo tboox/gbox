@@ -147,7 +147,7 @@ gb_clipper_ref_t    gb_canvas_clipper(gb_canvas_ref_t canvas);
  *
  * @param canvas    the canvas
  *
- * @return          the saved path
+ * @return          the current path
  */
 gb_path_ref_t       gb_canvas_save_path(gb_canvas_ref_t canvas);
 
@@ -161,7 +161,7 @@ tb_void_t           gb_canvas_load_path(gb_canvas_ref_t canvas);
  *
  * @param canvas    the canvas
  *
- * @return          the saved paint
+ * @return          the current paint
  */
 gb_paint_ref_t      gb_canvas_save_paint(gb_canvas_ref_t canvas);
 
@@ -175,7 +175,7 @@ tb_void_t           gb_canvas_load_paint(gb_canvas_ref_t canvas);
  *
  * @param canvas    the canvas
  *
- * @return          the saved matrix
+ * @return          the current matrix
  */
 gb_matrix_ref_t     gb_canvas_save_matrix(gb_canvas_ref_t canvas);
 
@@ -189,7 +189,7 @@ tb_void_t           gb_canvas_load_matrix(gb_canvas_ref_t canvas);
  *
  * @param canvas    the canvas
  *
- * @return          the saved clipper
+ * @return          the current clipper
  */
 gb_clipper_ref_t    gb_canvas_save_clipper(gb_canvas_ref_t canvas);
 

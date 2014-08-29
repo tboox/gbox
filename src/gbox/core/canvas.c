@@ -33,6 +33,7 @@
  */
 #include "canvas.h"
 #include "device.h"
+#include "matrix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -43,6 +44,12 @@ typedef struct __gb_canvas_impl_t
 {
     // the device
     gb_device_ref_t         device;
+
+    // the matrix
+    gb_matrix_t             matrix;
+
+    // the matrix stack
+    tb_stack_ref_t          matrix_stack;
 
 }gb_canvas_impl_t;
 
@@ -62,6 +69,13 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
 
         // init canvas 
         impl->device = device;
+
+        // init matrix
+        gb_matrix_clear(&impl->matrix);
+
+        // init matrix stack
+        impl->matrix_stack = tb_stack_init(16, tb_item_func_mem(sizeof(gb_matrix_t), tb_null, tb_null));
+        tb_assert_and_check_break(impl->matrix_stack);
 
         // ok
         ok = tb_true;
@@ -175,6 +189,10 @@ tb_void_t gb_canvas_exit(gb_canvas_ref_t canvas)
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
     tb_assert_and_check_return(impl);
 
+    // exit matrix stack
+    if (impl->matrix_stack) tb_stack_exit(impl->matrix_stack);
+    impl->matrix_stack = tb_null;
+
     // exit device
     if (impl->device) gb_device_exit(impl->device);
     impl->device = tb_null;
@@ -230,8 +248,12 @@ gb_path_ref_t gb_canvas_path(gb_canvas_ref_t canvas)
 }
 gb_matrix_ref_t gb_canvas_matrix(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // the matrix
+    return &impl->matrix;
 }
 gb_clipper_ref_t gb_canvas_clipper(gb_canvas_ref_t canvas)
 {
@@ -258,12 +280,31 @@ tb_void_t gb_canvas_load_paint(gb_canvas_ref_t canvas)
 }
 gb_matrix_ref_t gb_canvas_save_matrix(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl && impl->matrix_stack, tb_null);
+
+    // save matrix
+    tb_stack_put(impl->matrix_stack, &impl->matrix);
+
+    // the matrix
+    return &impl->matrix;
 }
 tb_void_t gb_canvas_load_matrix(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->matrix_stack);
+
+    // init matrix
+    gb_matrix_ref_t matrix = (gb_matrix_ref_t)tb_stack_top(impl->matrix_stack);
+    tb_assert_and_check_return(matrix);
+
+    // load matrix
+    impl->matrix = *matrix;
+
+    // pop it
+    tb_stack_pop(impl->matrix_stack);
 }
 gb_clipper_ref_t gb_canvas_save_clipper(gb_canvas_ref_t canvas)
 {
