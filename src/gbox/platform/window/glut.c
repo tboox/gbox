@@ -32,6 +32,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../../core/device.h"
 #include "../../core/canvas.h"
 #ifdef TB_CONFIG_OS_MAC
 # 	include <GLUT/glut.h>

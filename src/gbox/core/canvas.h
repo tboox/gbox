@@ -28,7 +28,7 @@
  * includes
  */
 #include "matrix.h"
-#include "device.h"
+#include "../platform/window.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -821,7 +821,7 @@ tb_void_t           gb_canvas_draw(gb_canvas_ref_t canvas);
  * @param canvas    the canvas
  * @param path      the path
  */
-tb_void_t           gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_paint_ref_t path);
+tb_void_t           gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_path_ref_t path);
 
 /*! draw point
  *

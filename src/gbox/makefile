@@ -12,10 +12,11 @@ gbox_C_FILES 			+= \
 						gbox \
 						core/core \
 						core/base/cache_stack \
+						core/path \
+						core/paint \
 						core/matrix \
 						core/pixmap \
 						core/bitmap \
-						core/paint \
 						core/canvas \
 						core/device \
 						core/device/bitmap \
@@ -87,10 +88,11 @@ INC_FILES 				= \
 						core/prefix/pixfmt.h \
 						core/prefix/prefix.h \
 						core/prefix/quality.h \
+						core/path.h \
+						core/paint.h \
 						core/pixmap.h \
 						core/bitmap.h \
 						core/matrix.h \
-						core/paint.h \
 						core/canvas.h \
 						core/device.h \
 						core/svg/svg.h \

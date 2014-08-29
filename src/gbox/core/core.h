@@ -27,10 +27,11 @@
  * includes
  */
 #include "prefix.h"
+#include "path.h"
+#include "paint.h"
 #include "matrix.h"
 #include "pixmap.h"
 #include "bitmap.h"
-#include "paint.h"
 #include "canvas.h"
 #include "device.h"
 #include "svg/svg.h"

@@ -53,8 +53,14 @@ typedef struct __gb_canvas_impl_t
     // the matrix stack
     tb_stack_ref_t          matrix_stack;
 
+    // the path stack
+    gb_cache_stack_ref_t    path_stack;
+
     // the paint stack
     gb_cache_stack_ref_t    paint_stack;
+
+    // the clipper stack
+    gb_cache_stack_ref_t    clipper_stack;
 
 }gb_canvas_impl_t;
 
@@ -82,9 +88,17 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
         impl->matrix_stack = tb_stack_init(8, tb_item_func_mem(sizeof(gb_matrix_t), tb_null, tb_null));
         tb_assert_and_check_break(impl->matrix_stack);
 
+        // init path stack
+        impl->path_stack = gb_cache_stack_init(8, GB_CACHE_STACK_TYPE_PATH);
+        tb_assert_and_check_break(impl->path_stack);
+
         // init paint stack
         impl->paint_stack = gb_cache_stack_init(8, GB_CACHE_STACK_TYPE_PAINT);
         tb_assert_and_check_break(impl->paint_stack);
+
+        // init clipper stack
+        impl->clipper_stack = gb_cache_stack_init(8, GB_CACHE_STACK_TYPE_CLIPPER);
+        tb_assert_and_check_break(impl->clipper_stack);
 
         // ok
         ok = tb_true;
@@ -198,13 +212,21 @@ tb_void_t gb_canvas_exit(gb_canvas_ref_t canvas)
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
     tb_assert_and_check_return(impl);
 
-    // exit matrix stack
-    if (impl->matrix_stack) tb_stack_exit(impl->matrix_stack);
-    impl->matrix_stack = tb_null;
+    // exit clipper stack
+    if (impl->clipper_stack) gb_cache_stack_exit(impl->clipper_stack);
+    impl->clipper_stack = tb_null;
 
     // exit paint stack
     if (impl->paint_stack) gb_cache_stack_exit(impl->paint_stack);
     impl->paint_stack = tb_null;
+
+    // exit path stack
+    if (impl->path_stack) gb_cache_stack_exit(impl->path_stack);
+    impl->path_stack = tb_null;
+
+    // exit matrix stack
+    if (impl->matrix_stack) tb_stack_exit(impl->matrix_stack);
+    impl->matrix_stack = tb_null;
 
     // exit device
     if (impl->device) gb_device_exit(impl->device);
@@ -253,15 +275,19 @@ gb_paint_ref_t gb_canvas_paint(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->paint_stack, tb_null);
 
     // the paint
     return gb_cache_stack_object(impl->paint_stack);
 }
 gb_path_ref_t gb_canvas_path(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl && impl->path_stack, tb_null);
+
+    // the path
+    return gb_cache_stack_object(impl->path_stack);
 }
 gb_matrix_ref_t gb_canvas_matrix(gb_canvas_ref_t canvas)
 {
@@ -274,23 +300,36 @@ gb_matrix_ref_t gb_canvas_matrix(gb_canvas_ref_t canvas)
 }
 gb_clipper_ref_t gb_canvas_clipper(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl && impl->clipper_stack, tb_null);
+
+    // the clipper
+    return gb_cache_stack_object(impl->clipper_stack);
 }
 gb_path_ref_t gb_canvas_save_path(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl && impl->path_stack, tb_null);
+
+    // save path
+    return (gb_path_ref_t)gb_cache_stack_save(impl->path_stack);
 }
 tb_void_t gb_canvas_load_path(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->path_stack);
+
+    // load path
+    gb_cache_stack_load(impl->path_stack);
 }
 gb_paint_ref_t gb_canvas_save_paint(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->paint_stack, tb_null);
 
     // save paint
     return (gb_paint_ref_t)gb_cache_stack_save(impl->paint_stack);
@@ -299,7 +338,7 @@ tb_void_t gb_canvas_load_paint(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && impl->paint_stack);
 
     // load paint
     gb_cache_stack_load(impl->paint_stack);
@@ -334,12 +373,21 @@ tb_void_t gb_canvas_load_matrix(gb_canvas_ref_t canvas)
 }
 gb_clipper_ref_t gb_canvas_save_clipper(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return_val(impl && impl->clipper_stack, tb_null);
+
+    // save clipper
+    return (gb_clipper_ref_t)gb_cache_stack_save(impl->clipper_stack);
 }
 tb_void_t gb_canvas_load_clipper(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->clipper_stack);
+
+    // load clipper
+    gb_cache_stack_load(impl->clipper_stack);
 }
 tb_void_t gb_canvas_clear_path(gb_canvas_ref_t canvas)
 {
@@ -686,15 +734,30 @@ tb_void_t gb_canvas_draw_clear(gb_canvas_ref_t canvas, gb_color_t color)
 }
 tb_void_t gb_canvas_draw(gb_canvas_ref_t canvas)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw path
+    gb_device_draw_path(impl->device, gb_canvas_path(canvas), gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
-tb_void_t gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_paint_ref_t path)
+tb_void_t gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_path_ref_t path)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw path
+    gb_device_draw_path(impl->device, path, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw point
+    gb_device_draw_point(impl->device, point, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
@@ -714,7 +777,12 @@ tb_void_t gb_canvas_draw_point2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t 
 }
 tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw line
+    gb_device_draw_line(impl->device, line, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
@@ -734,7 +802,12 @@ tb_void_t gb_canvas_draw_line2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t 
 }
 tb_void_t gb_canvas_draw_arc(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw arc
+    gb_device_draw_arc(impl->device, arc, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
@@ -754,7 +827,12 @@ tb_void_t gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y
 }
 tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t triangle)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw triangle
+    gb_device_draw_triangle(impl->device, triangle, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
@@ -774,7 +852,12 @@ tb_void_t gb_canvas_draw_triangle2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_lon
 }
 tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw rect
+    gb_device_draw_rect(impl->device, rect, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
@@ -794,7 +877,12 @@ tb_void_t gb_canvas_draw_rect2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y
 }
 tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw circle
+    gb_device_draw_circle(impl->device, circle, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_circle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
@@ -814,7 +902,12 @@ tb_void_t gb_canvas_draw_circle2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_
 }
 tb_void_t gb_canvas_draw_ellipse(gb_canvas_ref_t canvas, gb_ellipse_ref_t ellipse)
 {
-    tb_trace_noimpl();
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw ellipse
+    gb_device_draw_ellipse(impl->device, ellipse, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
