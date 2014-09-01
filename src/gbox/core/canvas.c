@@ -280,7 +280,7 @@ gb_paint_ref_t gb_canvas_paint(gb_canvas_ref_t canvas)
     tb_assert_and_check_return_val(impl && impl->paint_stack, tb_null);
 
     // the paint
-    return gb_cache_stack_object(impl->paint_stack);
+    return (gb_paint_ref_t)gb_cache_stack_object(impl->paint_stack);
 }
 gb_path_ref_t gb_canvas_path(gb_canvas_ref_t canvas)
 {
@@ -289,7 +289,7 @@ gb_path_ref_t gb_canvas_path(gb_canvas_ref_t canvas)
     tb_assert_and_check_return_val(impl && impl->path_stack, tb_null);
 
     // the path
-    return gb_cache_stack_object(impl->path_stack);
+    return (gb_path_ref_t)gb_cache_stack_object(impl->path_stack);
 }
 gb_matrix_ref_t gb_canvas_matrix(gb_canvas_ref_t canvas)
 {
@@ -307,7 +307,7 @@ gb_clipper_ref_t gb_canvas_clipper(gb_canvas_ref_t canvas)
     tb_assert_and_check_return_val(impl && impl->clipper_stack, tb_null);
 
     // the clipper
-    return gb_cache_stack_object(impl->clipper_stack);
+    return (gb_clipper_ref_t)gb_cache_stack_object(impl->clipper_stack);
 }
 gb_path_ref_t gb_canvas_save_path(gb_canvas_ref_t canvas)
 {

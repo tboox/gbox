@@ -65,6 +65,20 @@ typedef struct __gb_device_impl_t
      */
     tb_void_t               (*draw_clear)(gb_device_ref_t device, gb_color_t color);
 
+    /*! draw polygon
+     *
+     * @param device        the device
+     * @param polygon       the polygon
+     */
+    tb_void_t               (*draw_polygon)(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+
+    /*! draw segment
+     *
+     * @param device        the device
+     * @param segment       the segment
+     */
+    tb_void_t               (*draw_segment)(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+
     /*! draw the given path
      *
      * @param device        the device
@@ -123,20 +137,6 @@ typedef struct __gb_device_impl_t
      * @param ellipse       the ellipse
      */
     tb_void_t               (*draw_ellipse)(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw polygon
-     *
-     * @param device        the device
-     * @param polygon       the polygon
-     */
-    tb_void_t               (*draw_polygon)(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw segment
-     *
-     * @param device        the device
-     * @param segment       the segment
-     */
-    tb_void_t               (*draw_segment)(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /* exit device
      *

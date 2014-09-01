@@ -130,6 +130,8 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->base.height           = (tb_uint16_t)gb_window_height(window); 
         impl->base.resize           = gb_device_gl_resize;
         impl->base.draw_clear       = gb_device_gl_draw_clear;
+        impl->base.draw_polygon     = tb_null;
+        impl->base.draw_segment     = tb_null;
         impl->base.exit             = gb_device_gl_exit;
 
         // init window

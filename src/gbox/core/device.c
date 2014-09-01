@@ -159,10 +159,20 @@ tb_void_t gb_device_draw_line(gb_device_ref_t device, gb_line_ref_t line, gb_mat
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && impl->draw_line);
+    tb_assert_and_check_return(impl && line);
 
     // draw line
-    impl->draw_line(device, line, matrix, paint, clipper);
+    if (impl->draw_line) impl->draw_line(device, line, matrix, paint, clipper);
+    else if (impl->draw_segment)
+    {
+        // init segment
+        gb_point_t      points[] = {line->p0, line->p1};
+        tb_size_t       counts[] = {2, 0};
+        gb_segment_t    segment = {points, counts};
+
+        // draw segment
+        impl->draw_segment(device, &segment, matrix, paint, clipper);
+    }
 }
 tb_void_t gb_device_draw_arc(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -177,19 +187,49 @@ tb_void_t gb_device_draw_triangle(gb_device_ref_t device, gb_triangle_ref_t tria
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && impl->draw_triangle);
+    tb_assert_and_check_return(impl && triangle);
 
     // draw triangle
-    impl->draw_triangle(device, triangle, matrix, paint, clipper);
+    if (impl->draw_triangle) impl->draw_triangle(device, triangle, matrix, paint, clipper);
+    else if (impl->draw_polygon)
+    {
+        // init polygon
+        gb_point_t      points[] = {triangle->p0, triangle->p1, triangle->p2};
+        tb_size_t       counts[] = {2, 0};
+        gb_polygon_t    polygon = {points, counts};
+
+        // draw polygon
+        impl->draw_polygon(device, &polygon, matrix, paint, clipper);
+    }
 }
 tb_void_t gb_device_draw_rect(gb_device_ref_t device, gb_rect_ref_t rect, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && impl->draw_rect);
+    tb_assert_and_check_return(impl && rect);
 
     // draw rect
-    impl->draw_rect(device, rect, matrix, paint, clipper);
+    if (impl->draw_rect) impl->draw_rect(device, rect, matrix, paint, clipper);
+    else if (impl->draw_polygon)
+    {
+        // init polygon
+        gb_point_t      points[4];
+        tb_size_t       counts[] = {4, 0};
+        gb_polygon_t    polygon = {points, counts};
+
+        // init points
+        points[0].x = rect->x;
+        points[0].y = rect->y;
+        points[1].x = rect->x + rect->w;
+        points[1].y = rect->y;
+        points[2].x = rect->x + rect->w;
+        points[2].y = rect->y + rect->h;
+        points[3].x = rect->x;
+        points[3].y = rect->y + rect->h;
+
+        // draw polygon
+        impl->draw_polygon(device, &polygon, matrix, paint, clipper);
+    }
 }
 tb_void_t gb_device_draw_circle(gb_device_ref_t device, gb_circle_ref_t circle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
