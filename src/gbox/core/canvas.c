@@ -37,7 +37,7 @@
 #include "path.h"
 #include "paint.h"
 #include "clipper.h"
-#include "private/cache_stack.h"
+#include "impl/cache_stack.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types

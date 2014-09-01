@@ -17,16 +17,24 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        cutter.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_PRIVATE_PREFIX_H
-#define GB_CORE_PRIVATE_PREFIX_H
+#ifndef GB_CORE_IMPL_CUTTER_H
+#define GB_CORE_IMPL_CUTTER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "prefix.h"
+#include "arc.h"
+#include "func.h"
+#include "quad.h"
+#include "cube.h"
+#include "circle.h"
+#include "ellipse.h"
+
 
 #endif
 

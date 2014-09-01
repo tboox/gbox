@@ -17,11 +17,11 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        path_cache.h
+ * @file        cache_stack.h
  * @ingroup     core
  */
-#ifndef GB_CORE_PRIVATE_PATH_CACHE_H
-#define GB_CORE_PRIVATE_PATH_CACHE_H
+#ifndef GB_CORE_IMPL_CACHE_STACK_H
+#define GB_CORE_IMPL_CACHE_STACK_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -37,50 +37,60 @@ __tb_extern_c_enter__
  * types
  */
 
-// the cache cache ref type
-typedef struct{}*           gb_path_cache_ref_t;
+// the cache stack type enum
+typedef enum __gb_cache_stack_type_e
+{
+    GB_CACHE_STACK_TYPE_NONE        = 0
+,   GB_CACHE_STACK_TYPE_PATH        = 1
+,   GB_CACHE_STACK_TYPE_PAINT       = 2
+,   GB_CACHE_STACK_TYPE_CLIPPER     = 3
+,   GB_CACHE_STACK_TYPE_MAXN        = 4
+
+}gb_cache_stack_type_e;
+
+// the stack cache ref type
+typedef struct{}*           gb_cache_stack_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
-/* init the path cache
+/* init the cache stack for path, paint and clipper
  *
- * cache: shape => path
+ * @param grow          the grow size
+ * @param type          the object type
  *
- * @return              the path cache
+ * @return              the stack
  */
-gb_path_cache_ref_t     gb_path_cache_init(tb_noarg_t);
+gb_cache_stack_ref_t    gb_cache_stack_init(tb_size_t grow, tb_size_t type);
 
-/* exit the path cache
+/* exit the cache stack
  *
- * @param cache         the path cache
+ * @param stack         the stack
  */
-tb_void_t               gb_path_cache_exit(gb_path_cache_ref_t cache);
+tb_void_t               gb_cache_stack_exit(gb_cache_stack_ref_t stack);
 
-/* clear the path cache
+/* save the current object to the top object
  *
- * @param cache         the cache
+ * @param stack         the stack
+ *
+ * @return              the current object
  */
-tb_void_t               gb_path_cache_clear(gb_path_cache_ref_t cache);
+tb_handle_t             gb_cache_stack_save(gb_cache_stack_ref_t stack);
 
-/* get path from the given shape
+/* load the top object to the current object
  *
- * @param cache         the cache
- * @param shape         the shape
- * 
- * @return              the shape path
+ * @param stack         the stack
  */
-gb_path_ref_t           gb_path_cache_get(gb_path_cache_ref_t cache, gb_shape_ref_t shape);
+tb_void_t               gb_cache_stack_load(gb_cache_stack_ref_t stack);
 
-/* add shape and make path to cache
+/* get the current object
  *
- * @param cache         the cache
- * @param shape         the shape
+ * @param stack         the stack
  *
- * @return              the shape path
+ * @return              the top object
  */
-gb_path_ref_t           gb_path_cache_add(gb_path_cache_ref_t cache, gb_shape_ref_t shape);
+tb_handle_t             gb_cache_stack_object(gb_cache_stack_ref_t stack);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
