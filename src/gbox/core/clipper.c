@@ -167,3 +167,7 @@ tb_void_t gb_clipper_add_ellipse2i(gb_clipper_ref_t clipper, tb_size_t mode, tb_
     // add ellipse
     gb_clipper_add_ellipse(clipper, mode, &ellipse);
 }
+tb_void_t gb_clipper_add_polygon(gb_clipper_ref_t clipper, tb_size_t mode, gb_polygon_ref_t polygon)
+{
+    tb_trace_noimpl();
+}

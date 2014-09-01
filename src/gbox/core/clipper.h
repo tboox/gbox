@@ -55,7 +55,8 @@ typedef enum __gb_clipper_shape_e
 ,   GB_CLIPPER_SHAPE_PATH        = 1
 ,   GB_CLIPPER_SHAPE_CIRCLE      = 2
 ,   GB_CLIPPER_SHAPE_ELLIPSE     = 3
-,   GB_CLIPPER_SHAPE_TRIANGLE    = 4
+,   GB_CLIPPER_SHAPE_POLYGON     = 4
+,   GB_CLIPPER_SHAPE_TRIANGLE    = 5
 
 }gb_clipper_shape_e;
 
@@ -82,6 +83,9 @@ typedef struct __gb_clipper_shape_t
 
         /// ellipse
         gb_ellipse_t        ellipse;
+
+        /// polygon
+        gb_polygon_t        polygon;
 
         /// triangle
         gb_triangle_t       triangle;
@@ -286,6 +290,14 @@ tb_void_t                   gb_clipper_add_ellipse2(gb_clipper_ref_t clipper, tb
  * @param ry                the y-radius
  */
 tb_void_t                   gb_clipper_add_ellipse2i(gb_clipper_ref_t clipper, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
+
+/*! add polygon
+ *
+ * @param clipper           the clipper
+ * @param mode              the clipper mode
+ * @param polygon           the polygon
+ */
+tb_void_t                   gb_clipper_add_polygon(gb_clipper_ref_t clipper, tb_size_t mode, gb_polygon_ref_t polygon);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

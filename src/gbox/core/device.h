@@ -191,6 +191,13 @@ tb_void_t           gb_device_draw_circle(gb_device_ref_t device, gb_circle_ref_
  */
 tb_void_t           gb_device_draw_ellipse(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
+/*! draw polygon
+ *
+ * @param device    the device
+ * @param polygon   the polygon
+ */
+tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

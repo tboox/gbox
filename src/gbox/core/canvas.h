@@ -803,6 +803,14 @@ tb_void_t           gb_canvas_clip_ellipse2(gb_canvas_ref_t canvas, tb_size_t mo
  */
 tb_void_t           gb_canvas_clip_ellipse2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
 
+/*! clip polygon
+ *
+ * @param canvas    the canvas
+ * @param mode      the clip mode
+ * @param polygon   the clip polygon
+ */
+tb_void_t           gb_canvas_clip_polygon(gb_canvas_ref_t canvas, tb_size_t mode, gb_polygon_ref_t polygon);
+
 /*! clear draw and fill the given color
  *
  * @param canvas    the canvas
@@ -1013,6 +1021,13 @@ tb_void_t           gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x
  * @param ry        the y-radius
  */
 tb_void_t           gb_canvas_draw_ellipse2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
+
+/*! draw polygon
+ *
+ * @param canvas    the canvas
+ * @param polygon   the polygon
+ */
+tb_void_t           gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygon);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

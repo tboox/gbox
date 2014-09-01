@@ -38,7 +38,7 @@ __tb_extern_c_enter__
  */
 
 // the cache cache ref type
-typedef struct{}*           gb_path_cache_ref_t;
+typedef struct{}*       gb_path_cache_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

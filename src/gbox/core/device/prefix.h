@@ -124,6 +124,13 @@ typedef struct __gb_device_impl_t
      */
     tb_void_t               (*draw_ellipse)(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
+    /*! draw polygon
+     *
+     * @param device        the device
+     * @param polygon       the polygon
+     */
+    tb_void_t               (*draw_polygon)(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+
     /* exit device
      *
      * @param device        the device

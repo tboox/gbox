@@ -226,6 +226,27 @@ typedef struct __gb_arc_t
 /// the arc ref type
 typedef gb_arc_t*       gb_arc_ref_t;
 
+/*! the polygon type
+ * 
+ * @code
+    gb_point_t      points[] = {{x0, y0}, {x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}, {x5, y5}};
+    tb_size_t       counts[] = {3, 2, 0};
+    gb_polygon_t    polygon = {points, counts}; 
+ * @endcode
+ */
+typedef struct __gb_polygon_t
+{
+    /// the points
+    gb_point_t*         points;
+
+    /// the counts
+    tb_size_t*          counts;
+
+}gb_polygon_t;
+
+/// the polygon ref type
+typedef gb_polygon_t*   gb_polygon_ref_t;
+
 /// the gradient type
 typedef struct __gb_gradient_t
 {
@@ -257,7 +278,8 @@ typedef enum __gb_shape_type_e
 ,   GB_SHAPE_TYPE_POINT         = 5
 ,   GB_SHAPE_TYPE_CIRCLE        = 6
 ,   GB_SHAPE_TYPE_ELLIPSE       = 7
-,   GB_SHAPE_TYPE_TRIANGLE      = 8
+,   GB_SHAPE_TYPE_POLYGON       = 8
+,   GB_SHAPE_TYPE_TRIANGLE      = 9
 
 }gb_shape_type_e;
 
@@ -290,6 +312,9 @@ typedef struct __gb_shape_t
     
         /// the ellipse
         gb_ellipse_t    ellipse;
+ 
+        /// the polygon
+        gb_polygon_t    polygon;
 
         /// the triangle
         gb_triangle_t   triangle;
