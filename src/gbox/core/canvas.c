@@ -730,11 +730,6 @@ tb_void_t gb_canvas_clip_ellipse2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_lo
     // clip ellipse
     gb_canvas_clip_ellipse(canvas, mode, &ellipse);
 }
-tb_void_t gb_canvas_clip_polygon(gb_canvas_ref_t canvas, tb_size_t mode, gb_polygon_ref_t polygon)
-{
-    // clip polygon
-    gb_clipper_add_polygon(gb_canvas_clipper(canvas), mode, polygon);
-}
 tb_void_t gb_canvas_draw_clear(gb_canvas_ref_t canvas, gb_color_t color)
 {
     // check
@@ -945,4 +940,13 @@ tb_void_t gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygo
 
     // draw polygon
     gb_device_draw_polygon(impl->device, polygon, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+}
+tb_void_t gb_canvas_draw_segment(gb_canvas_ref_t canvas, gb_segment_ref_t segment)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+
+    // draw segment
+    gb_device_draw_segment(impl->device, segment, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }

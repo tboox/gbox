@@ -227,10 +227,13 @@ typedef struct __gb_arc_t
 typedef gb_arc_t*       gb_arc_ref_t;
 
 /*! the polygon type
+ *
+ * @note must be closed for each polygon
  * 
  * @code
-    gb_point_t      points[] = {{x0, y0}, {x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}, {x5, y5}};
-    tb_size_t       counts[] = {3, 2, 0};
+    gb_point_t      points[] = {    {x0, y0}, {x1, y1}, {x2, y2}, {x0, y0}
+                                ,   {x3, y3}, {x4, y4}, {x5, y5}, {x3, y3}};
+    tb_size_t       counts[] = {4, 4, 0};
     gb_polygon_t    polygon = {points, counts}; 
  * @endcode
  */
@@ -246,6 +249,28 @@ typedef struct __gb_polygon_t
 
 /// the polygon ref type
 typedef gb_polygon_t*   gb_polygon_ref_t;
+
+/*! the segment type
+ * 
+ * @code
+    gb_point_t      points[] = {    {x0, y0}, {x1, y1}, {x2, y2}
+                                ,   {x3, y3}, {x4, y4}, {x5, y5}, {x3, y3}};
+    tb_size_t       counts[] = {3, 4, 0};
+    gb_segment_t    segment = {points, counts}; 
+ * @endcode
+ */
+typedef struct __gb_segment_t
+{
+    /// the points
+    gb_point_t*         points;
+
+    /// the counts
+    tb_size_t*          counts;
+
+}gb_segment_t;
+
+/// the segment ref type
+typedef gb_segment_t*   gb_segment_ref_t;
 
 /// the gradient type
 typedef struct __gb_gradient_t
@@ -279,7 +304,8 @@ typedef enum __gb_shape_type_e
 ,   GB_SHAPE_TYPE_CIRCLE        = 6
 ,   GB_SHAPE_TYPE_ELLIPSE       = 7
 ,   GB_SHAPE_TYPE_POLYGON       = 8
-,   GB_SHAPE_TYPE_TRIANGLE      = 9
+,   GB_SHAPE_TYPE_SEGMENT       = 9
+,   GB_SHAPE_TYPE_TRIANGLE      = 10
 
 }gb_shape_type_e;
 
@@ -315,7 +341,10 @@ typedef struct __gb_shape_t
  
         /// the polygon
         gb_polygon_t    polygon;
-
+ 
+        /// the segment
+        gb_segment_t    segment;
+ 
         /// the triangle
         gb_triangle_t   triangle;
 

@@ -218,4 +218,12 @@ tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygo
     // draw polygon
     impl->draw_polygon(device, polygon, matrix, paint, clipper);
 }
+tb_void_t gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl && impl->draw_segment);
 
+    // draw segment
+    impl->draw_segment(device, segment, matrix, paint, clipper);
+}

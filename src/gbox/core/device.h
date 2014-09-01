@@ -198,6 +198,13 @@ tb_void_t           gb_device_draw_ellipse(gb_device_ref_t device, gb_ellipse_re
  */
 tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
+/*! draw segment
+ *
+ * @param device    the device
+ * @param segment   the segment
+ */
+tb_void_t           gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
