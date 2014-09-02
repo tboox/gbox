@@ -57,6 +57,12 @@ typedef struct __gb_device_gl_impl_t
     // the version: 1.0, 2.x, ...
     tb_size_t                   version;
 
+    // the programs
+    gb_gl_program_ref_t         programs[GB_GL_PROGRAM_LOCATION_MAXN];
+
+	// the projection matrix for gl >= 2.0
+	gb_gl_matrix_t              matrix_project;
+
 }gb_device_gl_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -93,11 +99,31 @@ static tb_size_t gb_device_gl_version()
 }
 static tb_void_t gb_device_gl_resize(gb_device_impl_t* device, tb_size_t width, tb_size_t height)
 {
+    // check
+    gb_device_gl_impl_t* impl = (gb_device_gl_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+	// update viewport
+	gb_glViewport(0, 0, width, height);
+
+	// update matrix	
+	if (impl->version >= 0x20) gb_gl_matrix_orthof(impl->matrix_project, 0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
+    else
+	{
+		// init the projection matrix
+		gb_glMatrixMode(GB_GL_PROJECTION);
+		gb_glLoadIdentity();
+		gb_glOrthof(0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
+
+		// init the model matrix
+		gb_glMatrixMode(GB_GL_MODELVIEW);
+		gb_glLoadIdentity();
+	}
 }
 static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t color)
 {
     // clear it
-	gb_glClearColor((tb_float_t)color.r / 0xff, (tb_float_t)color.g / 0xff, (tb_float_t)color.b / 0xff, (tb_float_t)color.a / 0xff);
+	gb_glClearColor((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
 static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
@@ -114,8 +140,20 @@ static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_
 }
 static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
 {
+    // check
+    gb_device_gl_impl_t* impl = (gb_device_gl_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+    // exit programs 
+    tb_size_t i = 0;
+    for (i = 0; i < GB_GL_PROGRAM_TYPE_MAXN; i++)
+    {
+        if (impl->programs[i]) gb_gl_program_exit(impl->programs[i]);
+        impl->programs[i] = 0;
+    }
+
     // exit it
-    if (device) tb_free(device);
+    if (impl) tb_free(impl);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +169,11 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
     gb_device_gl_impl_t*    impl = tb_null;
     do
     {
+        // the width and height
+        tb_size_t width     = gb_window_width(window);
+        tb_size_t height    = gb_window_height(window);
+        tb_assert_and_check_break(width && height && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
+
         // make device
         impl = tb_malloc0_type(gb_device_gl_impl_t);
         tb_assert_and_check_break(impl);
@@ -161,6 +204,51 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
             impl->version = 1;
 #endif
         }
+
+        // init viewport
+        gb_glViewport(0, 0, width, height);
+
+        // init gl >= 2.0
+        if (impl->version >= 0x20)
+        {
+            // init color program
+            impl->programs[GB_GL_PROGRAM_TYPE_COLOR] = gb_gl_program_init_color();
+            tb_assert_and_check_break(impl->programs[GB_GL_PROGRAM_TYPE_COLOR]);
+
+            // init bitmap program
+            impl->programs[GB_GL_PROGRAM_TYPE_BITMAP] = gb_gl_program_init_bitmap();
+            tb_assert_and_check_break(impl->programs[GB_GL_PROGRAM_TYPE_BITMAP]);
+
+            // init the projection matrix
+            gb_gl_matrix_orthof(impl->matrix_project, 0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
+        }
+        // init gl 1.x
+        else
+        {
+            // init the projection matrix
+            gb_glMatrixMode(GB_GL_PROJECTION);
+            gb_glLoadIdentity();
+            gb_glOrthof(0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
+
+            // init the model matrix
+            gb_glMatrixMode(GB_GL_MODELVIEW);
+            gb_glLoadIdentity();
+
+            // disable vertices
+            gb_glDisableClientState(GB_GL_VERTEX_ARRAY);
+
+            // disable texcoords
+            gb_glDisableClientState(GB_GL_TEXTURE_COORD_ARRAY);
+        }
+
+        // disable antialiasing
+        gb_glDisable(GB_GL_MULTISAMPLE);
+
+        // disable blend
+        gb_glDisable(GB_GL_BLEND);
+
+        // disable texture
+        gb_glDisable(GB_GL_TEXTURE_2D);
 
         // ok
         ok = tb_true;

@@ -28,6 +28,7 @@
  */
 #include "interface.h"
 #include "program.h"
+#include "matrix.h"
 
 #endif
 
