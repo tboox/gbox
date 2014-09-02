@@ -124,10 +124,6 @@ gb_device_ref_t gb_device_init(gb_window_ref_t window)
         impl->width            = (tb_uint16_t)gb_window_width(window); 
         impl->height           = (tb_uint16_t)gb_window_height(window); 
 
-        // init path
-        impl->path = gb_path_init();
-        tb_assert_and_check_break(impl->path);
-
         // ok
         ok = tb_true;
 
@@ -274,7 +270,11 @@ tb_void_t gb_device_draw_arc(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && arc && impl->path);
+    tb_assert_and_check_return(impl && arc);
+
+    // init path
+    if (!impl->path) impl->path = gb_path_init();
+    tb_assert_and_check_return(impl->path);
 
     // make arc
     gb_path_clear(impl->path);
@@ -343,7 +343,11 @@ tb_void_t gb_device_draw_circle(gb_device_ref_t device, gb_circle_ref_t circle, 
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && circle && impl->path);
+    tb_assert_and_check_return(impl && circle);
+
+    // init path
+    if (!impl->path) impl->path = gb_path_init();
+    tb_assert_and_check_return(impl->path);
 
     // make circle
     gb_path_clear(impl->path);
@@ -356,7 +360,11 @@ tb_void_t gb_device_draw_ellipse(gb_device_ref_t device, gb_ellipse_ref_t ellips
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && ellipse && impl->path);
+    tb_assert_and_check_return(impl && ellipse);
+
+    // init path
+    if (!impl->path) impl->path = gb_path_init();
+    tb_assert_and_check_return(impl->path);
 
     // make ellipse
     gb_path_clear(impl->path);

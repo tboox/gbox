@@ -34,7 +34,9 @@ gb_gl_program_ref_t gb_gl_program_init_color()
 {
     // the vertex shader
     static tb_char_t const* vshader = 
+#if defined(TB_CONFIG_OS_IOS) || defined(TB_CONFIG_OS_ANDROID)
         "precision mediump float;                                               \n"
+#endif
         "                                                                       \n"
         "attribute vec4 aColor;                                                 \n"
         "attribute vec4 aVertices;                                              \n"
@@ -51,7 +53,9 @@ gb_gl_program_ref_t gb_gl_program_init_color()
     
     // the fragment shader
     static tb_char_t const* fshader = 
+#if defined(TB_CONFIG_OS_IOS) || defined(TB_CONFIG_OS_ANDROID)
         "precision mediump float;                                               \n"
+#endif
         "                                                                       \n"
         "varying vec4 vColors;                                                  \n"
         "                                                                       \n"

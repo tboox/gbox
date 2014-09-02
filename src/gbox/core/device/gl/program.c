@@ -109,10 +109,6 @@ gb_gl_program_ref_t gb_gl_program_init(tb_size_t type, tb_char_t const* vshader,
         impl = tb_malloc0_type(gb_gl_program_impl_t);
         tb_assert_and_check_break(impl);
 
-        // init program
-        impl->program = gb_glCreateProgram();
-        tb_assert_and_check_break(impl->program);
-
         // init type
         impl->type = type;
 
@@ -123,6 +119,10 @@ gb_gl_program_ref_t gb_gl_program_init(tb_size_t type, tb_char_t const* vshader,
         // load fshader
         impl->fshader = gb_gl_program_shader(fshader, GB_GL_FRAGMENT_SHADER);
         tb_assert_and_check_break(impl->fshader);
+
+        // init program
+        impl->program = gb_glCreateProgram();
+        tb_assert_and_check_break(impl->program);
 
         // bind vshader
         gb_glAttachShader(impl->program, impl->vshader);

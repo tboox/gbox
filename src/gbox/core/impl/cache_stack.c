@@ -27,6 +27,7 @@
 #include "cache_stack.h"
 #include "../path.h"
 #include "../paint.h"
+#include "../clipper.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -68,6 +69,7 @@ static tb_handle_t gb_cache_stack_object_init(tb_size_t type)
         object = (tb_handle_t)gb_paint_init();
         break;
     case GB_CACHE_STACK_TYPE_CLIPPER:
+        object = (tb_handle_t)gb_clipper_init();
         break;
     default:
         break;
@@ -91,6 +93,7 @@ static tb_void_t gb_cache_stack_object_exit(tb_size_t type, tb_handle_t object)
         gb_paint_exit((gb_paint_ref_t)object);
         break;
     case GB_CACHE_STACK_TYPE_CLIPPER:
+        gb_clipper_exit((gb_clipper_ref_t)object);
         break;
     default:
         break;
@@ -111,6 +114,7 @@ static tb_void_t gb_cache_stack_object_copy(tb_size_t type, tb_handle_t object, 
         gb_paint_copy((gb_paint_ref_t)object, (gb_paint_ref_t)copied);
         break;
     case GB_CACHE_STACK_TYPE_CLIPPER:
+        gb_clipper_copy((gb_clipper_ref_t)object, (gb_clipper_ref_t)copied);
         break;
     default:
         break;
@@ -151,10 +155,6 @@ gb_cache_stack_ref_t gb_cache_stack_init(tb_size_t grow, tb_size_t type)
         // init stack
         impl->type          = type;
         impl->cache_size    = grow? grow : 8;
-
-        // init object
-        impl->object = gb_cache_stack_object_init(type);
-        tb_assert_and_check_break(impl->object);
 
         // init cache
         impl->cache = tb_stack_init(grow, tb_item_func_ptr(tb_null, tb_null));
@@ -221,6 +221,10 @@ tb_handle_t gb_cache_stack_save(gb_cache_stack_ref_t stack)
     gb_cache_stack_impl_t* impl = (gb_cache_stack_impl_t*)stack;
     tb_assert_and_check_return_val(impl && impl->cache && impl->stack, tb_null);
 
+    // init object first if be null
+    if (!impl->object) impl->object = gb_cache_stack_object_init(impl->type);
+    tb_assert_and_check_return_val(impl->object, tb_null);
+
     // get a new object from cache first
     tb_handle_t object = tb_null;
     if (tb_stack_size(impl->cache))
@@ -254,6 +258,10 @@ tb_void_t gb_cache_stack_load(gb_cache_stack_ref_t stack)
     gb_cache_stack_impl_t* impl = (gb_cache_stack_impl_t*)stack;
     tb_assert_and_check_return(impl && impl->cache && impl->stack);
 
+    // init object first if be null
+    if (!impl->object) impl->object = gb_cache_stack_object_init(impl->type);
+    tb_assert_and_check_return(impl->object);
+
     // load new object from the stack top
     tb_handle_t object = (tb_handle_t)tb_stack_top(impl->stack);
     tb_assert_and_check_return(object);
@@ -275,6 +283,10 @@ tb_handle_t gb_cache_stack_object(gb_cache_stack_ref_t stack)
     // check
     gb_cache_stack_impl_t* impl = (gb_cache_stack_impl_t*)stack;
     tb_assert_and_check_return_val(impl, tb_null);
+
+    // init object first if be null
+    if (!impl->object) impl->object = gb_cache_stack_object_init(impl->type);
+    tb_assert_and_check_return_val(impl->object, tb_null);
 
     // the current object
     return impl->object;
