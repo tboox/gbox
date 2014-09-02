@@ -91,16 +91,16 @@ static tb_size_t gb_device_gl_version()
 	// [0x10, 0x19] 
 	return ((major << 4) + minor);
 }
-static tb_void_t gb_device_gl_resize(gb_device_ref_t device, tb_size_t width, tb_size_t height)
+static tb_void_t gb_device_gl_resize(gb_device_impl_t* device, tb_size_t width, tb_size_t height)
 {
 }
-static tb_void_t gb_device_gl_draw_clear(gb_device_ref_t device, gb_color_t color)
+static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t color)
 {
     // clear it
 	gb_glClearColor((tb_float_t)color.r / 0xff, (tb_float_t)color.g / 0xff, (tb_float_t)color.b / 0xff, (tb_float_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
-static tb_void_t gb_device_gl_exit(gb_device_ref_t device)
+static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
 {
     // exit it
     if (device) tb_free(device);
@@ -130,8 +130,8 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->base.height           = (tb_uint16_t)gb_window_height(window); 
         impl->base.resize           = gb_device_gl_resize;
         impl->base.draw_clear       = gb_device_gl_draw_clear;
-        impl->base.draw_polygon     = tb_null;
-        impl->base.draw_segment     = tb_null;
+        impl->base.fill_polygon     = tb_null;
+        impl->base.stok_segment     = tb_null;
         impl->base.exit             = gb_device_gl_exit;
 
         // init window

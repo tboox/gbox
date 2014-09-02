@@ -56,93 +56,34 @@ typedef struct __gb_device_impl_t
      * @param width         the width
      * @param height        the height
      */
-    tb_void_t               (*resize)(gb_device_ref_t device, tb_size_t width, tb_size_t height);
+    tb_void_t               (*resize)(struct __gb_device_impl_t* device, tb_size_t width, tb_size_t height);
 
     /* clear draw
      *
      * @param device        the device
      * @param color         the color
      */
-    tb_void_t               (*draw_clear)(gb_device_ref_t device, gb_color_t color);
+    tb_void_t               (*draw_clear)(struct __gb_device_impl_t* device, gb_color_t color);
 
-    /*! draw polygon
+    /*! fill polygon
      *
      * @param device        the device
      * @param polygon       the polygon
      */
-    tb_void_t               (*draw_polygon)(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*fill_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
-    /*! draw segment
+    /*! stroke segment with the one pixel width 
      *
      * @param device        the device
      * @param segment       the segment
      */
-    tb_void_t               (*draw_segment)(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw the given path
-     *
-     * @param device        the device
-     * @param path          the path
-     * @param matrix        the matrix
-     * @param paint         the paint
-     * @param clipper       the clipper
-     */
-    tb_void_t               (*draw_path)(gb_device_ref_t device, gb_path_ref_t path, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw point
-     *
-     * @param device        the device
-     * @param point         the point
-     */
-    tb_void_t               (*draw_point)(gb_device_ref_t device, gb_point_ref_t point, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw line
-     *
-     * @param device        the device
-     * @param line          the line
-     */
-    tb_void_t               (*draw_line)(gb_device_ref_t device, gb_line_ref_t line, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw arc
-     *
-     * @param device        the device
-     * @param arc           the arc
-     */
-    tb_void_t               (*draw_arc)(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw triangle
-     *
-     * @param device        the device
-     * @param triangle      the triangle
-     */
-    tb_void_t               (*draw_triangle)(gb_device_ref_t device, gb_triangle_ref_t triangle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw rect
-     *
-     * @param device        the device
-     * @param rect          the rect
-     */
-    tb_void_t               (*draw_rect)(gb_device_ref_t device, gb_rect_ref_t rect, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw circle
-     *
-     * @param device        the device
-     * @param circle        the circle
-     */
-    tb_void_t               (*draw_circle)(gb_device_ref_t device, gb_circle_ref_t circle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-    /*! draw ellipse
-     *
-     * @param device        the device
-     * @param ellipse       the ellipse
-     */
-    tb_void_t               (*draw_ellipse)(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*stok_segment)(struct __gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /* exit device
      *
      * @param device        the device
      */
-    tb_void_t               (*exit)(gb_device_ref_t device);
+    tb_void_t               (*exit)(struct __gb_device_impl_t* device);
 
 }gb_device_impl_t;
 

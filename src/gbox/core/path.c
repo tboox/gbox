@@ -56,6 +56,16 @@ tb_void_t gb_path_null(gb_path_ref_t path)
 {
     tb_trace_noimpl();
 }
+gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path)
+{
+    tb_trace_noimpl();
+    return tb_null;
+}
+gb_segment_ref_t gb_path_segment(gb_path_ref_t path)
+{
+    tb_trace_noimpl();
+    return tb_null;
+}
 tb_void_t gb_path_clos(gb_path_ref_t path)
 {
     tb_trace_noimpl();
