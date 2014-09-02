@@ -35,6 +35,7 @@
 #include "device/prefix.h"
 #include "path.h"
 #include "paint.h"
+#include "impl/cutter/cutter.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
@@ -108,6 +109,38 @@ gb_device_ref_t gb_device_init(gb_window_ref_t window)
         break;
     }
 
+    // init
+    tb_bool_t ok = tb_false;
+    do
+    {
+        // check
+        gb_device_impl_t* impl = (gb_device_impl_t*)device;
+        tb_assert_and_check_break(impl);
+
+        // init pixfmt
+        impl->pixfmt           = (tb_uint16_t)gb_window_pixfmt(window); 
+
+        // init width and height
+        impl->width            = (tb_uint16_t)gb_window_width(window); 
+        impl->height           = (tb_uint16_t)gb_window_height(window); 
+
+        // init path
+        impl->path = gb_path_init();
+        tb_assert_and_check_break(impl->path);
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed?
+    if (!ok)
+    {
+        // exit it
+        if (device) gb_device_exit(device);
+        device = tb_null;
+    }
+
     // ok?
     return device;
 }
@@ -116,6 +149,10 @@ tb_void_t gb_device_exit(gb_device_ref_t device)
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl);
+
+    // exit path
+    if (impl->path) gb_path_exit(impl->path);
+    impl->path = tb_null;
 
     // exit it
     if (impl->exit) impl->exit(impl);
@@ -195,9 +232,22 @@ tb_void_t gb_device_draw_point(gb_device_ref_t device, gb_point_ref_t point, gb_
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && paint);
+    tb_assert_and_check_return(impl && paint && point);
 
-    // TODO
+    // the mode
+    tb_size_t mode = gb_paint_mode(paint);
+
+    // check
+    tb_assert(!(mode & GB_PAINT_MODE_FILL));
+
+    // init segment
+    gb_point_t      points[] = {*point, *point};
+    tb_size_t       counts[] = {2, 0};
+    gb_segment_t    segment = {points, counts};
+
+    // stok it
+    if (mode & GB_PAINT_MODE_STOK) 
+        gb_device_stok_segment(impl, &segment, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_line(gb_device_ref_t device, gb_line_ref_t line, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -224,15 +274,14 @@ tb_void_t gb_device_draw_arc(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && paint);
+    tb_assert_and_check_return(impl && arc && impl->path);
 
-    // the mode
-    tb_size_t mode = gb_paint_mode(paint);
+    // make arc
+    gb_path_clear(impl->path);
+    gb_path_add_arc(impl->path, arc);
 
-    // check
-    tb_assert(!(mode & GB_PAINT_MODE_FILL));
-
-    // TODO
+    // draw path
+    gb_device_draw_path(device, impl->path, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_triangle(gb_device_ref_t device, gb_triangle_ref_t triangle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -294,17 +343,27 @@ tb_void_t gb_device_draw_circle(gb_device_ref_t device, gb_circle_ref_t circle, 
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && paint);
+    tb_assert_and_check_return(impl && circle && impl->path);
 
-    // TODO
+    // make circle
+    gb_path_clear(impl->path);
+    gb_path_add_circle(impl->path, circle);
+
+    // draw path
+    gb_device_draw_path(device, impl->path, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_ellipse(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
-    tb_assert_and_check_return(impl && paint);
+    tb_assert_and_check_return(impl && ellipse && impl->path);
 
-    // TODO
+    // make ellipse
+    gb_path_clear(impl->path);
+    gb_path_add_ellipse(impl->path, ellipse);
+
+    // draw path
+    gb_device_draw_path(device, impl->path, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {

@@ -28,6 +28,7 @@
  * includes
  */
 #include "../prefix.h"
+#include "../path.h"
 #include "../device.h"
 #include "../../platform/platform.h"
 
@@ -49,6 +50,9 @@ typedef struct __gb_device_impl_t
 
     // the height
     tb_uint16_t             height;
+
+    // the path
+    gb_path_ref_t           path;
 
     /* resize
      *

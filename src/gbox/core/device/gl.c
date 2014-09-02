@@ -125,9 +125,6 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
         // init base 
         impl->base.type             = GB_DEVICE_TYPE_GL;
-        impl->base.pixfmt           = (tb_uint16_t)gb_window_pixfmt(window); 
-        impl->base.width            = (tb_uint16_t)gb_window_width(window); 
-        impl->base.height           = (tb_uint16_t)gb_window_height(window); 
         impl->base.resize           = gb_device_gl_resize;
         impl->base.draw_clear       = gb_device_gl_draw_clear;
         impl->base.fill_polygon     = tb_null;
