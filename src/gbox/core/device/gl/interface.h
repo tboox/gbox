@@ -21,8 +21,8 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_GL_INTERFACE_H
-#define GB_CORE_GL_INTERFACE_H
+#ifndef GB_CORE_DEVICE_GL_INTERFACE_H
+#define GB_CORE_DEVICE_GL_INTERFACE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

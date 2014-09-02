@@ -27,6 +27,7 @@
  * includes
  */
 #include "interface.h"
+#include "program.h"
 
 #endif
 

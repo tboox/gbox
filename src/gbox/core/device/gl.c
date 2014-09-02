@@ -100,6 +100,18 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 	gb_glClearColor((tb_float_t)color.r / 0xff, (tb_float_t)color.g / 0xff, (tb_float_t)color.b / 0xff, (tb_float_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
+static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    // check
+    tb_assert_and_check_return(polygon);
+
+}
+static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    // check
+    tb_assert_and_check_return(segment);
+
+}
 static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
 {
     // exit it
@@ -127,8 +139,8 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->base.type             = GB_DEVICE_TYPE_GL;
         impl->base.resize           = gb_device_gl_resize;
         impl->base.draw_clear       = gb_device_gl_draw_clear;
-        impl->base.fill_polygon     = tb_null;
-        impl->base.stok_segment     = tb_null;
+        impl->base.fill_polygon     = gb_device_gl_fill_polygon;
+        impl->base.stok_segment     = gb_device_gl_stok_segment;
         impl->base.exit             = gb_device_gl_exit;
 
         // init window

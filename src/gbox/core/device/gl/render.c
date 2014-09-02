@@ -17,18 +17,33 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        render.c
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_GL_PREFIX_H
-#define GB_CORE_DEVICE_GL_PREFIX_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "gl_render"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
-#include "interface.h"
+#include "render.h"
 
-#endif
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+tb_bool_t gb_gl_render_init(gb_gl_render_ref_t render, gb_device_ref_t device, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    return tb_false;
+}
+tb_void_t gb_gl_render_done(gb_gl_render_ref_t render, gb_point_t* points, tb_size_t* counts)
+{
+}
+tb_void_t gb_gl_render_exit(gb_gl_render_ref_t render)
+{
+}
 

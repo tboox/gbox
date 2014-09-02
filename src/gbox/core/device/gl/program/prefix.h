@@ -19,15 +19,17 @@
  * @author      ruki
  * @file        prefix.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_GL_PREFIX_H
-#define GB_CORE_DEVICE_GL_PREFIX_H
+#ifndef GB_CORE_DEVICE_GL_PROGRAM_PREFIX_H
+#define GB_CORE_DEVICE_GL_PROGRAM_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "../prefix.h"
-#include "interface.h"
+#include "../program.h"
+
 
 #endif
 
