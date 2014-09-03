@@ -1,7 +1,7 @@
 The Graphic Box Library
 ========================
 
-GBOX is a mutli-platform c graphic library for unix, windows, mac, ios, android, etc.
+GBOX is a mutli-platform c graphic library, ui and game engine for unix, windows, mac, ios, android, etc.
 
 contact
 -------
