@@ -49,8 +49,7 @@ typedef struct __gb_clipper_impl_t
 
 gb_clipper_ref_t gb_clipper_init()
 {
-    tb_trace_noimpl();
-    return tb_null;
+    return (gb_clipper_ref_t)1;
 }
 tb_void_t gb_clipper_exit(gb_clipper_ref_t clipper)
 {

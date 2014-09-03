@@ -38,8 +38,10 @@
  */
 
 // the vertex type
-#ifdef GB_CONFIG_FLOAT_FIXED
+#if defined(GB_CONFIG_FLOAT_FIXED) && defined(GB_GL_FIXED)
 #   define GB_GL_VERTEX_TYPE            GB_GL_FIXED
+#elif defined(GB_CONFIG_FLOAT_FIXED)
+#   define GB_GL_VERTEX_TYPE            GL_GL_INT
 #else
 #   define GB_GL_VERTEX_TYPE            GB_GL_FLOAT
 #endif
@@ -194,6 +196,14 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, g
 
         // init vertex matrix
         gb_gl_matrix_convert(device->render.matrix_vertex, matrix);
+
+        // apply matrix for the fixed vertex if no GB_GL_FIXED macro
+#if defined(GB_CONFIG_FLOAT_FIXED) && !defined(GB_GL_FIXED)
+        device->render.matrix_vertex[0] /= 65536.0f;
+        device->render.matrix_vertex[1] /= 65536.0f;
+        device->render.matrix_vertex[4] /= 65536.0f;
+        device->render.matrix_vertex[5] /= 65536.0f;
+#endif
 
         // init antialiasing
         if (gb_paint_flag(paint) & GB_PAINT_FLAG_ANTIALIASING) 

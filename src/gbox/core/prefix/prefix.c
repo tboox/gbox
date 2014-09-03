@@ -37,7 +37,7 @@ static tb_long_t gb_prefix_printf_format_float(tb_cpointer_t object, tb_char_t* 
     tb_assert_and_check_return_val(cstr && maxn, -1);
 
     // the value
-    gb_float_t value = (gb_float_t)object;
+    gb_float_t value = (gb_float_t)(tb_size_t)object;
 
     // format
 #ifdef TB_CONFIG_TYPE_FLOAT

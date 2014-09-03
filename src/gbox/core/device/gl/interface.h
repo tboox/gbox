@@ -57,8 +57,12 @@
 #define GB_GL_UNSIGNED_BYTE             (0x1401)
 #define GB_GL_SHORT                     (0x1402)
 #define GB_GL_UNSIGNED_SHORT            (0x1403)
+#define GL_GL_INT                       (0x1404)
+#define GL_GL_UNSIGNED_INT              (0x1405)
 #define GB_GL_FLOAT                     (0x1406)
-#define GB_GL_FIXED                     (0x140C)
+#if defined(TB_CONFIG_OS_IOS) || defined(TB_CONFIG_OS_ANDROID)
+#   define GB_GL_FIXED                  (0x140C)
+#endif
 
 // boolean
 #define GB_GL_FALSE                     (0)
