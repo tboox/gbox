@@ -28,7 +28,10 @@
  */
 #include "interface.h"
 #include "program.h"
+#include "device.h"
 #include "matrix.h"
+#include "render.h"
+#include "shader.h"
 
 #endif
 

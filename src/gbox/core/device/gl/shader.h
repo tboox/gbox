@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        render.h
+ * @file        shader.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_GL_RENDER_H
-#define GB_CORE_DEVICE_GL_RENDER_H
+#ifndef GB_CORE_DEVICE_GL_SHADER_H
+#define GB_CORE_DEVICE_GL_SHADER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,49 +38,41 @@ __tb_extern_c_enter__
  * types
  */
 
-// the gl render type
-typedef struct __gb_gl_render_t
-{
-
-
-}gb_gl_render_t;
-
-// the gl render ref type
-typedef gb_gl_render_t* gb_gl_render_ref_t;
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interface
  */
-
-/* init gl render
+	
+/*! init gl linear gradient shader
  *
  * @param device    the device
+ * @param mode      the mode 
+ * @param gradient  the gradient
+ * @param line      the line
  *
- * @return          tb_true or tb_false
+ * @return          the shader
  */
-tb_bool_t           gb_gl_render_init(gb_gl_device_ref_t device);
+gb_shader_ref_t     gb_gl_shader_init_linear(gb_gl_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line);
 
-/* fill gl render
+/*! init gl radial gradient shader
  *
  * @param device    the device
- * @param points    the points
- * @param counts    the counts
+ * @param mode      the mode 
+ * @param gradient  the gradient
+ * @param circle    the circle
+ *
+ * @return          the shader
  */
-tb_void_t           gb_gl_render_fill(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts);
+gb_shader_ref_t     gb_gl_shader_init_radial(gb_gl_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle);
 
-/* stok gl render
+/*! init gl bitmap shader
  *
  * @param device    the device
- * @param points    the points
- * @param counts    the counts
- */
-tb_void_t           gb_gl_render_stok(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts);
-
-/* exit gl render
+ * @param mode      the mode 
+ * @param bitmap    the bitmap
  *
- * @param device    the device
+ * @return          the shader
  */
-tb_void_t           gb_gl_render_exit(gb_gl_device_ref_t device);
+gb_shader_ref_t     gb_gl_shader_init_bitmap(gb_gl_device_ref_t device, tb_size_t mode, gb_bitmap_ref_t bitmap);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

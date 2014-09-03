@@ -42,76 +42,11 @@
 //#define GB_DEVICE_GL_TEST_v1
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
- */
-
-// the gl device impl type
-typedef struct __gb_device_gl_impl_t
-{
-    // the base
-    gb_device_impl_t            base;
-
-    // the window
-    gb_window_ref_t             window;
-
-    // the version: 1.0, 2.x, ...
-    tb_size_t                   version;
-
-    // the programs
-    gb_gl_program_ref_t         programs[GB_GL_PROGRAM_LOCATION_MAXN];
-
-	// the projection matrix for gl >= 2.0
-	gb_gl_matrix_t              matrix_project;
-
-}gb_device_gl_impl_t;
-
-/* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
  */
 #ifdef GB_CONFIG_THIRD_HAVE_GL
 __tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
 #endif
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * render implementation
- */
-static tb_bool_t gb_device_gl_render_init(gb_device_gl_impl_t* impl)
-{
-    // check
-    tb_assert_and_check_return_val(impl, tb_false);
-
-    // done
-    tb_bool_t ok = tb_false;
-    do
-    {
-#if 0
-        // init for gl >= 2.0
-        if (impl->version >= 0x20)
-        {	
-
-        }
-#endif
-
-        // ok
-        ok = tb_true;
-
-    } while (0);
-
-    // ok?
-    return ok;
-}
-static tb_void_t gb_device_gl_render_fill(gb_device_gl_impl_t* impl, gb_point_t const* points, tb_size_t const* counts)
-{
-    // check
-    tb_assert_and_check_return(impl);
-
-}
-static tb_void_t gb_device_gl_render_exit(gb_device_gl_impl_t* impl)
-{
-    // check
-    tb_assert_and_check_return(impl);
-
-}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -141,7 +76,7 @@ static tb_size_t gb_device_gl_version()
 static tb_void_t gb_device_gl_resize(gb_device_impl_t* device, tb_size_t width, tb_size_t height)
 {
     // check
-    gb_device_gl_impl_t* impl = (gb_device_gl_impl_t*)device;
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl);
 
 	// update viewport
@@ -170,29 +105,66 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
-    gb_device_gl_impl_t* impl = (gb_device_gl_impl_t*)device;
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl && polygon);
 
     // init render
-    if (gb_device_gl_render_init(impl))
+    if (gb_gl_render_init(impl))
     {
         // fill render
-        gb_device_gl_render_fill(impl, polygon->points, polygon->counts);
+        gb_gl_render_fill(impl, polygon->points, polygon->counts);
     
         // exit render
-        gb_device_gl_render_exit(impl);
+        gb_gl_render_exit(impl);
     }
 }
 static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
-    tb_assert_and_check_return(segment);
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
+    tb_assert_and_check_return(impl && segment);
 
+    // init render
+    if (gb_gl_render_init(impl))
+    {
+        // stok render
+        gb_gl_render_stok(impl, segment->points, segment->counts);
+    
+        // exit render
+        gb_gl_render_exit(impl);
+    }
+}
+static gb_shader_ref_t gb_device_gl_shader_linear(gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
+{
+    // check
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // init shader
+    return gb_gl_shader_init_linear(impl, mode, gradient, line);
+}
+static gb_shader_ref_t gb_device_gl_shader_radial(gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle)
+{
+    // check
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // init shader
+    return gb_gl_shader_init_radial(impl, mode, gradient, circle);
+}
+static gb_shader_ref_t gb_device_gl_shader_bitmap(gb_device_impl_t* device, tb_size_t mode, gb_bitmap_ref_t bitmap)
+{
+    // check
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // init shader
+    return gb_gl_shader_init_bitmap(impl, mode, bitmap);
 }
 static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
 {
     // check
-    gb_device_gl_impl_t* impl = (gb_device_gl_impl_t*)device;
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl);
 
     // exit programs 
@@ -217,7 +189,7 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
     // done
     tb_bool_t               ok = tb_false;
-    gb_device_gl_impl_t*    impl = tb_null;
+    gb_gl_device_ref_t      impl = tb_null;
     do
     {
         // the width and height
@@ -226,7 +198,7 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         tb_assert_and_check_break(width && height && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
 
         // make device
-        impl = tb_malloc0_type(gb_device_gl_impl_t);
+        impl = tb_malloc0_type(gb_gl_device_t);
         tb_assert_and_check_break(impl);
 
         // init base 
@@ -235,6 +207,9 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->base.draw_clear       = gb_device_gl_draw_clear;
         impl->base.fill_polygon     = gb_device_gl_fill_polygon;
         impl->base.stok_segment     = gb_device_gl_stok_segment;
+        impl->base.shader_linear    = gb_device_gl_shader_linear;
+        impl->base.shader_radial    = gb_device_gl_shader_radial;
+        impl->base.shader_bitmap    = gb_device_gl_shader_bitmap;
         impl->base.exit             = gb_device_gl_exit;
 
         // init window

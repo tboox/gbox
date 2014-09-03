@@ -17,57 +17,46 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        render.c
+ * @file        device.h
  * @ingroup     core
- *
  */
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * trace
- */
-#define TB_TRACE_MODULE_NAME            "gl_render"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#ifndef GB_CORE_DEVICE_GL_DEVICE_H
+#define GB_CORE_DEVICE_GL_DEVICE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "render.h"
+#include "interface.h"
+#include "program.h"
+#include "matrix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * types
  */
-tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device)
+
+// the gl device type
+typedef struct __gb_gl_device_t
 {
-    // check
-    tb_assert_and_check_return_val(device, tb_false);
+    // the base
+    gb_device_impl_t            base;
 
-    // done
-    tb_bool_t ok = tb_false;
-    do
-    {
-#if 0
-        // init for gl >= 2.0
-        if (device->version >= 0x20)
-        {	
+    // the window
+    gb_window_ref_t             window;
 
-        }
+    // the version: 1.0, 2.x, ...
+    tb_size_t                   version;
+
+    // the programs
+    gb_gl_program_ref_t         programs[GB_GL_PROGRAM_LOCATION_MAXN];
+
+	// the projection matrix for gl >= 2.0
+	gb_gl_matrix_t              matrix_project;
+
+}gb_gl_device_t;
+
+// the gl device ref type
+typedef gb_gl_device_t*         gb_gl_device_ref_t;
+
 #endif
 
-        // ok
-        ok = tb_true;
-
-    } while (0);
-
-    // ok?
-    return ok;
-}
-tb_void_t gb_gl_render_fill(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
-{
-}
-tb_void_t gb_gl_render_stok(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
-{
-}
-tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
-{
-}
 

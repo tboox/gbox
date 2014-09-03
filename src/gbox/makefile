@@ -39,6 +39,8 @@ gbox_C_FILES 			+= \
 # gl core files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
 						core/device/gl \
+						core/device/gl/render \
+						core/device/gl/shader \
 						core/device/gl/interface \
 						core/device/gl/program \
 						core/device/gl/program/color \

@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        render.c
+ * @file        shader.c
  * @ingroup     core
  *
  */
@@ -25,49 +25,26 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "gl_render"
+#define TB_TRACE_MODULE_NAME            "gl_shader"
 #define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "render.h"
+#include "shader.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device)
+gb_shader_ref_t gb_gl_shader_init_linear(gb_gl_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
 {
-    // check
-    tb_assert_and_check_return_val(device, tb_false);
-
-    // done
-    tb_bool_t ok = tb_false;
-    do
-    {
-#if 0
-        // init for gl >= 2.0
-        if (device->version >= 0x20)
-        {	
-
-        }
-#endif
-
-        // ok
-        ok = tb_true;
-
-    } while (0);
-
-    // ok?
-    return ok;
+    return tb_null;
 }
-tb_void_t gb_gl_render_fill(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
+gb_shader_ref_t gb_gl_shader_init_radial(gb_gl_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle)
 {
+    return tb_null;
 }
-tb_void_t gb_gl_render_stok(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
+gb_shader_ref_t gb_gl_shader_init_bitmap(gb_gl_device_ref_t device, tb_size_t mode, gb_bitmap_ref_t bitmap)
 {
+    return tb_null;
 }
-tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
-{
-}
-
