@@ -52,7 +52,7 @@ typedef enum __gb_paint_mode_t
 typedef enum __gb_paint_flag_t
 {
     GB_PAINT_FLAG_NONE          = 0 //!< none
-,   GB_PAINT_FLAG_ANTI_ALIAS    = 1 //!< antialiasing
+,   GB_PAINT_FLAG_ANTIALIASING  = 1 //!< antialiasing
 ,   GB_PAINT_FLAG_BITMAP_FILTER = 2 //!< bitmap filter
 
 }gb_paint_flag_t;

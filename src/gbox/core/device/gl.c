@@ -109,7 +109,7 @@ static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_
     tb_assert_and_check_return(impl && polygon);
 
     // init render
-    if (gb_gl_render_init(impl))
+    if (gb_gl_render_init(impl, matrix, paint, clipper))
     {
         // fill render
         gb_gl_render_fill(impl, polygon->points, polygon->counts);
@@ -125,7 +125,7 @@ static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_
     tb_assert_and_check_return(impl && segment);
 
     // init render
-    if (gb_gl_render_init(impl))
+    if (gb_gl_render_init(impl, matrix, paint, clipper))
     {
         // stok render
         gb_gl_render_stok(impl, segment->points, segment->counts);
@@ -259,22 +259,7 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
             // init the model matrix
             gb_glMatrixMode(GB_GL_MODELVIEW);
             gb_glLoadIdentity();
-
-            // disable vertices
-            gb_glDisableClientState(GB_GL_VERTEX_ARRAY);
-
-            // disable texcoords
-            gb_glDisableClientState(GB_GL_TEXTURE_COORD_ARRAY);
         }
-
-        // disable antialiasing
-        gb_glDisable(GB_GL_MULTISAMPLE);
-
-        // disable blend
-        gb_glDisable(GB_GL_BLEND);
-
-        // disable texture
-        gb_glDisable(GB_GL_TEXTURE_2D);
 
         // ok
         ok = tb_true;

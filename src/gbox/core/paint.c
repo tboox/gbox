@@ -117,7 +117,7 @@ tb_void_t gb_paint_clear(gb_paint_ref_t paint)
 
     // clear
     impl->mode    = GB_PAINT_MODE_NONE;
-    impl->flag    = GB_PAINT_FLAG_ANTI_ALIAS | GB_PAINT_FLAG_BITMAP_FILTER;
+    impl->flag    = GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_BITMAP_FILTER;
     impl->cap     = GB_PAINT_CAP_BUTT;
     impl->join    = GB_PAINT_JOIN_MITER;
     impl->rule    = GB_PAINT_RULE_EVENODD;

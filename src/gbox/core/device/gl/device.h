@@ -34,6 +34,23 @@
  * types
  */
 
+// the gl render type
+typedef struct __gb_gl_render_t
+{
+    // the paint
+    gb_paint_ref_t              paint;
+
+    // the shader
+    gb_shader_ref_t             shader;
+
+    // the program
+    gb_gl_program_ref_t         program;
+
+	// the vertex matrix 
+	gb_gl_matrix_t              matrix_vertex;
+
+}gb_gl_render_t;
+
 // the gl device type
 typedef struct __gb_gl_device_t
 {
@@ -51,6 +68,9 @@ typedef struct __gb_gl_device_t
 
 	// the projection matrix for gl >= 2.0
 	gb_gl_matrix_t              matrix_project;
+
+    // the render
+    gb_gl_render_t              render;
 
 }gb_gl_device_t;
 

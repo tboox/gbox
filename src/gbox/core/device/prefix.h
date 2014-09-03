@@ -29,6 +29,9 @@
  */
 #include "../prefix.h"
 #include "../path.h"
+#include "../paint.h"
+#include "../shader.h"
+#include "../matrix.h"
 #include "../device.h"
 #include "../../platform/platform.h"
 
