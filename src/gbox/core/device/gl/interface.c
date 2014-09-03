@@ -128,9 +128,16 @@ GB_GL_INTERFACE_DEFINE(glVertexPointer);
 GB_GL_INTERFACE_DEFINE(glViewport);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static gb_GLvoid_t GB_GL_APICALL gb_gl_interface_glOrthof(gb_GLfloat_t left, gb_GLfloat_t right, gb_GLfloat_t bottom, gb_GLfloat_t top, gb_GLfloat_t nearp, gb_GLfloat_t farp)
+{
+    gb_glOrtho(left, right, bottom, top, nearp, farp);
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-
 tb_bool_t gb_gl_interface_load()
 {
     // done
@@ -285,6 +292,7 @@ tb_bool_t gb_gl_interface_load()
         GB_GL_INTERFACE_LOAD_S(glOrthof);
 #   else
         GB_GL_INTERFACE_LOAD_S(glOrtho);
+        GB_GL_INTERFACE_LOAD_S_(glOrthof, gb_gl_interface_glOrthof);
 #   endif
         GB_GL_INTERFACE_LOAD_S(glPopMatrix);
         GB_GL_INTERFACE_LOAD_S(glPushMatrix);

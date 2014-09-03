@@ -67,8 +67,8 @@ tb_void_t gb_cutter_ellipse_done(gb_ellipse_ref_t ellipse, gb_cutter_func_t func
         x2 = (a * x1 - b * y1) >> 16;
         y2 = (b * x1 + a * y1) >> 16;
 
-        pt.x = gb_fixed_to_float(x0 + ((x2 * rxf) >> 16));
-        pt.y = gb_fixed_to_float(y0 + ((y2 * ryf) >> 16));
+        pt.x = gb_fixed_to_float((tb_fixed_t)(x0 + ((x2 * rxf) >> 16)));
+        pt.y = gb_fixed_to_float((tb_fixed_t)(y0 + ((y2 * ryf) >> 16)));
 
         // done
         func(GB_PATH_CODE_LINE, &pt, priv);

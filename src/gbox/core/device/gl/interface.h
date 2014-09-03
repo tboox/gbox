@@ -45,6 +45,9 @@
 // load the static function
 #define GB_GL_INTERFACE_LOAD_S(func)                        gb_##func = func
 
+// load the static function
+#define GB_GL_INTERFACE_LOAD_S_(name, func)                 gb_##name = &func
+
 // load the dynamic function
 #define GB_GL_INTERFACE_LOAD_D(library, func)               gb_##func = (gb_##func##_t)tb_dynamic_func(library, #func); tb_assert_and_check_break(gb_##func)
 

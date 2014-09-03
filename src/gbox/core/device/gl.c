@@ -53,6 +53,10 @@ __tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
  */
 static tb_size_t gb_device_gl_version()
 {
+#ifdef TB_CONFIG_OS_WINDOWS
+    // only supports gl 1.1 for windows
+    return 0x11;
+#else
 	// version 
 	tb_char_t const* version = (tb_char_t const*)gb_glGetString(GB_GL_VERSION);
 	tb_assert_and_check_return_val(version, 0);
@@ -72,6 +76,7 @@ static tb_size_t gb_device_gl_version()
 
 	// [0x10, 0x19] 
 	return ((major << 4) + minor);
+#endif
 }
 static tb_void_t gb_device_gl_resize(gb_device_impl_t* device, tb_size_t width, tb_size_t height)
 {
@@ -227,7 +232,7 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
             // force setting version: v1 for testing
 #ifdef GB_DEVICE_GL_TEST_v1
-            impl->version = 1;
+            impl->version = 0x10;
 #endif
         }
 

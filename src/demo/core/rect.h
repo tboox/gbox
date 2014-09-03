@@ -7,6 +7,11 @@
 #include "demo.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interface
  */
 
@@ -32,5 +37,10 @@ tb_void_t           gb_demo_rect_draw(gb_window_ref_t window, gb_canvas_ref_t ca
  * @param priv      the user private data
  */
 tb_void_t           gb_demo_rect_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
 #endif

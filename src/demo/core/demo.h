@@ -7,8 +7,14 @@
 #include "gbox/gbox.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interface
  */
+
 /* clos window
  *
  * @param window    the window
@@ -39,5 +45,10 @@ tb_void_t           gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canva
  * @param priv      the user private data
  */
 tb_void_t           gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
 #endif

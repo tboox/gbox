@@ -105,7 +105,7 @@ static __tb_inline__ tb_void_t gb_gl_matrix_init_rotate(gb_gl_matrix_ref_t matri
 {
     gb_GLfloat_t s;
     gb_GLfloat_t c;
-    tb_sincosf((degrees * TB_PI) / 180., &s, &c);
+    tb_sincosf((gb_GLfloat_t)((degrees * TB_PI) / 180.0f), &s, &c);
     gb_gl_matrix_init_sincos(matrix, s, c);
 }
 
@@ -120,7 +120,7 @@ static __tb_inline__ tb_void_t gb_gl_matrix_init_rotatep(gb_gl_matrix_ref_t matr
 {
     gb_GLfloat_t s;
     gb_GLfloat_t c;
-    tb_sincosf((degrees * TB_PI) / 180., &s, &c);
+    tb_sincosf((gb_GLfloat_t)((degrees * TB_PI) / 180.0f), &s, &c);
     gb_gl_matrix_init_sincosp(matrix, s, c, px, py);
 }
 

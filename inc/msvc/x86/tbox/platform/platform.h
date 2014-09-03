@@ -37,6 +37,7 @@
 #include "event.h"
 #include "timer.h"
 #include "print.h"
+#include "screen.h"
 #include "ltimer.h"
 #include "socket.h"
 #include "thread.h"
