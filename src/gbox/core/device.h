@@ -204,6 +204,38 @@ tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_re
  * @param segment   the segment
  */
 tb_void_t           gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+	
+/*! init linear gradient shader
+ *
+ * @param device    the device
+ * @param mode      the mode 
+ * @param gradient  the gradient
+ * @param line      the line
+ *
+ * @return          the shader
+ */
+gb_shader_ref_t     gb_device_shader_linear(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line);
+
+/*! init radial gradient shader
+ *
+ * @param device    the device
+ * @param mode      the mode 
+ * @param gradient  the gradient
+ * @param circle    the circle
+ *
+ * @return          the shader
+ */
+gb_shader_ref_t     gb_device_shader_radial(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle);
+
+/*! init bitmap shader
+ *
+ * @param device    the device
+ * @param mode      the mode 
+ * @param bitmap    the bitmap
+ *
+ * @return          the shader
+ */
+gb_shader_ref_t     gb_device_shader_bitmap(gb_device_ref_t device, tb_size_t mode, gb_bitmap_ref_t bitmap);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

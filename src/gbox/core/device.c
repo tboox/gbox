@@ -408,4 +408,32 @@ tb_void_t gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segmen
     // stok segment
     if (mode & GB_PAINT_MODE_STOK) 
         gb_device_stok_segment(impl, segment, matrix, paint, clipper);
+}	
+gb_shader_ref_t gb_device_shader_linear(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return_val(impl && impl->shader_linear, tb_null);
+
+    // init shader
+    return impl->shader_linear(impl, mode, gradient, line);
 }
+gb_shader_ref_t gb_device_shader_radial(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return_val(impl && impl->shader_radial, tb_null);
+
+    // init shader
+    return impl->shader_radial(impl, mode, gradient, circle);
+}
+gb_shader_ref_t gb_device_shader_bitmap(gb_device_ref_t device, tb_size_t mode, gb_bitmap_ref_t bitmap)
+{ 
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return_val(impl && impl->shader_bitmap, tb_null);
+
+    // init shader
+    return impl->shader_bitmap(impl, mode, bitmap);
+}
+

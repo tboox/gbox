@@ -82,6 +82,38 @@ typedef struct __gb_device_impl_t
      * @param segment       the segment
      */
     tb_void_t               (*stok_segment)(struct __gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+	
+    /*! init linear gradient shader
+     *
+     * @param device        the device
+     * @param mode          the mode 
+     * @param gradient      the gradient
+     * @param line          the line
+     *
+     * @return              the shader
+     */
+    gb_shader_ref_t         (*shader_linear)(struct __gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line);
+
+    /*! init radial gradient shader
+     *
+     * @param device        the device
+     * @param mode          the mode 
+     * @param gradient      the gradient
+     * @param circle        the circle
+     *
+     * @return              the shader
+     */
+    gb_shader_ref_t         (*shader_radial)(struct __gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle);
+
+    /*! init bitmap shader
+     *
+     * @param device        the device
+     * @param mode          the mode 
+     * @param bitmap        the bitmap
+     *
+     * @return              the shader
+     */
+    gb_shader_ref_t         (*shader_bitmap)(struct __gb_device_impl_t* device, tb_size_t mode, gb_bitmap_ref_t bitmap);
 
     /* exit device
      *
@@ -90,6 +122,29 @@ typedef struct __gb_device_impl_t
     tb_void_t               (*exit)(struct __gb_device_impl_t* device);
 
 }gb_device_impl_t;
+
+// the shader impl type
+typedef struct __gb_shader_impl_t
+{
+    // the shader type
+    tb_uint8_t              type;
+
+    // the shader mode
+    tb_uint8_t              mode;
+
+    // the reference count
+    tb_size_t               refn;
+
+    // the matrix
+    gb_matrix_t             matrix;
+
+    /* exit shader
+     *
+     * @param shader        the shader
+     */
+    tb_void_t               (*exit)(struct __gb_shader_impl_t* shader);
+
+}gb_shader_impl_t;
 
 #endif
 

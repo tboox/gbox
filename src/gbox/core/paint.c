@@ -25,6 +25,7 @@
  * includes
  */
 #include "paint.h"
+#include "shader.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -101,12 +102,9 @@ tb_void_t gb_paint_exit(gb_paint_ref_t paint)
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
     tb_assert_and_check_return(impl);
 
-    // FIXME
-#if 0
     // exit shader
     if (impl->shader) gb_shader_exit(impl->shader);
     impl->shader = tb_null;
-#endif
 
     // exit paint
     tb_free(impl);
@@ -127,12 +125,9 @@ tb_void_t gb_paint_clear(gb_paint_ref_t paint)
     impl->color   = GB_COLOR_DEFAULT;
     impl->quality = GB_QUALITY_TOP;
 
-    // FIXME
-#if 0
     // clear shader
     if (impl->shader) gb_shader_exit(impl->shader);
     impl->shader = tb_null;
-#endif
 }
 tb_void_t gb_paint_copy(gb_paint_ref_t paint, gb_paint_ref_t copied)
 {
@@ -141,13 +136,11 @@ tb_void_t gb_paint_copy(gb_paint_ref_t paint, gb_paint_ref_t copied)
     gb_paint_impl_t* impl_copied = (gb_paint_impl_t*)copied;
     tb_assert_and_check_return(impl && impl_copied);
 
-#if 0
     // refn++
     if (impl_copied->shader) gb_shader_inc(impl_copied->shader);
 
     // refn--
     if (impl->shader) gb_shader_dec(impl->shader);
-#endif
 
     // copy
     tb_memcpy(impl, impl_copied, sizeof(gb_paint_impl_t));
@@ -329,8 +322,6 @@ tb_void_t gb_paint_shader_set(gb_paint_ref_t paint, gb_shader_ref_t shader)
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
     tb_assert_and_check_return(impl);
 
-    // FIXME
-#if 0
     // ref--
     if (impl->shader) gb_shader_dec(impl->shader);
 
@@ -339,5 +330,4 @@ tb_void_t gb_paint_shader_set(gb_paint_ref_t paint, gb_shader_ref_t shader)
 
     // ref++
     if (shader) gb_shader_inc(shader);
-#endif
 }

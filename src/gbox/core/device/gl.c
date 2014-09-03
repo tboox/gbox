@@ -73,6 +73,47 @@ __tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
 #endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * render implementation
+ */
+static tb_bool_t gb_device_gl_render_init(gb_device_gl_impl_t* impl)
+{
+    // check
+    tb_assert_and_check_return_val(impl, tb_false);
+
+    // done
+    tb_bool_t ok = tb_false;
+    do
+    {
+#if 0
+        // init for gl >= 2.0
+        if (impl->version >= 0x20)
+        {	
+
+        }
+#endif
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // ok?
+    return ok;
+}
+static tb_void_t gb_device_gl_render_fill(gb_device_gl_impl_t* impl, gb_point_t const* points, tb_size_t const* counts)
+{
+    // check
+    tb_assert_and_check_return(impl);
+
+}
+static tb_void_t gb_device_gl_render_exit(gb_device_gl_impl_t* impl)
+{
+    // check
+    tb_assert_and_check_return(impl);
+
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
 static tb_size_t gb_device_gl_version()
@@ -129,8 +170,18 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
-    tb_assert_and_check_return(polygon);
+    gb_device_gl_impl_t* impl = (gb_device_gl_impl_t*)device;
+    tb_assert_and_check_return(impl && polygon);
 
+    // init render
+    if (gb_device_gl_render_init(impl))
+    {
+        // fill render
+        gb_device_gl_render_fill(impl, polygon->points, polygon->counts);
+    
+        // exit render
+        gb_device_gl_render_exit(impl);
+    }
 }
 static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {

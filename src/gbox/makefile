@@ -13,6 +13,7 @@ gbox_C_FILES 			+= \
 						core/core \
 						core/path \
 						core/paint \
+						core/shader \
 						core/matrix \
 						core/pixmap \
 						core/bitmap \
@@ -101,6 +102,7 @@ INC_FILES 				= \
 						core/prefix/quality.h \
 						core/path.h \
 						core/paint.h \
+						core/shader.h \
 						core/pixmap.h \
 						core/bitmap.h \
 						core/matrix.h \
