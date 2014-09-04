@@ -32,8 +32,6 @@
  * includes
  */
 #include "prefix.h"
-#include "../../core/device.h"
-#include "../../core/canvas.h"
 #ifdef TB_CONFIG_OS_MAC
 # 	include <GLUT/glut.h>
 #else
@@ -518,6 +516,7 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
         impl->base.flag &= ~GB_WINDOW_FLAG_FULLSCREEN;
     }
 }
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
@@ -556,7 +555,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
          * - rgba4444_be
          * - rgba5551_le
          */
-        impl->base.pixfmt   = gb_quality() < GB_QUALITY_TOP? GB_PIXFMT_RGB565 : (GB_PIXFMT_RGBA8888 | GB_PIXFMT_BENDIAN);
+        impl->base.pixfmt       = gb_quality() < GB_QUALITY_TOP? GB_PIXFMT_RGB565 : (GB_PIXFMT_RGBA8888 | GB_PIXFMT_BENDIAN);
 
         // init loop
         impl->stop = 0;
@@ -573,7 +572,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         tb_assert(!(flag & GB_WINDOW_FLAG_MAXIMUM));
         tb_assert(!(flag & GB_WINDOW_FLAG_MINIMUM));
         tb_assert(!(flag & GB_WINDOW_FLAG_HIHE));
-        tb_assert(!(flag & GB_WINDOW_FLAG_HIHE_TITLE));
+        tb_assert(!(flag & GB_WINDOW_FLAG_HIHE_TITLEBAR));
         tb_assert(!(flag & GB_WINDOW_FLAG_NOT_REISZE));
 
         // ok

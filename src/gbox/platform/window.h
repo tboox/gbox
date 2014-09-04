@@ -47,7 +47,9 @@ typedef enum __gb_window_type_e
 ,   GB_WINDOW_TYPE_GLUT             = 1
 ,   GB_WINDOW_TYPE_IOS              = 2
 ,   GB_WINDOW_TYPE_ANDROID          = 3
-,   GB_WINDOW_TYPE_FRAMEBUFFER      = 4
+,   GB_WINDOW_TYPE_SDL              = 4
+,   GB_WINDOW_TYPE_X11              = 5
+,   GB_WINDOW_TYPE_FRAMEBUFFER      = 6
 
 }gb_window_type_e;
 
@@ -68,7 +70,7 @@ typedef enum __gb_window_flag_e
 ,   GB_WINDOW_FLAG_MINIMUM          = 2
 ,   GB_WINDOW_FLAG_FULLSCREEN       = 4
 ,   GB_WINDOW_FLAG_HIHE             = 8
-,   GB_WINDOW_FLAG_HIHE_TITLE       = 16
+,   GB_WINDOW_FLAG_HIHE_TITLEBAR    = 16
 ,   GB_WINDOW_FLAG_HIHE_CURSOR      = 32
 ,   GB_WINDOW_FLAG_NOT_REISZE       = 64
 

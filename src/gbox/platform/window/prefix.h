@@ -28,6 +28,10 @@
  */
 #include "../prefix.h"
 #include "../window.h"
+#include "../../core/device.h"
+#include "../../core/canvas.h"
+#include "../../core/pixmap.h"
+#include "../../core/bitmap.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

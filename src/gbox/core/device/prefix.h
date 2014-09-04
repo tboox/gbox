@@ -33,6 +33,8 @@
 #include "../shader.h"
 #include "../matrix.h"
 #include "../device.h"
+#include "../bitmap.h"
+#include "../pixmap.h"
 #include "../../platform/platform.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
