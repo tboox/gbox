@@ -62,6 +62,15 @@ static gb_matrix_t      g_matrix;
 // the quality
 static tb_size_t        g_quality = GB_QUALITY_LOW;
 
+// the cap
+static tb_size_t        g_cap = GB_PAINT_CAP_NONE;
+
+// the join
+static tb_size_t        g_join = GB_PAINT_JOIN_NONE;
+
+// the width
+static gb_float_t       g_width = GB_ONE;
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
@@ -136,6 +145,15 @@ tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
     // enter matrix
     gb_matrix_copy(gb_canvas_save_matrix(canvas), &g_matrix);
 
+    // apply cap
+    gb_canvas_cap_set(canvas, g_cap);
+
+    // apply join
+    gb_canvas_join_set(canvas, g_join);
+
+    // apply width
+    gb_canvas_width_set(canvas, g_width);
+
     // done draw
     entry->draw(window, canvas);
 
@@ -177,12 +195,24 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
         case GB_KEY_RIGHT:
             g_index = (g_index + 1) % tb_arrayn(g_entries);
             break;
+        case GB_KEY_UP:
+            g_width += GB_ONE;
+            break;
+        case GB_KEY_DOWN:
+            if (gb_b1(g_width)) g_width -= GB_ONE;
+            break;
         case 'f':
             gb_window_fullscreen(window, tb_true);
             break;
         case 'q':
             g_quality = (g_quality + 1) % 3;
             gb_quality_set(g_quality);
+            break;
+        case 'c':
+            g_cap = (g_cap + 1) & 3;
+            break;
+        case 'j':
+            g_join = (g_join + 1) & 3;
             break;
         case 'i':
             tb_timer_task_post(gb_window_timer(window), 1000, tb_true, gb_demo_info, (tb_cpointer_t)window);

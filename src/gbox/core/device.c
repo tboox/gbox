@@ -47,36 +47,21 @@ __tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_device_fill_polygon(gb_device_impl_t* impl, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static __tb_inline__ tb_void_t gb_device_fill_polygon(gb_device_impl_t* impl, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
-    tb_assert_and_check_return(impl && impl->fill_polygon);
+    tb_assert_abort(impl && impl->fill_polygon);
 
     // fill polygon
-    impl->fill_polygon(impl, polygon, matrix, paint, clipper);
+    impl->fill_polygon(impl, polygon, hint, matrix, paint, clipper);
 }
-static tb_void_t gb_device_stok_segment(gb_device_impl_t* impl, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static __tb_inline__ tb_void_t gb_device_stok_segment(gb_device_impl_t* impl, gb_segment_ref_t segment, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
-    tb_assert_and_check_return(impl && paint);
+    tb_assert_abort(impl && impl->stok_segment);
 
-    // the width
-    gb_float_t width = gb_paint_width(paint);
-
-    // > 1?
-    if (gb_b1(width))
-    {
-        // TODO
-        tb_trace_noimpl();
-    }
-    else 
-    {
-        // check
-        tb_assert(impl->stok_segment);
-
-        // stok segment
-        impl->stok_segment(impl, segment, matrix, paint, clipper);
-    }
+    // stok segment
+    impl->stok_segment(impl, segment, hint, matrix, paint, clipper);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -218,11 +203,19 @@ tb_void_t gb_device_draw_path(gb_device_ref_t device, gb_path_ref_t path, gb_mat
 
     // fill it
     if (mode & GB_PAINT_MODE_FILL) 
-        gb_device_fill_polygon(impl, gb_path_polygon(path), matrix, paint, clipper);
+    {
+        // done
+        gb_shape_ref_t hint = tb_null;
+        gb_device_fill_polygon(impl, gb_path_polygon(path, &hint), hint, matrix, paint, clipper);
+    }
 
     // stok it
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, gb_path_segment(path), matrix, paint, clipper);
+    {
+        // done
+        gb_shape_ref_t hint = tb_null;
+        gb_device_stok_segment(impl, gb_path_segment(path, &hint), hint, matrix, paint, clipper);
+    }
 }
 tb_void_t gb_device_draw_point(gb_device_ref_t device, gb_point_ref_t point, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -241,9 +234,14 @@ tb_void_t gb_device_draw_point(gb_device_ref_t device, gb_point_ref_t point, gb_
     tb_size_t       counts[] = {2, 0};
     gb_segment_t    segment = {points, counts};
 
+    // init hint
+    gb_shape_t      hint;
+    hint.type       = GB_SHAPE_TYPE_POINT;
+    hint.u.point    = *point;
+
     // stok it
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, &segment, matrix, paint, clipper);
+        gb_device_stok_segment(impl, &segment, &hint, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_line(gb_device_ref_t device, gb_line_ref_t line, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -262,9 +260,14 @@ tb_void_t gb_device_draw_line(gb_device_ref_t device, gb_line_ref_t line, gb_mat
     tb_size_t       counts[] = {2, 0};
     gb_segment_t    segment = {points, counts};
 
+    // init hint
+    gb_shape_t      hint;
+    hint.type       = GB_SHAPE_TYPE_LINE;
+    hint.u.line    = *line;
+
     // stok it
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, &segment, matrix, paint, clipper);
+        gb_device_stok_segment(impl, &segment, &hint, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_arc(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -298,13 +301,18 @@ tb_void_t gb_device_draw_triangle(gb_device_ref_t device, gb_triangle_ref_t tria
     gb_polygon_t    polygon = {points, counts};
     gb_segment_t    segment = {points, counts};
 
+    // init hint
+    gb_shape_t      hint;
+    hint.type       = GB_SHAPE_TYPE_TRIANGLE;
+    hint.u.triangle = *triangle;
+
     // fill it
     if (mode & GB_PAINT_MODE_FILL) 
-        gb_device_fill_polygon(impl, &polygon, matrix, paint, clipper);
+        gb_device_fill_polygon(impl, &polygon, &hint, matrix, paint, clipper);
 
     // stok it
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, &segment, matrix, paint, clipper);
+        gb_device_stok_segment(impl, &segment, &hint, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_rect(gb_device_ref_t device, gb_rect_ref_t rect, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -332,13 +340,18 @@ tb_void_t gb_device_draw_rect(gb_device_ref_t device, gb_rect_ref_t rect, gb_mat
     points[3].y = rect->y + rect->h;
     points[4] = points[0];
 
+    // init hint
+    gb_shape_t      hint;
+    hint.type       = GB_SHAPE_TYPE_RECT;
+    hint.u.rect     = *rect;
+
     // fill it
     if (mode & GB_PAINT_MODE_FILL) 
-        gb_device_fill_polygon(impl, &polygon, matrix, paint, clipper);
+        gb_device_fill_polygon(impl, &polygon, &hint, matrix, paint, clipper);
 
     // stok it
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, &segment, matrix, paint, clipper);
+        gb_device_stok_segment(impl, &segment, &hint, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_circle(gb_device_ref_t device, gb_circle_ref_t circle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -388,11 +401,11 @@ tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygo
 
     // fill it
     if (mode & GB_PAINT_MODE_FILL) 
-        gb_device_fill_polygon(impl, polygon, matrix, paint, clipper);
+        gb_device_fill_polygon(impl, polygon, tb_null, matrix, paint, clipper);
 
     // stok it
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, &segment, matrix, paint, clipper);
+        gb_device_stok_segment(impl, &segment, tb_null, matrix, paint, clipper);
 }
 tb_void_t gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
@@ -408,7 +421,7 @@ tb_void_t gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segmen
 
     // stok segment
     if (mode & GB_PAINT_MODE_STOK) 
-        gb_device_stok_segment(impl, segment, matrix, paint, clipper);
+        gb_device_stok_segment(impl, segment, tb_null, matrix, paint, clipper);
 }	
 gb_shader_ref_t gb_device_shader_linear(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
 {

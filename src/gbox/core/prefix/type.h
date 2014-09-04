@@ -295,17 +295,17 @@ typedef struct{}*       gb_path_ref_t;
 /// the shape type enum
 typedef enum __gb_shape_type_e
 {
-    GB_SHAPE_TYPE_NONE          = 0
-,   GB_SHAPE_TYPE_ARC           = 1
-,   GB_SHAPE_TYPE_PATH          = 2
-,   GB_SHAPE_TYPE_LINE          = 3
-,   GB_SHAPE_TYPE_RECT          = 4
-,   GB_SHAPE_TYPE_POINT         = 5
-,   GB_SHAPE_TYPE_CIRCLE        = 6
-,   GB_SHAPE_TYPE_ELLIPSE       = 7
-,   GB_SHAPE_TYPE_POLYGON       = 8
-,   GB_SHAPE_TYPE_SEGMENT       = 9
-,   GB_SHAPE_TYPE_TRIANGLE      = 10
+    GB_SHAPE_TYPE_NONE          = 0x0000 //!< none
+,   GB_SHAPE_TYPE_ARC           = 0x0001 //!< arc
+,   GB_SHAPE_TYPE_PATH          = 0x0002 //!< path
+,   GB_SHAPE_TYPE_LINE          = 0x0003 //!< line
+,   GB_SHAPE_TYPE_RECT          = 0x0004 //!< rect
+,   GB_SHAPE_TYPE_POINT         = 0x0005 //!< point
+,   GB_SHAPE_TYPE_CIRCLE        = 0x0006 //!< circle
+,   GB_SHAPE_TYPE_ELLIPSE       = 0x0007 //!< ellipse
+,   GB_SHAPE_TYPE_POLYGON       = 0x0008 //!< polygon
+,   GB_SHAPE_TYPE_SEGMENT       = 0x0009 //!< segment
+,   GB_SHAPE_TYPE_TRIANGLE      = 0x0010 //!< triangle
 
 }gb_shape_type_e;
 

@@ -107,7 +107,7 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 	gb_glClearColor((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
-static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
@@ -123,20 +123,32 @@ static tb_void_t gb_device_gl_fill_polygon(gb_device_impl_t* device, gb_polygon_
         gb_gl_render_exit(impl);
     }
 }
-static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_gl_stok_segment(gb_device_impl_t* device, gb_segment_ref_t segment, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
-    tb_assert_and_check_return(impl && segment);
+    tb_assert_and_check_return(impl && paint && segment);
 
-    // init render
-    if (gb_gl_render_init(impl, matrix, paint, clipper))
+    // the width
+    gb_float_t width = gb_paint_width(paint);
+
+    // > 1?
+    if (gb_b1(width))
     {
-        // stok render
-        gb_gl_render_stok(impl, segment->points, segment->counts);
-    
-        // exit render
-        gb_gl_render_exit(impl);
+        // TODO
+        tb_trace_noimpl();
+    }
+    else
+    {
+        // init render
+        if (gb_gl_render_init(impl, matrix, paint, clipper))
+        {
+            // stok render
+            gb_gl_render_stok(impl, segment->points, segment->counts);
+        
+            // exit render
+            gb_gl_render_exit(impl);
+        }
     }
 }
 static gb_shader_ref_t gb_device_gl_shader_linear(gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)

@@ -76,15 +76,23 @@ typedef struct __gb_device_impl_t
      *
      * @param device        the device
      * @param polygon       the polygon
+     * @param hint          the hint shape
+     * @param matrix        the vertex matrix
+     * @param paint         the paint
+     * @param clipper       the clipper
      */
-    tb_void_t               (*fill_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*fill_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
     /*! stroke segment with the one pixel width 
      *
      * @param device        the device
      * @param segment       the segment
+     * @param hint          the hint shape
+     * @param matrix        the vertex matrix
+     * @param paint         the paint
+     * @param clipper       the clipper
      */
-    tb_void_t               (*stok_segment)(struct __gb_device_impl_t* device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*stok_segment)(struct __gb_device_impl_t* device, gb_segment_ref_t segment, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 	
     /*! init linear gradient shader
      *

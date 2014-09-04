@@ -104,18 +104,20 @@ tb_void_t           gb_path_null(gb_path_ref_t path);
 /*! the path polygon for filling
  *
  * @param path      the path
+ * @param phint     the hint shape pointer
  *
  * @return          the polygon
  */
-gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path);
+gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t* phint);
 
 /*! the path segment for stoking
  *
  * @param path      the path
+ * @param phint      the hint shape pointer
  *
  * @return          the segment
  */
-gb_segment_ref_t    gb_path_segment(gb_path_ref_t path);
+gb_segment_ref_t    gb_path_segment(gb_path_ref_t path, gb_shape_ref_t* phint);
 
 /*! close path
  *
