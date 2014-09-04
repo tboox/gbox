@@ -293,8 +293,8 @@ tb_void_t gb_device_draw_triangle(gb_device_ref_t device, gb_triangle_ref_t tria
     tb_size_t mode = gb_paint_mode(paint);
 
     // init polygon and segment
-    gb_point_t      points[] = {triangle->p0, triangle->p1, triangle->p2};
-    tb_size_t       counts[] = {3, 0};
+    gb_point_t      points[] = {triangle->p0, triangle->p1, triangle->p2, triangle->p0};
+    tb_size_t       counts[] = {4, 0};
     gb_polygon_t    polygon = {points, counts};
     gb_segment_t    segment = {points, counts};
 
@@ -316,8 +316,8 @@ tb_void_t gb_device_draw_rect(gb_device_ref_t device, gb_rect_ref_t rect, gb_mat
     tb_size_t mode = gb_paint_mode(paint);
 
     // init polygon and segment
-    gb_point_t      points[4];
-    tb_size_t       counts[] = {4, 0};
+    gb_point_t      points[5];
+    tb_size_t       counts[] = {5, 0};
     gb_polygon_t    polygon = {points, counts};
     gb_segment_t    segment = {points, counts};
 
@@ -330,6 +330,7 @@ tb_void_t gb_device_draw_rect(gb_device_ref_t device, gb_rect_ref_t rect, gb_mat
     points[2].y = rect->y + rect->h;
     points[3].x = rect->x;
     points[3].y = rect->y + rect->h;
+    points[4] = points[0];
 
     // fill it
     if (mode & GB_PAINT_MODE_FILL) 
