@@ -208,7 +208,6 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, g
         // init antialiasing
         if (gb_paint_flag(paint) & GB_PAINT_FLAG_ANTIALIASING) 
         {
-            tb_trace_i("ssssssssssssssss");
             gb_glEnable(GB_GL_MULTISAMPLE);
 #if 0
             gb_glEnable(GB_GL_LINE_SMOOTH);

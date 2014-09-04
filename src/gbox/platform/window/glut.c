@@ -342,8 +342,8 @@ static tb_void_t gb_window_glut_close()
     // trace
     tb_trace_d("clos");
 
-    // done clos
-    if (impl->base.info.clos) impl->base.info.clos((gb_window_ref_t)impl, impl->base.info.priv);
+    // done exit
+    if (impl->base.info.exit) impl->base.info.exit((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
 
     // stop it
     tb_atomic_set(&impl->stop, 1);
@@ -404,6 +404,9 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     // init canvas
     if (!impl->canvas) impl->canvas = gb_canvas_init_from_window(window);
     tb_assert_abort(impl->canvas);
+
+    // done init
+    if (impl->base.info.init) impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
 
     // loop
 #ifdef TB_CONFIG_OS_WINDOWS

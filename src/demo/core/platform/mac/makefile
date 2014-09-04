@@ -10,7 +10,13 @@ demo_TYPE 									= BIN
 # files
 demo_C_FILES 								+= \
 											demo \
+											../../arc \
 											../../rect \
+											../../line \
+											../../point \
+											../../circle \
+											../../ellipse \
+											../../triangle \
 											../../demo
 
 # libs

@@ -132,10 +132,12 @@
 #define GB_GL_ONE_MINUS_DST_COLOR       (0x0307)
 #define GB_GL_SRC_ALPHA_SATURATE        (0x0308)
 
-// multisample
+// antialiasing
 #define GB_GL_MULTISAMPLE               (0x809D)
 #define GB_GL_LINE_SMOOTH               (0x0B20)
 #define GB_GL_LINE_SMOOTH_HINT          (0x0C52)
+#define GB_GL_FOG                       (0x0B60)
+#define GB_GL_FOG_HINT                  (0x0C54)
 #define GB_GL_NICEST                    (0x1102)
 
 // stencil op

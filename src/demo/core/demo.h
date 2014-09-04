@@ -15,12 +15,21 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* clos window
+/* init window
  *
  * @param window    the window
+ * @param canvas    the canvas
  * @param priv      the user private data
  */
-tb_void_t           gb_demo_clos(gb_window_ref_t window, tb_cpointer_t priv);
+tb_void_t           gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+
+/* exit window
+ *
+ * @param window    the window
+ * @param canvas    the canvas
+ * @param priv      the user private data
+ */
+tb_void_t           gb_demo_exit(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
 /* draw window
  *

@@ -117,7 +117,7 @@ tb_void_t gb_paint_clear(gb_paint_ref_t paint)
 
     // clear
     impl->mode    = GB_PAINT_MODE_NONE;
-    impl->flag    = gb_quality() > GB_QUALITY_LOW? (GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_BITMAP_FILTER) : GB_PAINT_FLAG_NONE;
+    impl->flag    = GB_PAINT_FLAG_NONE;
     impl->cap     = GB_PAINT_CAP_BUTT;
     impl->join    = GB_PAINT_JOIN_MITER;
     impl->rule    = GB_PAINT_RULE_EVENODD;
@@ -168,6 +168,10 @@ tb_size_t gb_paint_flag(gb_paint_ref_t paint)
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
     tb_assert_and_check_return_val(impl, GB_PAINT_FLAG_NONE);
+
+    // modify flag for quality
+    if (gb_quality() > GB_QUALITY_LOW) impl->flag |= (GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_BITMAP_FILTER);
+    else impl->flag &= ~(GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_BITMAP_FILTER);
 
     // the flag
     return impl->flag;

@@ -8,7 +8,13 @@
  * includes
  */ 
 #include "demo.h"
+#include "arc.h"
 #include "rect.h"
+#include "line.h"
+#include "point.h"
+#include "circle.h"
+#include "ellipse.h"
+#include "triangle.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -17,8 +23,11 @@
 // the demo entry type
 typedef struct __gb_demo_entry_t
 {
-    // the clos func
-    tb_void_t           (*clos)(gb_window_ref_t window);
+    // the init func
+    tb_void_t           (*init)(gb_window_ref_t window);
+
+    // the exit func
+    tb_void_t           (*exit)(gb_window_ref_t window);
 
     // the draw func
     tb_void_t           (*draw)(gb_window_ref_t window, gb_canvas_ref_t canvas);
@@ -38,7 +47,13 @@ static tb_size_t        g_index = 0;
 // the demo entries
 static gb_demo_entry_t  g_entries[] =
 {
-    {gb_demo_rect_clos, gb_demo_rect_draw, gb_demo_rect_event}
+    {gb_demo_rect_init,         gb_demo_rect_exit,      gb_demo_rect_draw,      gb_demo_rect_event      }
+,   {gb_demo_arc_init,          gb_demo_arc_exit,       gb_demo_arc_draw,       gb_demo_arc_event       }
+,   {gb_demo_line_init,         gb_demo_line_exit,      gb_demo_line_draw,      gb_demo_line_event      }
+,   {gb_demo_point_init,        gb_demo_point_exit,     gb_demo_point_draw,     gb_demo_point_event     }
+,   {gb_demo_circle_init,       gb_demo_circle_exit,    gb_demo_circle_draw,    gb_demo_circle_event    }
+,   {gb_demo_ellipse_init,      gb_demo_ellipse_exit,   gb_demo_ellipse_draw,   gb_demo_ellipse_event   }
+,   {gb_demo_triangle_init,     gb_demo_triangle_exit,  gb_demo_triangle_draw,  gb_demo_triangle_event  }
 };
 
 // the matrix
@@ -63,13 +78,38 @@ static tb_void_t gb_demo_info(tb_bool_t killed, tb_cpointer_t priv)
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_demo_clos(gb_window_ref_t window, tb_cpointer_t priv)
+tb_void_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(window);
 
     // trace
-    tb_trace_d("clos");
+    tb_trace_d("init");
+
+    // init quality
+    gb_quality_set(g_quality);
+
+    // the x0 and y0
+    gb_float_t x0 = gb_long_to_float(gb_window_width(window) >> 1);
+    gb_float_t y0 = gb_long_to_float(gb_window_height(window) >> 1);
+
+	// init matrix
+	gb_matrix_init_translate(&g_matrix, x0, y0);
+
+    // the entry
+    gb_demo_entry_t const* entry = &g_entries[g_index];
+    tb_assert_abort(entry->init);
+
+    // done init
+    entry->init(window);
+}
+tb_void_t gb_demo_exit(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(window);
+
+    // trace
+    tb_trace_d("exit");
 
     // clos entries
     tb_size_t index = 0;
@@ -77,7 +117,7 @@ tb_void_t gb_demo_clos(gb_window_ref_t window, tb_cpointer_t priv)
     for (index = 0; index < count; index++)
     {
         // done clos
-        if (g_entries[index].clos) g_entries[index].clos(window);
+        if (g_entries[index].exit) g_entries[index].exit(window);
     }
 }
 tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
@@ -132,17 +172,16 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
             gb_window_fullscreen(window, tb_false);
             break;
         case GB_KEY_LEFT:
-            if (g_index) g_index--;
+            g_index = (g_index + tb_arrayn(g_entries) - 1) % tb_arrayn(g_entries);
             break;
         case GB_KEY_RIGHT:
-            if (g_index < tb_arrayn(g_entries)) g_index++;
+            g_index = (g_index + 1) % tb_arrayn(g_entries);
             break;
         case 'f':
             gb_window_fullscreen(window, tb_true);
             break;
         case 'q':
-            g_quality++;
-            if (g_quality > GB_QUALITY_TOP) g_quality = GB_QUALITY_LOW;
+            g_quality = (g_quality + 1) % 3;
             gb_quality_set(g_quality);
             break;
         case 'i':
