@@ -20,8 +20,10 @@ demo_C_FILES 								+= \
 											../../demo
 
 # libs
-demo_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE) 
+demo_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE)
 demo_LIBS-y 								+= $(GB_CONFIG_DEMO_LIBS)
+demo_LIBS-$(GB_CONFIG_THIRD_HAVE_SDL)  		+= SDL 
+demo_LIBS-$(GB_CONFIG_APP_WINDOW_SDL)  		+= SDLmain
 
 # path
 demo_INC_DIR 								+= ../../../../
@@ -29,7 +31,7 @@ demo_LIB_DIR 								+= ../../../../gbox
 
 # flags
 demo_CXFLAGS 								+= -D__tb_prefix__=\"demo\"
-demo_LDFLAGS 								+= $(GB_CONFIG_DEMO_LDFLAGS)
+demo_LDFLAGS 								+= -L/usr/local/lib $(GB_CONFIG_DEMO_LDFLAGS)
 
 # command
 demo_SUFFIX_CMD1 							+= $(GB_CONFIG_DEMO_CMD1)

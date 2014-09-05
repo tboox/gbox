@@ -13,17 +13,19 @@
 // the height
 #define GB_DEMO_HEIGHT          (480)
 
+// main
+#ifdef GB_CONFIG_APP_WINDOW_SDL
+#   undef main
+#   define main                 SDL_main
+#endif
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * main
  */
 tb_int_t main(tb_int_t argc, tb_char_t** argv)
 {
     // init tbox
-#if 0
-    if (!tb_init(tb_null, (tb_byte_t*)malloc(300 * 1024 * 1024), 300 * 1024 * 1024)) return 0;
-#else
     if (!tb_init(tb_null, tb_null, 0)) return 0;
-#endif
 
     // init gbox
     if (!gb_init()) return 0;
@@ -39,7 +41,11 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     info.event              = gb_demo_event;
 
     // init window
-    gb_window_ref_t window = gb_window_init_glut(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_NONE);
+#ifdef GB_CONFIG_APP_WINDOW_SDL
+    gb_window_ref_t window = gb_window_init_sdl(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_NONE);
+#else
+    gb_window_ref_t window = gb_window_init(&info, GB_DEMO_HEIGHT, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_NONE);
+#endif
     if (window)
     {
         // loop window

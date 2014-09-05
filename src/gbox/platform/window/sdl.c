@@ -26,7 +26,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "window_sdl"
-#define TB_TRACE_MODULE_DEBUG           (0)
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -64,30 +64,6 @@ typedef struct __gb_window_sdl_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-#if 0
-static tb_void_t gb_window_sdl_resize(gb_window_sdl_impl_t* impl, tb_size_t width, tb_size_t height)
-{
-    // check
-    tb_assert_and_check_return(impl && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
-
-    // trace
-    tb_trace_d("resize: %dx%d", width, height);
-
-    // the device
-    gb_device_ref_t device = gb_canvas_device(impl->canvas);
-    tb_assert_and_check_return(device);
-
-    // update the window width and height
-    impl->base.width   = width;
-    impl->base.height  = height;
-
-    // resize the device
-    gb_device_resize(device, width, height);
-
-    // done resize
-    if (impl->base.info.resize) impl->base.info.resize((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
-}
-#endif
 static tb_void_t gb_window_sdl_exit(gb_window_ref_t window)
 {
     // check
@@ -249,6 +225,15 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
 
                     // done event
                     if (event.u.keyboard.code) gb_window_impl_event((gb_window_ref_t)impl, &event);
+                }
+                break;
+            case SDL_VIDEORESIZE:
+                {
+                    // trace
+                    tb_trace_d("resize: type: %d, %dx%d", evet.resize.type, evet.resize.w, evet.resize.h);
+
+                    // TODO
+                    // ...
                 }
                 break;
             case SDL_QUIT:
