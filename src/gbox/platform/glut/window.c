@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        glut.c
+ * @file        window.c
  * @ingroup     platform
  *
  */
@@ -32,6 +32,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../impl/window.h"
 #ifdef TB_CONFIG_OS_MAC
 # 	include <GLUT/glut.h>
 #else

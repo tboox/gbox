@@ -55,30 +55,34 @@ gbox_C_FILES 			+= \
 						platform/platform \
 						platform/event \
 						platform/window \
-						platform/window/prefix 
+						platform/impl/window 
 
+# glut files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
-						platform/window/glut
+						platform/glut/window
 
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_X11) += \
- 						platform/window/x11
-
+# sdl files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SDL) += \
- 						platform/window/sdl
+ 						platform/sdl/window
 
+# x11 files
+gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_X11) += \
+ 						platform/x11/window
+
+# framebuffer files
 gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_FRAMEBUFFER) += \
- 						platform/window/framebuffer
+ 						platform/framebuffer/window
 
 # ios files
 ifeq ($(PLAT),ios)
 gbox_M_FILES 			+= \
-						platform/window/ios
+						platform/ios/window
 endif
 
 # android files
 ifeq ($(PLAT),android)
 gbox_C_FILES 			+= \
- 						platform/window/android
+ 						platform/android/window
 endif
 
 # flags
@@ -117,6 +121,7 @@ INC_FILES 				= \
 						platform/touch.h \
 						platform/event.h \
 						platform/window.h \
+						platform/application.h \
 						engine/engine.h \
 						engine/prefix.h 		
 

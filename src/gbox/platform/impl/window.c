@@ -17,20 +17,21 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.c
+ * @file        window.c
  * @ingroup     platform
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "window_prefix"
+#define TB_TRACE_MODULE_NAME            "window_impl"
 #define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
+#include "window.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation

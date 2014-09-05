@@ -25,7 +25,7 @@
  * includes
  */
 #include "window.h"
-#include "window/prefix.h"
+#include "impl/window.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

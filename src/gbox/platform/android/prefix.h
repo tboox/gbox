@@ -14,47 +14,19 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
  * @file        prefix.h
- * @defgroup    platform
+ * @ingroup     platform
  */
-#ifndef GB_PLATFORM_H
-#define GB_PLATFORM_H
+#ifndef GB_PLATFORM_ANDROID_PREFIX_H
+#define GB_PLATFORM_ANDROID_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "touch.h"
-#include "event.h"
-#include "window.h"
-#include "application.h"
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_enter__
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
- */
-
-/*! init platform
- *
- * @return  tb_true or tb_false
- */
-tb_bool_t   gb_platform_init(tb_noarg_t);
-
-/*! exit platform
- */
-tb_void_t   gb_platform_exit(tb_noarg_t);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
+#include "../prefix.h"
 
 #endif
 

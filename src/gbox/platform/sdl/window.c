@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        sdl.c
+ * @file        window.c
  * @ingroup     platform
  *
  */
@@ -32,6 +32,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../impl/window.h"
 #include <SDL/SDL.h>
 
 /* //////////////////////////////////////////////////////////////////////////////////////

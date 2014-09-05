@@ -17,11 +17,11 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        window.h
  * @ingroup     platform
  */
-#ifndef GB_PLATFORM_WINDOW_PREFIX_H
-#define GB_PLATFORM_WINDOW_PREFIX_H
+#ifndef GB_PLATFORM_IMPL_WINDOW_H
+#define GB_PLATFORM_IMPL_WINDOW_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
