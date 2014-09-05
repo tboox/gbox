@@ -523,7 +523,7 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag)
+gb_window_ref_t gb_window_init_glut(gb_window_info_ref_t info)
 {
     // done
     tb_bool_t               ok = tb_false;
@@ -532,7 +532,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
     {
         // check
         tb_assert_and_check_break(info && info->framerate);
-        tb_assert_and_check_break(width && width <= GB_WIDTH_MAXN && height && height <= GB_HEIGHT_MAXN);
+        tb_assert_and_check_break(info->width && info->width <= GB_WIDTH_MAXN && info->height && info->height <= GB_HEIGHT_MAXN);
 
         // make window
         impl = tb_malloc0_type(gb_window_glut_impl_t);
@@ -541,9 +541,9 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         // init base
         impl->base.type         = GB_WINDOW_TYPE_GLUT;
         impl->base.mode         = GB_WINDOW_MODE_GL;
-        impl->base.flag         = flag;
-        impl->base.width        = (tb_uint16_t)width;
-        impl->base.height       = (tb_uint16_t)height;
+        impl->base.flag         = info->flag;
+        impl->base.width        = info->width;
+        impl->base.height       = info->height;
         impl->base.loop         = gb_window_glut_loop;
         impl->base.exit         = gb_window_glut_exit;
         impl->base.fullscreen   = gb_window_glut_fullscreen;
@@ -572,11 +572,11 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_t const* info, tb_size_t widt
         glutInitWindowSize(impl->base.width, impl->base.height);
 
         // check: not implementation
-        tb_assert(!(flag & GB_WINDOW_FLAG_MAXIMUM));
-        tb_assert(!(flag & GB_WINDOW_FLAG_MINIMUM));
-        tb_assert(!(flag & GB_WINDOW_FLAG_HIHE));
-        tb_assert(!(flag & GB_WINDOW_FLAG_HIHE_TITLEBAR));
-        tb_assert(!(flag & GB_WINDOW_FLAG_NOT_REISZE));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_MAXIMUM));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_MINIMUM));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE_TITLEBAR));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_NOT_REISZE));
 
         // ok
         ok = tb_true;

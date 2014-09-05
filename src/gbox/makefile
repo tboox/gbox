@@ -55,6 +55,7 @@ gbox_C_FILES 			+= \
 						platform/platform \
 						platform/event \
 						platform/window \
+						platform/application \
 						platform/impl/window 
 
 # glut files
@@ -122,8 +123,8 @@ INC_FILES 				= \
 						platform/event.h \
 						platform/window.h \
 						platform/application.h \
-						engine/engine.h \
-						engine/prefix.h 		
+						game/game.h \
+						game/prefix.h 		
 
 # demo
 SUB_PROS-$(DEMO) 		+= ../demo

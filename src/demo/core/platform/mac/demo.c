@@ -34,6 +34,9 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
     gb_window_info_t info   = {0};
     info.title              = "demo";
     info.framerate          = 60;
+    info.flag               = GB_WINDOW_FLAG_NONE;
+    info.width              = GB_DEMO_WIDTH;
+    info.height             = GB_DEMO_HEIGHT;
     info.init               = gb_demo_init;
     info.exit               = gb_demo_exit;
     info.draw               = gb_demo_draw;
@@ -42,9 +45,9 @@ tb_int_t main(tb_int_t argc, tb_char_t** argv)
 
     // init window
 #ifdef GB_CONFIG_APP_WINDOW_SDL
-    gb_window_ref_t window = gb_window_init_sdl(&info, GB_DEMO_WIDTH, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_NONE);
+    gb_window_ref_t window = gb_window_init_sdl(&info);
 #else
-    gb_window_ref_t window = gb_window_init(&info, GB_DEMO_HEIGHT, GB_DEMO_HEIGHT, GB_WINDOW_FLAG_NONE);
+    gb_window_ref_t window = gb_window_init(&info);
 #endif
     if (window)
     {

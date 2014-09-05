@@ -18,15 +18,14 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @defgroup    engine
  */
-#ifndef GB_ENGINE_H
-#define GB_ENGINE_H
+#ifndef GB_GAME_PREFIX_H
+#define GB_GAME_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "../prefix.h"
 
 #endif
 

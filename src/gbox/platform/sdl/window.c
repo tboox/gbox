@@ -354,7 +354,7 @@ static tb_void_t gb_window_sdl_fullscreen(gb_window_ref_t window, tb_bool_t full
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_window_ref_t gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag)
+gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
 {
     // done
     tb_bool_t               ok = tb_false;
@@ -363,7 +363,7 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width
     {
         // check
         tb_assert_and_check_break(info && info->framerate);
-        tb_assert_and_check_break(width && width <= GB_WIDTH_MAXN && height && height <= GB_HEIGHT_MAXN);
+        tb_assert_and_check_break(info->width && info->width <= GB_WIDTH_MAXN && info->height && info->height <= GB_HEIGHT_MAXN);
 
         // make window
         impl = tb_malloc0_type(gb_window_sdl_impl_t);
@@ -372,17 +372,17 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width
         // init base
         impl->base.type         = GB_WINDOW_TYPE_SDL;
         impl->base.mode         = GB_WINDOW_MODE_BITMAP;
-        impl->base.flag         = flag;
-        impl->base.width        = (tb_uint16_t)width;
-        impl->base.height       = (tb_uint16_t)height;
+        impl->base.flag         = info->flag;
+        impl->base.width        = info->width;
+        impl->base.height       = info->height;
         impl->base.loop         = gb_window_sdl_loop;
         impl->base.exit         = gb_window_sdl_exit;
         impl->base.fullscreen   = gb_window_sdl_fullscreen;
         impl->base.info         = *info;
 
         // init normal width and height
-        impl->normal_width      = (tb_uint16_t)width;
-        impl->normal_height     = (tb_uint16_t)height;
+        impl->normal_width      = info->width;
+        impl->normal_height     = info->height;
 
         /* init pixfmt
          * 
@@ -406,13 +406,13 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width
 
         // init mode
         tb_size_t mode = SDL_DOUBLEBUF;
-        if (flag & GB_WINDOW_FLAG_HIHE_TITLEBAR) mode |= SDL_NOFRAME;
-        if (flag & GB_WINDOW_FLAG_FULLSCREEN) mode |= SDL_FULLSCREEN;
-        if (flag & GB_WINDOW_FLAG_NOT_REISZE) mode &= ~SDL_RESIZABLE;
+        if (info->flag & GB_WINDOW_FLAG_HIHE_TITLEBAR) mode |= SDL_NOFRAME;
+        if (info->flag & GB_WINDOW_FLAG_FULLSCREEN) mode |= SDL_FULLSCREEN;
+        if (info->flag & GB_WINDOW_FLAG_NOT_REISZE) mode &= ~SDL_RESIZABLE;
         else mode |= SDL_RESIZABLE;
 
         // fullscreen? update the window size
-        if (flag & GB_WINDOW_FLAG_FULLSCREEN)
+        if (info->flag & GB_WINDOW_FLAG_FULLSCREEN)
         {
             impl->base.width    = (tb_uint16_t)tb_screen_width();
             impl->base.height   = (tb_uint16_t)tb_screen_height();
@@ -432,9 +432,9 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width
         tb_assert_and_check_break(impl->base.bitmap);
 
         // check: not implementation
-        tb_assert(!(flag & GB_WINDOW_FLAG_MAXIMUM));
-        tb_assert(!(flag & GB_WINDOW_FLAG_MINIMUM));
-        tb_assert(!(flag & GB_WINDOW_FLAG_HIHE));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_MAXIMUM));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_MINIMUM));
+        tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE));
 
         // ok
         ok = tb_true;

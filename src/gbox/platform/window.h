@@ -126,7 +126,16 @@ typedef struct __gb_window_info_t
     tb_char_t const*                title;
 
     /// the framerate
-    tb_size_t                       framerate;
+    tb_uint8_t                      framerate;
+
+    /// the flag
+    tb_uint8_t                      flag;
+
+    /// the width
+    tb_uint16_t                     width;
+
+    /// the height
+    tb_uint16_t                     height;
 
     /// the init func
     gb_window_init_func_t           init;
@@ -152,7 +161,7 @@ typedef struct __gb_window_info_t
      */
     tb_cpointer_t                   hint;
 
-}gb_window_info_t;
+}gb_window_info_t, *gb_window_info_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -161,64 +170,49 @@ typedef struct __gb_window_info_t
 /*! init window 
  *
  * @param info          the window info
- * @param width         the window width
- * @param height        the window height
- * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+gb_window_ref_t         gb_window_init(gb_window_info_ref_t info);
 
 #ifdef GB_CONFIG_THIRD_HAVE_GLUT
 /*! init glut window 
  *
  * @param info          the window info
- * @param width         the window width
- * @param height        the window height
- * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_glut(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+gb_window_ref_t         gb_window_init_glut(gb_window_info_ref_t info);
 #endif
 
 #ifdef GB_CONFIG_THIRD_HAVE_SDL
 /*! init sdl window 
  *
  * @param info          the window info
- * @param width         the window width
- * @param height        the window height
- * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_sdl(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+gb_window_ref_t         gb_window_init_sdl(gb_window_info_ref_t info);
 #endif
 
 #ifdef GB_CONFIG_THIRD_HAVE_X11
 /*! init x11 window 
  *
  * @param info          the window info
- * @param width         the window width
- * @param height        the window height
- * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_x11(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+gb_window_ref_t         gb_window_init_x11(gb_window_info_ref_t info);
 #endif
 
 #ifdef GB_CONFIG_THIRD_HAVE_FRAMEBUFFER
 /*! init framebuffer window 
  *
  * @param info          the window info
- * @param width         the window width
- * @param height        the window height
- * @param flag          the window flag
  *
  * @return              the window
  */
-gb_window_ref_t         gb_window_init_framebuffer(gb_window_info_t const* info, tb_size_t width, tb_size_t height, tb_size_t flag);
+gb_window_ref_t         gb_window_init_framebuffer(gb_window_info_ref_t info);
 #endif
 
 /*! exit window 
