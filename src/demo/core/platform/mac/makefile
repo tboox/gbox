@@ -22,7 +22,7 @@ demo_C_FILES 								+= \
 # libs
 demo_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE)
 demo_LIBS-y 								+= $(GB_CONFIG_DEMO_LIBS)
-demo_LIBS-$(GB_CONFIG_THIRD_HAVE_SDL)  		+= SDL 
+demo_LIBS-$(GB_CONFIG_THIRD_HAVE_SDL)  		+= SDL SDLmain
 
 # path
 demo_INC_DIR 								+= ../../../../

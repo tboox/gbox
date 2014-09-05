@@ -53,15 +53,19 @@ typedef enum __gb_event_type_e
 /// the keycode enum
 typedef enum __gb_key_e
 {
+    /// ascii mapped keys
+    /// @{
     GB_KEY_NUL              = 0x00
 ,   GB_KEY_BACKSPACE        = 0x08
 ,   GB_KEY_TAB              = 0x09
-,   GB_KEY_TAB_BACK         = 0x19
 ,   GB_KEY_RETURN           = 0x0d
 ,   GB_KEY_ESCAPE           = 0x1b
 ,   GB_KEY_SPACE            = 0x20
 ,   GB_KEY_DELETE           = 0x7f
+    /// @}
 
+    /// function keys
+    /// @{
 ,   GB_KEY_F1               = 0x0100
 ,   GB_KEY_F2
 ,   GB_KEY_F3
@@ -74,34 +78,61 @@ typedef enum __gb_key_e
 ,   GB_KEY_F10
 ,   GB_KEY_F11
 ,   GB_KEY_F12 
+    /// @}
 
+    /// arrows keys
+    /// @{
 ,   GB_KEY_LEFT   
 ,   GB_KEY_UP         
 ,   GB_KEY_RIGHT    
 ,   GB_KEY_DOWN   
+    /// @}
 
+    /// home/end keys
+    /// @{
 ,   GB_KEY_HOME
 ,   GB_KEY_END
 ,   GB_KEY_INSERT
-,   GB_KEY_PAGE_UP  
-,   GB_KEY_PAGE_DOWN 
+,   GB_KEY_PAGEUP  
+,   GB_KEY_PAGEDOWN 
+    /// @}
 
+    /// miscellaneous function keys
+    /// @{
+,   GB_KEY_HELP
 ,   GB_KEY_PRINT 
 ,   GB_KEY_SYSREQ
-,   GB_KEY_SCROLL_LOCK
-,   GB_KEY_PAUSE
 ,   GB_KEY_BREAK
-
-,   GB_KEY_CAPS_LOCK
-,   GB_KEY_SHIFT
-,   GB_KEY_CTRL
-,   GB_KEY_ALT
-
 ,   GB_KEY_MENU
-,   GB_KEY_PLAY
+,   GB_KEY_POWER                //!< power macintosh power key
+,   GB_KEY_EURO                 //!< some european keyboards
+,   GB_KEY_UNDO                 //!< atari keyboard has undo
+    /// @}
+
+    /// key state modifier keys
+    /// @{
+,   GB_KEY_NUMLOCK
+,   GB_KEY_CAPSLOCK
+,   GB_KEY_SCROLLLOCK
+,   GB_KEY_RSHIFT
+,   GB_KEY_LSHIFT
+,   GB_KEY_RCTRL
+,   GB_KEY_LCTRL
+,   GB_KEY_RALT
+,   GB_KEY_LALT
+,   GB_KEY_RCMD                 //!< right command for macintosh
+,   GB_KEY_LCMD                 //!< left command for macintosh
+    /// @}
+
+    /// other keys
+    /// @
+,   GB_KEY_PAUSE
 ,   GB_KEY_SEARCH
+,   GB_KEY_TABBACK
 ,   GB_KEY_BACK             = GB_KEY_ESCAPE
 ,   GB_KEY_ENTER            = GB_KEY_RETURN
+,   GB_KEY_PLAY             = GB_KEY_RETURN
+    /// @}
 
 }gb_key_e;
 

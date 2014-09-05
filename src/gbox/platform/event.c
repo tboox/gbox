@@ -81,7 +81,7 @@ tb_void_t gb_event_dump(gb_event_ref_t event)
             if (event->u.keyboard.code < 256) 
             {
                 // format
-                if (tb_isgraph(event->u.keyboard.code)) 
+                if (tb_isgraph(event->u.keyboard.code) && !tb_isspace(event->u.keyboard.code)) 
                     tb_snprintf(cstr, sizeof(cstr) - 1, "%c", event->u.keyboard.code);
                 else 
                 {
@@ -91,7 +91,6 @@ tb_void_t gb_event_dump(gb_event_ref_t event)
                     case GB_KEY_NUL:        code_cstr = "nul";          break;
                     case GB_KEY_BACKSPACE:  code_cstr = "backspace";    break;
                     case GB_KEY_TAB:        code_cstr = "tab";          break;
-                    case GB_KEY_TAB_BACK:   code_cstr = "tab_back";     break;
                     case GB_KEY_RETURN:     code_cstr = "return";       break;
                     case GB_KEY_ESCAPE:     code_cstr = "escape";       break;
                     case GB_KEY_SPACE:      code_cstr = "space";        break;
@@ -131,23 +130,33 @@ tb_void_t gb_event_dump(gb_event_ref_t event)
                 ,   "home"
                 ,   "end"
                 ,   "insert"
-                ,   "page_up"
-                ,   "page_down"
+                ,   "pageup"
+                ,   "pagedown"
 
+                ,   "help"
                 ,   "print"
                 ,   "sysreq"
-                ,   "scroll_lock"
-                ,   "pause"
                 ,   "break"
-
-                ,   "caps_lock"
-                ,   "shift"
-                ,   "ctrl"
-                ,   "alt"
-
                 ,   "menu"
-                ,   "play"
+                ,   "power"
+                ,   "euro"
+                ,   "undo"
+
+                ,   "numlock"
+                ,   "capslock"
+                ,   "scrolllock"
+                ,   "rshift"
+                ,   "lshift"
+                ,   "rctrl"
+                ,   "lctrl"
+                ,   "ralt"
+                ,   "lalt"
+                ,   "rcmd"
+                ,   "lcmd"
+
+                ,   "pause"
                 ,   "search"
+                ,   "tabback"
                 };
                 tb_assert_and_check_break(code < tb_arrayn(code_cstr));
 

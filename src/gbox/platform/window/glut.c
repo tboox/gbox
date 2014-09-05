@@ -181,8 +181,10 @@ static tb_uint16_t gb_window_glut_special_map(tb_int_t key)
     case GLUT_KEY_HOME:         code = GB_KEY_HOME;         break;
     case GLUT_KEY_END:          code = GB_KEY_END;          break;
     case GLUT_KEY_INSERT:       code = GB_KEY_INSERT;       break;
-    case GLUT_KEY_PAGE_UP:      code = GB_KEY_PAGE_UP;      break;
-    case GLUT_KEY_PAGE_DOWN:    code = GB_KEY_PAGE_DOWN;    break;
+    case GLUT_KEY_PAGE_UP:      code = GB_KEY_PAGEUP;       break;
+    case GLUT_KEY_PAGE_DOWN:    code = GB_KEY_PAGEDOWN;     break;
+
+    case 0x19:                  code = GB_KEY_TABBACK;      break;
 
     default:
         // trace

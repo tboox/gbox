@@ -41,9 +41,10 @@ static tb_void_t gb_device_bitmap_resize(gb_device_impl_t* device, tb_size_t wid
 {
     // check
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && impl->bitmap);
 
-    tb_trace_noimpl();
+    // resize
+    gb_bitmap_resize(impl->bitmap, width, height);
 }
 static tb_void_t gb_device_bitmap_draw_clear(gb_device_impl_t* device, gb_color_t color)
 {
