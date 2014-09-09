@@ -26,7 +26,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "window_sdl"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -237,6 +237,24 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
                     // ...
                 }
                 break;
+            case SDL_ACTIVEEVENT:
+                {
+                    // trace
+                    tb_trace_d("active: type: %d, gain: %d, state: %d", evet.active.type, evet.active.gain, evet.active.state);
+
+                    // active?
+                    if (evet.active.state == SDL_APPACTIVE)
+                    {
+                        // init event
+                        gb_event_t              event = {0};
+                        event.type              = GB_EVENT_TYPE_ACTIVE;
+                        event.u.active.code     = evet.active.gain? GB_ACTIVE_FOREGROUND : GB_ACTIVE_BACKGROUND;
+
+                        // done event
+                        gb_window_impl_event((gb_window_ref_t)impl, &event);
+                    }
+                }
+                break;
             case SDL_QUIT:
                 {
                     // stop it
@@ -396,7 +414,7 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
         if (SDL_Init(SDL_INIT_VIDEO) < 0) break;
 
         // ignore some events
-        SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);
+//        SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);
         SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
         SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
 
@@ -430,11 +448,6 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
         // init bitmap
         impl->base.bitmap = gb_bitmap_init(impl->surface->pixels, impl->base.pixfmt, impl->base.width, impl->base.height, impl->surface->pitch, tb_false);
         tb_assert_and_check_break(impl->base.bitmap);
-
-        // check: not implementation
-        tb_assert(!(info->flag & GB_WINDOW_FLAG_MAXIMUM));
-        tb_assert(!(info->flag & GB_WINDOW_FLAG_MINIMUM));
-        tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE));
 
         // ok
         ok = tb_true;

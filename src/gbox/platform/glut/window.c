@@ -84,9 +84,6 @@ static tb_void_t gb_window_glut_display()
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->canvas);
 
-    // trace
-//    tb_trace_d("draw");
-
     // done draw
     gb_window_impl_draw((gb_window_ref_t)impl, impl->canvas);
 
@@ -98,8 +95,6 @@ static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
     // check
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
-
-    // minimum?
     tb_check_return(width && height);
 
     // trace
@@ -333,6 +328,23 @@ static tb_void_t gb_window_glut_timer(tb_int_t value)
     // next timer
     glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, value);
 }
+static tb_void_t gb_window_glut_visibility(tb_int_t state)
+{
+    // check
+    gb_window_glut_impl_t* impl = gb_window_glut_get();
+    tb_assert_and_check_return(impl && impl->canvas);
+
+    // trace
+    tb_trace_d("visibility: %d", state);
+ 
+    // init event
+    gb_event_t              event = {0};
+    event.type              = GB_EVENT_TYPE_ACTIVE;
+    event.u.active.code     = state == GLUT_VISIBLE? GB_ACTIVE_FOREGROUND : GB_ACTIVE_BACKGROUND;
+
+    // done event
+    gb_window_impl_event((gb_window_ref_t)impl, &event);
+}
 #ifndef TB_CONFIG_OS_WINDOWS
 static tb_void_t gb_window_glut_close()
 { 
@@ -511,6 +523,7 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
         glutMotionFunc(gb_window_glut_motion);
         glutPassiveMotionFunc(gb_window_glut_motion);
         glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, impl->id);
+        glutVisibilityFunc(gb_window_glut_visibility);
 #ifndef TB_CONFIG_OS_WINDOWS
         glutWMCloseFunc(gb_window_glut_close);
 #endif
@@ -572,9 +585,6 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_ref_t info)
         glutInitWindowSize(impl->base.width, impl->base.height);
 
         // check: not implementation
-        tb_assert(!(info->flag & GB_WINDOW_FLAG_MAXIMUM));
-        tb_assert(!(info->flag & GB_WINDOW_FLAG_MINIMUM));
-        tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE));
         tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE_TITLEBAR));
         tb_assert(!(info->flag & GB_WINDOW_FLAG_NOT_REISZE));
 

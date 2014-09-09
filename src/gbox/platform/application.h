@@ -60,52 +60,6 @@ typedef struct{}*       gb_application_ref_t;
  */
 typedef tb_bool_t       (*gb_application_init_func_t)(gb_application_ref_t application, gb_window_info_ref_t info);
 
-/*! the application exit
- *
- * @param application   the application
- */
-typedef tb_void_t       (*gb_application_exit_func_t)(gb_application_ref_t application);
-
-/*! the application have been loaded
- *
- * @param application   the application
- *
- * @return              tb_true or tb_false
- */
-typedef tb_bool_t       (*gb_application_loaded_func_t)(gb_application_ref_t application);
-
-/*! the application will enter background
- *
- * @param application   the application
- */
-typedef tb_void_t       (*gb_application_background_func_t)(gb_application_ref_t application);
-
-/*! the application will enter foreground
- *
- * @param application   the application
- */
-typedef tb_void_t       (*gb_application_foreground_func_t)(gb_application_ref_t application);
-
-/// the application func type
-typedef struct __gb_application_func_t
-{
-    /// the init func
-    gb_application_init_func_t          init;
-
-    /// the exit func
-    gb_application_exit_func_t          exit;
-
-    /// the loaded func
-    gb_application_loaded_func_t        loaded;
-
-    /// the background func
-    gb_application_background_func_t    background;
-
-    /// the foreground func
-    gb_application_foreground_func_t    foreground;
-
-}gb_application_func_t, *gb_application_func_ref_t;
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
@@ -120,11 +74,11 @@ gb_application_ref_t    gb_application(tb_noarg_t);
  *
  * @param argc          the arguments count
  * @param argv          the arguments list
- * @param func          the application func
+ * @param init          the application init func
  *
  * @return              the error code, ok: 0
  */
-tb_int_t                gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_func_ref_t func);
+tb_int_t                gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_init_func_t init);
 
 /*! the application arguments count
  *

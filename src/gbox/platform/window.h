@@ -66,13 +66,10 @@ typedef enum __gb_window_mode_e
 typedef enum __gb_window_flag_e
 {
     GB_WINDOW_FLAG_NONE             = 0
-,   GB_WINDOW_FLAG_MAXIMUM          = 1
-,   GB_WINDOW_FLAG_MINIMUM          = 2
-,   GB_WINDOW_FLAG_FULLSCREEN       = 4
-,   GB_WINDOW_FLAG_HIHE             = 8
-,   GB_WINDOW_FLAG_HIHE_TITLEBAR    = 16
-,   GB_WINDOW_FLAG_HIHE_CURSOR      = 32
-,   GB_WINDOW_FLAG_NOT_REISZE       = 64
+,   GB_WINDOW_FLAG_FULLSCREEN       = 1
+,   GB_WINDOW_FLAG_HIHE_TITLEBAR    = 2
+,   GB_WINDOW_FLAG_HIHE_CURSOR      = 4
+,   GB_WINDOW_FLAG_NOT_REISZE       = 8
 
 }gb_window_flag_e;
 
@@ -307,27 +304,6 @@ gb_float_t              gb_window_framerate(gb_window_ref_t window);
  * @param fullscreen    is fullscreen?
  */
 tb_void_t               gb_window_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen);
-
-/*! enter or leave the maximum only for the desktop window
- *
- * @param window        the window
- * @param maximum       is maximum?
- */
-tb_void_t               gb_window_maximum(gb_window_ref_t window, tb_bool_t maximum);
-
-/*! enter or leave the minimum only for the desktop window
- *
- * @param window        the window
- * @param minimum       is minimum?
- */
-tb_void_t               gb_window_minimum(gb_window_ref_t window, tb_bool_t minimum);
-
-/*! show or hide the desktop window
- *
- * @param window        the window
- * @param show          is show?
- */
-tb_void_t               gb_window_show(gb_window_ref_t window, tb_bool_t show);
 
 /*! the window timer
  *

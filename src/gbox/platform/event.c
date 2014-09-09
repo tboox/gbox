@@ -185,6 +185,21 @@ tb_void_t gb_event_dump(gb_event_ref_t event)
             tb_trace_i("touch: %s, count: %u", code_cstr[event->u.touch.code], event->u.touch.count);
         }
         break;
+    case GB_EVENT_TYPE_ACTIVE:
+        {
+            // the code strings
+            tb_char_t const* code_cstr[] =
+            {
+                "none"
+            ,   "background"
+            ,   "foreground"
+            };
+            tb_assert_and_check_break(event->u.active.code < tb_arrayn(code_cstr));
+
+            // trace
+            tb_trace_i("active: %s", code_cstr[event->u.active.code]);
+        }
+        break;
     default:
         // trace
         tb_trace_e("invalid type: %u", event->type);

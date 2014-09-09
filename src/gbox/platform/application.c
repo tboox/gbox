@@ -45,9 +45,6 @@ typedef struct __gb_application_impl_t
     // the window info
     gb_window_info_t            info;
 
-    // the func
-    gb_application_func_t       func;
-
     // the window
     gb_window_ref_t             window;
 
@@ -64,53 +61,13 @@ typedef struct __gb_application_impl_t
 static gb_application_ref_t     g_application = tb_null;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * private implementation
- */
-static tb_bool_t gb_application_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
-{
-    // check
-    gb_application_impl_t* impl = (gb_application_impl_t*)g_application;
-    tb_assert_and_check_return_val(impl, tb_false);
-
-    // notify: init window
-    if (impl->info.init && !impl->info.init(window, canvas, priv)) return tb_false;
-
-    // notify: application have been loaded
-    if (impl->func.loaded && !impl->func.loaded((gb_application_ref_t)impl)) return tb_false;
-
-    // ok
-    return tb_true;
-}
-static tb_void_t gb_application_exit(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
-{
-    // check
-    gb_application_impl_t* impl = (gb_application_impl_t*)g_application;
-    tb_assert_and_check_return(impl);
-
-    // notify: exit application
-    if (impl->func.exit) impl->func.exit((gb_application_ref_t)impl);
-
-    // notify: exit window
-    if (impl->info.exit) impl->info.exit(window, canvas, priv);
-}
-static tb_void_t gb_application_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv)
-{
-    // check
-    gb_application_impl_t* impl = (gb_application_impl_t*)g_application;
-    tb_assert_and_check_return(impl);
-
-    // notify: event
-    if (impl->info.event) impl->info.event(window, event, priv);
-}
-
-/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
 gb_application_ref_t gb_application()
 {
     return g_application;
 }
-tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_func_ref_t func)
+tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_init_func_t init)
 {
     // done
     tb_int_t                ok = -1;
@@ -118,7 +75,7 @@ tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_fun
     do
     {
         // check
-        tb_assert_and_check_break(func && func->init);
+        tb_assert_and_check_break(init);
 
         // init tbox
         if (!tb_init(tb_null, tb_null, 0)) break;
@@ -137,29 +94,20 @@ tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_fun
         impl->argc = argc;
         impl->argv = argv;
 
-        // save func
-        impl->func = *func;
-
         // init window info
         impl->info.framerate    = 60;
         impl->info.flag         = GB_WINDOW_FLAG_NONE;
 
         // notify: init application
-        if (!func->init((gb_application_ref_t)impl, &impl->info)) break;
-
-        // init window info
-        gb_window_info_t info   = impl->info;
-        info.init               = gb_application_init;
-        info.exit               = gb_application_exit;
-        info.event              = gb_application_event;
+        if (!init((gb_application_ref_t)impl, &impl->info)) break;
 
         // init window
 #if defined(GB_CONFIG_APP_WINDOW_SDL)
-        impl->window = gb_window_init_sdl(&info);
+        impl->window = gb_window_init_sdl(&impl->info);
 #elif defined(GB_CONFIG_APP_WINDOW_FRAMEBUFFER)
-        impl->window = gb_window_init_framebuffer(&info);
+        impl->window = gb_window_init_framebuffer(&impl->info);
 #else
-        impl->window = gb_window_init(&info);
+        impl->window = gb_window_init(&impl->info);
 #endif
         tb_assert_and_check_break(impl->window);
 

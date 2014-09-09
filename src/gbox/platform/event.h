@@ -43,10 +43,11 @@ __tb_extern_c_enter__
 typedef enum __gb_event_type_e
 {
     GB_EVENT_TYPE_NONE      = 0     //!< none
-,   GB_EVENT_TYPE_TOUCH     = 1     //!< touch event
-,   GB_EVENT_TYPE_MOUSE     = 2     //!< mouse event
-,   GB_EVENT_TYPE_KEYBOARD  = 3     //!< keyboard event
-,   GB_EVENT_TYPE_USER      = 4     //!< user defined event
+,   GB_EVENT_TYPE_ACTIVE    = 1     //!< active event
+,   GB_EVENT_TYPE_TOUCH     = 2     //!< touch event
+,   GB_EVENT_TYPE_MOUSE     = 3     //!< mouse event
+,   GB_EVENT_TYPE_KEYBOARD  = 4     //!< keyboard event
+,   GB_EVENT_TYPE_USER      = 5     //!< user defined event
 
 }gb_event_type_e;
 
@@ -214,6 +215,23 @@ typedef struct __gb_event_touch_t
 
 }gb_event_touch_t;
 
+/// the active code enum
+typedef enum __gb_active_code_e
+{
+    GB_ACTIVE_NONE          = 0     //!< none
+,   GB_ACTIVE_BACKGROUND    = 1     //!< enter background 
+,   GB_ACTIVE_FOREGROUND    = 2     //!< enter foreground
+
+}gb_active_code_e;
+
+/// the active event type 
+typedef struct __gb_event_active_t
+{
+    /// the event code
+    tb_uint8_t              code;
+
+}gb_event_active_t;
+
 /// the event type 
 typedef struct __gb_event_t
 {
@@ -223,6 +241,9 @@ typedef struct __gb_event_t
     /// the event
     union
     {
+        /// the active event
+        gb_event_active_t   active;
+
         /// the touch event
         gb_event_touch_t    touch;
     
