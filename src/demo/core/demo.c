@@ -87,7 +87,7 @@ static tb_void_t gb_demo_info(tb_bool_t killed, tb_cpointer_t priv)
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
+tb_bool_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(window);
@@ -111,6 +111,9 @@ tb_void_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
 
     // done init
     entry->init(window);
+
+    // ok
+    return tb_true;
 }
 tb_void_t gb_demo_exit(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {

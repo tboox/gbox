@@ -407,7 +407,7 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     tb_assert_abort(impl->canvas);
 
     // done init
-    if (impl->base.info.init) impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
+    if (impl->base.info.init && !impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv)) return ;
 
     // loop
 #ifdef TB_CONFIG_OS_WINDOWS

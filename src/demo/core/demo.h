@@ -20,8 +20,10 @@ __tb_extern_c_enter__
  * @param window    the window
  * @param canvas    the canvas
  * @param priv      the user private data
+ *
+ * @return          tb_true or tb_false
  */
-tb_void_t           gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+tb_bool_t           gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
 /* exit window
  *

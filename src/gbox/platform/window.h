@@ -84,8 +84,10 @@ typedef struct{}*           gb_window_ref_t;
  * @param window            the window
  * @param canvas            the canvas
  * @param priv              the user private data
+ *
+ * @return                  tb_true or tb_false
  */
-typedef tb_void_t           (*gb_window_init_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
+typedef tb_bool_t           (*gb_window_init_func_t)(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv);
 
 /*! the window exit func type
  *

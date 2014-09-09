@@ -30,6 +30,16 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// force using sdl window for application
+#ifdef GB_CONFIG_APP_WINDOW_SDL
+#   undef main
+#   define main SDL_main
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_enter__
@@ -41,35 +51,6 @@ __tb_extern_c_enter__
 /// the application ref type
 typedef struct{}*       gb_application_ref_t;
 
-/// the application info type
-typedef struct __gb_application_info_t
-{
-    /// the window title
-    tb_char_t const*    title;
-
-    /// the width framerate
-    tb_uint8_t          framerate;
-
-    /// the width flag
-    tb_uint8_t          flag;
-
-    /// the width width
-    tb_uint16_t         width;
-
-    /// the width height
-    tb_uint16_t         height;
-
-    /*! the hint data
-     *
-     * - framebuffer: the device name, .e.g: "/dev/fb0", ...
-     */
-    tb_cpointer_t       hint;
-
-    /// the engine
-    tb_cpointer_t       engine;
-
-}gb_application_info_t, *gb_application_info_ref_t;
-
 /*! the application init func type
  *
  * @param application   the application
@@ -77,7 +58,7 @@ typedef struct __gb_application_info_t
  *
  * @return              tb_true or tb_false
  */
-typedef tb_bool_t       (*gb_application_init_func_t)(gb_application_ref_t application, gb_application_info_ref_t info);
+typedef tb_bool_t       (*gb_application_init_func_t)(gb_application_ref_t application, gb_window_info_ref_t info);
 
 /*! the application exit
  *
