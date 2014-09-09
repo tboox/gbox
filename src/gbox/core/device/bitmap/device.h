@@ -43,10 +43,7 @@ typedef struct __gb_bitmap_device_t
     // the pixmap
     gb_pixmap_ref_t             pixmap;
 
-}gb_bitmap_device_t;
-
-// the bitmap device ref type
-typedef gb_bitmap_device_t*     gb_bitmap_device_ref_t;
+}gb_bitmap_device_t, *gb_bitmap_device_ref_t;
 
 #endif
 

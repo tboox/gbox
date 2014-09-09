@@ -72,10 +72,7 @@ typedef struct __gb_gl_device_t
     // the render
     gb_gl_render_t              render;
 
-}gb_gl_device_t;
-
-// the gl device ref type
-typedef gb_gl_device_t*         gb_gl_device_ref_t;
+}gb_gl_device_t, *gb_gl_device_ref_t;
 
 #endif
 

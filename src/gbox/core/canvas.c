@@ -185,11 +185,7 @@ gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
     do
     {
         // init device 
-#if 0//def GB_CONFIG_THIRD_HAVE_SKIA
-        device = gb_device_init_skia(bitmap);
-#else
         device = gb_device_init_bitmap(bitmap);
-#endif
         tb_assert_and_check_break(device);
 
         // init canvas 

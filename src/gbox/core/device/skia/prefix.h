@@ -19,7 +19,6 @@
  * @author      ruki
  * @file        prefix.h
  * @ingroup     core
- *
  */
 #ifndef GB_CORE_DEVICE_SKIA_PREFIX_H
 #define GB_CORE_DEVICE_SKIA_PREFIX_H
@@ -28,6 +27,7 @@
  * includes
  */
 #include "../prefix.h"
+#include <skia/core/SkCanvas.h>
 
 #endif
 

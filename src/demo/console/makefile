@@ -16,6 +16,10 @@ demo_C_FILES 								+= \
 # libs
 demo_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE) 
 demo_LIBS-y 								+= $(GB_CONFIG_DEMO_LIBS)
+demo_LIBS-$(GB_CONFIG_THIRD_HAVE_PNG)  		+= png 
+demo_LIBS-$(GB_CONFIG_THIRD_HAVE_JPEG) 		+= jpeg 
+demo_LIBS-$(GB_CONFIG_THIRD_HAVE_FREETYPE) 	+= freetype bz2
+demo_LIBS-$(GB_CONFIG_THIRD_HAVE_SKIA)  	+= skia 
 demo_LIBS-$(GB_CONFIG_THIRD_HAVE_SDL)  		+= SDL 
 demo_LIBS-$(GB_CONFIG_APP_WINDOW_SDL)  		+= SDLmain
 

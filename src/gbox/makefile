@@ -47,7 +47,7 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
 						core/device/gl/program/bitmap 
 
 # skia core files
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
+gbox_CPP_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
 						core/device/skia
 
 # platform files
@@ -92,6 +92,7 @@ gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
 # header files
 INC_FILES 				= \
 						gbox.h \
+						gbox.config.h \
 						config.h \
 						prefix.h \
 						prefix/prefix.h \
