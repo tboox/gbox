@@ -11,7 +11,7 @@
 #define GB_CONFIG_VERSION_ALTER         1
 
 // build version
-#define GB_CONFIG_VERSION_BUILD         201409101617
+#define GB_CONFIG_VERSION_BUILD         201409101751
 
 // small
 #define GB_CONFIG_SMALL                 (0)
@@ -20,7 +20,7 @@
 #define GB_CONFIG_FLOAT_FIXED
 
 // gl
-#define GB_CONFIG_GL_APICALL            __tb_cdecl__
+#define GB_CONFIG_GL_APICALL            __tb_stdcall__
 
 // third party
 #define GB_CONFIG_THIRD_HAVE_GL
@@ -34,9 +34,8 @@
 //#define GB_CONFIG_THIRD_HAVE_FREETYPE
 
 // app window
-//#define GB_CONFIG_APP_WINDOW_NATIVE
+#define GB_CONFIG_APP_WINDOW_NATIVE
 //#define GB_CONFIG_APP_WINDOW_SDL
 //#define GB_CONFIG_APP_WINDOW_FRAMEBUFFER
-
 
 #endif

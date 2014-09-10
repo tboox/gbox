@@ -418,6 +418,9 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
         SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
         SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
 
+        // enable key repeat
+        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
         // the pixmap
         gb_pixmap_ref_t pixmap = gb_pixmap(impl->base.pixfmt, 0xff);
         tb_assert_and_check_break(pixmap);
