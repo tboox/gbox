@@ -15,7 +15,9 @@ application_C_FILES 								+= \
 													../../arc \
 													../../rect \
 													../../line \
+													../../lines \
 													../../point \
+													../../points \
 													../../circle \
 													../../ellipse \
 													../../triangle 

@@ -11,7 +11,9 @@
 #include "arc.h"
 #include "rect.h"
 #include "line.h"
+#include "lines.h"
 #include "point.h"
+#include "points.h"
 #include "circle.h"
 #include "ellipse.h"
 #include "triangle.h"
@@ -50,7 +52,9 @@ static gb_demo_entry_t  g_entries[] =
     {gb_demo_rect_init,         gb_demo_rect_exit,      gb_demo_rect_draw,      gb_demo_rect_event      }
 ,   {gb_demo_arc_init,          gb_demo_arc_exit,       gb_demo_arc_draw,       gb_demo_arc_event       }
 ,   {gb_demo_line_init,         gb_demo_line_exit,      gb_demo_line_draw,      gb_demo_line_event      }
+,   {gb_demo_lines_init,        gb_demo_lines_exit,     gb_demo_lines_draw,     gb_demo_lines_event     }
 ,   {gb_demo_point_init,        gb_demo_point_exit,     gb_demo_point_draw,     gb_demo_point_event     }
+,   {gb_demo_points_init,       gb_demo_points_exit,    gb_demo_points_draw,    gb_demo_points_event    }
 ,   {gb_demo_circle_init,       gb_demo_circle_exit,    gb_demo_circle_draw,    gb_demo_circle_event    }
 ,   {gb_demo_ellipse_init,      gb_demo_ellipse_exit,   gb_demo_ellipse_draw,   gb_demo_ellipse_event   }
 ,   {gb_demo_triangle_init,     gb_demo_triangle_exit,  gb_demo_triangle_draw,  gb_demo_triangle_event  }
