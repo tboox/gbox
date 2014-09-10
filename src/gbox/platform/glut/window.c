@@ -61,6 +61,12 @@ typedef struct __gb_window_glut_impl_t
     // the button
     tb_size_t               button;
 
+    // the normal width before fullscreen
+    tb_uint16_t             normal_width;
+
+    // the normal height before fullscreen
+    tb_uint16_t             normal_height;
+
 }gb_window_glut_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -440,93 +446,28 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
     // fullscreen?
     if (fullscreen && !(impl->base.flag & GB_WINDOW_FLAG_FULLSCREEN)) 
     {
-        // init mode string
-        tb_char_t mode[64] = {0};
-        tb_snprintf(mode, sizeof(mode) - 1, "%lux%lu", tb_screen_width(), tb_screen_height());
+        // save the normal width and height
+        impl->normal_width  = impl->base.width;
+        impl->normal_height = impl->base.height;
 
-        // trace
-        tb_trace_d("mode: %s", mode);
+        // enter fullscreen
+        glutFullScreen();
 
-        // init mode
-//      glutGameModeString("640x480:32@60");
-        glutGameModeString(mode);
-
-        // can fullscreen?
-        if (glutGameModeGet(GLUT_GAME_MODE_POSSIBLE))
-        {
-            // exit the previous window first
-            if (impl->id) glutDestroyWindow(impl->id);
-            impl->id = 0;
-
-            // enter fullscreen
-            tb_int_t id = glutEnterGameMode();
-            tb_assert_abort(id < tb_arrayn(g_windows));
-
-            // trace
-            tb_trace_d("fullscreen: enter: %d", id);
-
-            // save window
-            g_windows[id] = impl;
-
-            // init window func
-            glutDisplayFunc(gb_window_glut_display);
-            glutReshapeFunc(gb_window_glut_reshape);
-            glutKeyboardFunc(gb_window_glut_keyboard);
-            glutSpecialFunc(gb_window_glut_special);
-            glutKeyboardUpFunc(gb_window_glut_keyboard_up);
-            glutSpecialUpFunc(gb_window_glut_special_up);
-            glutMouseFunc(gb_window_glut_mouse);
-            glutMotionFunc(gb_window_glut_motion);
-            glutPassiveMotionFunc(gb_window_glut_motion);
-            glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, id);
-
-            // update flag
-            impl->base.flag |= GB_WINDOW_FLAG_FULLSCREEN;
-        }
-        else
-        {
-            // trace
-            tb_trace_e("cannot enter fullscreen: %s", mode);
-        }
+        // update flag
+        impl->base.flag |= GB_WINDOW_FLAG_FULLSCREEN;
     }
     else if (impl->base.flag & GB_WINDOW_FLAG_FULLSCREEN)
     {
-        // fullscreen now?
-        if (glutGameModeGet(GLUT_GAME_MODE_ACTIVE)) 
-        {
-            // leave fullscreen
-            glutLeaveGameMode();
+        // the screen width and height
+        tb_size_t screen_width  = tb_screen_width();
+        tb_size_t screen_height = tb_screen_height();
+        tb_assert_abort(screen_width && screen_height && screen_width >= impl->normal_width && screen_height >= impl->normal_height);
 
-            // trace
-            tb_trace_d("fullscreen: leave: %d", impl->id);
-        }
+        // move window
+        glutPositionWindow((screen_width - impl->normal_width) >> 1, (screen_height - impl->normal_height) >> 1);
 
-        // exit the previous window first
-        if (impl->id) glutDestroyWindow(impl->id);
-        impl->id = 0;
-
-        // make window
-        impl->id = glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
-        tb_assert_abort(impl->id && impl->id < tb_arrayn(g_windows));
-
-        // save window
-        g_windows[impl->id] = impl;
-
-        // init window func
-        glutDisplayFunc(gb_window_glut_display);
-        glutReshapeFunc(gb_window_glut_reshape);
-        glutKeyboardFunc(gb_window_glut_keyboard);
-        glutSpecialFunc(gb_window_glut_special);
-        glutKeyboardUpFunc(gb_window_glut_keyboard_up);
-        glutSpecialUpFunc(gb_window_glut_special_up);
-        glutMouseFunc(gb_window_glut_mouse);
-        glutMotionFunc(gb_window_glut_motion);
-        glutPassiveMotionFunc(gb_window_glut_motion);
-        glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, impl->id);
-        glutVisibilityFunc(gb_window_glut_visibility);
-#ifndef TB_CONFIG_OS_WINDOWS
-        glutWMCloseFunc(gb_window_glut_close);
-#endif
+        // resize window
+        glutReshapeWindow(impl->normal_width, impl->normal_height);
 
         // update flag
         impl->base.flag &= ~GB_WINDOW_FLAG_FULLSCREEN;
@@ -562,6 +503,10 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_ref_t info)
         impl->base.fullscreen   = gb_window_glut_fullscreen;
         impl->base.info         = *info;
 
+        // init normal width and height
+        impl->normal_width      = info->width;
+        impl->normal_height     = info->height;
+
         /* init pixfmt
          * 
          * supports: 
@@ -583,6 +528,29 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_ref_t info)
         glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_STENCIL | GLUT_MULTISAMPLE);
         glutInitWindowPosition(0, 0);
         glutInitWindowSize(impl->base.width, impl->base.height);
+
+        // make window
+        impl->id = glutCreateWindow(impl->base.info.title? impl->base.info.title : "");
+        tb_assert_and_check_break(impl->id && impl->id < tb_arrayn(g_windows));
+
+        // save window
+        g_windows[impl->id] = impl;
+
+        // init window func
+        glutDisplayFunc(gb_window_glut_display);
+        glutReshapeFunc(gb_window_glut_reshape);
+        glutKeyboardFunc(gb_window_glut_keyboard);
+        glutSpecialFunc(gb_window_glut_special);
+        glutKeyboardUpFunc(gb_window_glut_keyboard_up);
+        glutSpecialUpFunc(gb_window_glut_special_up);
+        glutMouseFunc(gb_window_glut_mouse);
+        glutMotionFunc(gb_window_glut_motion);
+        glutPassiveMotionFunc(gb_window_glut_motion);
+        glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, impl->id);
+        glutVisibilityFunc(gb_window_glut_visibility);
+#ifndef TB_CONFIG_OS_WINDOWS
+        glutWMCloseFunc(gb_window_glut_close);
+#endif
 
         // check: not implementation
         tb_assert(!(info->flag & GB_WINDOW_FLAG_HIHE_TITLEBAR));

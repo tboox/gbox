@@ -88,15 +88,19 @@ static tb_void_t gb_device_gl_resize(gb_device_impl_t* device, tb_size_t width, 
 	gb_glViewport(0, 0, width, height);
 
 	// update matrix	
-	if (impl->version >= 0x20) gb_gl_matrix_orthof(impl->matrix_project, 0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
+	if (impl->version >= 0x20) 
+    {
+        // update the projection matrix
+        gb_gl_matrix_orthof(impl->matrix_project, 0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
+    }
     else
 	{
-		// init the projection matrix
+		// update the projection matrix
 		gb_glMatrixMode(GB_GL_PROJECTION);
 		gb_glLoadIdentity();
 		gb_glOrthof(0.0f, (gb_GLfloat_t)width, (gb_GLfloat_t)height, 0.0f, -1.0f, 1.0f);
 
-		// init the model matrix
+		// update the model matrix
 		gb_glMatrixMode(GB_GL_MODELVIEW);
 		gb_glLoadIdentity();
 	}
