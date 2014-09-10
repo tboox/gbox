@@ -20,7 +20,7 @@
 .ccache
 .demo
 .config.mak
-src/gbox/config.h
+src/gbox/gbox.config.h
 .svn
 .DS_Store
 tool/msys

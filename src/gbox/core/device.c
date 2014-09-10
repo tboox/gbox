@@ -29,11 +29,6 @@
 #define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * macros
- */
-#define GB_DEVICE_TEST_SKIA
-
-/* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "device.h"
@@ -91,7 +86,7 @@ gb_device_ref_t gb_device_init(gb_window_ref_t window)
         break;
 #endif
     case GB_WINDOW_MODE_BITMAP:
-#ifdef GB_DEVICE_TEST_SKIA
+#ifdef GB_CONFIG_THIRD_HAVE_SKIA
         device = gb_device_init_skia(gb_window_bitmap(window));
 #else
         device = gb_device_init_bitmap(gb_window_bitmap(window));

@@ -14,21 +14,19 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2014 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        skia.h
- * @ingroup     core
+ * @file        config.h
+ *
  */
-#ifndef GB_CORE_DEVICE_SKIA_SKIA_H
-#define GB_CORE_DEVICE_SKIA_SKIA_H
+#ifndef GB_GBOX_CONFIG_H
+#define GB_GBOX_CONFIG_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "device.h"
-#include "color.h"
+#include "gbox.config.h"
 
 #endif
 

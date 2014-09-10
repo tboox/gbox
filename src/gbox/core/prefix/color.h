@@ -95,7 +95,7 @@ static __tb_inline__ tb_uint32_t    gb_color_pixel(gb_color_t color)
 {
     union __gb_c2p_t
     {
-        gb_color_t  c;
+        gb_color_t c;
         gb_pixel_t p;
 
     }c2p;
@@ -113,7 +113,7 @@ static __tb_inline__ gb_color_t     gb_pixel_color(gb_pixel_t pixel)
 {
     union __gb_p2c_t
     {
-        gb_color_t  c;
+        gb_color_t c;
         gb_pixel_t p;
 
     }p2c;

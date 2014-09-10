@@ -53,27 +53,25 @@ typedef enum __gb_paint_flag_t
 {
     GB_PAINT_FLAG_NONE          = 0 //!< none
 ,   GB_PAINT_FLAG_ANTIALIASING  = 1 //!< antialiasing
-,   GB_PAINT_FLAG_BITMAP_FILTER = 2 //!< bitmap filter
+,   GB_PAINT_FLAG_FILTER_BITMAP = 2 //!< filter bitmap
 
 }gb_paint_flag_t;
 
 /// the paint stok cap type
 typedef enum __gb_paint_cap_t
 {
-    GB_PAINT_CAP_NONE           = 0 //!< none
-,   GB_PAINT_CAP_BUTT           = 1 //!< no extension
-,   GB_PAINT_CAP_ROUND          = 2 //!< a semi-circle extension
-,   GB_PAINT_CAP_SQUARE         = 3 //!< a half square extension
+    GB_PAINT_CAP_BUTT           = 0 //!< no extension
+,   GB_PAINT_CAP_ROUND          = 1 //!< a semi-circle extension
+,   GB_PAINT_CAP_SQUARE         = 2 //!< a half square extension
 
 }gb_paint_cap_t;
 
 /// the paint stok join type
 typedef enum __gb_paint_join_t
 {
-    GB_PAINT_JOIN_NONE          = 0 //!< none
-,   GB_PAINT_JOIN_MITER         = 1 //!< a sharp join
-,   GB_PAINT_JOIN_ROUND         = 2 //!< a round join
-,   GB_PAINT_JOIN_BEVEL         = 3 //!< a flat bevel join
+    GB_PAINT_JOIN_MITER         = 0 //!< a sharp join
+,   GB_PAINT_JOIN_ROUND         = 1 //!< a round join
+,   GB_PAINT_JOIN_BEVEL         = 2 //!< a flat bevel join
 
 }gb_paint_join_t;
 

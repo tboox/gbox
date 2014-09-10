@@ -76,9 +76,10 @@
     based on the presence or absence of NDEBUG, but that decision can be changed
     here.
  */
-//#define SK_DEBUG
-//#define SK_RELEASE
-
+#undef SK_DEBUG
+#ifndef SK_RELEASE
+#   define SK_RELEASE   1
+#endif
 
 /*  If, in debugging mode, Skia needs to stop (presumably to invoke a debugger)
     it will call SK_CRASH(). If this is not defined it, it is defined in
@@ -143,11 +144,11 @@
 
 /*  Change the ordering to work in X windows.
  */
-#ifdef SK_SAMPLES_FOR_X
-        #define SK_A32_SHIFT    24
-        #define SK_R32_SHIFT    16
-        #define SK_G32_SHIFT    8
-        #define SK_B32_SHIFT    0
+#if 1//def SK_SAMPLES_FOR_X
+        #define SK_A32_SHIFT    0
+        #define SK_R32_SHIFT    8
+        #define SK_G32_SHIFT    16
+        #define SK_B32_SHIFT    24
 #endif
 
 #endif

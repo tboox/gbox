@@ -63,10 +63,10 @@ static gb_matrix_t      g_matrix;
 static tb_size_t        g_quality = GB_QUALITY_LOW;
 
 // the cap
-static tb_size_t        g_cap = GB_PAINT_CAP_NONE;
+static tb_size_t        g_cap = GB_PAINT_CAP_BUTT;
 
 // the join
-static tb_size_t        g_join = GB_PAINT_JOIN_NONE;
+static tb_size_t        g_join = GB_PAINT_JOIN_MITER;
 
 // the width
 static gb_float_t       g_width = GB_ONE;
@@ -212,10 +212,10 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
             gb_quality_set(g_quality);
             break;
         case 'c':
-            g_cap = (g_cap + 1) & 3;
+            g_cap = (g_cap + 1) % 3;
             break;
         case 'j':
-            g_join = (g_join + 1) & 3;
+            g_join = (g_join + 1) % 3;
             break;
         case 'i':
             tb_timer_task_post(gb_window_timer(window), 1000, tb_true, gb_demo_info, (tb_cpointer_t)window);

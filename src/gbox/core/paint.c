@@ -170,8 +170,8 @@ tb_size_t gb_paint_flag(gb_paint_ref_t paint)
     tb_assert_and_check_return_val(impl, GB_PAINT_FLAG_NONE);
 
     // modify flag for quality
-    if (gb_quality() > GB_QUALITY_LOW) impl->flag |= (GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_BITMAP_FILTER);
-    else impl->flag &= ~(GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_BITMAP_FILTER);
+    if (gb_quality() > GB_QUALITY_LOW) impl->flag |= (GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_FILTER_BITMAP);
+    else impl->flag &= ~(GB_PAINT_FLAG_ANTIALIASING | GB_PAINT_FLAG_FILTER_BITMAP);
 
     // the flag
     return impl->flag;
