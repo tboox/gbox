@@ -38,7 +38,7 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* init gl render
+/* init render
  *
  * @param device    the device
  * @param matrix    the matrix
@@ -49,27 +49,35 @@ __tb_extern_c_enter__
  */
 tb_bool_t           gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
-/* fill gl render
- *
- * @param device    the device
- * @param points    the points
- * @param counts    the counts
- */
-tb_void_t           gb_gl_render_fill(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts);
-
-/* stok gl render
- *
- * @param device    the device
- * @param points    the points
- * @param counts    the counts
- */
-tb_void_t           gb_gl_render_stok(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts);
-
-/* exit gl render
+/* exit render
  *
  * @param device    the device
  */
 tb_void_t           gb_gl_render_exit(gb_gl_device_ref_t device);
+
+/* draw lines
+ *
+ * @param device    the device
+ * @param points    the points
+ * @param count     the points count
+ */
+tb_void_t           gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count);
+
+/* draw points
+ *
+ * @param device    the device
+ * @param points    the points
+ * @param count     the points count
+ */
+tb_void_t           gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count);
+
+/* draw polygon
+ *
+ * @param device    the device
+ * @param polygon   the polygon
+ * @param hint      the hint shape
+ */
+tb_void_t           gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

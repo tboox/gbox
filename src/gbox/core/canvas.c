@@ -737,21 +737,18 @@ tb_void_t gb_canvas_draw_clear(gb_canvas_ref_t canvas, gb_color_t color)
 }
 tb_void_t gb_canvas_draw(gb_canvas_ref_t canvas)
 {
-    // check
-    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
-
     // draw path
-    gb_device_draw_path(impl->device, gb_canvas_path(canvas), gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_canvas_draw_path(canvas, gb_canvas_path(canvas));
 }
 tb_void_t gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_path_ref_t path)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && impl->device && path);
 
-    // draw path
-    gb_device_draw_path(impl->device, path, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // draw it
+    gb_shape_ref_t hint = tb_null;
+    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), hint, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
@@ -760,7 +757,7 @@ tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
     tb_assert_and_check_return(impl && impl->device);
 
     // draw point
-    gb_device_draw_point(impl->device, point, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_points(impl->device, point, 1, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
@@ -782,10 +779,13 @@ tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && impl->device && line);
 
-    // draw line
-    gb_device_draw_line(impl->device, line, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // init points
+    gb_point_t points[] = {line->p0, line->p1};
+
+    // draw lines
+    gb_device_draw_lines(impl->device, points, 2, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
@@ -807,10 +807,21 @@ tb_void_t gb_canvas_draw_arc(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && arc);
 
-    // draw arc
-    gb_device_draw_arc(impl->device, arc, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // save path
+    gb_path_ref_t path = gb_canvas_save_path(canvas);
+    tb_assert_and_check_return(path);
+
+    // make arc
+    gb_path_clear(path);
+    gb_path_add_arc(path, arc);
+
+    // draw it
+    gb_canvas_draw_path(canvas, path);
+
+    // load path
+    gb_canvas_load_path(canvas);
 }
 tb_void_t gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
@@ -832,10 +843,20 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && impl->device && triangle);
 
-    // draw triangle
-    gb_device_draw_triangle(impl->device, triangle, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // init polygon
+    gb_point_t      points[] = {triangle->p0, triangle->p1, triangle->p2, triangle->p0};
+    tb_size_t       counts[] = {4, 0};
+    gb_polygon_t    polygon = {points, counts};
+
+    // init hint
+    gb_shape_t      hint;
+    hint.type       = GB_SHAPE_TYPE_TRIANGLE;
+    hint.u.triangle = *triangle;
+
+    // draw it
+    gb_device_draw_polygon(impl->device, &polygon, &hint, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
@@ -857,10 +878,31 @@ tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && impl->device && rect);
 
-    // draw rect
-    gb_device_draw_rect(impl->device, rect, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // init polygon
+    gb_point_t      points[5];
+    tb_size_t       counts[] = {5, 0};
+    gb_polygon_t    polygon = {points, counts};
+
+    // init points
+    points[0].x = rect->x;
+    points[0].y = rect->y;
+    points[1].x = rect->x + rect->w;
+    points[1].y = rect->y;
+    points[2].x = rect->x + rect->w;
+    points[2].y = rect->y + rect->h;
+    points[3].x = rect->x;
+    points[3].y = rect->y + rect->h;
+    points[4] = points[0];
+
+    // init hint
+    gb_shape_t      hint;
+    hint.type       = GB_SHAPE_TYPE_RECT;
+    hint.u.rect     = *rect;
+
+    // draw it
+    gb_device_draw_polygon(impl->device, &polygon, &hint, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
@@ -882,10 +924,21 @@ tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && circle);
 
-    // draw circle
-    gb_device_draw_circle(impl->device, circle, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // save path
+    gb_path_ref_t path = gb_canvas_save_path(canvas);
+    tb_assert_and_check_return(path);
+
+    // make circle
+    gb_path_clear(path);
+    gb_path_add_circle(path, circle);
+
+    // draw it
+    gb_canvas_draw_path(canvas, path);
+
+    // load path
+    gb_canvas_load_path(canvas);
 }
 tb_void_t gb_canvas_draw_circle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
@@ -907,10 +960,21 @@ tb_void_t gb_canvas_draw_ellipse(gb_canvas_ref_t canvas, gb_ellipse_ref_t ellips
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && ellipse);
 
-    // draw ellipse
-    gb_device_draw_ellipse(impl->device, ellipse, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // save path
+    gb_path_ref_t path = gb_canvas_save_path(canvas);
+    tb_assert_and_check_return(path);
+
+    // make ellipse
+    gb_path_clear(path);
+    gb_path_add_ellipse(path, ellipse);
+
+    // draw it
+    gb_canvas_draw_path(canvas, path);
+
+    // load path
+    gb_canvas_load_path(canvas);
 }
 tb_void_t gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
@@ -935,14 +999,23 @@ tb_void_t gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygo
     tb_assert_and_check_return(impl && impl->device);
 
     // draw polygon
-    gb_device_draw_polygon(impl->device, polygon, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_polygon(impl->device, polygon, tb_null, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }
-tb_void_t gb_canvas_draw_segment(gb_canvas_ref_t canvas, gb_segment_ref_t segment)
+tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && impl->device);
+ 
+    // draw lines
+    gb_device_draw_lines(impl->device, points, count, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+}
+tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
     tb_assert_and_check_return(impl && impl->device);
 
-    // draw segment
-    gb_device_draw_segment(impl->device, segment, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    // draw points
+    gb_device_draw_points(impl->device, points, count, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
 }

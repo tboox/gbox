@@ -67,19 +67,27 @@ static tb_void_t gb_device_bitmap_draw_clear(gb_device_impl_t* device, gb_color_
     // clear it
     pixmap->pixels_fill(pixels, pixmap->pixel(color), count, 0xff);
 }
-static tb_void_t gb_device_bitmap_fill_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_bitmap_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    // check
+    gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
+    tb_assert_and_check_return(impl && paint && points && count);
+
+    tb_trace_noimpl();
+}
+static tb_void_t gb_device_bitmap_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    // check
+    gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
+    tb_assert_and_check_return(impl && paint && points && count);
+
+    tb_trace_noimpl();
+}
+static tb_void_t gb_device_bitmap_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
     tb_assert_and_check_return(impl && polygon);
-
-    tb_trace_noimpl();
-}
-static tb_void_t gb_device_bitmap_stok_segment(gb_device_impl_t* device, gb_segment_ref_t segment, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
-{
-    // check
-    gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
-    tb_assert_and_check_return(impl && paint && segment);
 
     tb_trace_noimpl();
 }
@@ -146,8 +154,9 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         impl->base.type             = GB_DEVICE_TYPE_BITMAP;
         impl->base.resize           = gb_device_bitmap_resize;
         impl->base.draw_clear       = gb_device_bitmap_draw_clear;
-        impl->base.fill_polygon     = gb_device_bitmap_fill_polygon;
-        impl->base.stok_segment     = gb_device_bitmap_stok_segment;
+        impl->base.draw_lines       = gb_device_bitmap_draw_lines;
+        impl->base.draw_points      = gb_device_bitmap_draw_points;
+        impl->base.draw_polygon     = gb_device_bitmap_draw_polygon;
         impl->base.shader_linear    = gb_device_bitmap_shader_linear;
         impl->base.shader_radial    = gb_device_bitmap_shader_radial;
         impl->base.shader_bitmap    = gb_device_bitmap_shader_bitmap;

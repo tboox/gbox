@@ -186,21 +186,6 @@ static tb_long_t gb_prefix_printf_format_polygon(tb_cpointer_t object, tb_char_t
     // ok?
     return size;
 }
-static tb_long_t gb_prefix_printf_format_segment(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
-{
-    // check
-    tb_assert_and_check_return_val(object && cstr && maxn, -1);
-
-    // the segment
-    gb_segment_ref_t segment = (gb_segment_ref_t)object;
-
-    // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(segment: %p)", segment);
-    if (size >= 0) cstr[size] = '\0';
-
-    // ok?
-    return size;
-}
 static tb_long_t gb_prefix_printf_format_shape(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
@@ -221,7 +206,6 @@ static tb_long_t gb_prefix_printf_format_shape(tb_cpointer_t object, tb_char_t* 
     case GB_SHAPE_TYPE_CIRCLE:      ok = gb_prefix_printf_format_circle(&shape->u.circle, cstr, maxn);      break;
     case GB_SHAPE_TYPE_ELLIPSE:     ok = gb_prefix_printf_format_ellipse(&shape->u.ellipse, cstr, maxn);    break;
     case GB_SHAPE_TYPE_POLYGON:     ok = gb_prefix_printf_format_polygon(&shape->u.polygon, cstr, maxn);    break;
-    case GB_SHAPE_TYPE_SEGMENT:     ok = gb_prefix_printf_format_segment(&shape->u.segment, cstr, maxn);    break;
     case GB_SHAPE_TYPE_TRIANGLE:    ok = gb_prefix_printf_format_triangle(&shape->u.triangle, cstr, maxn);  break;
     default:                        ok = tb_snprintf(cstr, maxn, "(unknown: %u)", shape->type);             break;
     }
@@ -285,9 +269,6 @@ tb_bool_t gb_prefix_init()
 
     // register printf("%{polygon}", &polygon);
     tb_printf_object_register("polygon", gb_prefix_printf_format_polygon);
-
-    // register printf("%{segment}", &segment);
-    tb_printf_object_register("segment", gb_prefix_printf_format_segment);
 
     // register printf("%{ellipse}", &ellipse);
     tb_printf_object_register("ellipse", gb_prefix_printf_format_ellipse);

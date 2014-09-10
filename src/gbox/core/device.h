@@ -132,110 +132,38 @@ tb_void_t           gb_device_resize(gb_device_ref_t device, tb_size_t width, tb
  */
 tb_void_t           gb_device_draw_clear(gb_device_ref_t device, gb_color_t color);
 
-/*! draw the given path
+/*! draw lines
  *
  * @param device    the device
- * @param path      the path
- * @param matrix    the matrix
+ * @param points    the points
+ * @param count     the points count
+ * @param matrix    the vertex matrix
  * @param paint     the paint
  * @param clipper   the clipper
  */
-tb_void_t           gb_device_draw_path(gb_device_ref_t device, gb_path_ref_t path, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+tb_void_t           gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
-/*! draw point
+/*! draw points
  *
  * @param device    the device
- * @param point     the point
+ * @param points    the points
+ * @param count     the points count 
+ * @param matrix    the vertex matrix
+ * @param paint     the paint
+ * @param clipper   the clipper
  */
-tb_void_t           gb_device_draw_point(gb_device_ref_t device, gb_point_ref_t point, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw line
- *
- * @param device    the device
- * @param line      the line
- */
-tb_void_t           gb_device_draw_line(gb_device_ref_t device, gb_line_ref_t line, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw arc
- *
- * @param device    the device
- * @param arc       the arc
- */
-tb_void_t           gb_device_draw_arc(gb_device_ref_t device, gb_arc_ref_t arc, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw triangle
- *
- * @param device    the device
- * @param triangle  the triangle
- */
-tb_void_t           gb_device_draw_triangle(gb_device_ref_t device, gb_triangle_ref_t triangle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw rect
- *
- * @param device    the device
- * @param rect      the rect
- */
-tb_void_t           gb_device_draw_rect(gb_device_ref_t device, gb_rect_ref_t rect, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw circle
- *
- * @param device    the device
- * @param circle    the circle
- */
-tb_void_t           gb_device_draw_circle(gb_device_ref_t device, gb_circle_ref_t circle, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw ellipse
- *
- * @param device    the device
- * @param ellipse   the ellipse
- */
-tb_void_t           gb_device_draw_ellipse(gb_device_ref_t device, gb_ellipse_ref_t ellipse, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+tb_void_t           gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
 /*! draw polygon
  *
  * @param device    the device
  * @param polygon   the polygon
+ * @param hint      the hint shape
+ * @param matrix    the vertex matrix
+ * @param paint     the paint
+ * @param clipper   the clipper
  */
-tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-
-/*! draw segment
- *
- * @param device    the device
- * @param segment   the segment
- */
-tb_void_t           gb_device_draw_segment(gb_device_ref_t device, gb_segment_ref_t segment, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
-	
-/*! init linear gradient shader
- *
- * @param device    the device
- * @param mode      the mode 
- * @param gradient  the gradient
- * @param line      the line
- *
- * @return          the shader
- */
-gb_shader_ref_t     gb_device_shader_linear(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line);
-
-/*! init radial gradient shader
- *
- * @param device    the device
- * @param mode      the mode 
- * @param gradient  the gradient
- * @param circle    the circle
- *
- * @return          the shader
- */
-gb_shader_ref_t     gb_device_shader_radial(gb_device_ref_t device, tb_size_t mode, gb_gradient_ref_t gradient, gb_circle_ref_t circle);
-
-/*! init bitmap shader
- *
- * @param device    the device
- * @param mode      the mode 
- * @param bitmap    the bitmap
- *
- * @return          the shader
- */
-gb_shader_ref_t     gb_device_shader_bitmap(gb_device_ref_t device, tb_size_t mode, gb_bitmap_ref_t bitmap);
+tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

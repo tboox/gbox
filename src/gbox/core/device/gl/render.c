@@ -49,10 +49,10 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
+static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point_t const* points)
 {
     // check
-    tb_assert_abort(device && points && counts);
+    tb_assert_abort(device && points);
  
     // apply vertices
     if (device->version >= 0x20) 
@@ -142,7 +142,7 @@ static tb_void_t gb_gl_render_leave_shader(gb_gl_device_ref_t device)
     // disable texture
     gb_glDisable(GB_GL_TEXTURE_2D);
 }
-static tb_void_t gb_gl_render_enter_fill(gb_gl_device_ref_t device)
+static tb_void_t gb_gl_render_enter_paint(gb_gl_device_ref_t device)
 {
     // check
     tb_assert_abort(device);
@@ -152,7 +152,7 @@ static tb_void_t gb_gl_render_enter_fill(gb_gl_device_ref_t device)
     // enter solid
     else gb_gl_render_enter_solid(device);
 }
-static tb_void_t gb_gl_render_leave_fill(gb_gl_device_ref_t device)
+static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
 {
     // check
     tb_assert_abort(device);
@@ -162,15 +162,61 @@ static tb_void_t gb_gl_render_leave_fill(gb_gl_device_ref_t device)
     // leave solid
     else gb_gl_render_leave_solid(device);
 }
-static tb_void_t gb_gl_render_enter_stok(gb_gl_device_ref_t device)
+static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
 {
-    // enter solid
-    gb_gl_render_enter_solid(device);
+    // check
+    tb_assert_abort(device && points && counts);
+
+    // apply vertices
+    gb_gl_render_apply_vertices(device, points);
+
+    // done
+    tb_size_t count;
+    tb_size_t index = 0;
+    while ((count = *counts++))
+    {
+        gb_glDrawArrays(GB_GL_TRIANGLE_FAN, (gb_GLint_t)index, (gb_GLint_t)count);
+        index += count;
+    }
 }
-static tb_void_t gb_gl_render_leave_stok(gb_gl_device_ref_t device)
-{ 
-    // leave solid
-    gb_gl_render_leave_solid(device);
+static tb_void_t gb_gl_render_stok_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+{
+    // check
+    tb_assert_abort(device && points && count);
+
+    // apply vertices
+    gb_gl_render_apply_vertices(device, points);
+
+    // done
+    gb_glDrawArrays(GB_GL_LINES, 0, (gb_GLint_t)count);
+}
+static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+{
+    // check
+    tb_assert_abort(device && points && count);
+
+    // apply vertices
+    gb_gl_render_apply_vertices(device, points);
+
+    // done
+    gb_glDrawArrays(GB_GL_POINTS, 0, (gb_GLint_t)count);
+}
+static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
+{
+    // check
+    tb_assert_abort(device && points && counts);
+
+    // apply vertices
+    gb_gl_render_apply_vertices(device, points);
+
+    // done
+    tb_size_t count;
+    tb_size_t index = 0;
+    while ((count = *counts++))
+    {
+        gb_glDrawArrays(GB_GL_LINE_STRIP, (gb_GLint_t)index, (gb_GLint_t)count);
+        index += count;
+    }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -258,54 +304,6 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, g
     // ok?
     return ok;
 }
-tb_void_t gb_gl_render_fill(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
-{
-    // check
-    tb_assert_and_check_return(device && points && counts);
-
-    // enter fill
-    gb_gl_render_enter_fill(device);
-
-    // apply vertices
-    gb_gl_render_apply_vertices(device, points, counts);
-
-    // draw vertices
-    tb_size_t   count;
-    tb_size_t   index = 0;
-    gb_GLenum_t gmode = GB_GL_TRIANGLE_FAN;
-    while ((count = *counts++))
-    {
-        gb_glDrawArrays(gmode, (gb_GLint_t)index, (gb_GLint_t)count);
-        index += count;
-    }
-
-    // leave fill
-    gb_gl_render_leave_fill(device);
-}
-tb_void_t gb_gl_render_stok(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
-{
-    // check
-    tb_assert_and_check_return(device && points && counts);
-
-    // enter stok
-    gb_gl_render_enter_stok(device);
-
-    // apply vertices
-    gb_gl_render_apply_vertices(device, points, counts);
-
-    // draw vertices
-    tb_size_t   count;
-    tb_size_t   index = 0;
-    gb_GLenum_t gmode = GB_GL_LINE_STRIP;
-    while ((count = *counts++))
-    {
-        gb_glDrawArrays(gmode, (gb_GLint_t)index, (gb_GLint_t)count);
-        index += count;
-    }
-
-    // leave stok
-    gb_gl_render_leave_stok(device);
-}
 tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
 {
     // check
@@ -338,6 +336,102 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
  
     // disable antialiasing
     gb_glDisable(GB_GL_MULTISAMPLE);
+}
+tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+{
+    // check
+    tb_assert_abort(device && device->render.paint && points && count);
 
+    // enter paint
+    gb_gl_render_enter_paint(device);
+
+    // the mode
+    tb_size_t mode = gb_paint_mode(device->render.paint);
+
+    // stok it
+    if (mode & GB_PAINT_MODE_STOK)
+    {
+        // the width
+        gb_float_t width = gb_paint_width(device->render.paint);
+
+        // width > 1?
+        if (gb_b1(width))
+        {
+            // TODO
+            // ...
+        }
+        // stok lines
+        else gb_gl_render_stok_lines(device, points, count);
+    }
+
+    // leave paint
+    gb_gl_render_leave_paint(device);
+}
+tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+{
+    // check
+    tb_assert_abort(device && device->render.paint && points && count);
+
+    // enter paint
+    gb_gl_render_enter_paint(device);
+
+    // the mode
+    tb_size_t mode = gb_paint_mode(device->render.paint);
+
+    // stok it
+    if (mode & GB_PAINT_MODE_STOK)
+    {
+        // the width
+        gb_float_t width = gb_paint_width(device->render.paint);
+
+        // width > 1?
+        if (gb_b1(width))
+        {
+            // TODO
+            // ...
+        }
+        // stok points
+        else gb_gl_render_stok_points(device, points, count);
+    }
+
+    // leave paint
+    gb_gl_render_leave_paint(device);
+}
+tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+{
+    // check
+    tb_assert_abort(device && device->render.paint && polygon && polygon->points && polygon->counts);
+
+    // enter paint
+    gb_gl_render_enter_paint(device);
+
+    // the mode
+    tb_size_t mode = gb_paint_mode(device->render.paint);
+
+    // fill it
+    if (mode & GB_PAINT_MODE_FILL)
+    {
+        // fill polygon
+        gb_gl_render_fill_polygon(device, polygon->points, polygon->counts);
+    }
+
+    // stok it
+    if (mode & GB_PAINT_MODE_STOK)
+    {
+        // the width
+        gb_float_t width = gb_paint_width(device->render.paint);
+
+        // width > 1?
+        if (gb_b1(width))
+        {
+            // TODO
+            // ...
+        }
+        // stok polygon
+        else gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
+    }
+
+    // leave paint
+    gb_gl_render_leave_paint(device);
 }
 

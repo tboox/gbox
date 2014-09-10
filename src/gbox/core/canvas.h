@@ -1021,12 +1021,21 @@ tb_void_t           gb_canvas_draw_ellipse2i(gb_canvas_ref_t canvas, tb_long_t x
  */
 tb_void_t           gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygon);
 
-/*! draw segment
+/*! draw lines
  *
  * @param canvas    the canvas
- * @param segment   the segment
+ * @param points    the points
+ * @param count     the points count
  */
-tb_void_t           gb_canvas_draw_segment(gb_canvas_ref_t canvas, gb_segment_ref_t segment);
+tb_void_t           gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count);
+
+/*! draw points
+ *
+ * @param canvas    the canvas
+ * @param points    the points
+ * @param count     the points count
+ */
+tb_void_t           gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -11,7 +11,7 @@
 #define GB_CONFIG_VERSION_ALTER         1
 
 // build version
-#define GB_CONFIG_VERSION_BUILD         201409101008
+#define GB_CONFIG_VERSION_BUILD         201409101507
 
 // small
 #define GB_CONFIG_SMALL                 (0)
@@ -35,7 +35,7 @@
 
 // app window
 //#define GB_CONFIG_APP_WINDOW_NATIVE
-#define GB_CONFIG_APP_WINDOW_SDL
+//#define GB_CONFIG_APP_WINDOW_SDL
 //#define GB_CONFIG_APP_WINDOW_FRAMEBUFFER
 
 

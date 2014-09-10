@@ -37,11 +37,11 @@ gb_shader_ref_t gb_shader_init_linear(gb_canvas_ref_t canvas, tb_size_t mode, gb
     tb_assert_and_check_return_val(canvas, tb_null);
 
     // the device 
-    gb_device_ref_t device = gb_canvas_device(canvas);
-    tb_assert_and_check_return_val(device, tb_null);
+    gb_device_impl_t* device = (gb_device_impl_t*)gb_canvas_device(canvas);
+    tb_assert_and_check_return_val(device && device->shader_linear, tb_null);
 
     // init shader
-    return gb_device_shader_linear(device, mode, gradient, line);
+    return device->shader_linear(device, mode, gradient, line);
 }
 gb_shader_ref_t gb_shader_init2_linear(gb_canvas_ref_t canvas, tb_size_t mode, gb_gradient_ref_t gradient, gb_float_t xb, gb_float_t yb, gb_float_t xe, gb_float_t ye)
 {
@@ -65,11 +65,11 @@ gb_shader_ref_t gb_shader_init_radial(gb_canvas_ref_t canvas, tb_size_t mode, gb
     tb_assert_and_check_return_val(canvas, tb_null);
 
     // the device 
-    gb_device_ref_t device = gb_canvas_device(canvas);
-    tb_assert_and_check_return_val(device, tb_null);
+    gb_device_impl_t* device = (gb_device_impl_t*)gb_canvas_device(canvas);
+    tb_assert_and_check_return_val(device && device->shader_radial, tb_null);
 
     // init shader
-    return gb_device_shader_radial(device, mode, gradient, circle);
+    return device->shader_radial(device, mode, gradient, circle);
 }
 gb_shader_ref_t gb_shader_init2_radial(gb_canvas_ref_t canvas, tb_size_t mode, gb_gradient_ref_t gradient, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
@@ -93,11 +93,11 @@ gb_shader_ref_t gb_shader_init_bitmap(gb_canvas_ref_t canvas, tb_size_t mode, gb
     tb_assert_and_check_return_val(canvas, tb_null);
 
     // the device 
-    gb_device_ref_t device = gb_canvas_device(canvas);
-    tb_assert_and_check_return_val(device, tb_null);
+    gb_device_impl_t* device = (gb_device_impl_t*)gb_canvas_device(canvas);
+    tb_assert_and_check_return_val(device && device->shader_bitmap, tb_null);
 
     // init shader
-    return gb_device_shader_bitmap(device, mode, bitmap);
+    return device->shader_bitmap(device, mode, bitmap);
 }
 tb_void_t gb_shader_exit(gb_shader_ref_t shader)
 {
