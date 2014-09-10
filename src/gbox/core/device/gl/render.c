@@ -341,27 +341,21 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* p
 {
     // check
     tb_assert_abort(device && device->render.paint && points && count);
+    tb_assert_abort(gb_paint_mode(device->render.paint) & GB_PAINT_MODE_STOK);
 
     // enter paint
     gb_gl_render_enter_paint(device);
 
-    // the mode
-    tb_size_t mode = gb_paint_mode(device->render.paint);
+    // the width
+    gb_float_t width = gb_paint_width(device->render.paint);
 
-    // stok it
-    if (mode & GB_PAINT_MODE_STOK)
+    // width == 1? stok lines
+    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
+        gb_gl_render_stok_lines(device, points, count);
+    else
     {
-        // the width
-        gb_float_t width = gb_paint_width(device->render.paint);
-
-        // width > 1?
-        if (gb_b1(width))
-        {
-            // TODO
-            // ...
-        }
-        // stok lines
-        else gb_gl_render_stok_lines(device, points, count);
+        // FIXME
+        gb_gl_render_stok_lines(device, points, count);
     }
 
     // leave paint
@@ -371,27 +365,21 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* 
 {
     // check
     tb_assert_abort(device && device->render.paint && points && count);
+    tb_assert_abort(gb_paint_mode(device->render.paint) & GB_PAINT_MODE_STOK);
 
     // enter paint
     gb_gl_render_enter_paint(device);
 
-    // the mode
-    tb_size_t mode = gb_paint_mode(device->render.paint);
+    // the width
+    gb_float_t width = gb_paint_width(device->render.paint);
 
-    // stok it
-    if (mode & GB_PAINT_MODE_STOK)
+    // width == 1? stok points
+    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
+        gb_gl_render_stok_points(device, points, count);
+    else
     {
-        // the width
-        gb_float_t width = gb_paint_width(device->render.paint);
-
-        // width > 1?
-        if (gb_b1(width))
-        {
-            // TODO
-            // ...
-        }
-        // stok points
-        else gb_gl_render_stok_points(device, points, count);
+        // FIXME
+        gb_gl_render_stok_points(device, points, count);
     }
 
     // leave paint
@@ -421,14 +409,14 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
         // the width
         gb_float_t width = gb_paint_width(device->render.paint);
 
-        // width > 1?
-        if (gb_b1(width))
+        // width == 1? stok polygon
+        if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
+            gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
+        else
         {
-            // TODO
-            // ...
+            // FIXME
+            gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
         }
-        // stok polygon
-        else gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
     }
 
     // leave paint

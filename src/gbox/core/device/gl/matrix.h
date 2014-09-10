@@ -369,4 +369,16 @@ static __tb_inline__ tb_void_t gb_gl_matrix_orthof(gb_gl_matrix_ref_t matrix, gb
     matrix[13] = -(top + bottom) / (top - bottom);  
     matrix[14] = -(farp + nearp) / (farp - nearp); 
 }
+
+/* the matrix is identify for scale
+ *
+ * @param matrix    the matrix
+ * 
+ * @return          tb_true or tb_false
+ */
+static __tb_inline__ tb_bool_t gb_gl_matrix_identify_for_scale(gb_gl_matrix_ref_t matrix)
+{
+    return (matrix[0] == 1.0f && matrix[5] == 1.0f)? tb_true : tb_false;
+}
+
 #endif
