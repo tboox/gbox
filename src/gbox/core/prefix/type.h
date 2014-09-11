@@ -243,6 +243,9 @@ typedef struct __gb_polygon_t
     /// the counts
     tb_size_t*          counts;
 
+    /// is convex?
+    tb_bool_t           convex;
+
 }gb_polygon_t;
 
 /// the polygon ref type

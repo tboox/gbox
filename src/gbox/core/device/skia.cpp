@@ -194,6 +194,65 @@ static tb_void_t gb_device_skia_draw_clear(gb_device_impl_t* device, gb_color_t 
     // clear it
 	impl->canvas->drawColor((SkColor)gb_color_pixel(color));
 }
+static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+{
+    // check
+    gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
+    tb_assert_and_check_return_val(impl && impl->canvas && hint, tb_false);
+
+    // done
+    tb_bool_t ok = tb_false;
+    switch (hint->type)
+    {
+    case GB_SHAPE_TYPE_RECT:
+        {
+            gb_rect_ref_t rect = &hint->u.rect;
+            impl->canvas->drawRect(SkRect::MakeXYWH(gb_float_to_sk(rect->x), gb_float_to_sk(rect->y), gb_float_to_sk(rect->w), gb_float_to_sk(rect->h)), *impl->paint);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_LINE:
+        {
+            gb_line_ref_t line = &hint->u.line;
+	        impl->canvas->drawLine(gb_float_to_sk(line->p0.x), gb_float_to_sk(line->p0.y), gb_float_to_sk(line->p1.x), gb_float_to_sk(line->p1.y), *impl->paint);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_CIRCLE:
+        {
+            gb_circle_ref_t circle = &hint->u.circle;
+	        impl->canvas->drawCircle(gb_float_to_sk(circle->c.x), gb_float_to_sk(circle->c.y), gb_float_to_sk(circle->r), *impl->paint);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_ELLIPSE:
+        {
+            gb_ellipse_ref_t ellipse = &hint->u.ellipse;
+	        impl->canvas->drawOval(SkRect::MakeXYWH(gb_float_to_sk(ellipse->c0.x - ellipse->rx), gb_float_to_sk(ellipse->c0.y - ellipse->ry), gb_float_to_sk(ellipse->rx + ellipse->rx), gb_float_to_sk(ellipse->ry + ellipse->ry)), *impl->paint);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_ARC:
+        {
+            gb_arc_ref_t arc = &hint->u.arc;
+	        impl->canvas->drawArc(SkRect::MakeXYWH(gb_float_to_sk(arc->c0.x - arc->rx), gb_float_to_sk(arc->c0.y - arc->ry), SkScalarMul(gb_float_to_sk(arc->rx), SkIntToScalar(2)), SkScalarMul(gb_float_to_sk(arc->ry), SkIntToScalar(2))), gb_float_to_sk(arc->ab), gb_float_to_sk(arc->an), false, *impl->paint);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_POINT:
+        {
+            gb_point_ref_t point = &hint->u.point;
+	        impl->canvas->drawPoint(gb_float_to_sk(point->x), gb_float_to_sk(point->y), *impl->paint);
+            ok = tb_true;
+        }
+        break;
+    default:
+        break;
+    }
+
+    // ok?
+    return ok;
+}
 static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
 {
     // check
@@ -267,6 +326,9 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     // apply paint
     gb_device_skia_apply_paint(impl, paint);
 
+    // draw hint?
+    if (hint && gb_device_skia_draw_hint(device, hint, matrix, paint, clipper)) return ;
+
     // clear path
     impl->path->reset();
 
@@ -294,8 +356,11 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
         }
     }
 
-	// draw it
-	impl->canvas->drawPath(*impl->path, *impl->paint);
+    // mark convex
+    if (polygon->convex) impl->path->setIsConvex(true);
+
+    // draw it
+    impl->canvas->drawPath(*impl->path, *impl->paint);
 }
 static gb_shader_ref_t gb_device_skia_shader_linear(gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
 {

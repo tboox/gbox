@@ -848,7 +848,7 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
     // init polygon
     gb_point_t      points[] = {triangle->p0, triangle->p1, triangle->p2, triangle->p0};
     tb_size_t       counts[] = {4, 0};
-    gb_polygon_t    polygon = {points, counts};
+    gb_polygon_t    polygon = {points, counts, tb_true};
 
     // init hint
     gb_shape_t      hint;
@@ -883,7 +883,7 @@ tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
     // init polygon
     gb_point_t      points[5];
     tb_size_t       counts[] = {5, 0};
-    gb_polygon_t    polygon = {points, counts};
+    gb_polygon_t    polygon = {points, counts, tb_true};
 
     // init points
     points[0].x = rect->x;
