@@ -102,6 +102,15 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
         impl->clipper_stack = gb_cache_stack_init(8, GB_CACHE_STACK_TYPE_CLIPPER);
         tb_assert_and_check_break(impl->clipper_stack);
 
+        // bind matrix
+        gb_device_bind_matrix(impl->device, &impl->matrix);
+
+        // bind paint
+        gb_device_bind_paint(impl->device, (gb_paint_ref_t)gb_cache_stack_object(impl->paint_stack));
+
+        // bind clipper
+        gb_device_bind_clipper(impl->device, (gb_clipper_ref_t)gb_cache_stack_object(impl->clipper_stack));
+
         // ok
         ok = tb_true;
 
@@ -327,28 +336,40 @@ gb_paint_ref_t gb_canvas_save_paint(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return_val(impl && impl->paint_stack, tb_null);
+    tb_assert_and_check_return_val(impl && impl->device && impl->paint_stack, tb_null);
 
     // save paint
-    return (gb_paint_ref_t)gb_cache_stack_save(impl->paint_stack);
+    gb_paint_ref_t paint = (gb_paint_ref_t)gb_cache_stack_save(impl->paint_stack);
+
+    // bind paint
+    gb_device_bind_paint(impl->device, paint);
+
+    // ok?
+    return paint;
 }
 tb_void_t gb_canvas_load_paint(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->paint_stack);
+    tb_assert_and_check_return(impl && impl->device && impl->paint_stack);
 
     // load paint
     gb_cache_stack_load(impl->paint_stack);
+
+    // bind paint
+    gb_device_bind_paint(impl->device, gb_canvas_paint(canvas));
 }
 gb_matrix_ref_t gb_canvas_save_matrix(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return_val(impl && impl->matrix_stack, tb_null);
+    tb_assert_and_check_return_val(impl && impl->device && impl->matrix_stack, tb_null);
 
     // save matrix
     tb_stack_put(impl->matrix_stack, &impl->matrix);
+
+    // bind matrix
+    gb_device_bind_matrix(impl->device, &impl->matrix);
 
     // the matrix
     return &impl->matrix;
@@ -357,7 +378,7 @@ tb_void_t gb_canvas_load_matrix(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->matrix_stack);
+    tb_assert_and_check_return(impl && impl->device && impl->matrix_stack);
 
     // init matrix
     gb_matrix_ref_t matrix = (gb_matrix_ref_t)tb_stack_top(impl->matrix_stack);
@@ -365,6 +386,9 @@ tb_void_t gb_canvas_load_matrix(gb_canvas_ref_t canvas)
 
     // load matrix
     impl->matrix = *matrix;
+
+    // bind matrix
+    gb_device_bind_matrix(impl->device, &impl->matrix);
 
     // pop it
     tb_stack_pop(impl->matrix_stack);
@@ -376,7 +400,13 @@ gb_clipper_ref_t gb_canvas_save_clipper(gb_canvas_ref_t canvas)
     tb_assert_and_check_return_val(impl && impl->clipper_stack, tb_null);
 
     // save clipper
-    return (gb_clipper_ref_t)gb_cache_stack_save(impl->clipper_stack);
+    gb_clipper_ref_t clipper = (gb_clipper_ref_t)gb_cache_stack_save(impl->clipper_stack);
+
+    // bind clipper
+    gb_device_bind_clipper(impl->device, clipper);
+
+    // ok?
+    return clipper;
 }
 tb_void_t gb_canvas_load_clipper(gb_canvas_ref_t canvas)
 {
@@ -386,6 +416,9 @@ tb_void_t gb_canvas_load_clipper(gb_canvas_ref_t canvas)
 
     // load clipper
     gb_cache_stack_load(impl->clipper_stack);
+
+    // bind clipper
+    gb_device_bind_clipper(impl->device, gb_canvas_clipper(canvas));
 }
 tb_void_t gb_canvas_clear_path(gb_canvas_ref_t canvas)
 {
@@ -748,7 +781,7 @@ tb_void_t gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_path_ref_t path)
 
     // draw it
     gb_shape_ref_t hint = tb_null;
-    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), hint, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), hint);
 }
 tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
@@ -757,7 +790,7 @@ tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
     tb_assert_and_check_return(impl && impl->device);
 
     // draw point
-    gb_device_draw_points(impl->device, point, 1, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_points(impl->device, point, 1);
 }
 tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
@@ -785,7 +818,7 @@ tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
     gb_point_t points[] = {line->p0, line->p1};
 
     // draw lines
-    gb_device_draw_lines(impl->device, points, 2, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_lines(impl->device, points, 2);
 }
 tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
@@ -856,7 +889,7 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
     hint.u.triangle = *triangle;
 
     // draw it
-    gb_device_draw_polygon(impl->device, &polygon, &hint, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_polygon(impl->device, &polygon, &hint);
 }
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
@@ -902,7 +935,7 @@ tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
     hint.u.rect     = *rect;
 
     // draw it
-    gb_device_draw_polygon(impl->device, &polygon, &hint, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_polygon(impl->device, &polygon, &hint);
 }
 tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
@@ -999,7 +1032,7 @@ tb_void_t gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygo
     tb_assert_and_check_return(impl && impl->device);
 
     // draw polygon
-    gb_device_draw_polygon(impl->device, polygon, tb_null, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_polygon(impl->device, polygon, tb_null);
 }
 tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
 {
@@ -1008,7 +1041,7 @@ tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points,
     tb_assert_and_check_return(impl && impl->device);
  
     // draw lines
-    gb_device_draw_lines(impl->device, points, count, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_lines(impl->device, points, count);
 }
 tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
 {
@@ -1017,5 +1050,5 @@ tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points
     tb_assert_and_check_return(impl && impl->device);
 
     // draw points
-    gb_device_draw_points(impl->device, points, count, gb_canvas_matrix(canvas), gb_canvas_paint(canvas), gb_canvas_clipper(canvas));
+    gb_device_draw_points(impl->device, points, count);
 }

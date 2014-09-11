@@ -41,13 +41,10 @@ __tb_extern_c_enter__
 /* init render
  *
  * @param device    the device
- * @param matrix    the matrix
- * @param paint     the paint
- * @param clipper   the clipper
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+tb_bool_t           gb_gl_render_init(gb_gl_device_ref_t device);
 
 /* exit render
  *

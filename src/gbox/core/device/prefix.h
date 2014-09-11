@@ -56,8 +56,14 @@ typedef struct __gb_device_impl_t
     // the height
     tb_uint16_t             height;
 
-    // the path
-    gb_path_ref_t           path;
+    // the paint
+    gb_paint_ref_t          paint;
+
+    // the matrix
+    gb_matrix_ref_t         matrix;
+
+    // the clipper
+    gb_clipper_ref_t        clipper;
 
     /* resize
      *
@@ -79,33 +85,24 @@ typedef struct __gb_device_impl_t
      * @param device        the device
      * @param polygon       the polygon
      * @param hint          the hint shape
-     * @param matrix        the vertex matrix
-     * @param paint         the paint
-     * @param clipper       the clipper
      */
-    tb_void_t               (*draw_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*draw_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
 
     /*! draw lines 
      *
      * @param device        the device
      * @param points        the points
      * @param count         the count
-     * @param matrix        the vertex matrix
-     * @param paint         the paint
-     * @param clipper       the clipper
      */
-    tb_void_t               (*draw_lines)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*draw_lines)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count);
 	
     /*! draw points 
      *
      * @param device        the device
      * @param points        the points
      * @param count         the count
-     * @param matrix        the vertex matrix
-     * @param paint         the paint
-     * @param clipper       the clipper
      */
-    tb_void_t               (*draw_points)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper);
+    tb_void_t               (*draw_points)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count);
 	
     /*! init linear gradient shader
      *

@@ -52,7 +52,12 @@ tb_void_t gb_path_copy(gb_path_ref_t path, gb_path_ref_t copied)
 {
     tb_trace_noimpl();
 }
-tb_void_t gb_path_null(gb_path_ref_t path)
+tb_bool_t gb_path_null(gb_path_ref_t path)
+{
+    tb_trace_noimpl();
+    return tb_false;
+}
+tb_void_t gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex)
 {
     tb_trace_noimpl();
 }

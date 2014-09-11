@@ -77,34 +77,34 @@ typedef struct __gb_skia_device_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_device_skia_apply_matrix(gb_skia_device_ref_t impl, gb_matrix_ref_t matrix)
+static tb_void_t gb_device_skia_apply_matrix(gb_skia_device_ref_t impl)
 {
     // check
-    tb_assert_and_check_return(impl && impl->canvas && matrix);
+    tb_assert_and_check_return(impl && impl->canvas && impl->base.matrix);
 
     // init matrix
 	SkMatrix matrix_skia;
     matrix_skia.reset();
-    matrix_skia.setScaleX(gb_float_to_sk(matrix->sx));
-    matrix_skia.setScaleY(gb_float_to_sk(matrix->sy));
-    matrix_skia.setSkewX(gb_float_to_sk(matrix->kx));
-    matrix_skia.setSkewY(gb_float_to_sk(matrix->ky));
-    matrix_skia.setTranslateX(gb_float_to_sk(matrix->tx));
-    matrix_skia.setTranslateY(gb_float_to_sk(matrix->ty));
+    matrix_skia.setScaleX(gb_float_to_sk(impl->base.matrix->sx));
+    matrix_skia.setScaleY(gb_float_to_sk(impl->base.matrix->sy));
+    matrix_skia.setSkewX(gb_float_to_sk(impl->base.matrix->kx));
+    matrix_skia.setSkewY(gb_float_to_sk(impl->base.matrix->ky));
+    matrix_skia.setTranslateX(gb_float_to_sk(impl->base.matrix->tx));
+    matrix_skia.setTranslateY(gb_float_to_sk(impl->base.matrix->ty));
 
     // apply matrix
 	impl->canvas->setMatrix(matrix_skia);
 }
-static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl, gb_paint_ref_t paint)
+static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl)
 {
     // check
-    tb_assert_and_check_return(impl && impl->paint && paint);
+    tb_assert_and_check_return(impl && impl->paint && impl->base.paint);
 
     // init paint
     impl->paint->reset();
 
     // init style
-    tb_size_t mode = gb_paint_mode(paint);
+    tb_size_t mode = gb_paint_mode(impl->base.paint);
     switch (mode)
     {
     case GB_PAINT_MODE_FILL:
@@ -117,25 +117,25 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl, gb_paint_
 	    impl->paint->setStyle(SkPaint::kStrokeAndFill_Style);
         break;
     default:
-        tb_trace_e("invalid paint mode: %lu", gb_paint_mode(paint));
+        tb_trace_e("invalid paint mode: %lu", gb_paint_mode(impl->base.paint));
         break;
     }
 
     // init paint for shader
-    if (gb_paint_shader(paint))
+    if (gb_paint_shader(impl->base.paint))
     {
     }
     // init paint for solid
-    else impl->paint->setColor(gb_color_pixel(gb_paint_color(paint)));
+    else impl->paint->setColor(gb_color_pixel(gb_paint_color(impl->base.paint)));
 
     // init paint for stroking
     if (mode & GB_PAINT_MODE_STOK)
     {
         // init stroke width
-        impl->paint->setStrokeWidth(gb_float_to_sk(gb_paint_width(paint)));
+        impl->paint->setStrokeWidth(gb_float_to_sk(gb_paint_width(impl->base.paint)));
 
         // init cap
-        switch (gb_paint_cap(paint))
+        switch (gb_paint_cap(impl->base.paint))
         {
         case GB_PAINT_CAP_BUTT:
             impl->paint->setStrokeCap(SkPaint::kButt_Cap);
@@ -151,7 +151,7 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl, gb_paint_
         }
 
         // init join
-        switch (gb_paint_join(paint))
+        switch (gb_paint_join(impl->base.paint))
         {
         case GB_PAINT_JOIN_MITER:
             impl->paint->setStrokeJoin(SkPaint::kMiter_Join);
@@ -168,7 +168,7 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl, gb_paint_
     }
 
     // init antialiasing
-    tb_size_t flag = gb_paint_flag(paint);
+    tb_size_t flag = gb_paint_flag(impl->base.paint);
     if (flag & GB_PAINT_FLAG_ANTIALIASING) impl->paint->setFlags(impl->paint->getFlags() | SkPaint::kAntiAlias_Flag);
     else impl->paint->setFlags(impl->paint->getFlags() & ~SkPaint::kAntiAlias_Flag);
 
@@ -194,7 +194,7 @@ static tb_void_t gb_device_skia_draw_clear(gb_device_impl_t* device, gb_color_t 
     // clear it
 	impl->canvas->drawColor((SkColor)gb_color_pixel(color));
 }
-static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref_t hint)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
@@ -253,17 +253,17 @@ static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref
     // ok?
     return ok;
 }
-static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
     tb_assert_and_check_return(impl && impl->canvas && points && count);
 
     // apply matrix
-	gb_device_skia_apply_matrix(impl, matrix);
+	gb_device_skia_apply_matrix(impl);
 
     // apply paint
-    gb_device_skia_apply_paint(impl, paint);
+    gb_device_skia_apply_paint(impl);
 
     // make points
     if (!impl->points) impl->points = tb_nalloc_type(count, SkPoint);
@@ -281,17 +281,17 @@ static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t 
 	// draw it
 	impl->canvas->drawPoints(SkCanvas::kLines_PointMode, count, impl->points, *impl->paint);
 }
-static tb_void_t gb_device_skia_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_skia_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
     tb_assert_and_check_return(impl && impl->canvas && points && count);
 
     // apply matrix
-	gb_device_skia_apply_matrix(impl, matrix);
+	gb_device_skia_apply_matrix(impl);
 
     // apply paint
-    gb_device_skia_apply_paint(impl, paint);
+    gb_device_skia_apply_paint(impl);
 
     // make points
     if (!impl->points) impl->points = tb_nalloc_type(count, SkPoint);
@@ -309,7 +309,7 @@ static tb_void_t gb_device_skia_draw_points(gb_device_impl_t* device, gb_point_t
 	// draw it
 	impl->canvas->drawPoints(SkCanvas::kPoints_PointMode, count, impl->points, *impl->paint);
 }
-static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
@@ -321,13 +321,13 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     tb_assert_and_check_return(points && counts);
 
     // apply matrix
-	gb_device_skia_apply_matrix(impl, matrix);
+	gb_device_skia_apply_matrix(impl);
 
     // apply paint
-    gb_device_skia_apply_paint(impl, paint);
+    gb_device_skia_apply_paint(impl);
 
     // draw hint?
-    if (hint && gb_device_skia_draw_hint(device, hint, matrix, paint, clipper)) return ;
+    if (hint && gb_device_skia_draw_hint(device, hint)) return ;
 
     // clear path
     impl->path->reset();

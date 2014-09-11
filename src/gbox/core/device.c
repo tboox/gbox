@@ -115,10 +115,6 @@ tb_void_t gb_device_exit(gb_device_ref_t device)
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl);
 
-    // exit path
-    if (impl->path) gb_path_exit(impl->path);
-    impl->path = tb_null;
-
     // exit it
     if (impl->exit) impl->exit(impl);
 }
@@ -167,6 +163,33 @@ tb_void_t gb_device_resize(gb_device_ref_t device, tb_size_t width, tb_size_t he
     // resize
     impl->resize(impl, width, height);
 }
+tb_void_t gb_device_bind_paint(gb_device_ref_t device, gb_paint_ref_t paint)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+    // bind it
+    impl->paint = paint;
+}
+tb_void_t gb_device_bind_matrix(gb_device_ref_t device, gb_matrix_ref_t matrix)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+    // bind it
+    impl->matrix = matrix;
+}
+tb_void_t gb_device_bind_clipper(gb_device_ref_t device, gb_clipper_ref_t clipper)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+    // bind it
+    impl->clipper = clipper;
+}
 tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
 {
     // check
@@ -176,7 +199,7 @@ tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
     // clear it
     impl->draw_clear(impl, color);
 }
-tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
@@ -184,24 +207,24 @@ tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points,
     tb_assert_and_check_return(count && !(count & 0x1));
 
     // draw lines
-    impl->draw_lines(impl, points, count, matrix, paint, clipper);
+    impl->draw_lines(impl, points, count);
 }
-tb_void_t gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+tb_void_t gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl && impl->draw_points);
 
     // draw points
-    impl->draw_points(impl, points, count, matrix, paint, clipper);
+    impl->draw_points(impl, points, count);
 }
-tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl && impl->draw_polygon);
 
     // draw polygon
-    impl->draw_polygon(impl, polygon, hint, matrix, paint, clipper);
+    impl->draw_polygon(impl, polygon, hint);
 }
 

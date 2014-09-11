@@ -111,14 +111,14 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 	gb_glClearColor((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
-static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl && points && count);
 
     // init render
-    if (gb_gl_render_init(impl, matrix, paint, clipper))
+    if (gb_gl_render_init(impl))
     {
         // draw lines
         gb_gl_render_draw_lines(impl, points, count);
@@ -127,14 +127,14 @@ static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_t co
         gb_gl_render_exit(impl);
     }
 }
-static tb_void_t gb_device_gl_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_gl_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl && points && count);
 
     // init render
-    if (gb_gl_render_init(impl, matrix, paint, clipper))
+    if (gb_gl_render_init(impl))
     {
         // draw points
         gb_gl_render_draw_points(impl, points, count);
@@ -143,14 +143,14 @@ static tb_void_t gb_device_gl_draw_points(gb_device_impl_t* device, gb_point_t c
         gb_gl_render_exit(impl);
     }
 }
-static tb_void_t gb_device_gl_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+static tb_void_t gb_device_gl_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl && polygon);
 
     // init render
-    if (gb_gl_render_init(impl, matrix, paint, clipper))
+    if (gb_gl_render_init(impl))
     {
         // draw polygon
         gb_gl_render_draw_polygon(impl, polygon, hint);

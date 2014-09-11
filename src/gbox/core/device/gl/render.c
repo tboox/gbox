@@ -75,7 +75,7 @@ static tb_void_t gb_gl_render_enter_solid(gb_gl_device_ref_t device)
     tb_assert_abort(device);
  
     // the paint
-    gb_paint_ref_t paint = device->render.paint;
+    gb_paint_ref_t paint = device->base.paint;
     tb_assert_abort(paint);
 
     // the color 
@@ -125,7 +125,7 @@ static tb_void_t gb_gl_render_enter_shader(gb_gl_device_ref_t device)
     tb_assert_abort(device);
  
     // the paint
-    gb_paint_ref_t paint = device->render.paint;
+    gb_paint_ref_t paint = device->base.paint;
     tb_assert_abort(paint);
 
     // disable blend
@@ -222,10 +222,10 @@ static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, gb_paint_ref_t paint, gb_clipper_ref_t clipper)
+tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device)
 {
     // check
-    tb_assert_and_check_return_val(device && matrix && paint, tb_false);
+    tb_assert_and_check_return_val(device && device->base.matrix && device->base.paint, tb_false);
 
     // done
     tb_bool_t ok = tb_false;
@@ -234,14 +234,11 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, g
         // init render
         tb_memset(&device->render, 0, sizeof(device->render));
 
-        // init paint
-        device->render.paint = paint;
-
         // init shader
-        device->render.shader = gb_paint_shader(paint);
+        device->render.shader = gb_paint_shader(device->base.paint);
 
         // init vertex matrix
-        gb_gl_matrix_convert(device->render.matrix_vertex, matrix);
+        gb_gl_matrix_convert(device->render.matrix_vertex, device->base.matrix);
 
         // apply matrix for the fixed vertex if no GB_GL_FIXED macro
 #if defined(GB_CONFIG_FLOAT_FIXED) && !defined(GB_GL_FIXED)
@@ -252,7 +249,7 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device, gb_matrix_ref_t matrix, g
 #endif
 
         // init antialiasing
-        if (gb_paint_flag(paint) & GB_PAINT_FLAG_ANTIALIASING) 
+        if (gb_paint_flag(device->base.paint) & GB_PAINT_FLAG_ANTIALIASING) 
         {
             gb_glEnable(GB_GL_MULTISAMPLE);
 #if 0
@@ -340,14 +337,14 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
 tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->render.paint && points && count);
-    tb_assert_abort(gb_paint_mode(device->render.paint) & GB_PAINT_MODE_STOK);
+    tb_assert_abort(device && device->base.paint && points && count);
+    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STOK);
 
     // enter paint
     gb_gl_render_enter_paint(device);
 
     // the width
-    gb_float_t width = gb_paint_width(device->render.paint);
+    gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1? stok lines
     if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
@@ -364,14 +361,14 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* p
 tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->render.paint && points && count);
-    tb_assert_abort(gb_paint_mode(device->render.paint) & GB_PAINT_MODE_STOK);
+    tb_assert_abort(device && device->base.paint && points && count);
+    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STOK);
 
     // enter paint
     gb_gl_render_enter_paint(device);
 
     // the width
-    gb_float_t width = gb_paint_width(device->render.paint);
+    gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1? stok points
     if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
@@ -388,13 +385,13 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* 
 tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
 {
     // check
-    tb_assert_abort(device && device->render.paint && polygon && polygon->points && polygon->counts);
+    tb_assert_abort(device && device->base.paint && polygon && polygon->points && polygon->counts);
 
     // enter paint
     gb_gl_render_enter_paint(device);
 
     // the mode
-    tb_size_t mode = gb_paint_mode(device->render.paint);
+    tb_size_t mode = gb_paint_mode(device->base.paint);
 
     // fill it
     if (mode & GB_PAINT_MODE_FILL)
@@ -407,7 +404,7 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
     if (mode & GB_PAINT_MODE_STOK)
     {
         // the width
-        gb_float_t width = gb_paint_width(device->render.paint);
+        gb_float_t width = gb_paint_width(device->base.paint);
 
         // width == 1? stok polygon
         if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
