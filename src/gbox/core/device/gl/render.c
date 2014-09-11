@@ -334,7 +334,7 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
     // disable antialiasing
     gb_glDisable(GB_GL_MULTISAMPLE);
 }
-tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
@@ -358,7 +358,7 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* p
     // leave paint
     gb_gl_render_leave_paint(device);
 }
-tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
@@ -382,7 +382,7 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* 
     // leave paint
     gb_gl_render_leave_paint(device);
 }
-tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(device && device->base.paint && polygon && polygon->points && polygon->counts);

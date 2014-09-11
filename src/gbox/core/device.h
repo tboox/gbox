@@ -158,24 +158,27 @@ tb_void_t           gb_device_draw_clear(gb_device_ref_t device, gb_color_t colo
  * @param device    the device
  * @param points    the points
  * @param count     the points count
+ * @param bounds    the bounds
  */
-tb_void_t           gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count);
+tb_void_t           gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
 
 /*! draw points
  *
  * @param device    the device
  * @param points    the points
  * @param count     the points count 
+ * @param bounds    the bounds
  */
-tb_void_t           gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count);
+tb_void_t           gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
 
 /*! draw polygon
  *
  * @param device    the device
  * @param polygon   the polygon
  * @param hint      the hint shape
+ * @param bounds    the bounds
  */
-tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
+tb_void_t           gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

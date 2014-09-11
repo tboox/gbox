@@ -111,7 +111,7 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 	gb_glClearColor((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
-static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
+static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
@@ -121,13 +121,13 @@ static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_t co
     if (gb_gl_render_init(impl))
     {
         // draw lines
-        gb_gl_render_draw_lines(impl, points, count);
+        gb_gl_render_draw_lines(impl, points, count, bounds);
     
         // exit render
         gb_gl_render_exit(impl);
     }
 }
-static tb_void_t gb_device_gl_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
+static tb_void_t gb_device_gl_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
@@ -137,13 +137,13 @@ static tb_void_t gb_device_gl_draw_points(gb_device_impl_t* device, gb_point_t c
     if (gb_gl_render_init(impl))
     {
         // draw points
-        gb_gl_render_draw_points(impl, points, count);
+        gb_gl_render_draw_points(impl, points, count, bounds);
     
         // exit render
         gb_gl_render_exit(impl);
     }
 }
-static tb_void_t gb_device_gl_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+static tb_void_t gb_device_gl_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
@@ -153,7 +153,7 @@ static tb_void_t gb_device_gl_draw_polygon(gb_device_impl_t* device, gb_polygon_
     if (gb_gl_render_init(impl))
     {
         // draw polygon
-        gb_gl_render_draw_polygon(impl, polygon, hint);
+        gb_gl_render_draw_polygon(impl, polygon, hint, bounds);
     
         // exit render
         gb_gl_render_exit(impl);

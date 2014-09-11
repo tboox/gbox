@@ -57,6 +57,11 @@ tb_bool_t gb_path_null(gb_path_ref_t path)
     tb_trace_noimpl();
     return tb_false;
 }
+gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
+{
+    tb_trace_noimpl();
+    return tb_null;
+}
 tb_void_t gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex)
 {
     tb_trace_noimpl();

@@ -17,17 +17,16 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        render.h
+ * @file        bounds.h
  * @ingroup     core
- *
  */
-#ifndef GB_CORE_DEVICE_GL_RENDER_H
-#define GB_CORE_DEVICE_GL_RENDER_H
+#ifndef GB_CORE_IMPL_BOUNDS_H
+#define GB_CORE_IMPL_BOUNDS_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "device.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -35,52 +34,58 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interface
+ * inlines
  */
 
-/* init render
+/* make bounds from the points
  *
- * @param device    the device
- *
- * @return          tb_true or tb_false
+ * @param bounds                the bounds
+ * @param points                the points 
+ * @param count                 the points count
  */
-tb_bool_t           gb_gl_render_init(gb_gl_device_ref_t device);
+static __tb_inline__ tb_void_t  gb_bounds_make(gb_rect_ref_t bounds, gb_point_t const* points, tb_size_t count)
+{
+    // check
+    tb_assert_abort(bounds && points && count > 1);
 
-/* exit render
- *
- * @param device    the device
- */
-tb_void_t           gb_gl_render_exit(gb_gl_device_ref_t device);
+    // the point
+    gb_point_t const* point = points++; count--;
 
-/* draw lines
- *
- * @param device    the device
- * @param points    the points
- * @param count     the points count
- * @param bounds    the bounds
- */
-tb_void_t           gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+    // done
+    gb_float_t x0 = point->x;
+    gb_float_t y0 = point->y;
+    gb_float_t x1 = x0;
+    gb_float_t y1 = y0;
+    gb_float_t x;
+    gb_float_t y;
+    while (count--)
+    {
+        // the point
+        x = points->x;
+        y = points->y;
 
-/* draw points
- *
- * @param device    the device
- * @param points    the points
- * @param count     the points count
- * @param bounds    the bounds
- */
-tb_void_t           gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+        // make minimum and maximum point
+        if (x < x0) x0 = x;
+        if (y < y0) y0 = y;
+        if (x > x1) x1 = x;
+        if (y > y1) y1 = y;
 
-/* draw polygon
- *
- * @param device    the device
- * @param polygon   the polygon
- * @param hint      the hint shape
- * @param bounds    the bounds
- */
-tb_void_t           gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds);
+        // next point
+        points++;
+    }
+
+    // make bounds
+    bounds->x = x0;
+    bounds->y = y0;
+    bounds->w = x1 - x0 + GB_ONE;
+    bounds->h = y1 - y0 + GB_ONE;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_leave__
+
 #endif
+
+

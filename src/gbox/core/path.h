@@ -101,6 +101,14 @@ tb_void_t           gb_path_copy(gb_path_ref_t path, gb_path_ref_t copied);
  */
 tb_bool_t           gb_path_null(gb_path_ref_t path);
 
+/*! the path bounds
+ *
+ * @param path      the path
+ *
+ * @return          the bounds
+ */
+gb_rect_ref_t       gb_path_bounds(gb_path_ref_t path);
+
 /*! set to be convex path, convex path may draw faster
  *
  * @param path      the path

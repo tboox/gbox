@@ -37,6 +37,7 @@
 #include "path.h"
 #include "paint.h"
 #include "clipper.h"
+#include "impl/bounds.h"
 #include "impl/cache_stack.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -781,7 +782,7 @@ tb_void_t gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_path_ref_t path)
 
     // draw it
     gb_shape_ref_t hint = tb_null;
-    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), hint);
+    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), hint, gb_path_bounds(path));
 }
 tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {
@@ -790,7 +791,7 @@ tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
     tb_assert_and_check_return(impl && impl->device);
 
     // draw point
-    gb_device_draw_points(impl->device, point, 1);
+    gb_device_draw_points(impl->device, point, 1, tb_null);
 }
 tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
@@ -817,8 +818,12 @@ tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
     // init points
     gb_point_t points[] = {line->p0, line->p1};
 
+    // init bounds
+    gb_rect_t bounds;
+    gb_bounds_make(&bounds, points, tb_arrayn(points));
+
     // draw lines
-    gb_device_draw_lines(impl->device, points, 2);
+    gb_device_draw_lines(impl->device, points, 2, &bounds);
 }
 tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
@@ -888,8 +893,12 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
     hint.type       = GB_SHAPE_TYPE_TRIANGLE;
     hint.u.triangle = *triangle;
 
+    // init bounds
+    gb_rect_t       bounds;
+    gb_bounds_make(&bounds, points, tb_arrayn(points));
+
     // draw it
-    gb_device_draw_polygon(impl->device, &polygon, &hint);
+    gb_device_draw_polygon(impl->device, &polygon, &hint, tb_null);
 }
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
@@ -935,7 +944,7 @@ tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
     hint.u.rect     = *rect;
 
     // draw it
-    gb_device_draw_polygon(impl->device, &polygon, &hint);
+    gb_device_draw_polygon(impl->device, &polygon, &hint, rect);
 }
 tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
@@ -1032,7 +1041,7 @@ tb_void_t gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygo
     tb_assert_and_check_return(impl && impl->device);
 
     // draw polygon
-    gb_device_draw_polygon(impl->device, polygon, tb_null);
+    gb_device_draw_polygon(impl->device, polygon, tb_null, tb_null);
 }
 tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
 {
@@ -1041,7 +1050,7 @@ tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points,
     tb_assert_and_check_return(impl && impl->device);
  
     // draw lines
-    gb_device_draw_lines(impl->device, points, count);
+    gb_device_draw_lines(impl->device, points, count, tb_null);
 }
 tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
 {
@@ -1050,5 +1059,5 @@ tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points
     tb_assert_and_check_return(impl && impl->device);
 
     // draw points
-    gb_device_draw_points(impl->device, points, count);
+    gb_device_draw_points(impl->device, points, count, tb_null);
 }

@@ -199,7 +199,7 @@ tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
     // clear it
     impl->draw_clear(impl, color);
 }
-tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
@@ -207,24 +207,24 @@ tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points,
     tb_assert_and_check_return(count && !(count & 0x1));
 
     // draw lines
-    impl->draw_lines(impl, points, count);
+    impl->draw_lines(impl, points, count, bounds);
 }
-tb_void_t gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl && impl->draw_points);
 
     // draw points
-    impl->draw_points(impl, points, count);
+    impl->draw_points(impl, points, count, bounds);
 }
-tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+tb_void_t gb_device_draw_polygon(gb_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl && impl->draw_polygon);
 
     // draw polygon
-    impl->draw_polygon(impl, polygon, hint);
+    impl->draw_polygon(impl, polygon, hint, bounds);
 }
 

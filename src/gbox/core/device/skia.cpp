@@ -253,7 +253,7 @@ static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref
     // ok?
     return ok;
 }
-static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
+static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
@@ -281,7 +281,7 @@ static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_t 
 	// draw it
 	impl->canvas->drawPoints(SkCanvas::kLines_PointMode, count, impl->points, *impl->paint);
 }
-static tb_void_t gb_device_skia_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count)
+static tb_void_t gb_device_skia_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
@@ -309,7 +309,7 @@ static tb_void_t gb_device_skia_draw_points(gb_device_impl_t* device, gb_point_t
 	// draw it
 	impl->canvas->drawPoints(SkCanvas::kPoints_PointMode, count, impl->points, *impl->paint);
 }
-static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
     // check
     gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;

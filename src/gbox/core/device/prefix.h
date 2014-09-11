@@ -80,30 +80,33 @@ typedef struct __gb_device_impl_t
      */
     tb_void_t               (*draw_clear)(struct __gb_device_impl_t* device, gb_color_t color);
 
-    /*! draw polygon
-     *
-     * @param device        the device
-     * @param polygon       the polygon
-     * @param hint          the hint shape
-     */
-    tb_void_t               (*draw_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
-
     /*! draw lines 
      *
      * @param device        the device
      * @param points        the points
      * @param count         the count
+     * @param bounds        the bounds
      */
-    tb_void_t               (*draw_lines)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count);
+    tb_void_t               (*draw_lines)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
 	
     /*! draw points 
      *
      * @param device        the device
      * @param points        the points
      * @param count         the count
+     * @param bounds        the bounds
      */
-    tb_void_t               (*draw_points)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count);
+    tb_void_t               (*draw_points)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
 	
+    /*! draw polygon
+     *
+     * @param device        the device
+     * @param polygon       the polygon
+     * @param hint          the hint shape
+     * @param bounds        the bounds
+     */
+    tb_void_t               (*draw_polygon)(struct __gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds);
+
     /*! init linear gradient shader
      *
      * @param device        the device
