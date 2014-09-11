@@ -162,7 +162,7 @@ static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
     // leave solid
     else gb_gl_render_leave_solid(device);
 }
-static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
+static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_uint16_t const* counts)
 {
     // check
     tb_assert_abort(device && points && counts);
@@ -171,8 +171,8 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_t
     gb_gl_render_apply_vertices(device, points);
 
     // done
-    tb_size_t count;
-    tb_size_t index = 0;
+    tb_uint16_t count;
+    tb_size_t   index = 0;
     while ((count = *counts++))
     {
         gb_glDrawArrays(GB_GL_TRIANGLE_FAN, (gb_GLint_t)index, (gb_GLint_t)count);
@@ -201,7 +201,7 @@ static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_t 
     // done
     gb_glDrawArrays(GB_GL_POINTS, 0, (gb_GLint_t)count);
 }
-static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t const* counts)
+static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_uint16_t const* counts)
 {
     // check
     tb_assert_abort(device && points && counts);
@@ -210,8 +210,8 @@ static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_t
     gb_gl_render_apply_vertices(device, points);
 
     // done
-    tb_size_t count;
-    tb_size_t index = 0;
+    tb_uint16_t count;
+    tb_size_t   index = 0;
     while ((count = *counts++))
     {
         gb_glDrawArrays(GB_GL_LINE_STRIP, (gb_GLint_t)index, (gb_GLint_t)count);

@@ -317,7 +317,7 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
 
     // the points
     gb_point_t const*   points = polygon->points;
-    tb_size_t const*    counts = polygon->counts;
+    tb_uint16_t const*  counts = polygon->counts;
     tb_assert_and_check_return(points && counts);
 
     // apply matrix
@@ -333,8 +333,8 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     impl->path->reset();
 
     // init path
-    tb_size_t count = *counts++;
-    tb_size_t index = 0;
+    tb_uint16_t count = *counts++;
+    tb_size_t   index = 0;
     while (index < count)
     {
         // first point?

@@ -42,6 +42,7 @@
  */
 
 // core
+TB_DEMO_MAIN_DECL(core_path);
 TB_DEMO_MAIN_DECL(core_bitmap);
 
 // other

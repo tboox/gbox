@@ -241,7 +241,7 @@ typedef struct __gb_polygon_t
     gb_point_t*         points;
 
     /// the counts
-    tb_size_t*          counts;
+    tb_uint16_t*        counts;
 
     /// is convex?
     tb_bool_t           convex;
@@ -269,7 +269,7 @@ typedef struct __gb_gradient_t
 typedef gb_gradient_t*  gb_gradient_ref_t;
 
 /// the path ref type
-typedef struct{}*       gb_path_ref_t;
+typedef tb_iterator_ref_t gb_path_ref_t;
 
 /// the shape type enum
 typedef enum __gb_shape_type_e

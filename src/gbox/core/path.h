@@ -117,6 +117,15 @@ gb_rect_ref_t       gb_path_bounds(gb_path_ref_t path);
  */
 tb_void_t           gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex);
 
+/*! get the last point
+ *
+ * @param path      the path
+ * @param point     the last point
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_path_last(gb_path_ref_t path, gb_point_ref_t point);
+
 /*! the path polygon for filling
  *
  * @param path      the path
