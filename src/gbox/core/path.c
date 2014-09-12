@@ -1023,7 +1023,14 @@ tb_void_t gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_si
 }
 tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle)
 {
-    tb_trace_noimpl();
+    // check
+    tb_assert_and_check_return(circle);
+
+    // make ellipse
+    gb_ellipse_t ellipse = gb_ellipse_make(circle->c.x, circle->c.y, circle->r, circle->r);
+
+    // add ellipse
+    gb_path_add_ellipse(path, &ellipse);
 }
 tb_void_t gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
@@ -1043,7 +1050,11 @@ tb_void_t gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, t
 }
 tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
 {
-    tb_trace_noimpl();
+    // check
+    tb_assert_and_check_return(ellipse);
+
+    // TODO
+    // fast bounds, fast hint
 }
 tb_void_t gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
