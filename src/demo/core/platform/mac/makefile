@@ -14,6 +14,7 @@ application_C_FILES 								+= \
 													../../demo \
 													../../arc \
 													../../rect \
+													../../path \
 													../../line \
 													../../lines \
 													../../point \

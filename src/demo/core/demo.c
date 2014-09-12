@@ -10,6 +10,7 @@
 #include "demo.h"
 #include "arc.h"
 #include "rect.h"
+#include "path.h"
 #include "line.h"
 #include "lines.h"
 #include "point.h"
@@ -50,6 +51,7 @@ static tb_size_t        g_index = 0;
 static gb_demo_entry_t  g_entries[] =
 {
     {gb_demo_rect_init,         gb_demo_rect_exit,      gb_demo_rect_draw,      gb_demo_rect_event      }
+,   {gb_demo_path_init,         gb_demo_path_exit,      gb_demo_path_draw,      gb_demo_path_event      }
 ,   {gb_demo_arc_init,          gb_demo_arc_exit,       gb_demo_arc_draw,       gb_demo_arc_event       }
 ,   {gb_demo_line_init,         gb_demo_line_exit,      gb_demo_line_draw,      gb_demo_line_event      }
 ,   {gb_demo_lines_init,        gb_demo_lines_exit,     gb_demo_lines_draw,     gb_demo_lines_event     }
@@ -109,12 +111,14 @@ tb_bool_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
 	// init matrix
 	gb_matrix_init_translate(&g_matrix, x0, y0);
 
-    // the entry
-    gb_demo_entry_t const* entry = &g_entries[g_index];
-    tb_assert_abort(entry->init);
-
-    // done init
-    entry->init(window);
+    // init entries
+    tb_size_t index = 0;
+    tb_size_t count = tb_arrayn(g_entries);
+    for (index = 0; index < count; index++)
+    {
+        // done init
+        if (g_entries[index].init) g_entries[index].init(window);
+    }
 
     // ok
     return tb_true;

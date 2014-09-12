@@ -781,8 +781,8 @@ tb_void_t gb_canvas_draw_path(gb_canvas_ref_t canvas, gb_path_ref_t path)
     tb_assert_and_check_return(impl && impl->device && path);
 
     // draw it
-    gb_shape_ref_t hint = tb_null;
-    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), hint, gb_path_bounds(path));
+    gb_shape_t hint;
+    gb_device_draw_polygon(impl->device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
 }
 tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 {

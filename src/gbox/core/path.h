@@ -128,11 +128,11 @@ tb_bool_t           gb_path_last(gb_path_ref_t path, gb_point_ref_t point);
 /*! the path polygon for filling
  *
  * @param path      the path
- * @param phint     the hint shape pointer
+ * @param hint      the hint shape 
  *
  * @return          the polygon
  */
-gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t* phint);
+gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint);
 
 /*! close path
  *

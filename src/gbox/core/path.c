@@ -76,9 +76,6 @@ typedef struct __gb_path_impl_t
     // the polygon
     gb_polygon_t        polygon;
 
-    // the last move-to point 
-    gb_point_t          moveto;
-
     // the bounds
     gb_rect_t           bounds;
 
@@ -122,8 +119,8 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl, 0);
 
-    // the point index step
-    static tb_size_t s_point_index_step[] = {1, 1, 2, 3, 0};
+    // the point count for code
+    static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
 
     // the last code index
     tb_size_t code_last = tb_vector_size(impl->codes);
@@ -131,10 +128,10 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
     
     // the last code
     tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_last);
-    tb_assert_abort(code < tb_arrayn(s_point_index_step));
+    tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
 
     // the last point step
-    tb_size_t point_step = s_point_index_step[code];
+    tb_size_t point_step = s_point_count_for_code[code];
 
     // the last point index
     tb_size_t point_last = tb_vector_size(impl->points);
@@ -163,8 +160,8 @@ static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl && impl->codes, 0);
 
-    // the point index step
-    static tb_size_t s_point_index_step[] = {1, 1, 2, 3, 0};
+    // the point count for code
+    static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
 
     // the code and point index
     tb_size_t code_index    = itor >> 16;
@@ -172,13 +169,13 @@ static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
 
     // the code
     tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
-    tb_assert_abort(code < tb_arrayn(s_point_index_step));
+    tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
 
     // next code index
     code_index++;
 
     // next point index
-    point_index += s_point_index_step[code];
+    point_index += s_point_count_for_code[code];
 
     // next
     return ((code_index << 16) | point_index);
@@ -381,9 +378,6 @@ tb_void_t gb_path_copy(gb_path_ref_t path, gb_path_ref_t copied)
 
     // copy bounds
     impl->bounds = impl_copied->bounds;
-
-    // copy the last move-to point
-    impl->moveto = impl_copied->moveto;
 }
 tb_bool_t gb_path_null(gb_path_ref_t path)
 {
@@ -443,10 +437,98 @@ tb_bool_t gb_path_last(gb_path_ref_t path, gb_point_ref_t point)
     // ok?
     return last? tb_true : tb_false;
 }
-gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t* phint)
+gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
 {
-    tb_trace_noimpl();
-    return tb_null;
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return_val(impl && impl->points && impl->codes, tb_null);
+
+    // polygon dirty? remake it
+    if (impl->flag & GB_PATH_FLAG_DIRTY_POLYGON)
+    {
+        // make polygon counts
+        if (!impl->polygon_counts) impl->polygon_counts = tb_vector_init(8, tb_item_func_uint16());
+        tb_assert_and_check_return_val(impl->polygon_counts, tb_null);
+
+        // have curve?
+        if (impl->flag & GB_PATH_FLAG_HAVE_CURVE)
+        {
+            // TODO
+        }
+        // only move-to and line-to? using the points directly
+        else
+        {
+            // the point count for code
+            static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
+
+            // init polygon counts
+            tb_uint16_t count = 0;
+            tb_vector_clear(impl->polygon_counts);
+            tb_for_all (tb_uint8_t, code, impl->codes)
+            {
+                // check
+                tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
+
+                // update count
+                count += s_point_count_for_code[code];
+
+                // append count
+                if (code == GB_PATH_CODE_CLOS) 
+                {
+                    tb_vector_insert_tail(impl->polygon_counts, tb_u2p(count));
+                    count = 0;
+                }
+            }
+
+            // append the last count
+            if (count)
+            {
+                tb_vector_insert_tail(impl->polygon_counts, tb_u2p(count));
+                count = 0;
+            }
+
+            // append the tail count
+            tb_vector_insert_tail(impl->polygon_counts, (tb_cpointer_t)0);
+
+            // init polygon
+            impl->polygon.convex = impl->flag & GB_PATH_FLAG_CONVEX_POLYGON? tb_true : tb_false;
+            impl->polygon.points = (gb_point_t*)tb_vector_data(impl->points);
+            impl->polygon.counts = (tb_uint16_t*)tb_vector_data(impl->polygon_counts);
+        }
+
+        // attempt to analyze convex polygon
+        if (!impl->polygon.convex)
+        {
+            // TODO
+            // ...
+        }
+
+        // remove dirty
+        impl->flag &= ~GB_PATH_FLAG_DIRTY_POLYGON;
+    }
+
+    // check
+    tb_assert_and_check_return_val(impl->polygon.points && impl->polygon.counts, tb_null);
+
+    // need hint?
+    if (hint)
+    {
+        // hint dirty? remake it
+        if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
+        {
+            // TODO
+            // ...
+
+            // remove dirty
+            impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
+        }
+
+        // save hint
+        *hint = impl->hint;
+    }
+
+    // ok?
+    return &impl->polygon;
 }
 tb_void_t gb_path_clos(gb_path_ref_t path)
 {
@@ -457,9 +539,6 @@ tb_void_t gb_path_clos(gb_path_ref_t path)
 	// close it for avoiding be double closed
 	if (!tb_vector_size(impl->codes) || tb_vector_last(impl->codes) != (tb_cpointer_t)GB_PATH_CODE_CLOS) 
 	{
-        // append point for closing it
-		gb_path_line_to(path, &impl->moveto);
-
 		// append code
 		tb_vector_insert_tail(impl->codes, (tb_cpointer_t)GB_PATH_CODE_CLOS);
 	}
@@ -488,9 +567,6 @@ tb_void_t gb_path_move_to(gb_path_ref_t path, gb_point_ref_t point)
         // append point
         tb_vector_insert_tail(impl->points, point);
     }
-
-    // save the last move-to point
-    impl->moveto = *point;
 
     // clear closed
     impl->flag &= ~GB_PATH_FLAG_CLOSED;
@@ -576,8 +652,8 @@ tb_void_t gb_path_quad_to(gb_path_ref_t path, gb_point_ref_t ctrl, gb_point_ref_
     tb_vector_insert_tail(impl->points, ctrl);
     tb_vector_insert_tail(impl->points, point);
 
-    // mark dirty
-    impl->flag |= GB_PATH_FLAG_DIRTY_ALL;
+    // mark dirty and curve
+    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_HAVE_CURVE;
 }
 tb_void_t gb_path_quad2_to(gb_path_ref_t path, gb_float_t cx, gb_float_t cy, gb_float_t x, gb_float_t y)
 {
@@ -624,8 +700,8 @@ tb_void_t gb_path_cube_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref
     tb_vector_insert_tail(impl->points, ctrl1);
     tb_vector_insert_tail(impl->points, point);
 
-    // mark dirty
-    impl->flag |= GB_PATH_FLAG_DIRTY_ALL;
+    // mark dirty and curve
+    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_HAVE_CURVE;
 }
 tb_void_t gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {

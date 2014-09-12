@@ -333,13 +333,17 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     impl->path->reset();
 
     // init path
-    tb_uint16_t count = *counts++;
-    tb_size_t   index = 0;
+    gb_point_t const*   point = tb_null;
+    tb_uint16_t         count = *counts++;
+    tb_size_t           index = 0;
     while (index < count)
     {
+        // the point
+        point = points++;
+
         // first point?
-        if (!index) impl->path->moveTo(gb_float_to_sk(points[index].x), gb_float_to_sk(points[index].y));
-        else impl->path->lineTo(gb_float_to_sk(points[index].x), gb_float_to_sk(points[index].y));
+        if (!index) impl->path->moveTo(gb_float_to_sk(point->x), gb_float_to_sk(point->y));
+        else impl->path->lineTo(gb_float_to_sk(point->x), gb_float_to_sk(point->y));
 
         // next point
         index++;
