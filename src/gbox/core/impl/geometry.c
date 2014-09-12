@@ -17,20 +17,44 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        cube.c
+ * @file        geometry.c
  * @ingroup     core
- *
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "cube.h"
+#include "geometry.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_cutter_cube_done(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_cutter_func_t func, tb_cpointer_t priv)
+tb_void_t gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_make_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_return(func && pb && cp && pe);
+
+    // init
+    gb_float_t mx = cp->x - gb_rsh(pb->x + pe->x, 1);
+    gb_float_t my = cp->y - gb_rsh(pb->y + pe->y, 1);
+
+    // ok?
+    if (gb_fabs(mx) + gb_fabs(my) <= GB_ONE) func(pe, priv);
+    else
+    {
+        gb_point_t p0, cpb, cpe;
+        cpb.x = gb_rsh(pb->x + cp->x, 1);
+        cpb.y = gb_rsh(pb->y + cp->y, 1);
+        cpe.x = gb_rsh(cp->x + pe->x, 1);
+        cpe.y = gb_rsh(cp->y + pe->y, 1);
+        p0.x = gb_rsh(cpb.x + cpe.x, 1);
+        p0.y = gb_rsh(cpb.y + cpe.y, 1);
+
+        gb_geometry_make_quad(pb, &cpb, &p0, func, priv);
+        gb_geometry_make_quad(&p0, &cpe, pe, func, priv);
+    }
+}
+tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_make_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_return(func && pb && cpb && cpe && pe && priv);
@@ -50,7 +74,7 @@ tb_void_t gb_cutter_cube_done(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_re
     if (mye < myb) myb = mye;
 
     // ok?
-    if (mxb + myb <= GB_ONE) func(GB_PATH_CODE_LINE, pe, priv);
+    if (mxb + myb <= GB_ONE) func(pe, priv);
     else
     {
         gb_point_t cp0, cp1, cp2, pb0, pe0, p0;
@@ -73,8 +97,8 @@ tb_void_t gb_cutter_cube_done(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_re
         p0.x = gb_rsh(pb0.x + pe0.x, 1);
         p0.y = gb_rsh(pb0.y + pe0.y, 1);
 
-        gb_cutter_cube_done(pb, &cp1, &pb0, &p0, func, priv);
-        gb_cutter_cube_done(&p0, &pe0, &cp2, pe, func, priv);
+        gb_geometry_make_cube(pb, &cp1, &pb0, &p0, func, priv);
+        gb_geometry_make_cube(&p0, &pe0, &cp2, pe, func, priv);
     }
 }
 

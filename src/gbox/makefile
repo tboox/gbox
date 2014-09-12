@@ -28,12 +28,8 @@ gbox_C_FILES 			+= \
 						core/bitmap/decoder/bmp \
 						core/impl/path_cache \
 						core/impl/cache_stack \
-						core/impl/cutter/arc \
-						core/impl/cutter/func \
-						core/impl/cutter/cube \
-						core/impl/cutter/quad \
-						core/impl/cutter/circle \
-						core/impl/cutter/ellipse 
+						core/impl/cache_stack \
+						core/impl/geometry 
 
 
 # gl core files

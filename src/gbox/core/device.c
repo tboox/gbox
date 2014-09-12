@@ -35,7 +35,6 @@
 #include "device/prefix.h"
 #include "path.h"
 #include "paint.h"
-#include "impl/cutter/cutter.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * declaration

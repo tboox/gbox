@@ -32,7 +32,7 @@
  */
 #include "path.h"
 #include "impl/bounds.h"
-#include "impl/cutter/cutter.h"
+#include "impl/geometry.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -272,7 +272,7 @@ static tb_bool_t gb_path_python_is_convex(gb_path_impl_t* impl)
     // TODO
     return tb_false;
 }
-static tb_void_t gb_path_cutter_func(tb_size_t code, gb_point_ref_t point, tb_cpointer_t priv)
+static tb_void_t gb_path_make_curve(gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
     tb_value_t* values = (tb_value_t*)priv;
@@ -350,7 +350,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
                     // make quad points
                     gb_point_ref_t ctrl = points++;
                     gb_point_ref_t point = points++;
-                    gb_cutter_quad_done(last, ctrl, point, gb_path_cutter_func, values);
+                    gb_geometry_make_quad(last, ctrl, point, gb_path_make_curve, values);
 
                     // save last point
                     last = point;
@@ -362,7 +362,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
                     gb_point_ref_t ctrl0 = points++;
                     gb_point_ref_t ctrl1 = points++;
                     gb_point_ref_t point = points++;
-                    gb_cutter_cube_done(last, ctrl0, ctrl1, point, gb_path_cutter_func, values);
+                    gb_geometry_make_cube(last, ctrl0, ctrl1, point, gb_path_make_curve, values);
 
                     // save last point
                     last = point;
