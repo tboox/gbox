@@ -82,6 +82,9 @@ typedef struct __gb_path_impl_t
     // the bounds
     gb_rect_t           bounds;
 
+    // the itor item
+    gb_path_item_t      item;
+
     // the codes, tb_uint8_t[]
     tb_vector_ref_t     codes;
 
@@ -119,19 +122,26 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl, 0);
 
-    // the codes and points size
-    tb_size_t codes_last    = tb_vector_size(impl->codes);
-    tb_size_t points_last   = tb_vector_size(impl->points);
-    tb_assert_abort(codes_last <= TB_MAXU16 && points_last <= TB_MAXU16);
+    // the point index step
+    static tb_size_t s_point_index_step[] = {1, 1, 2, 3, 0};
 
-    // move to the last index
-    if (codes_last)     codes_last--;
+    // the last code index
+    tb_size_t code_last = tb_vector_size(impl->codes);
+    if (code_last) code_last--;
     
-    // FIXME
-    if (points_last)    points_last--;
+    // the last code
+    tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_last);
+    tb_assert_abort(code < tb_arrayn(s_point_index_step));
+
+    // the last point step
+    tb_size_t point_step = s_point_index_step[code];
+
+    // the last point index
+    tb_size_t point_last = tb_vector_size(impl->points);
+    if (point_last >= point_step) point_last -= point_step;
 
     // last
-    return ((codes_last << 16) | points_last);
+    return ((code_last << 16) | point_last);
 }
 static tb_size_t gb_path_itor_tail(tb_iterator_ref_t iterator)
 {
@@ -139,38 +149,119 @@ static tb_size_t gb_path_itor_tail(tb_iterator_ref_t iterator)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl && impl->codes && impl->points, 0);
 
-    // the codes and points tail
-    tb_size_t codes_tail    = tb_vector_size(impl->codes);
-    tb_size_t points_tail   = tb_vector_size(impl->points);
-    tb_assert_abort(codes_tail <= TB_MAXU16 && points_tail <= TB_MAXU16);
+    // the code and point tail
+    tb_size_t code_tail     = tb_vector_size(impl->codes);
+    tb_size_t point_tail    = tb_vector_size(impl->points);
+    tb_assert_abort(code_tail <= TB_MAXU16 && point_tail <= TB_MAXU16);
 
     // tail
-    return ((codes_tail << 16) | points_tail);
+    return ((code_tail << 16) | point_tail);
 }
 static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl, 0);
-//    tb_assert_and_check_return_val(itor < impl->size, impl->size);
+    tb_assert_return_val(impl && impl->codes, 0);
 
-    // the codes and points index
-    tb_size_t codes_index    = itor >> 16;
+    // the point index step
+    static tb_size_t s_point_index_step[] = {1, 1, 2, 3, 0};
 
-    // FIXME
-    tb_size_t points_index   = itor & 0xffff;
+    // the code and point index
+    tb_size_t code_index    = itor >> 16;
+    tb_size_t point_index   = itor & 0xffff;
+
+    // the code
+    tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
+    tb_assert_abort(code < tb_arrayn(s_point_index_step));
+
+    // next code index
+    code_index++;
+
+    // next point index
+    point_index += s_point_index_step[code];
 
     // next
-    return ((codes_index << 16) | points_index);
+    return ((code_index << 16) | point_index);
 }
 static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
-//    gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-//    tb_assert_and_check_return_val(impl && itor < impl->size, tb_null);
+    gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
+    tb_assert_return_val(impl && impl->codes && impl->points, tb_null);
     
+    // the code and point index
+    tb_size_t code_index    = itor >> 16;
+    tb_size_t point_index   = itor & 0xffff;
+
+    // init item
+    impl->item.code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
+    switch (impl->item.code)
+    {
+    case GB_PATH_CODE_MOVE:
+        {
+            // the point
+            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
+            tb_assert_abort(point);
+
+            // save point
+            impl->item.point = *point;
+        }
+        break;
+    case GB_PATH_CODE_LINE:
+        {
+            // the point
+            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
+            tb_assert_abort(point);
+
+            // save point
+            impl->item.point = *point;
+        }
+        break;
+    case GB_PATH_CODE_QUAD:
+        {
+            // the ctrl
+            gb_point_ref_t ctrl = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
+            tb_assert_abort(ctrl);
+
+            // the point
+            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index + 1);
+            tb_assert_abort(point);
+
+            // save points
+            impl->item.ctrls[0] = *ctrl;
+            impl->item.point    = *point;
+        }
+        break;
+    case GB_PATH_CODE_CUBE:
+        {
+            // the ctrl0
+            gb_point_ref_t ctrl0 = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
+            tb_assert_abort(ctrl0);
+
+            // the ctrl1
+            gb_point_ref_t ctrl1 = (gb_point_ref_t)tb_iterator_item(impl->points, point_index + 1);
+            tb_assert_abort(ctrl1);
+
+            // the point
+            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index + 2);
+            tb_assert_abort(point);
+
+            // save points
+            impl->item.ctrls[0] = *ctrl0;
+            impl->item.ctrls[1] = *ctrl1;
+            impl->item.point    = *point;
+        }
+        break;
+    case GB_PATH_CODE_CLOS:
+        break;
+    default:
+        // trace
+        tb_trace_e("invalid code: %lu", impl->item.code);
+        return tb_null;
+    }
+
     // data
-    return tb_null;
+    return &impl->item;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -586,7 +677,32 @@ tb_void_t gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_si
 }
 tb_void_t gb_path_add_path(gb_path_ref_t path, gb_path_ref_t added)
 {
-    tb_trace_noimpl();
+    // done
+    tb_for_all_if (gb_path_item_ref_t, item, added, item)
+    {
+        switch (item->code)
+        {
+        case GB_PATH_CODE_MOVE:
+            gb_path_move_to(path, &item->point);
+            break;
+        case GB_PATH_CODE_LINE:
+            gb_path_line_to(path, &item->point);
+            break;
+        case GB_PATH_CODE_QUAD:
+            gb_path_quad_to(path, &item->ctrls[0], &item->point);
+            break;
+        case GB_PATH_CODE_CUBE:
+            gb_path_cube_to(path, &item->ctrls[0], &item->ctrls[1], &item->point);
+            break;
+        case GB_PATH_CODE_CLOS:
+            gb_path_clos(path);
+            break;
+        default:
+            // trace
+            tb_trace_e("invalid code: %lu", item->code);
+            break;
+        }
+    }
 }
 tb_void_t gb_path_add_line(gb_path_ref_t path, gb_line_ref_t line)
 {
@@ -737,8 +853,37 @@ tb_void_t gb_path_dump(gb_path_ref_t path)
     // trace
     tb_trace_i("");
 
+    // trace last point
+    gb_point_t last = {0};
+    if (gb_path_last(path, &last)) tb_trace_i("last: %{point}", &last);
+
     // trace bounds
     tb_trace_i("bounds: %{rect}", gb_path_bounds(path));
+
+    // trace points
+    tb_for_all_if (gb_path_item_ref_t, item, path, item)
+    {
+        switch (item->code)
+        {
+        case GB_PATH_CODE_MOVE:
+            tb_trace_i("move_to: %{point}", &item->point);
+            break;
+        case GB_PATH_CODE_LINE:
+            tb_trace_i("line_to: %{point}", &item->point);
+            break;
+        case GB_PATH_CODE_QUAD:
+            tb_trace_i("quad_to: %{point}, %{point}", &item->ctrls[0], &item->point);
+            break;
+        case GB_PATH_CODE_CUBE:
+            tb_trace_i("cube_to: %{point}, %{point}, %{point}", &item->ctrls[0], &item->ctrls[1], &item->point);
+            break;
+        case GB_PATH_CODE_CLOS:
+            tb_trace_i("closed");
+            break;
+        default:
+            break;
+        }
+    }
 }
 #endif
 

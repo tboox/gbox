@@ -41,12 +41,11 @@ __tb_extern_c_enter__
 /// the path code enum
 typedef enum __gb_path_code_e
 {
-    GB_PATH_CODE_NONE   = 0
-,   GB_PATH_CODE_MOVE   = 1 //!< the move-to code
-,   GB_PATH_CODE_LINE   = 2 //!< the line-to code
-,   GB_PATH_CODE_QUAD   = 3 //!< the quad-to code
-,   GB_PATH_CODE_CUBE   = 4 //!< the cube-to code
-,   GB_PATH_CODE_CLOS   = 5 //!< the clos code
+    GB_PATH_CODE_MOVE   = 0 //!< the move-to code
+,   GB_PATH_CODE_LINE   = 1 //!< the line-to code
+,   GB_PATH_CODE_QUAD   = 2 //!< the quad-to code
+,   GB_PATH_CODE_CUBE   = 3 //!< the cube-to code
+,   GB_PATH_CODE_CLOS   = 4 //!< the clos code
 
 }gb_path_code_e;
 
@@ -62,7 +61,7 @@ typedef struct __gb_path_item_t
     /// the ctrls
     gb_point_t      ctrls[2];
 
-}gb_path_item_t;
+}gb_path_item_t, *gb_path_item_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
