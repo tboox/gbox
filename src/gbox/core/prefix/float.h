@@ -43,11 +43,13 @@
 #define GB_MIF                  TB_FIXED_MIN
 #define GB_NAN                  TB_FIXED_NAN
 #define GB_INF                  TB_FIXED_INF
-#define GB_SQRT2                TB_FIXED_SQRT2
 #define GB_PI                   TB_FIXED_PI
-#define GB_PI_l_180             (1143)
-#define GB_180_l_PI             (3754936)
 #define GB_NEAR0                (TB_FIXED_ONE / (1 << 12))
+#define GB_SQRT2                TB_FIXED_SQRT2      //!< sqrt(2)
+#define GB_TAN_PIOVER8          (27146)             //!< tan(pi/8)
+#define GB_SQRT2_OVER2          (46341)             //!< sqrt(2)/2
+#define GB_PIOVER180            (1143)              //<! pi/180
+#define GB_180OVERPI            (3754936)           //!< 180/pi
 
 // conversion
 #ifdef TB_CONFIG_TYPE_FLOAT
@@ -67,8 +69,8 @@
 #define gb_fixed30_to_float(x)  tb_fixed30_to_fixed(x)
 #define gb_float_to_fixed30(x)  tb_fixed_to_fixed30(x)
 
-#define gb_degree_to_radian(x)  (tb_fixed_mul((x), GB_PI_l_180))
-#define gb_radian_to_degree(x)  (tb_fixed_mul((x), GB_180_l_PI))
+#define gb_degree_to_radian(x)  (tb_fixed_mul((x), GB_PIOVER180))
+#define gb_radian_to_degree(x)  (tb_fixed_mul((x), GB_180OVERPI))
 
 // round
 #define gb_round(x)             tb_fixed_round(x)
@@ -123,8 +125,12 @@
 #define GB_NAN                  TB_NAN
 #define GB_INF                  TB_INF
 #define GB_PI                   TB_PI
-#define GB_SQRT2                (1.414213562)
 #define GB_NEAR0                (1.0f / (1 << 12))
+#define GB_SQRT2                (1.414213562f)      //!< sqrt(2)
+#define GB_TAN_PIOVER8          (0.414213562f)      //!< tan(pi/8)
+#define GB_SQRT2_OVER2          (0.707106781f)      //!< sqrt(2)/2
+#define GB_PIOVER180            (0.017453293f)      //<! pi/180
+#define GB_180OVERPI            (57.29577951f)      //!< 180/pi
 
 // conversion
 #define gb_float_to_tb(x)       (x)
@@ -142,8 +148,8 @@
 #define gb_fixed30_to_float(x)  tb_fixed30_to_float(x)
 #define gb_float_to_fixed30(x)  tb_float_to_fixed30(x)
 
-#define gb_degree_to_radian(x)  (((x) * GB_PI) / 180.)
-#define gb_radian_to_degree(x)  (((x) * 180.) / GB_PI)
+#define gb_degree_to_radian(x)  ((x) * GB_PIOVER180)
+#define gb_radian_to_degree(x)  ((x) * GB_180OVERPI)
 
 // round
 #define gb_round(x)             tb_roundf(x)

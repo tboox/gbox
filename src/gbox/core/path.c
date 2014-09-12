@@ -1053,6 +1053,36 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
     // check
     tb_assert_and_check_return(ellipse);
 
+    // init center and radius
+    gb_float_t rx = ellipse->rx;
+    gb_float_t ry = ellipse->ry;
+    gb_float_t x0 = ellipse->c0.x;
+    gb_float_t y0 = ellipse->c0.y;
+
+    // init factor
+    gb_float_t sx = gb_mul(rx, GB_TAN_PIOVER8);
+    gb_float_t sy = gb_mul(ry, GB_TAN_PIOVER8);
+    gb_float_t mx = gb_mul(rx, GB_SQRT2_OVER2);
+    gb_float_t my = gb_mul(ry, GB_SQRT2_OVER2);
+
+    // init bounds
+    gb_float_t x1 = x0 - rx; 
+    gb_float_t y1 = y0 - ry;
+    gb_float_t x2 = x0 + rx;
+    gb_float_t y2 = y0 + ry;
+
+    // make ellipse path
+    gb_path_move2_to(path, x2,          y0                              );
+    gb_path_quad2_to(path, x2,          y0 - sy,    x0 + mx,    y0 - my );
+    gb_path_quad2_to(path, x0 + sx,     y1,         x0,         y1      );
+    gb_path_quad2_to(path, x0 - sx,     y1,         x0 - mx,    y0 - my );
+    gb_path_quad2_to(path, x1,          y0 - sy,    x1,         y0      );
+    gb_path_quad2_to(path, x1,          y0 + sy,    x0 - mx,    y0 + my );
+    gb_path_quad2_to(path, x0 - sx,     y2,         x0,         y2      );
+    gb_path_quad2_to(path, x0 + sx,     y2,         x0 + mx,    y0 + my );
+    gb_path_quad2_to(path, x2,          y0 + sy,    x2,         y0      );
+    gb_path_clos(path);
+
     // TODO
     // fast bounds, fast hint
 }
