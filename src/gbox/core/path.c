@@ -32,6 +32,7 @@
  */
 #include "path.h"
 #include "impl/bounds.h"
+#include "impl/cutter/cutter.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -271,10 +272,26 @@ static tb_bool_t gb_path_python_is_convex(gb_path_impl_t* impl)
     // TODO
     return tb_false;
 }
+static tb_void_t gb_path_cutter_func(tb_size_t code, gb_point_ref_t point, tb_cpointer_t priv)
+{
+    // check
+    tb_value_t* values = (tb_value_t*)priv;
+    tb_assert_abort(values && point);
+
+    // the polygon points
+    tb_vector_ref_t polygon_points = (tb_vector_ref_t)values[0].ptr;
+    tb_assert_abort(polygon_points);
+
+    // append point
+    tb_vector_insert_tail(polygon_points, point);
+
+    // update the points count
+    values[1].u16++;
+}
 static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
 { 
     // check
-    tb_assert_and_check_return_val(impl, tb_false);
+    tb_assert_and_check_return_val(impl && impl->codes && impl->points, tb_false);
 
     // make polygon counts
     if (!impl->polygon_counts) impl->polygon_counts = tb_vector_init(8, tb_item_func_uint16());
@@ -283,7 +300,93 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
     // have curve?
     if (impl->flag & GB_PATH_FLAG_HAVE_CURVE)
     {
-        // TODO
+        // make polygon points
+        if (!impl->polygon_points) impl->polygon_points = tb_vector_init(tb_vector_size(impl->points), tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+        tb_assert_and_check_return_val(impl->polygon_points, tb_false);
+
+        // the points
+        gb_point_t* points = (gb_point_t*)tb_vector_data(impl->points);
+        tb_assert_and_check_return_val(points, tb_false);
+
+        // clear polygon points and counts
+        tb_vector_clear(impl->polygon_points);
+        tb_vector_clear(impl->polygon_counts);
+
+        // init values
+        tb_value_t values[2];
+        values[0].ptr = impl->polygon_points;
+        values[1].u16 = 0;
+
+        // init polygon points and counts
+        gb_point_ref_t last = tb_null;
+        tb_for_all (tb_uint8_t, code, impl->codes)
+        {
+            // done
+            switch (code)
+            {
+            case GB_PATH_CODE_MOVE:
+            case GB_PATH_CODE_LINE:
+                {
+                    // append count
+                    if (code == GB_PATH_CODE_MOVE) 
+                    {
+                        if (values[1].u16) tb_vector_insert_tail(impl->polygon_counts, tb_u2p(values[1].u16));
+                        values[1].u16 = 0;
+                    }
+
+                    // make point
+                    gb_point_ref_t point = points++;
+                    tb_vector_insert_tail(impl->polygon_points, point);
+
+                    // save last point
+                    last = point;
+
+                    // update the points count
+                    values[1].u16++;
+                }
+                break;
+            case GB_PATH_CODE_QUAD:
+                {
+                    // make quad points
+                    gb_point_ref_t ctrl = points++;
+                    gb_point_ref_t point = points++;
+                    gb_cutter_quad_done(last, ctrl, point, gb_path_cutter_func, values);
+
+                    // save last point
+                    last = point;
+                }
+                break;
+            case GB_PATH_CODE_CUBE:
+                {
+                    // make cube points
+                    gb_point_ref_t ctrl0 = points++;
+                    gb_point_ref_t ctrl1 = points++;
+                    gb_point_ref_t point = points++;
+                    gb_cutter_cube_done(last, ctrl0, ctrl1, point, gb_path_cutter_func, values);
+
+                    // save last point
+                    last = point;
+                }
+                break;
+            case GB_PATH_CODE_CLOS:
+            default:
+                break;
+            }
+        }
+
+        // append the last count
+        if (values[1].u16)
+        {
+            tb_vector_insert_tail(impl->polygon_counts, tb_u2p(values[1].u16));
+            values[1].u16 = 0;
+        }
+
+        // append the tail count
+        tb_vector_insert_tail(impl->polygon_counts, (tb_cpointer_t)0);
+
+        // init polygon
+        impl->polygon.points = (gb_point_t*)tb_vector_data(impl->polygon_points);
+        impl->polygon.counts = (tb_uint16_t*)tb_vector_data(impl->polygon_counts);
     }
     // only move-to and line-to? using the points directly
     else
@@ -528,7 +631,7 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
-    tb_assert_and_check_return_val(impl && impl->points && impl->codes, tb_null);
+    tb_assert_and_check_return_val(impl, tb_null);
 
     // polygon dirty? remake it
     if (impl->flag & GB_PATH_FLAG_DIRTY_POLYGON)
