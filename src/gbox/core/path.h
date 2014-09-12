@@ -134,7 +134,10 @@ tb_bool_t           gb_path_last(gb_path_ref_t path, gb_point_ref_t point);
  */
 gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint);
 
-/*! close path
+/*! close the current contour
+ *
+ * if the current point is not equal to the first point of the contour
+ * patch a line segment automatically
  *
  * @param path      the path
  */

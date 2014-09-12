@@ -333,6 +333,7 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     impl->path->reset();
 
     // init path
+    gb_point_t const*   first = tb_null;
     gb_point_t const*   point = tb_null;
     tb_uint16_t         count = *counts++;
     tb_size_t           index = 0;
@@ -342,7 +343,11 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
         point = points++;
 
         // first point?
-        if (!index) impl->path->moveTo(gb_float_to_sk(point->x), gb_float_to_sk(point->y));
+        if (!index) 
+        {
+            impl->path->moveTo(gb_float_to_sk(point->x), gb_float_to_sk(point->y));
+            first = point;
+        }
         else impl->path->lineTo(gb_float_to_sk(point->x), gb_float_to_sk(point->y));
 
         // next point
@@ -352,7 +357,7 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
         if (index == count) 
         {
             // close path
-            impl->path->close();
+            if (first && first->x == point->x && first->y == point->y) impl->path->close();
 
             // next
             count = *counts++;

@@ -48,13 +48,12 @@ tb_void_t gb_demo_path_init(gb_window_ref_t window)
         gb_path_line2i_to(path0, -100, 50);
         gb_path_line2i_to(path0, -200, 0);
         gb_path_line2i_to(path0, -100, -50);
-        gb_path_line2i_to(path0, -100, -100);
         gb_path_clos(path0);
 
         // save path
         g_pathes[g_count++] = path0;
     }
- 
+
     // make path1
     gb_path_ref_t path1 = gb_path_init();
     if (path1)
@@ -64,28 +63,24 @@ tb_void_t gb_demo_path_init(gb_window_ref_t window)
         gb_path_line2i_to(path1, -50, -100);
         gb_path_line2i_to(path1, 0, -200);
         gb_path_line2i_to(path1, 50, -100);
-        gb_path_line2i_to(path1, 0, 0);
         gb_path_clos(path1);
 
         gb_path_move2i_to(path1, 0, 0);
         gb_path_line2i_to(path1, 100, -50);
         gb_path_line2i_to(path1, 200, 0);
         gb_path_line2i_to(path1, 100, 50);
-        gb_path_line2i_to(path1, 0, 0);
         gb_path_clos(path1);
 
         gb_path_move2i_to(path1, 0, 0);
         gb_path_line2i_to(path1, 50, 100);
         gb_path_line2i_to(path1, 0, 200);
         gb_path_line2i_to(path1, -50, 100);
-        gb_path_line2i_to(path1, 0, 0);
         gb_path_clos(path1);
 
         gb_path_move2i_to(path1, 0, 0);
         gb_path_line2i_to(path1, -100, 50);
         gb_path_line2i_to(path1, -200, 0);
         gb_path_line2i_to(path1, -100, -50);
-        gb_path_line2i_to(path1, 0, 0);
         gb_path_clos(path1);
 
         // save path
@@ -101,14 +96,12 @@ tb_void_t gb_demo_path_init(gb_window_ref_t window)
         gb_path_line2i_to(path2, -200, 200);
         gb_path_line2i_to(path2, 200, 200);
         gb_path_line2i_to(path2, 200, -200);
-        gb_path_line2i_to(path2, -200, -200);
         gb_path_clos(path2);
 
         gb_path_move2i_to(path2, -100, 100);
         gb_path_line2i_to(path2, -100, -100);
         gb_path_line2i_to(path2, 100, -100);
         gb_path_line2i_to(path2, 100, 100);
-        gb_path_line2i_to(path2, -100, 100);
         gb_path_clos(path2);
 
         // save path

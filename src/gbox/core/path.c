@@ -79,6 +79,9 @@ typedef struct __gb_path_impl_t
     // the bounds
     gb_rect_t           bounds;
 
+    // the head for the current contour
+    gb_point_t          head;
+
     // the itor item
     gb_path_item_t      item;
 
@@ -260,6 +263,87 @@ static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor
     // data
     return &impl->item;
 }
+static tb_bool_t gb_path_python_is_convex(gb_path_impl_t* impl)
+{
+    // check
+    tb_assert_and_check_return_val(impl, tb_false);
+
+    // TODO
+    return tb_false;
+}
+static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
+{ 
+    // check
+    tb_assert_and_check_return_val(impl, tb_false);
+
+    // make polygon counts
+    if (!impl->polygon_counts) impl->polygon_counts = tb_vector_init(8, tb_item_func_uint16());
+    tb_assert_and_check_return_val(impl->polygon_counts, tb_false);
+
+    // have curve?
+    if (impl->flag & GB_PATH_FLAG_HAVE_CURVE)
+    {
+        // TODO
+    }
+    // only move-to and line-to? using the points directly
+    else
+    {
+        // the point count for code
+        static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
+
+        // init polygon counts
+        tb_uint16_t count = 0;
+        tb_vector_clear(impl->polygon_counts);
+        tb_for_all (tb_uint8_t, code, impl->codes)
+        {
+            // check
+            tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
+
+            // append count
+            if (code == GB_PATH_CODE_MOVE) 
+            {
+                if (count) tb_vector_insert_tail(impl->polygon_counts, tb_u2p(count));
+                count = 0;
+            }
+
+            // update count
+            count += s_point_count_for_code[code];
+        }
+
+        // append the last count
+        if (count)
+        {
+            tb_vector_insert_tail(impl->polygon_counts, tb_u2p(count));
+            count = 0;
+        }
+
+        // append the tail count
+        tb_vector_insert_tail(impl->polygon_counts, (tb_cpointer_t)0);
+
+        // init polygon
+        impl->polygon.points = (gb_point_t*)tb_vector_data(impl->points);
+        impl->polygon.counts = (tb_uint16_t*)tb_vector_data(impl->polygon_counts);
+    }
+
+    // check
+    tb_assert_and_check_return_val(impl->polygon.points && impl->polygon.counts, tb_false);
+
+    // is convex polygon?
+    impl->polygon.convex = (impl->flag & GB_PATH_FLAG_CONVEX_POLYGON)? tb_true : gb_path_python_is_convex(impl);
+
+    // ok
+    return tb_true;
+}
+static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
+{ 
+    // check
+    tb_assert_and_check_return_val(impl, tb_false);
+
+    // TODO
+
+    // ok
+    return tb_true;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -376,6 +460,9 @@ tb_void_t gb_path_copy(gb_path_ref_t path, gb_path_ref_t copied)
     // copy hint
     impl->hint = impl_copied->hint;
 
+    // copy head
+    impl->head = impl_copied->head;
+
     // copy bounds
     impl->bounds = impl_copied->bounds;
 }
@@ -446,69 +533,12 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
     // polygon dirty? remake it
     if (impl->flag & GB_PATH_FLAG_DIRTY_POLYGON)
     {
-        // make polygon counts
-        if (!impl->polygon_counts) impl->polygon_counts = tb_vector_init(8, tb_item_func_uint16());
-        tb_assert_and_check_return_val(impl->polygon_counts, tb_null);
-
-        // have curve?
-        if (impl->flag & GB_PATH_FLAG_HAVE_CURVE)
-        {
-            // TODO
-        }
-        // only move-to and line-to? using the points directly
-        else
-        {
-            // the point count for code
-            static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
-
-            // init polygon counts
-            tb_uint16_t count = 0;
-            tb_vector_clear(impl->polygon_counts);
-            tb_for_all (tb_uint8_t, code, impl->codes)
-            {
-                // check
-                tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
-
-                // update count
-                count += s_point_count_for_code[code];
-
-                // append count
-                if (code == GB_PATH_CODE_CLOS) 
-                {
-                    tb_vector_insert_tail(impl->polygon_counts, tb_u2p(count));
-                    count = 0;
-                }
-            }
-
-            // append the last count
-            if (count)
-            {
-                tb_vector_insert_tail(impl->polygon_counts, tb_u2p(count));
-                count = 0;
-            }
-
-            // append the tail count
-            tb_vector_insert_tail(impl->polygon_counts, (tb_cpointer_t)0);
-
-            // init polygon
-            impl->polygon.convex = impl->flag & GB_PATH_FLAG_CONVEX_POLYGON? tb_true : tb_false;
-            impl->polygon.points = (gb_point_t*)tb_vector_data(impl->points);
-            impl->polygon.counts = (tb_uint16_t*)tb_vector_data(impl->polygon_counts);
-        }
-
-        // attempt to analyze convex polygon
-        if (!impl->polygon.convex)
-        {
-            // TODO
-            // ...
-        }
+        // make polygon
+        if (!gb_path_make_python(impl)) return tb_null; 
 
         // remove dirty
         impl->flag &= ~GB_PATH_FLAG_DIRTY_POLYGON;
     }
-
-    // check
-    tb_assert_and_check_return_val(impl->polygon.points && impl->polygon.counts, tb_null);
 
     // need hint?
     if (hint)
@@ -516,8 +546,8 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
         // hint dirty? remake it
         if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
         {
-            // TODO
-            // ...
+            // make hint
+            if (!gb_path_make_hint(impl)) return tb_null;
 
             // remove dirty
             impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
@@ -539,12 +569,17 @@ tb_void_t gb_path_clos(gb_path_ref_t path)
 	// close it for avoiding be double closed
 	if (!tb_vector_size(impl->codes) || tb_vector_last(impl->codes) != (tb_cpointer_t)GB_PATH_CODE_CLOS) 
 	{
+        // patch a line segment if the current point is not equal to the first point of the contour
+        gb_point_t last = {0};
+        if (gb_path_last(path, &last) && (last.x != impl->head.x || last.y != impl->head.y))
+            gb_path_line_to(path, &impl->head);
+
 		// append code
 		tb_vector_insert_tail(impl->codes, (tb_cpointer_t)GB_PATH_CODE_CLOS);
 	}
 
-    // mark dirty and closed
-    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_CLOSED;
+    // mark closed
+    impl->flag |= GB_PATH_FLAG_CLOSED;
 }
 tb_void_t gb_path_move_to(gb_path_ref_t path, gb_point_ref_t point)
 {
@@ -567,6 +602,9 @@ tb_void_t gb_path_move_to(gb_path_ref_t path, gb_point_ref_t point)
         // append point
         tb_vector_insert_tail(impl->points, point);
     }
+
+    // save point
+    impl->head = *point;
 
     // clear closed
     impl->flag &= ~GB_PATH_FLAG_CLOSED;
