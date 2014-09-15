@@ -77,8 +77,8 @@ static __tb_inline__ tb_void_t  gb_bounds_make(gb_rect_ref_t bounds, gb_point_t 
     // make bounds
     bounds->x = x0;
     bounds->y = y0;
-    bounds->w = x1 - x0 + GB_ONE;
-    bounds->h = y1 - y0 + GB_ONE;
+    bounds->w = x1 - x0;
+    bounds->h = y1 - y0;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

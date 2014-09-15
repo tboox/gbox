@@ -269,8 +269,124 @@ static tb_bool_t gb_path_python_is_convex(gb_path_impl_t* impl)
     // check
     tb_assert_and_check_return_val(impl, tb_false);
 
+    // analyze convex from the hint shape first
+    if (!(impl->flag & GB_PATH_FLAG_DIRTY_HINT) && impl->hint.type)
+    {
+        // done
+        switch (impl->hint.type)
+        {
+        case GB_SHAPE_TYPE_RECT:
+        case GB_SHAPE_TYPE_CIRCLE:
+        case GB_SHAPE_TYPE_ELLIPSE:
+        case GB_SHAPE_TYPE_TRIANGLE:
+            return tb_true;
+        }
+
+        // not convex
+        return tb_false;
+    }
+
     // TODO
     return tb_false;
+}
+static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
+{ 
+    // check
+    tb_assert_and_check_return_val(impl && impl->codes && impl->points, tb_false);
+
+    // no curve? make bounds
+    if (!(impl->flag & GB_PATH_FLAG_HAVE_CURVE))
+    {
+        // the codes 
+        tb_uint8_t const* codes = (tb_uint8_t const*)tb_vector_data(impl->codes);
+        tb_assert_and_check_return_val(codes, tb_false);
+
+        // the points 
+        gb_point_t const* points = (gb_point_t const*)tb_vector_data(impl->points);
+        tb_assert_and_check_return_val(points, tb_false);
+
+        // the points count
+        tb_size_t count = tb_vector_size(impl->points);
+
+        // rect?
+        if (    count == 5
+            &&  points[0].x == points[4].x
+            &&  points[0].y == points[4].y
+            &&  codes[0] == GB_PATH_CODE_MOVE
+            &&  codes[1] == GB_PATH_CODE_LINE
+            &&  codes[2] == GB_PATH_CODE_LINE
+            &&  codes[3] == GB_PATH_CODE_LINE
+            &&  codes[4] == GB_PATH_CODE_LINE
+            &&  (   (   points[0].x != points[1].x && points[0].y == points[1].y
+                    &&  points[1].x == points[2].x && points[1].y != points[2].y
+                    &&  points[2].x != points[3].x && points[2].y == points[3].y
+                    &&  points[3].x == points[4].x && points[3].y != points[4].y)
+                ||
+                    (   points[0].x == points[1].x && points[0].y != points[1].y
+                    &&  points[1].x != points[2].x && points[1].y == points[2].y
+                    &&  points[2].x == points[3].x && points[2].y != points[3].y
+                    &&  points[3].x != points[4].x && points[3].y == points[4].y)))
+        {
+            // make hint
+            impl->hint.type = GB_SHAPE_TYPE_RECT;
+            gb_bounds_make(&impl->hint.u.rect, points, 4);
+
+            // trace
+            tb_trace_d("make: hint: %{rect}", &impl->hint.u.rect);
+        }
+        // triangle?
+        else if (   count == 4
+                &&  points[0].x == points[3].x
+                &&  points[0].y == points[3].y
+                &&  codes[0] == GB_PATH_CODE_MOVE
+                &&  codes[1] == GB_PATH_CODE_LINE
+                &&  codes[2] == GB_PATH_CODE_LINE
+                &&  codes[3] == GB_PATH_CODE_LINE
+                &&  points[0].x != points[1].x
+                &&  points[0].y != points[1].y
+                &&  points[0].x != points[2].x
+                &&  points[0].y != points[2].y
+                &&  points[1].x != points[2].x
+                &&  points[1].y != points[2].y)
+        {
+            // make hint
+            impl->hint.type             = GB_SHAPE_TYPE_TRIANGLE;
+            impl->hint.u.triangle.p0    = points[0];
+            impl->hint.u.triangle.p1    = points[1];
+            impl->hint.u.triangle.p2    = points[2];
+
+            // trace
+            tb_trace_d("make: hint: %{triangle}", &impl->hint.u.triangle);
+        }
+        // line?
+        else if (   count == 2
+                &&  codes[0] == GB_PATH_CODE_MOVE
+                &&  codes[1] == GB_PATH_CODE_LINE
+                &&  points[0].x != points[1].x
+                &&  points[0].y != points[1].y)
+        {
+            // make hint
+            impl->hint.type         = GB_SHAPE_TYPE_LINE;
+            impl->hint.u.line.p0    = points[0];
+            impl->hint.u.line.p1    = points[1];
+
+            // trace
+            tb_trace_d("make: hint: %{line}", &impl->hint.u.line);
+        }
+        // point
+        else if (count == 1 && codes[0] == GB_PATH_CODE_MOVE)
+        {
+            // make hint
+            impl->hint.type     = GB_SHAPE_TYPE_POINT;
+            impl->hint.u.point  = points[0];
+
+            // trace
+            tb_trace_d("make: hint: %{point}", &impl->hint.u.point);
+        }
+    }
+    
+    // ok
+    return tb_true;
 }
 static tb_void_t gb_path_make_curve(gb_point_ref_t point, tb_cpointer_t priv)
 {
@@ -437,16 +553,6 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
     // ok
     return tb_true;
 }
-static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
-{ 
-    // check
-    tb_assert_and_check_return_val(impl, tb_false);
-
-    // TODO
-
-    // ok
-    return tb_true;
-}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -551,6 +657,13 @@ tb_void_t gb_path_copy(gb_path_ref_t path, gb_path_ref_t copied)
     tb_assert_and_check_return(impl && impl->codes && impl->points);
     tb_assert_and_check_return(impl_copied && impl_copied->codes && impl_copied->points);
 
+    // null? clear it
+    if (gb_path_null(copied)) 
+    {
+        gb_path_clear(path);
+        return ;
+    }
+
     // copy codes
     tb_vector_copy(impl->codes, impl_copied->codes);
 
@@ -573,10 +686,10 @@ tb_bool_t gb_path_null(gb_path_ref_t path)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
-    tb_assert_and_check_return_val(impl && impl->points, tb_true);
+    tb_assert_and_check_return_val(impl && impl->codes, tb_true);
 
     // null?
-    return tb_vector_size(impl->points)? tb_false : tb_true;
+    return tb_vector_size(impl->codes)? tb_false : tb_true;
 }
 gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
 {
@@ -584,18 +697,75 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
     tb_assert_and_check_return_val(impl && impl->points, tb_null);
 
+    // null?
+    if (gb_path_null(path)) return tb_null;
+
     // dirty? make bounds
     if (impl->flag & GB_PATH_FLAG_DIRTY_BOUNDS)
     {
-        // the points
-        gb_point_t const* points = (gb_point_t const*)tb_vector_data(impl->points);
-        tb_assert_and_check_return_val(points, tb_null);
+        // attempt to make bounds from the hint shape first
+        if (!(impl->flag & GB_PATH_FLAG_DIRTY_HINT) && impl->hint.type)
+        {
+            // done
+            switch (impl->hint.type)
+            {
+            case GB_SHAPE_TYPE_RECT:
+                {
+                    // make bounds
+                    impl->bounds    = impl->hint.u.rect;
+                    impl->flag      &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
 
-        // make bounds
-        gb_bounds_make(&impl->bounds, points, tb_vector_size(impl->points));
+                    // trace
+                    tb_trace_d("make: bounds: %{rect} from rect", &impl->bounds);
+                }
+                break;
+            case GB_SHAPE_TYPE_CIRCLE:
+                {
+                    // make bounds
+                    impl->bounds.x  = impl->hint.u.circle.c.x - impl->hint.u.circle.r;
+                    impl->bounds.y  = impl->hint.u.circle.c.y - impl->hint.u.circle.r;
+                    impl->bounds.w  = impl->hint.u.circle.r << 1;
+                    impl->bounds.h  = impl->hint.u.circle.r << 1;
+                    impl->flag      &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
 
-        // remove dirty
-        impl->flag &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
+                    // trace
+                    tb_trace_d("make: bounds: %{rect} from circle", &impl->bounds);
+                }
+                break;
+            case GB_SHAPE_TYPE_ELLIPSE:
+                {
+                    // make bounds
+                    impl->bounds.x  = impl->hint.u.ellipse.c0.x - impl->hint.u.ellipse.rx;
+                    impl->bounds.y  = impl->hint.u.ellipse.c0.y - impl->hint.u.ellipse.ry;
+                    impl->bounds.w  = impl->hint.u.ellipse.rx << 1;
+                    impl->bounds.h  = impl->hint.u.ellipse.ry << 1;
+                    impl->flag      &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
+
+                    // trace
+                    tb_trace_d("make: bounds: %{rect} from ellipse", &impl->bounds);
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        // make bounds from points
+        if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
+        {
+            // the points
+            gb_point_t const* points = (gb_point_t const*)tb_vector_data(impl->points);
+            tb_assert_and_check_return_val(points, tb_null);
+
+            // make bounds
+            gb_bounds_make(&impl->bounds, points, tb_vector_size(impl->points));
+
+            // trace
+            tb_trace_d("make: bounds: %{rect} from points", &impl->bounds);
+
+            // remove dirty
+            impl->flag &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
+        }
     }
 
     // the bounds
@@ -633,15 +803,8 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
     tb_assert_and_check_return_val(impl, tb_null);
 
-    // polygon dirty? remake it
-    if (impl->flag & GB_PATH_FLAG_DIRTY_POLYGON)
-    {
-        // make polygon
-        if (!gb_path_make_python(impl)) return tb_null; 
-
-        // remove dirty
-        impl->flag &= ~GB_PATH_FLAG_DIRTY_POLYGON;
-    }
+    // null?
+    if (gb_path_null(path)) return tb_null;
 
     // need hint?
     if (hint)
@@ -658,6 +821,19 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
 
         // save hint
         *hint = impl->hint;
+
+        // trace
+        if (impl->hint.type) tb_trace_d("hint: %{shape}", &impl->hint);
+    }
+
+    // polygon dirty? remake it
+    if (impl->flag & GB_PATH_FLAG_DIRTY_POLYGON)
+    {
+        // make polygon
+        if (!gb_path_make_python(impl)) return tb_null; 
+
+        // remove dirty
+        impl->flag &= ~GB_PATH_FLAG_DIRTY_POLYGON;
     }
 
     // ok?
@@ -894,41 +1070,61 @@ tb_void_t gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_si
 }
 tb_void_t gb_path_add_path(gb_path_ref_t path, gb_path_ref_t added)
 {
-    // done
-    tb_for_all_if (gb_path_item_ref_t, item, added, item)
+    // null? copy it
+    if (gb_path_null(path)) gb_path_copy(path, added);
+    // add it
+    else
     {
-        switch (item->code)
+        // done
+        tb_for_all_if (gb_path_item_ref_t, item, added, item)
         {
-        case GB_PATH_CODE_MOVE:
-            gb_path_move_to(path, &item->point);
-            break;
-        case GB_PATH_CODE_LINE:
-            gb_path_line_to(path, &item->point);
-            break;
-        case GB_PATH_CODE_QUAD:
-            gb_path_quad_to(path, &item->ctrls[0], &item->point);
-            break;
-        case GB_PATH_CODE_CUBE:
-            gb_path_cube_to(path, &item->ctrls[0], &item->ctrls[1], &item->point);
-            break;
-        case GB_PATH_CODE_CLOS:
-            gb_path_clos(path);
-            break;
-        default:
-            // trace
-            tb_trace_e("invalid code: %lu", item->code);
-            break;
+            switch (item->code)
+            {
+            case GB_PATH_CODE_MOVE:
+                gb_path_move_to(path, &item->point);
+                break;
+            case GB_PATH_CODE_LINE:
+                gb_path_line_to(path, &item->point);
+                break;
+            case GB_PATH_CODE_QUAD:
+                gb_path_quad_to(path, &item->ctrls[0], &item->point);
+                break;
+            case GB_PATH_CODE_CUBE:
+                gb_path_cube_to(path, &item->ctrls[0], &item->ctrls[1], &item->point);
+                break;
+            case GB_PATH_CODE_CLOS:
+                gb_path_clos(path);
+                break;
+            default:
+                // trace
+                tb_trace_e("invalid code: %lu", item->code);
+                break;
+            }
         }
     }
 }
 tb_void_t gb_path_add_line(gb_path_ref_t path, gb_line_ref_t line)
 {
     // check
-    tb_assert_and_check_return(line);
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && line);
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_LINE;
+        impl->hint.u.line       = *line;
+        impl->flag              &= ~GB_PATH_FLAG_DIRTY_HINT;
+        hint_maked              = tb_true;
+    }
 
     // add line
     gb_path_move_to(path, &line->p0);
     gb_path_line_to(path, &line->p1);
+
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_add_line2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
@@ -969,13 +1165,26 @@ tb_void_t gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_s
 tb_void_t gb_path_add_triangle(gb_path_ref_t path, gb_triangle_ref_t triangle)
 {
 	// check
-	tb_assert_and_check_return(triangle);
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+	tb_assert_and_check_return(impl && triangle);
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_TRIANGLE;
+        impl->hint.u.triangle   = *triangle;
+        hint_maked              = tb_true;
+    }
 
     // add triangle
     gb_path_move_to(path, &triangle->p0);
     gb_path_line_to(path, &triangle->p1);
     gb_path_line_to(path, &triangle->p2);
     gb_path_clos(path);
+    
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_add_triangle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
@@ -996,7 +1205,17 @@ tb_void_t gb_path_add_triangle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0,
 tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect)
 {
     // check
-    tb_assert_and_check_return(rect);
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && rect);
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_RECT;
+        impl->hint.u.rect       = *rect;
+        hint_maked              = tb_true;
+    }
 
     // add rect
     gb_path_move2_to(path, rect->x, rect->y);
@@ -1004,6 +1223,9 @@ tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect)
     gb_path_line2_to(path, rect->x + rect->w, rect->y + rect->h);
     gb_path_line2_to(path, rect->x, rect->y + rect->h);
     gb_path_clos(path);
+
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
@@ -1024,13 +1246,29 @@ tb_void_t gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_si
 tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle)
 {
     // check
-    tb_assert_and_check_return(circle);
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && circle);
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_CIRCLE;
+        impl->hint.u.circle    = *circle;
+        hint_maked              = tb_true;
+
+        // @note remove dirty first before adding ellipse
+        impl->flag              &= ~GB_PATH_FLAG_DIRTY_HINT;
+    }
 
     // make ellipse
     gb_ellipse_t ellipse = gb_ellipse_make(circle->c.x, circle->c.y, circle->r, circle->r);
 
     // add ellipse
     gb_path_add_ellipse(path, &ellipse);
+    
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
@@ -1051,7 +1289,17 @@ tb_void_t gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, t
 tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
 {
     // check
-    tb_assert_and_check_return(ellipse);
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && ellipse);
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_ELLIPSE;
+        impl->hint.u.ellipse    = *ellipse;
+        hint_maked              = tb_true;
+    }
 
     // init center and radius
     gb_float_t rx = ellipse->rx;
@@ -1083,8 +1331,8 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
     gb_path_quad2_to(path, x2,          y0 + sy,    x2,         y0      );
     gb_path_clos(path);
 
-    // TODO
-    // fast bounds, fast hint
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
