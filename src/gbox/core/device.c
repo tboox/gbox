@@ -203,7 +203,6 @@ tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points,
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
     tb_assert_and_check_return(impl && impl->draw_lines);
-    tb_assert_and_check_return(count && !(count & 0x1));
 
     // draw lines
     impl->draw_lines(impl, points, count, bounds);

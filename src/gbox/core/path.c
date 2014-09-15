@@ -388,7 +388,23 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
     // ok
     return tb_true;
 }
-static tb_void_t gb_path_make_curve(gb_point_ref_t point, tb_cpointer_t priv)
+static tb_void_t gb_path_make_arc_to(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(priv && point);
+
+    // append point
+    ctrl? gb_path_quad_to((gb_path_ref_t)priv, ctrl, point) : gb_path_line_to((gb_path_ref_t)priv, point);
+}
+static tb_void_t gb_path_make_add_arc(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(priv && point);
+
+    // append point
+    ctrl? gb_path_quad_to((gb_path_ref_t)priv, ctrl, point) : gb_path_move_to((gb_path_ref_t)priv, point);
+}
+static tb_void_t gb_path_make_quad_or_cube_to(gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
     tb_value_t* values = (tb_value_t*)priv;
@@ -466,7 +482,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
                     // make quad points
                     gb_point_ref_t ctrl = points++;
                     gb_point_ref_t point = points++;
-                    gb_geometry_make_quad(last, ctrl, point, gb_path_make_curve, values);
+                    gb_geometry_make_quad(last, ctrl, point, gb_path_make_quad_or_cube_to, values);
 
                     // save last point
                     last = point;
@@ -478,7 +494,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
                     gb_point_ref_t ctrl0 = points++;
                     gb_point_ref_t ctrl1 = points++;
                     gb_point_ref_t point = points++;
-                    gb_geometry_make_cube(last, ctrl0, ctrl1, point, gb_path_make_curve, values);
+                    gb_geometry_make_cube(last, ctrl0, ctrl1, point, gb_path_make_quad_or_cube_to, values);
 
                     // save last point
                     last = point;
@@ -1050,7 +1066,24 @@ tb_void_t gb_path_cube2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb
 }
 tb_void_t gb_path_arc_to(gb_path_ref_t path, gb_arc_ref_t arc)
 {
-    tb_trace_noimpl();
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && arc);
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_ARC;
+        impl->hint.u.arc        = *arc;
+        hint_maked              = tb_true;
+    }
+
+    // make quad points for arc
+    gb_geometry_make_arc(arc, gb_path_make_arc_to, path);
+
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_arc2_to(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
@@ -1144,7 +1177,36 @@ tb_void_t gb_path_add_line2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_
 }
 tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
 {
-    tb_trace_noimpl();
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && impl->codes && impl->points && arc);
+
+    // ellipse? add it
+    gb_float_t angle360 = gb_long_to_float(360);
+    if (arc->an >= angle360 || arc->an <= -angle360)
+    {
+        // make ellipse
+        gb_ellipse_t ellipse = gb_ellipse_make(arc->c0.x, arc->c0.y, arc->rx, arc->ry);
+
+        // add ellipse
+        gb_path_add_ellipse(path, &ellipse);
+        return ;
+    }
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_ARC;
+        impl->hint.u.arc        = *arc;
+        hint_maked              = tb_true;
+    }
+
+    // make quad points for arc
+    gb_geometry_make_arc(arc, gb_path_make_add_arc, path);
+
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
 tb_void_t gb_path_add_arc2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {

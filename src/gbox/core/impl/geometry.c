@@ -29,7 +29,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_make_func_t func, tb_cpointer_t priv)
+tb_void_t gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_return(func && pb && cp && pe);
@@ -54,7 +54,7 @@ tb_void_t gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_r
         gb_geometry_make_quad(&p0, &cpe, pe, func, priv);
     }
 }
-tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_make_func_t func, tb_cpointer_t priv)
+tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_return(func && pb && cpb && cpe && pe && priv);
@@ -101,4 +101,9 @@ tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_
         gb_geometry_make_cube(&p0, &pe0, &cp2, pe, func, priv);
     }
 }
+tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_and_check_return(arc && func);
 
+}

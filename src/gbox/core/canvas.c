@@ -1050,7 +1050,7 @@ tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points,
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && impl->device && count && !(count & 0x1));
  
     // draw lines
     gb_device_draw_lines(impl->device, points, count, tb_null);
@@ -1059,7 +1059,7 @@ tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
-    tb_assert_and_check_return(impl && impl->device);
+    tb_assert_and_check_return(impl && impl->device && count);
 
     // draw points
     gb_device_draw_points(impl->device, points, count, tb_null);
