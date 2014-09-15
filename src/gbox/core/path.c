@@ -1308,9 +1308,9 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
     gb_float_t y0 = ellipse->c0.y;
 
     // init factor
-    gb_float_t sx = gb_mul(rx, GB_TAN_PIOVER8);
+    gb_float_t sx = gb_mul(rx, GB_TAN_PIOVER8); //< tan(pi/8)
     gb_float_t sy = gb_mul(ry, GB_TAN_PIOVER8);
-    gb_float_t mx = gb_mul(rx, GB_SQRT2_OVER2);
+    gb_float_t mx = gb_mul(rx, GB_SQRT2_OVER2); //< sqrt(2)/2
     gb_float_t my = gb_mul(ry, GB_SQRT2_OVER2);
 
     // init bounds
@@ -1319,7 +1319,55 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
     gb_float_t x2 = x0 + rx;
     gb_float_t y2 = y0 + ry;
 
-    // make ellipse path
+    /* make ellipse path
+     * 
+     * <pre>
+     * circle: 
+     * - quad_to(c, p)
+     * - p(x0 + r * sqrt(2) / 2, y0 - r * sqrt(2)/2)
+     * - c(x2, y0 - r * tan(pi/8))
+     *
+     * (x1, y1)
+     *  ---------------------------
+     * |             |           / |
+     * |             |      p  /   |
+     * |             |      *      * c 
+     * |             |   /         | 
+     * |             |/ 45         |
+     * |- - - - - - - - - - - - - -| (move-to)
+     * |          (x0, y0)         |
+     * |             |             |
+     * |             |             |
+     * |             |             |
+     * |             |             |
+     *  --------------------------- 
+     *                      (x2, y2)
+     *
+     *
+     * ellipse: 
+     * - quad_to(c, p)
+     * - p(x0 + rx * sqrt(2) / 2, y0 - ry * sqrt(2)/2)
+     * - c(x2, y0 - ry * tan(pi/8))
+     *
+     * (x1, y1)
+     *  ------------------------------------------
+     * |                     |           /        |
+     * |                     |      p  /          |
+     * |                     |      *             * c 
+     * |                     |   /                | 
+     * |                     |/ 45                |
+     * |- - - - - - - - - - - - - - - - - - - - - | (move-to)
+     * |                  (x0, y0)                |
+     * |                     |                    |
+     * |                     |                    |
+     * |                     |                    |
+     * |                     |                    |
+     *  ------------------------------------------ 
+     *                                     (x2, y2)
+     *
+     *
+     * </pre>
+     */
     gb_path_move2_to(path, x2,          y0                              );
     gb_path_quad2_to(path, x2,          y0 - sy,    x0 + mx,    y0 - my );
     gb_path_quad2_to(path, x0 + sx,     y1,         x0,         y1      );
