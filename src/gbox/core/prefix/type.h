@@ -218,7 +218,7 @@ typedef struct __gb_arc_t
     /// the start angle
     gb_float_t          ab;
 
-    /// the sweep angle, 0 - 360
+    /// the sweep angle, clockwise: > 0, counter-clockwise: < 0
     gb_float_t          an;
 
 }gb_arc_t;

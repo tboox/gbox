@@ -18,7 +18,7 @@ static gb_path_ref_t    g_path = tb_null;
 
 // the ctrl x and y
 static tb_long_t        g_ctrl_x = 0;
-static tb_long_t        g_ctrl_y = -200;
+static tb_long_t        g_ctrl_y = 200;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -58,7 +58,7 @@ tb_void_t gb_demo_quad_event(gb_window_ref_t window, gb_event_ref_t event)
 
         // the ctrl x and y
         g_ctrl_x = gb_float_to_long(event->u.mouse.cursor.x) - x0;
-        g_ctrl_y = gb_float_to_long(event->u.mouse.cursor.y) - y0;
+        g_ctrl_y = y0 - gb_float_to_long(event->u.mouse.cursor.y);
     }
 }
 

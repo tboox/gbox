@@ -18,11 +18,11 @@ static gb_path_ref_t    g_path = tb_null;
 
 // the ctrl x0 and y0
 static tb_long_t        g_ctrl_x0 = -100;
-static tb_long_t        g_ctrl_y0 = -200;
+static tb_long_t        g_ctrl_y0 = 200;
 
 // the ctrl x1 and y1
 static tb_long_t        g_ctrl_x1 = 100;
-static tb_long_t        g_ctrl_y1 = -200;
+static tb_long_t        g_ctrl_y1 = 200;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -68,14 +68,14 @@ tb_void_t gb_demo_cube_event(gb_window_ref_t window, gb_event_ref_t event)
         if (cx < x0)
         {
             g_ctrl_x0 = cx - x0;
-            g_ctrl_y0 = cy - y0;
+            g_ctrl_y0 = y0 - cy;
         }
 
         // the ctrl x1 and y1
         if (cx > x0)
         {
             g_ctrl_x1 = cx - x0;
-            g_ctrl_y1 = cy - y0;
+            g_ctrl_y1 = y0 - cy;
         }
     }
 }

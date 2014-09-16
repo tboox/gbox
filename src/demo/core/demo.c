@@ -114,6 +114,7 @@ tb_bool_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
 
 	// init matrix
 	gb_matrix_init_translate(&g_matrix, x0, y0);
+    gb_matrix_scale(&g_matrix, GB_ONE, -GB_ONE);
 
     // init entries
     tb_size_t index = 0;
@@ -189,6 +190,7 @@ tb_void_t gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoi
 
 	// update matrix
 	gb_matrix_init_translate(&g_matrix, x0, y0);	
+    gb_matrix_scale(&g_matrix, GB_ONE, -GB_ONE);
 }
 tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv)
 {
@@ -283,7 +285,7 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
 
             // update matrix
             gb_matrix_init_translate(&g_matrix, x0, y0);
-            gb_matrix_scale(&g_matrix, gb_div(dx, dw), gb_div(dy, dh));
+            gb_matrix_scale(&g_matrix, gb_div(dx, dw), -gb_div(dy, dh));
             gb_matrix_rotate(&g_matrix, an);
         }
     }

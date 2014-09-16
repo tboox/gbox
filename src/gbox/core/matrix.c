@@ -89,14 +89,14 @@ tb_void_t gb_matrix_init_rotate(gb_matrix_ref_t matrix, gb_float_t degrees)
 {
     gb_float_t s;
     gb_float_t c;
-    gb_sos(gb_degree_to_radian(degrees), &s, &c);
+    gb_sincos(gb_degree_to_radian(degrees), &s, &c);
     gb_matrix_init_sincos(matrix, s, c);
 }
 tb_void_t gb_matrix_init_rotatep(gb_matrix_ref_t matrix, gb_float_t degrees, gb_float_t px, gb_float_t py)
 {
     gb_float_t s;
     gb_float_t c;
-    gb_sos(gb_degree_to_radian(degrees), &s, &c);
+    gb_sincos(gb_degree_to_radian(degrees), &s, &c);
     gb_matrix_init_sincosp(matrix, s, c, px, py);
 }
 tb_void_t gb_matrix_init_sincos(gb_matrix_ref_t matrix, gb_float_t sin, gb_float_t cos)
@@ -465,4 +465,12 @@ tb_bool_t gb_matrix_multiply_lhs(gb_matrix_ref_t matrix, gb_matrix_ref_t factor)
     // ok?
     return ok;
 }
+tb_void_t gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_t* points, tb_size_t count)
+{
+    // check
+    tb_assert_and_check_return(matrix && points && count);
 
+    // apply it
+    tb_size_t i = 0;
+    for (i = 0; i < count; i++) gb_matrix_apply_point(matrix, points + i);
+}

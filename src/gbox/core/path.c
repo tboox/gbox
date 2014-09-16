@@ -294,6 +294,9 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
     // check
     tb_assert_and_check_return_val(impl && impl->codes && impl->points, tb_false);
 
+    // clear hint first
+    impl->hint.type = GB_SHAPE_TYPE_NONE;
+
     // no curve? make bounds
     if (!(impl->flag & GB_PATH_FLAG_HAVE_CURVE))
     {
@@ -1182,8 +1185,7 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
     tb_assert_and_check_return(impl && impl->codes && impl->points && arc);
 
     // ellipse? add it
-    gb_float_t angle360 = gb_long_to_float(360);
-    if (arc->an >= angle360 || arc->an <= -angle360)
+    if (arc->an >= GB_DEGREE_360 || arc->an <= -GB_DEGREE_360)
     {
         // make ellipse
         gb_ellipse_t ellipse = gb_ellipse_make(arc->c0.x, arc->c0.y, arc->rx, arc->ry);
@@ -1195,12 +1197,14 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
 
     // null and dirty? make hint
     tb_bool_t hint_maked = tb_false;
+#if 0
     if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
     {
         impl->hint.type         = GB_SHAPE_TYPE_ARC;
         impl->hint.u.arc        = *arc;
         hint_maked              = tb_true;
     }
+#endif
 
     // make quad points for arc
     gb_geometry_make_arc(arc, gb_path_make_add_arc, path);

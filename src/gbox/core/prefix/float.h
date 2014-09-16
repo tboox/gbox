@@ -50,6 +50,10 @@
 #define GB_SQRT2_OVER2          (46341)             //!< sqrt(2)/2
 #define GB_PIOVER180            (1143)              //<! pi/180
 #define GB_180OVERPI            (3754936)           //!< 180/pi
+#define GB_DEGREE_45            (2949120)
+#define GB_DEGREE_90            (5898240)
+#define GB_DEGREE_180           (11796480)
+#define GB_DEGREE_360           (23592960)
 
 // conversion
 #ifdef TB_CONFIG_TYPE_FLOAT
@@ -93,7 +97,7 @@
 #define gb_sqrt(x)              tb_fixed_sqrt(x)
 #define gb_sin(x)               tb_fixed_sin(x)
 #define gb_cos(x)               tb_fixed_cos(x)
-#define gb_sos(x, s, c)         tb_fixed_sincos(x, s, c)
+#define gb_sincos(x, s, c)      tb_fixed_sincos(x, s, c)
 #define gb_tan(x)               tb_fixed_tan(x)
 #define gb_asin(x)              tb_fixed_asin(x)
 #define gb_acos(x)              tb_fixed_acos(x)
@@ -131,6 +135,10 @@
 #define GB_SQRT2_OVER2          (0.707106781f)      //!< sqrt(2)/2
 #define GB_PIOVER180            (0.017453293f)      //<! pi/180
 #define GB_180OVERPI            (57.29577951f)      //!< 180/pi
+#define GB_DEGREE_45            (45.0f)
+#define GB_DEGREE_90            (90.0f)
+#define GB_DEGREE_180           (180.0f)
+#define GB_DEGREE_360           (360.0f)
 
 // conversion
 #define gb_float_to_tb(x)       (x)
@@ -172,7 +180,7 @@
 #define gb_sqrt(x)              tb_sqrtf(x)
 #define gb_sin(x)               tb_sinf(x)
 #define gb_cos(x)               tb_cosf(x)
-#define gb_sos(x, s, c)         tb_sincosf(x, s, c)
+#define gb_sincos(x, s, c)      tb_sincosf(x, s, c)
 #define gb_tan(x)               tb_tanf(x)
 #define gb_asin(x)              tb_asinf(x)
 #define gb_acos(x)              tb_acosf(x)

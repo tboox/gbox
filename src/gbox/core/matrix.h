@@ -406,6 +406,14 @@ tb_bool_t 		    gb_matrix_multiply(gb_matrix_ref_t matrix, gb_matrix_ref_t facto
  */
 tb_bool_t 		    gb_matrix_multiply_lhs(gb_matrix_ref_t matrix, gb_matrix_ref_t factor);
 
+/*! apply matrix to the points
+ *
+ * @param matrix    the matrix 
+ * @param points    the points
+ * @param count     the count
+ */
+tb_void_t           gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_t* points, tb_size_t count);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * inlines
  */
