@@ -188,7 +188,8 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     if (sweep_angle > GB_DEGREE_360) sweep_angle = GB_DEGREE_360;
 
     // make quad points count
-    tb_size_t count = 1 + (gb_float_to_long(sweep_angle) << 1) / 45;
+    tb_size_t count = 1 + ((gb_float_to_long(sweep_angle) / 45) << 1);
+    tb_assert_abort(count & 0x1);
 
     // make quad points
     gb_point_t points[tb_arrayn(g_quad_points_for_unit_circle)];
