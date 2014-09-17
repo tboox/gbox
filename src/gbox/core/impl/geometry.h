@@ -64,29 +64,6 @@ typedef tb_void_t   (*gb_geometry_quad_func_t)(gb_point_ref_t ctrl, gb_point_ref
  * @param pe        the end point
  * @param func      the make func
  * @param priv      the make func private data for user
- *
- * <pre>
- *            cp
- *            . 
- *           / \
- *          /   \
- *         /     \
- *        /       \
- *    cpb/----.----\ cpe                  
- *      /     p0    \
- *     /             \
- *    /               \
- *   /                 \
- *  /                   \
- * /                     \
- * pb                    pe
- *
- *
- * (pb, cp, pe) => (pb, cpb, p0) & (p0, cpe, pe)
- *
- * e = |cp - (pb + pe) / 2| <= 1
- *
- * </pre>
  */
 tb_void_t           gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv);
 
@@ -99,24 +76,6 @@ tb_void_t           gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, 
  * @param func      the make func
  * @param priv      the make func private data for user
  *
- * <pre>
- *
- *          cpb      cp0      cpe
- *          --------------------
- *         /                    \
- *        /    pb0---------pe0   \
- *       /           p0           \
- *  cp1 /                          \ cp2
- *     /                            \
- *    /                              \
- *   /                                \
- *  /                                  \
- * /                                    \
- * pb                                   pe
- *
- * e = min(|(cpb - pb) * 2 + cpb - pe|, |(cpe - pe) * 2 + cpe - pb|) <= 1
- *
- * </pre>
  */
 tb_void_t           gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv);
 

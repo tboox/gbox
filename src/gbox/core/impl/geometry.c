@@ -97,31 +97,76 @@ static gb_point_t g_quad_points_for_unit_circle[] =
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+
+/*
+ *            cp
+ *            . 
+ *           / \
+ *          /   \
+ *         /     \
+ *        /       \
+ *    cpb/----.----\ cpe                  
+ *      /     p0    \
+ *     /             \
+ *    /               \
+ *   /                 \
+ *  /                   \
+ * /                     \
+ * pb                    pe
+ *
+ *
+ * (pb, cp, pe) => (pb, cpb, p0) & (p0, cpe, pe)
+ *
+ * e = |cp - (pb + pe) / 2| <= 1
+ */
 tb_void_t gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_return(func && pb && cp && pe);
 
-    // init
+    // compute error
     gb_float_t mx = cp->x - gb_rsh(pb->x + pe->x, 1);
     gb_float_t my = cp->y - gb_rsh(pb->y + pe->y, 1);
 
-    // ok?
+    // error <= 1?
     if (gb_fabs(mx) + gb_fabs(my) <= GB_ONE) func(pe, priv);
     else
     {
+        // compute quad points
         gb_point_t p0, cpb, cpe;
-        cpb.x = gb_rsh(pb->x + cp->x, 1);
-        cpb.y = gb_rsh(pb->y + cp->y, 1);
-        cpe.x = gb_rsh(cp->x + pe->x, 1);
-        cpe.y = gb_rsh(cp->y + pe->y, 1);
-        p0.x = gb_rsh(cpb.x + cpe.x, 1);
-        p0.y = gb_rsh(cpb.y + cpe.y, 1);
+        cpb.x   = gb_rsh(pb->x + cp->x, 1);
+        cpb.y   = gb_rsh(pb->y + cp->y, 1);
+        cpe.x   = gb_rsh(cp->x + pe->x, 1);
+        cpe.y   = gb_rsh(cp->y + pe->y, 1);
+        p0.x    = gb_rsh(cpb.x + cpe.x, 1);
+        p0.y    = gb_rsh(cpb.y + cpe.y, 1);
 
+        // make quad: pb => cpb => p0
         gb_geometry_make_quad(pb, &cpb, &p0, func, priv);
+
+        // make quad: p0 => cpe => p0
         gb_geometry_make_quad(&p0, &cpe, pe, func, priv);
     }
 }
+
+/*
+ *
+ *          cpb      cp0      cpe
+ *          --------------------
+ *         /                    \
+ *        /    pb0---------pe0   \
+ *       /           p0           \
+ *  cp1 /                          \ cp2
+ *     /                            \
+ *    /                              \
+ *   /                                \
+ *  /                                  \
+ * /                                    \
+ * pb                                   pe
+ *
+ * e = min(|(cpb - pb) * 2 + cpb - pe|, |(cpe - pe) * 2 + cpe - pb|) <= 1
+ *
+ */
 tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv)
 {
     // check
@@ -133,39 +178,37 @@ tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_
     gb_float_t mxe = gb_lsh(cpe->x - pe->x, 1) + cpe->x - pb->x;
     gb_float_t mye = gb_lsh(cpe->y - pe->y, 1) + cpe->y - pb->y;
 
+    // compute error
     mxb = gb_fabs(mxb);
     myb = gb_fabs(myb);
     mxe = gb_fabs(mxe);
     mye = gb_fabs(mye);
-
     if (mxe < mxb) mxb = mxe;
     if (mye < myb) myb = mye;
 
-    // ok?
+    // error <= 1?
     if (mxb + myb <= GB_ONE) func(pe, priv);
     else
     {
+        // compute cube points
         gb_point_t cp0, cp1, cp2, pb0, pe0, p0;
+        cp0.x   = gb_rsh(cpb->x + cpe->x, 1);
+        cp0.y   = gb_rsh(cpb->y + cpe->y, 1);
+        cp1.x   = gb_rsh(pb->x + cpb->x, 1);
+        cp1.y   = gb_rsh(pb->y + cpb->y, 1);
+        cp2.x   = gb_rsh(cpe->x + pe->x, 1);
+        cp2.y   = gb_rsh(cpe->y + pe->y, 1);
+        pb0.x   = gb_rsh(cp0.x + cp1.x, 1);
+        pb0.y   = gb_rsh(cp0.y + cp1.y, 1);
+        pe0.x   = gb_rsh(cp0.x + cp2.x, 1);
+        pe0.y   = gb_rsh(cp0.y + cp2.y, 1);
+        p0.x    = gb_rsh(pb0.x + pe0.x, 1);
+        p0.y    = gb_rsh(pb0.y + pe0.y, 1);
 
-        cp0.x = gb_rsh(cpb->x + cpe->x, 1);
-        cp0.y = gb_rsh(cpb->y + cpe->y, 1);
-
-        cp1.x = gb_rsh(pb->x + cpb->x, 1);
-        cp1.y = gb_rsh(pb->y + cpb->y, 1);
-
-        cp2.x = gb_rsh(cpe->x + pe->x, 1);
-        cp2.y = gb_rsh(cpe->y + pe->y, 1);
-
-        pb0.x = gb_rsh(cp0.x + cp1.x, 1);
-        pb0.y = gb_rsh(cp0.y + cp1.y, 1);
-
-        pe0.x = gb_rsh(cp0.x + cp2.x, 1);
-        pe0.y = gb_rsh(cp0.y + cp2.y, 1);
-
-        p0.x = gb_rsh(pb0.x + pe0.x, 1);
-        p0.y = gb_rsh(pb0.y + pe0.y, 1);
-
+        // make cube: pb => cp1 => pb0 => p0
         gb_geometry_make_cube(pb, &cp1, &pb0, &p0, func, priv);
+
+        // make cube: p0 => pe0 => cp2 => pe
         gb_geometry_make_cube(&p0, &pe0, &cp2, pe, func, priv);
     }
 }

@@ -25,7 +25,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "path"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -1194,14 +1194,12 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
 
     // null and dirty? make hint
     tb_bool_t hint_maked = tb_false;
-#if 1
     if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
     {
         impl->hint.type         = GB_SHAPE_TYPE_ARC;
         impl->hint.u.arc        = *arc;
         hint_maked              = tb_true;
     }
-#endif
 
     // make quad points for arc
     gb_geometry_make_arc(arc, gb_path_make_add_arc, path);
