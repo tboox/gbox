@@ -663,7 +663,7 @@ tb_void_t gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0
     // arc-to
     gb_canvas_arc_to(canvas, &arc);
 }
-tb_void_t gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
+tb_void_t gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
     gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
@@ -872,7 +872,7 @@ tb_void_t gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t 
     // draw arc
     gb_canvas_draw_arc(canvas, &arc);
 }
-tb_void_t gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
+tb_void_t gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
     gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
@@ -901,7 +901,7 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
     gb_bounds_make(&bounds, points, tb_arrayn(points));
 
     // draw it
-    gb_device_draw_polygon(impl->device, &polygon, &hint, tb_null);
+    gb_device_draw_polygon(impl->device, &polygon, &hint, &bounds);
 }
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {

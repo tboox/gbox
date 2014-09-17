@@ -671,7 +671,7 @@ tb_void_t           gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_
  * @param ab        the start angle
  * @param an        the sweep angle, 0 - 360
  */
-tb_void_t           gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an);
+tb_void_t           gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an);
 
 /*! clip path
  *
@@ -902,7 +902,7 @@ tb_void_t           gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, g
  * @param ab        the start angle
  * @param an        the sweep angle, 0 - 360
  */
-tb_void_t           gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an);
+tb_void_t           gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an);
 
 /*! draw triangle
  *

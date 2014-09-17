@@ -279,7 +279,7 @@ tb_void_t           gb_path_arc2_to(gb_path_ref_t path, gb_float_t x0, gb_float_
  * @param ab        the start angle
  * @param an        the sweep angle, 0 - 360
  */
-tb_void_t           gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an);
+tb_void_t           gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an);
 
 /*! add path
  *
@@ -344,7 +344,7 @@ tb_void_t           gb_path_add_arc2(gb_path_ref_t path, gb_float_t x0, gb_float
  * @param ab        the start angle
  * @param an        the sweep angle, 0 - 360
  */
-tb_void_t           gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an);
+tb_void_t           gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an);
 
 /*! add triangle
  *

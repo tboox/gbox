@@ -1093,7 +1093,7 @@ tb_void_t gb_path_arc2_to(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_f
     // arc-to
     gb_path_arc_to(path, &arc);
 }
-tb_void_t gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
+tb_void_t gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
     gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
@@ -1217,7 +1217,7 @@ tb_void_t gb_path_add_arc2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_
     // add arc
     gb_path_add_arc(path, &arc);
 }
-tb_void_t gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
+tb_void_t gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
     gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);

@@ -459,7 +459,7 @@ static __tb_inline__ gb_line_t      gb_line_make(gb_float_t x0, gb_float_t y0, g
  *
  * @return                          the line
  */
-static __tb_inline__ gb_line_t      gb_line_imake(tb_long_t x0, tb_long_t y0, tb_size_t x1, tb_size_t y1)
+static __tb_inline__ gb_line_t      gb_line_imake(tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1)
 {
     gb_line_t l;
 
@@ -507,7 +507,7 @@ static __tb_inline__ gb_triangle_t  gb_triangle_make(gb_float_t x0, gb_float_t y
  *
  * @return                          the triangle
  */
-static __tb_inline__ gb_triangle_t  gb_triangle_imake(tb_long_t x0, tb_long_t y0, tb_size_t x1, tb_size_t y1, tb_size_t x2, tb_size_t y2)
+static __tb_inline__ gb_triangle_t  gb_triangle_imake(tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
     gb_triangle_t t;
 
@@ -637,7 +637,7 @@ static __tb_inline__ gb_arc_t       gb_arc_make(gb_float_t x0, gb_float_t y0, gb
  *
  * @return                          the arc
  */
-static __tb_inline__ gb_arc_t       gb_arc_imake(tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t ab, tb_size_t an)
+static __tb_inline__ gb_arc_t       gb_arc_imake(tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     gb_arc_t a;
 
