@@ -23,11 +23,13 @@ tb_void_t gb_demo_arc_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     // stok
     gb_canvas_color_set(canvas, GB_COLOR_BLUE);
     gb_canvas_mode_set(canvas, GB_PAINT_MODE_STOK);
+#if 0
     gb_canvas_draw_arc2i(canvas, 0, 0, 300, 150, -45, 180);
     gb_canvas_draw_arc2i(canvas, 0, 0, 200, 100, 45, 200);
     gb_canvas_draw_arc2i(canvas, 0, 0, 100, 50, 45, -22);
-    gb_canvas_draw_arc2i(canvas, 0, 0, 50, 20, -100, -222);
     gb_canvas_draw_arc2i(canvas, 0, 0, 10, 10, 300, -181);
+#endif
+    gb_canvas_draw_arc2i(canvas, 0, 0, 50, 20, -100, -222);
 }
 tb_void_t gb_demo_arc_event(gb_window_ref_t window, gb_event_ref_t event)
 {

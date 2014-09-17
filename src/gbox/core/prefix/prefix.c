@@ -34,17 +34,17 @@
 static tb_long_t gb_prefix_printf_format_float(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
-    tb_assert_and_check_return_val(cstr && maxn, -1);
+    tb_assert_and_check_return_val(cstr && maxn && object, -1);
 
     // the value
-    gb_float_t value = (gb_float_t)(tb_size_t)object;
+    gb_float_t* value = (gb_float_t*)object;
 
     // format
 #ifdef TB_CONFIG_TYPE_FLOAT
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "%0.3f", gb_float_to_tb(value));
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "%0.3f", gb_float_to_tb(*value));
     if (size >= 0) cstr[size] = '\0';
 #else
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "%ld", gb_float_to_long(value));
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "%ld", gb_float_to_long(*value));
     if (size >= 0) cstr[size] = '\0';
 #endif
 
@@ -60,7 +60,7 @@ static tb_long_t gb_prefix_printf_format_point(tb_cpointer_t object, tb_char_t* 
     gb_point_ref_t point = (gb_point_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(%{float}, %{float})", point->x, point->y);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(%{float}, %{float})", &point->x, &point->y);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -90,7 +90,7 @@ static tb_long_t gb_prefix_printf_format_rect(tb_cpointer_t object, tb_char_t* c
     gb_rect_ref_t rect = (gb_rect_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(x: %{float}, y: %{float}, w: %{float}, h: %{float})", rect->x, rect->y, rect->w, rect->h);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(x: %{float}, y: %{float}, w: %{float}, h: %{float})", &rect->x, &rect->y, &rect->w, &rect->h);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -120,7 +120,7 @@ static tb_long_t gb_prefix_printf_format_circle(tb_cpointer_t object, tb_char_t*
     gb_circle_ref_t circle = (gb_circle_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c: %{point}, r: %{float})", &circle->c, circle->r);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c: %{point}, r: %{float})", &circle->c, &circle->r);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -135,7 +135,7 @@ static tb_long_t gb_prefix_printf_format_ellipse(tb_cpointer_t object, tb_char_t
     gb_ellipse_ref_t ellipse = (gb_ellipse_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c0: %{point}, rx: %{float}, ry: %{float})", &ellipse->c0, ellipse->rx, ellipse->ry);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c0: %{point}, rx: %{float}, ry: %{float})", &ellipse->c0, &ellipse->rx, &ellipse->ry);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -150,7 +150,7 @@ static tb_long_t gb_prefix_printf_format_arc(tb_cpointer_t object, tb_char_t* cs
     gb_arc_ref_t arc = (gb_arc_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c0: %{point}, rx: %{float}, ry: %{float}, ab: %{float}, an: %{float})", &arc->c0, arc->rx, arc->ry, arc->ab, arc->an);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c0: %{point}, rx: %{float}, ry: %{float}, ab: %{float}, an: %{float})", &arc->c0, &arc->rx, &arc->ry, &arc->ab, &arc->an);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -222,7 +222,7 @@ static tb_long_t gb_prefix_printf_format_matrix(tb_cpointer_t object, tb_char_t*
     gb_matrix_ref_t matrix = (gb_matrix_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(sx: %{float}, sy: %{float}, kx: %{float}, ky: %{float}, tx: %{float}, ty: %{float})", matrix->sx, matrix->sy, matrix->kx, matrix->ky, matrix->tx, matrix->ty);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(sx: %{float}, sy: %{float}, kx: %{float}, ky: %{float}, tx: %{float}, ty: %{float})", &matrix->sx, &matrix->sy, &matrix->kx, &matrix->ky, &matrix->tx, &matrix->ty);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?

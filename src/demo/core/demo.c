@@ -90,8 +90,11 @@ static tb_void_t gb_demo_info(tb_bool_t killed, tb_cpointer_t priv)
     gb_window_ref_t window = (gb_window_ref_t)priv;
     tb_assert_and_check_return(window);
 
+    // the framerate 
+    gb_float_t framerate = gb_window_framerate(window);
+
     // trace
-    tb_trace_i("framerate: %{float}", gb_window_framerate(window));
+    tb_trace_i("framerate: %{float}", &framerate);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

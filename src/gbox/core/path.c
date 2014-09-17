@@ -743,8 +743,8 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
                     // make bounds
                     impl->bounds.x  = impl->hint.u.circle.c.x - impl->hint.u.circle.r;
                     impl->bounds.y  = impl->hint.u.circle.c.y - impl->hint.u.circle.r;
-                    impl->bounds.w  = impl->hint.u.circle.r << 1;
-                    impl->bounds.h  = impl->hint.u.circle.r << 1;
+                    impl->bounds.w  = gb_lsh(impl->hint.u.circle.r, 1);
+                    impl->bounds.h  = impl->bounds.w;
                     impl->flag      &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
 
                     // trace
@@ -756,8 +756,8 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
                     // make bounds
                     impl->bounds.x  = impl->hint.u.ellipse.c0.x - impl->hint.u.ellipse.rx;
                     impl->bounds.y  = impl->hint.u.ellipse.c0.y - impl->hint.u.ellipse.ry;
-                    impl->bounds.w  = impl->hint.u.ellipse.rx << 1;
-                    impl->bounds.h  = impl->hint.u.ellipse.ry << 1;
+                    impl->bounds.w  = gb_lsh(impl->hint.u.ellipse.rx, 1);
+                    impl->bounds.h  = gb_lsh(impl->hint.u.ellipse.ry, 1);
                     impl->flag      &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
 
                     // trace
@@ -840,9 +840,6 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
 
         // save hint
         *hint = impl->hint;
-
-        // trace
-        if (impl->hint.type) tb_trace_d("hint: %{shape}", &impl->hint);
     }
 
     // polygon dirty? remake it
