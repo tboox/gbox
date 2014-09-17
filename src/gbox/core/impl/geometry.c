@@ -194,7 +194,7 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     gb_point_t points[tb_arrayn(g_quad_points_for_unit_circle)];
     tb_memcpy(points, g_quad_points_for_unit_circle, count * sizeof(gb_point_t));
 
-    // patch the last quad points
+    // patch the last quad pair
     gb_float_t patched_angle = sweep_angle - gb_long_to_float(((count - 1) * 45) >> 1);
     if (gb_nz(patched_angle))
     {
@@ -205,14 +205,46 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
         gb_point_t stop_point;
         gb_sincos(gb_degree_to_radian(sweep_angle), &stop_point.y, &stop_point.x);
 
-        // TODO
-        // the ctrl point
-        gb_point_t ctrl_point = stop_point;
+        // the last point
+        gb_point_t last_point = points[count - 1];
 
-        // patch the ctrl point
+        // init matrix
+        gb_matrix_t matrix;
+        gb_matrix_init_sincos(&matrix, last_point.y, last_point.x);
+
+        /* compute tan(patched_angle/2)
+         *
+         * tan(x) = x + x^3/3 while x < pi/2
+         */
+        gb_float_t angle = gb_degree_to_radian(gb_rsh(patched_angle, 1));
+        gb_float_t tan_angle = angle + gb_idiv(gb_mul(gb_mul(angle, angle), angle), 3);
+
+        /* compute the ctrl point, last => ctrl => stop
+         *
+         * |     last
+         * |      /       ctrl
+         * |     /       /
+         * |    /      /
+         * |   /     /
+         * |  /    /         stop
+         * | /   /     
+         * |/ /        
+         * ------------------- last^
+         *                    | 
+         *                    | tan(patched_angle/2)
+         *                    |
+         *                   ctrl^
+         *
+         * ctrl^:   (1, tan(patched_angle/2))
+         * matrix:  rotate_sincos(last_point.y, last_point.x)
+         *
+         * ctrl = ctrl^ * matrix
+         */
+        gb_point_t ctrl_point = gb_point_make(GB_ONE, tan_angle);
+        gb_matrix_apply_point(&matrix, &ctrl_point);
+
+        // patch the last quad pair
         points[count++] = ctrl_point;
-
-        // patch the stop point
         points[count++] = stop_point;
     }
 
