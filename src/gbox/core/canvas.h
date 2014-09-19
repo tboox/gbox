@@ -1027,7 +1027,7 @@ tb_void_t           gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_re
  * @param points    the points
  * @param count     the points count
  */
-tb_void_t           gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count);
+tb_void_t           gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_ref_t points, tb_size_t count);
 
 /*! draw points
  *
@@ -1035,7 +1035,7 @@ tb_void_t           gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t cons
  * @param points    the points
  * @param count     the points count
  */
-tb_void_t           gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count);
+tb_void_t           gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_ref_t points, tb_size_t count);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

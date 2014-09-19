@@ -160,7 +160,7 @@ tb_void_t           gb_device_draw_clear(gb_device_ref_t device, gb_color_t colo
  * @param count     the points count
  * @param bounds    the bounds
  */
-tb_void_t           gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+tb_void_t           gb_device_draw_lines(gb_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds);
 
 /*! draw points
  *
@@ -169,7 +169,7 @@ tb_void_t           gb_device_draw_lines(gb_device_ref_t device, gb_point_t cons
  * @param count     the points count 
  * @param bounds    the bounds
  */
-tb_void_t           gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+tb_void_t           gb_device_draw_points(gb_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds);
 
 /*! draw polygon
  *

@@ -305,7 +305,7 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
         tb_assert_and_check_return_val(codes, tb_false);
 
         // the points 
-        gb_point_t const* points = (gb_point_t const*)tb_vector_data(impl->points);
+        gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);
         tb_assert_and_check_return_val(points, tb_false);
 
         // the points count
@@ -440,7 +440,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         tb_assert_and_check_return_val(impl->polygon_points, tb_false);
 
         // the points
-        gb_point_t* points = (gb_point_t*)tb_vector_data(impl->points);
+        gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);
         tb_assert_and_check_return_val(points, tb_false);
 
         // clear polygon points and counts
@@ -520,7 +520,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         tb_vector_insert_tail(impl->polygon_counts, (tb_cpointer_t)0);
 
         // init polygon
-        impl->polygon.points = (gb_point_t*)tb_vector_data(impl->polygon_points);
+        impl->polygon.points = (gb_point_ref_t)tb_vector_data(impl->polygon_points);
         impl->polygon.counts = (tb_uint16_t*)tb_vector_data(impl->polygon_counts);
     }
     // only move-to and line-to? using the points directly
@@ -559,7 +559,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         tb_vector_insert_tail(impl->polygon_counts, (tb_cpointer_t)0);
 
         // init polygon
-        impl->polygon.points = (gb_point_t*)tb_vector_data(impl->points);
+        impl->polygon.points = (gb_point_ref_t)tb_vector_data(impl->points);
         impl->polygon.counts = (tb_uint16_t*)tb_vector_data(impl->polygon_counts);
     }
 
@@ -773,7 +773,7 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
         if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
         {
             // the points
-            gb_point_t const* points = (gb_point_t const*)tb_vector_data(impl->points);
+            gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);
             tb_assert_and_check_return_val(points, tb_null);
 
             // make bounds

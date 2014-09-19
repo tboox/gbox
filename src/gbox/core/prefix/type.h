@@ -238,7 +238,7 @@ typedef gb_arc_t*       gb_arc_ref_t;
 typedef struct __gb_polygon_t
 {
     /// the points
-    gb_point_t*         points;
+    gb_point_ref_t         points;
 
     /// the counts
     tb_uint16_t*        counts;

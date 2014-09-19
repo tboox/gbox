@@ -67,15 +67,21 @@ tb_void_t gb_bitmap_render_exit(gb_bitmap_device_ref_t device)
     tb_assert_and_check_return(device);
 
 }
-tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
+    // TODO: clip it
+    // ...
+
     // stok lines
-    gb_bitmap_render_stok_lines(device, points, count, bounds);
+    gb_bitmap_render_stok_lines(device, points, count);
 }
-tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
+    // TODO: clip it
+    // ...
+
     // stok points
-    gb_bitmap_render_stok_points(device, points, count, bounds);
+    gb_bitmap_render_stok_points(device, points, count);
 }
 tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
@@ -85,18 +91,21 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
 
+    // TODO: clip it
+    // ...
+
     // fill it
     if (mode & GB_PAINT_MODE_FILL)
     {
         // fill polygon
-        gb_bitmap_render_fill_polygon(device, polygon, hint, bounds);
+        gb_bitmap_render_fill_polygon(device, polygon, hint);
     }
 
     // stok it
     if (mode & GB_PAINT_MODE_STOK)
     {
         // stok polygon
-        gb_bitmap_render_stok_polygon(device, polygon, hint, bounds);
+        gb_bitmap_render_stok_polygon(device, polygon, hint);
     }
 }
 

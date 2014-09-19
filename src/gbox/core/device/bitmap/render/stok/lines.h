@@ -43,9 +43,8 @@ __tb_extern_c_enter__
  * @param device    the device
  * @param points    the points 
  * @param count     the points count
- * @param bounds    the bounds 
  */
-tb_void_t           gb_bitmap_render_stok_lines(gb_bitmap_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+tb_void_t           gb_bitmap_render_stok_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

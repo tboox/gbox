@@ -310,8 +310,8 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     func(tb_null, points, priv);
 
     // walk points
-    gb_point_t* pb = points + 1;
-    gb_point_t* pe = points + count;
+    gb_point_ref_t pb = points + 1;
+    gb_point_ref_t pe = points + count;
     for (; pb < pe; pb += 2) 
     {
         // apply matrix for the quad points

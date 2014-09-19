@@ -43,13 +43,13 @@ __tb_extern_c_enter__
  * @param points                the points 
  * @param count                 the points count
  */
-static __tb_inline__ tb_void_t  gb_bounds_make(gb_rect_ref_t bounds, gb_point_t const* points, tb_size_t count)
+static __tb_inline__ tb_void_t  gb_bounds_make(gb_rect_ref_t bounds, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(bounds && points && count > 1);
 
     // the point
-    gb_point_t const* point = points++; count--;
+    gb_point_ref_t point = points++; count--;
 
     // done
     gb_float_t x0 = point->x;

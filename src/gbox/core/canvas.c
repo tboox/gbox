@@ -1046,7 +1046,7 @@ tb_void_t gb_canvas_draw_polygon(gb_canvas_ref_t canvas, gb_polygon_ref_t polygo
     // draw polygon
     gb_device_draw_polygon(impl->device, polygon, tb_null, tb_null);
 }
-tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_ref_t points, tb_size_t count)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
@@ -1055,7 +1055,7 @@ tb_void_t gb_canvas_draw_lines(gb_canvas_ref_t canvas, gb_point_t const* points,
     // draw lines
     gb_device_draw_lines(impl->device, points, count, tb_null);
 }
-tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_t const* points, tb_size_t count)
+tb_void_t gb_canvas_draw_points(gb_canvas_ref_t canvas, gb_point_ref_t points, tb_size_t count)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;

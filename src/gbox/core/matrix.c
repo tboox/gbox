@@ -465,7 +465,7 @@ tb_bool_t gb_matrix_multiply_lhs(gb_matrix_ref_t matrix, gb_matrix_ref_t factor)
     // ok?
     return ok;
 }
-tb_void_t gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_t* points, tb_size_t count)
+tb_void_t gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_and_check_return(matrix && points && count);

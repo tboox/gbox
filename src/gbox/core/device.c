@@ -198,7 +198,7 @@ tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
     // clear it
     impl->draw_clear(impl, color);
 }
-tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;
@@ -207,7 +207,7 @@ tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_t const* points,
     // draw lines
     impl->draw_lines(impl, points, count, bounds);
 }
-tb_void_t gb_device_draw_points(gb_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+tb_void_t gb_device_draw_points(gb_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_device_impl_t* impl = (gb_device_impl_t*)device;

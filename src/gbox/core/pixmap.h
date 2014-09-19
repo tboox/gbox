@@ -43,7 +43,7 @@ __tb_extern_c_enter__
  *
  * @return              the pixel
  */
-typedef gb_pixel_t 		(*gb_pixmap_op_pixel_t)(gb_color_t color);
+typedef gb_pixel_t 		(*gb_pixmap_func_pixel_t)(gb_color_t color);
 
 /*! pixel => color
  *
@@ -51,7 +51,7 @@ typedef gb_pixel_t 		(*gb_pixmap_op_pixel_t)(gb_color_t color);
  *
  * @return              the color
  */
-typedef gb_color_t 		(*gb_pixmap_op_color_t)(gb_pixel_t pixel);
+typedef gb_color_t 		(*gb_pixmap_func_color_t)(gb_pixel_t pixel);
 
 /*! get pixel from data
  *
@@ -59,7 +59,7 @@ typedef gb_color_t 		(*gb_pixmap_op_color_t)(gb_pixel_t pixel);
  *
  * @return              the pixel
  */
-typedef gb_pixel_t 		(*gb_pixmap_op_pixel_get_t)(tb_cpointer_t data);
+typedef gb_pixel_t 		(*gb_pixmap_func_pixel_get_t)(tb_cpointer_t data);
 
 /*! set pixel to data
  *
@@ -67,7 +67,7 @@ typedef gb_pixel_t 		(*gb_pixmap_op_pixel_get_t)(tb_cpointer_t data);
  * @param pixel         the pixel 
  * @param alpha         the alpha 
  */
-typedef tb_void_t 		(*gb_pixmap_op_pixel_set_t)(tb_pointer_t data, gb_pixel_t pixel, tb_byte_t alpha);
+typedef tb_void_t 		(*gb_pixmap_func_pixel_set_t)(tb_pointer_t data, gb_pixel_t pixel, tb_byte_t alpha);
 
 /*! copy pixel to data from the source data
  *
@@ -75,7 +75,7 @@ typedef tb_void_t 		(*gb_pixmap_op_pixel_set_t)(tb_pointer_t data, gb_pixel_t pi
  * @param source        the source data 
  * @param alpha         the alpha 
  */
-typedef tb_void_t 		(*gb_pixmap_op_pixel_cpy_t)(tb_pointer_t data, tb_cpointer_t source, tb_byte_t alpha);
+typedef tb_void_t 		(*gb_pixmap_func_pixel_cpy_t)(tb_pointer_t data, tb_cpointer_t source, tb_byte_t alpha);
 
 /*! get color from data
  *
@@ -83,14 +83,14 @@ typedef tb_void_t 		(*gb_pixmap_op_pixel_cpy_t)(tb_pointer_t data, tb_cpointer_t
  *
  * @return              the color
  */
-typedef gb_color_t 		(*gb_pixmap_op_color_get_t)(tb_cpointer_t data);
+typedef gb_color_t 		(*gb_pixmap_func_color_get_t)(tb_cpointer_t data);
 
 /*! set color to data
  *
  * @param data          the data 
  * @param color         the color
  */
-typedef tb_void_t 		(*gb_pixmap_op_color_set_t)(tb_pointer_t data, gb_color_t color);
+typedef tb_void_t 		(*gb_pixmap_func_color_set_t)(tb_pointer_t data, gb_color_t color);
 
 /*! fill pixels to data
  *
@@ -98,7 +98,7 @@ typedef tb_void_t 		(*gb_pixmap_op_color_set_t)(tb_pointer_t data, gb_color_t co
  * @param pixel         the pixel
  * @param count         the count
  */
-typedef tb_void_t 		(*gb_pixmap_op_pixels_fill_t)(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha);
+typedef tb_void_t 		(*gb_pixmap_func_pixels_fill_t)(tb_pointer_t data, gb_pixel_t pixel, tb_size_t count, tb_byte_t alpha);
 
 /// the pixmap type
 typedef struct __gb_pixmap_t
@@ -116,28 +116,28 @@ typedef struct __gb_pixmap_t
 	tb_uint16_t                 pixfmt;
 
 	/// color => pixel
-	gb_pixmap_op_pixel_t        pixel;
+	gb_pixmap_func_pixel_t        pixel;
 
 	/// pixel => color
-	gb_pixmap_op_color_t        color;
+	gb_pixmap_func_color_t        color;
 
 	/// get pixel from data
-	gb_pixmap_op_pixel_get_t    pixel_get;
+	gb_pixmap_func_pixel_get_t    pixel_get;
 
     /// set pixel to data
-	gb_pixmap_op_pixel_set_t    pixel_set;
+	gb_pixmap_func_pixel_set_t    pixel_set;
 
     /// copy pixel to data from the source data
-	gb_pixmap_op_pixel_cpy_t    pixel_cpy;
+	gb_pixmap_func_pixel_cpy_t    pixel_cpy;
 
     /// get color from data
-    gb_pixmap_op_color_get_t    color_get;
+    gb_pixmap_func_color_get_t    color_get;
 
     /// set color to data
-    gb_pixmap_op_color_set_t    color_set;
+    gb_pixmap_func_color_set_t    color_set;
 
     /// fill pixels to data
-    gb_pixmap_op_pixels_fill_t  pixels_fill;
+    gb_pixmap_func_pixels_fill_t  pixels_fill;
 
 }gb_pixmap_t;
 

@@ -412,7 +412,7 @@ tb_bool_t 		    gb_matrix_multiply_lhs(gb_matrix_ref_t matrix, gb_matrix_ref_t f
  * @param points    the points
  * @param count     the count
  */
-tb_void_t           gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_t* points, tb_size_t count);
+tb_void_t           gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_ref_t points, tb_size_t count);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * inlines
@@ -473,6 +473,24 @@ static __tb_inline__ tb_void_t gb_matrix_apply_point(gb_matrix_ref_t matrix, gb_
 	point->y = gb_matrix_apply_y(matrix, x, y);
 }
 
+/*! apply matrix to the point
+ *
+ * @param matrix    the matrix
+ * @param point     the point
+ * @param to        the to-point
+ */
+static __tb_inline__ tb_void_t gb_matrix_apply_point2(gb_matrix_ref_t matrix, gb_point_ref_t point, gb_point_ref_t to)
+{
+    // check
+    tb_assert_abort(matrix && point && to);
+    
+    // apply it
+	gb_float_t x = point->x;
+	gb_float_t y = point->y;
+	to->x = gb_matrix_apply_x(matrix, x, y);
+	to->y = gb_matrix_apply_y(matrix, x, y);
+}
+
 /*! apply matrix to the line
  *
  * @param matrix    the matrix
@@ -488,6 +506,21 @@ static __tb_inline__ tb_void_t gb_matrix_apply_line(gb_matrix_ref_t matrix, gb_l
 	gb_matrix_apply_point(matrix, &line->p1);
 }
 
+/*! apply matrix to the line
+ *
+ * @param matrix    the matrix
+ * @param line      the line
+ * @param to        the to-line
+ */
+static __tb_inline__ tb_void_t gb_matrix_apply_line2(gb_matrix_ref_t matrix, gb_line_ref_t line, gb_line_ref_t to)
+{
+    // check
+    tb_assert_abort(matrix && line && to);
+    
+    // apply it
+	gb_matrix_apply_point2(matrix, &line->p0, &to->p0);
+	gb_matrix_apply_point2(matrix, &line->p1, &to->p1);
+}
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

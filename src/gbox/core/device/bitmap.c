@@ -67,7 +67,7 @@ static tb_void_t gb_device_bitmap_draw_clear(gb_device_impl_t* device, gb_color_
     // clear it
     pixmap->pixels_fill(pixels, pixmap->pixel(color), count, 0xff);
 }
-static tb_void_t gb_device_bitmap_draw_lines(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+static tb_void_t gb_device_bitmap_draw_lines(gb_device_impl_t* device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
@@ -83,7 +83,7 @@ static tb_void_t gb_device_bitmap_draw_lines(gb_device_impl_t* device, gb_point_
         gb_bitmap_render_exit(impl);
     }
 }
-static tb_void_t gb_device_bitmap_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+static tb_void_t gb_device_bitmap_draw_points(gb_device_impl_t* device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;

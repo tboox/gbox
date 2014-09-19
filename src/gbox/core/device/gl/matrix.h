@@ -378,7 +378,7 @@ static __tb_inline__ tb_void_t gb_gl_matrix_orthof(gb_gl_matrix_ref_t matrix, gb
  */
 static __tb_inline__ tb_bool_t gb_gl_matrix_identify_for_scale(gb_gl_matrix_ref_t matrix)
 {
-    return (matrix[0] == 1.0f && matrix[5] == 1.0f)? tb_true : tb_false;
+    return (tb_fabs(matrix[0]) == 1.0f && tb_fabs(matrix[5]) == 1.0f)? tb_true : tb_false;
 }
 
 #endif

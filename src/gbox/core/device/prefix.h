@@ -87,7 +87,7 @@ typedef struct __gb_device_impl_t
      * @param count         the count
      * @param bounds        the bounds
      */
-    tb_void_t               (*draw_lines)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+    tb_void_t               (*draw_lines)(struct __gb_device_impl_t* device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds);
 	
     /*! draw points 
      *
@@ -96,7 +96,7 @@ typedef struct __gb_device_impl_t
      * @param count         the count
      * @param bounds        the bounds
      */
-    tb_void_t               (*draw_points)(struct __gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds);
+    tb_void_t               (*draw_points)(struct __gb_device_impl_t* device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds);
 	
     /*! draw polygon
      *

@@ -49,7 +49,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point_t const* points)
+static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point_ref_t points)
 {
     // check
     tb_assert_abort(device && points);
@@ -162,7 +162,7 @@ static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
     // leave solid
     else gb_gl_render_leave_solid(device);
 }
-static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_uint16_t const* counts)
+static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_ref_t points, tb_uint16_t const* counts)
 {
     // check
     tb_assert_abort(device && points && counts);
@@ -179,7 +179,7 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_t
         index += count;
     }
 }
-static tb_void_t gb_gl_render_stok_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+static tb_void_t gb_gl_render_stok_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && points && count);
@@ -190,7 +190,7 @@ static tb_void_t gb_gl_render_stok_lines(gb_gl_device_ref_t device, gb_point_t c
     // done
     gb_glDrawArrays(GB_GL_LINES, 0, (gb_GLint_t)count);
 }
-static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count)
+static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && points && count);
@@ -201,7 +201,7 @@ static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_t 
     // done
     gb_glDrawArrays(GB_GL_POINTS, 0, (gb_GLint_t)count);
 }
-static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_t const* points, tb_uint16_t const* counts)
+static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_ref_t points, tb_uint16_t const* counts)
 {
     // check
     tb_assert_abort(device && points && counts);
@@ -334,7 +334,7 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
     // disable antialiasing
     gb_glDisable(GB_GL_MULTISAMPLE);
 }
-tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
@@ -352,13 +352,13 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* p
     else
     {
         // TODO
-        tb_trace_noimpl();
+        gb_gl_render_stok_lines(device, points, count);
     }
 
     // leave paint
     gb_gl_render_leave_paint(device);
 }
-tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
+tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
@@ -376,7 +376,7 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* 
     else
     {
         // TODO
-        tb_trace_noimpl();
+        gb_gl_render_stok_points(device, points, count);
     }
 
     // leave paint
@@ -412,7 +412,7 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
         else
         {
             // TODO
-            tb_trace_noimpl();
+            gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
         }
     }
 
