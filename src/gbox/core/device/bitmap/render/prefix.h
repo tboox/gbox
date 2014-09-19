@@ -17,18 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        bitmap.h
+ * @file        prefix.h
  * @ingroup     core
  */
-#ifndef GB_CORE_DEVICE_BITMAP_BITMAP_H
-#define GB_CORE_DEVICE_BITMAP_BITMAP_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_PREFIX_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "device.h"
-#include "render.h"
+#include "../prefix.h"
+#include "../device.h"
 
 #endif
 

@@ -351,8 +351,8 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_t const* p
         gb_gl_render_stok_lines(device, points, count);
     else
     {
-        // FIXME
-        gb_gl_render_stok_lines(device, points, count);
+        // TODO
+        tb_trace_noimpl();
     }
 
     // leave paint
@@ -375,8 +375,8 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_t const* 
         gb_gl_render_stok_points(device, points, count);
     else
     {
-        // FIXME
-        gb_gl_render_stok_points(device, points, count);
+        // TODO
+        tb_trace_noimpl();
     }
 
     // leave paint
@@ -411,8 +411,8 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
             gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
         else
         {
-            // FIXME
-            gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
+            // TODO
+            tb_trace_noimpl();
         }
     }
 

@@ -17,18 +17,18 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        bitmap.h
+ * @file        stok.h
  * @ingroup     core
  */
-#ifndef GB_CORE_DEVICE_BITMAP_BITMAP_H
-#define GB_CORE_DEVICE_BITMAP_BITMAP_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STOK_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_STOK_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "device.h"
-#include "render.h"
+#include "lines.h"
+#include "points.h"
+#include "polygon.h"
 
 #endif
 

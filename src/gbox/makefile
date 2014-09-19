@@ -21,6 +21,11 @@ gbox_C_FILES 			+= \
 						core/device \
 						core/clipper \
 						core/device/bitmap \
+						core/device/bitmap/render \
+						core/device/bitmap/render/stok/lines \
+						core/device/bitmap/render/stok/points \
+						core/device/bitmap/render/stok/polygon \
+						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
 						core/prefix/color \
 						core/prefix/quality \

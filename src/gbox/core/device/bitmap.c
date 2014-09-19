@@ -73,7 +73,15 @@ static tb_void_t gb_device_bitmap_draw_lines(gb_device_impl_t* device, gb_point_
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
     tb_assert_and_check_return(impl && points && count);
 
-    tb_trace_noimpl();
+    // init render
+    if (gb_bitmap_render_init(impl))
+    {
+        // draw lines
+        gb_bitmap_render_draw_lines(impl, points, count, bounds);
+    
+        // exit render
+        gb_bitmap_render_exit(impl);
+    }
 }
 static tb_void_t gb_device_bitmap_draw_points(gb_device_impl_t* device, gb_point_t const* points, tb_size_t count, gb_rect_ref_t bounds)
 {
@@ -81,7 +89,15 @@ static tb_void_t gb_device_bitmap_draw_points(gb_device_impl_t* device, gb_point
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
     tb_assert_and_check_return(impl && points && count);
 
-    tb_trace_noimpl();
+    // init render
+    if (gb_bitmap_render_init(impl))
+    {
+        // draw points
+        gb_bitmap_render_draw_points(impl, points, count, bounds);
+    
+        // exit render
+        gb_bitmap_render_exit(impl);
+    }
 }
 static tb_void_t gb_device_bitmap_draw_polygon(gb_device_impl_t* device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
@@ -89,7 +105,15 @@ static tb_void_t gb_device_bitmap_draw_polygon(gb_device_impl_t* device, gb_poly
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
     tb_assert_and_check_return(impl && polygon);
 
-    tb_trace_noimpl();
+    // init render
+    if (gb_bitmap_render_init(impl))
+    {
+        // draw polygon
+        gb_bitmap_render_draw_polygon(impl, polygon, hint, bounds);
+    
+        // exit render
+        gb_bitmap_render_exit(impl);
+    }
 }
 static gb_shader_ref_t gb_device_bitmap_shader_linear(gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
 {

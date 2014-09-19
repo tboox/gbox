@@ -31,6 +31,15 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
+
+// the gl render type
+typedef struct __gb_bitmap_render_t
+{
+    // the shader
+    gb_shader_ref_t             shader;
+
+}gb_bitmap_render_t;
+
 // the bitmap device type
 typedef struct __gb_bitmap_device_t
 {
@@ -42,6 +51,9 @@ typedef struct __gb_bitmap_device_t
 
     // the pixmap
     gb_pixmap_ref_t             pixmap;
+
+    // the render
+    gb_bitmap_render_t          render;
 
 }gb_bitmap_device_t, *gb_bitmap_device_ref_t;
 
