@@ -94,6 +94,13 @@ SHFLAGS_RELEASE 	=
 SHFLAGS_DEBUG 		= -debug 
 SHFLAGS 			= -dll -nologo -machine:x86 -pdb:"$(PDB)" -libpath:'$(HOME)lib\msvc\x86' -libpath:'$(HOME)tool\msys\local\lib'
 
+# prof
+ifeq ($(PROF),y)
+LDFLAGS_RELEASE 	+= -debug
+ARFLAGS_RELEASE 	+= -debug
+SHFLAGS_RELEASE 	+= -debug
+endif
+
 # include sub-config
 include 		$(PLAT_DIR)/config.mak
 

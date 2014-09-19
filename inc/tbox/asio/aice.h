@@ -92,7 +92,7 @@ typedef struct __tb_aice_acpt_t
     tb_uint16_t                 port;
 
     /// the private data for using the left space of the union
-    tb_cpointer_t               priv[2];
+    tb_cpointer_t               priv[1];
 
 }tb_aice_acpt_t;
 
@@ -168,10 +168,10 @@ typedef struct __tb_aice_usend_t
     /// the data real
     tb_size_t                   real;
 
-    /// the addr
+    /// the peer addr
     tb_ipv4_t                   addr;
 
-    /// the port
+    /// the peer port
     tb_uint16_t                 port;
 
 }tb_aice_usend_t;
@@ -353,10 +353,10 @@ typedef struct __tb_aice_urecvv_t
     /// the data real
     tb_size_t                   real;
 
-    /// the addr
+    /// the peer addr
     tb_ipv4_t                   addr;
 
-    /// the port
+    /// the peer port
     tb_uint16_t                 port;
 
 }tb_aice_urecvv_t;
@@ -473,8 +473,15 @@ typedef struct __tb_aice_t
     /// the aico
     tb_aico_ref_t               aico;
 
-    /// the uion
+    /*! the events 
+     *
+     * tb_iovec_t must be aligned by cpu-bytes for windows WSABUF
+     */
+#ifdef TB_CONFIG_OS_WINDOWS
+    __tb_cpu_aligned__ union
+#else
     union
+#endif
     {
         // for sock
         tb_aice_addr_t          addr;
@@ -501,7 +508,7 @@ typedef struct __tb_aice_t
 
     } u;
 
-}tb_aice_t;
+}tb_aice_t, *tb_aice_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
