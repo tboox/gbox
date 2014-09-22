@@ -333,10 +333,10 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     impl->path->reset();
 
     // init path
-    gb_point_ref_t   first = tb_null;
-    gb_point_ref_t   point = tb_null;
-    tb_uint16_t         count = *counts++;
-    tb_size_t           index = 0;
+    gb_point_ref_t  first = tb_null;
+    gb_point_ref_t  point = tb_null;
+    tb_uint16_t     count = *counts++;
+    tb_size_t       index = 0;
     while (index < count)
     {
         // the point

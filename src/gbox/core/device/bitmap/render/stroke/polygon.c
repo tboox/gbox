@@ -31,11 +31,43 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
+#include "lines.h"
 #include "polygon.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon)
 {
+    // check
+    tb_assert_abort(device && polygon && polygon->points && polygon->counts);
+
+    // done
+    gb_point_ref_t  points = polygon->points;
+    tb_uint16_t*    counts = polygon->counts;
+    tb_uint16_t     count = *counts++;
+    tb_size_t       index = 0;
+    gb_point_t      points_line[2];
+    while (index < count)
+    {
+        // the point
+        points_line[1] = *points++;
+
+        // stroke line
+        if (index) gb_bitmap_render_stroke_lines(device, points_line, 2);
+
+        // save the previous point
+        points_line[0] = points_line[1];
+        
+        // next point
+        index++;
+
+        // next polygon
+        if (index == count) 
+        {
+            // next
+            count   = *counts++;
+            index   = 0;
+        }
+    }
 }

@@ -42,9 +42,8 @@ __tb_extern_c_enter__
  *
  * @param device    the device
  * @param polygon   the polygon
- * @param hint      the hint shape
  */
-tb_void_t           gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
+tb_void_t           gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
