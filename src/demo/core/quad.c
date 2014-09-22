@@ -41,9 +41,9 @@ tb_void_t gb_demo_quad_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     gb_path_move2i_to(g_path, -200, 0);
     gb_path_quad2i_to(g_path, g_ctrl_x, g_ctrl_y, 200, 0);
 
-    // stok
+    // stroke
     gb_canvas_color_set(canvas, GB_COLOR_BLUE);
-    gb_canvas_mode_set(canvas, GB_PAINT_MODE_STOK);
+    gb_canvas_mode_set(canvas, GB_PAINT_MODE_STROKE);
     gb_canvas_draw_path(canvas, g_path);
 }
 tb_void_t gb_demo_quad_event(gb_window_ref_t window, gb_event_ref_t event)

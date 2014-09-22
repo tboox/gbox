@@ -17,17 +17,31 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        stroke.c
  * @ingroup     core
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STOK_PREFIX_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STOK_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "stroke.h"
+#include "../matrix.h"
 
-#endif
-
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+tb_bool_t gb_stroke_make_fill_for_lines(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
+{
+    tb_trace_noimpl();
+    return tb_false;
+}
+tb_bool_t gb_stroke_make_fill_for_points(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
+{
+    tb_trace_noimpl();
+    return tb_false;
+}
+tb_bool_t gb_stroke_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
+{
+    tb_trace_noimpl();
+    return tb_false;
+}

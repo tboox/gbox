@@ -33,8 +33,8 @@
  */
 #include "render.h"
 #include "render/fill/fill.h"
-#include "render/stok/stok.h"
-#include "../../impl/stok.h"
+#include "render/stroke/stroke.h"
+#include "../../impl/stroke.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -73,8 +73,8 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
     // TODO: clip it
     // ...
 
-    // stok lines
-    gb_bitmap_render_stok_lines(device, points, count);
+    // stroke lines
+    gb_bitmap_render_stroke_lines(device, points, count);
 }
 tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
@@ -109,8 +109,8 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
         // TODO: clip it
         // ...
 
-        // stok points
-        gb_bitmap_render_stok_points(device, stroked_points, tb_vector_size(device->points));
+        // stroke points
+        gb_bitmap_render_stroke_points(device, stroked_points, tb_vector_size(device->points));
     }
     // make the filled polygon 
     else
@@ -122,7 +122,7 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
         tb_vector_clear(device->counts);
 
         // make the filled polygon
-        tb_bool_t       filled_convex = gb_stok_make_fill_for_points(device->points, device->counts, device->base.paint, points, count);
+        tb_bool_t       filled_convex = gb_stroke_make_fill_for_points(device->points, device->counts, device->base.paint, points, count);
         gb_point_ref_t  filled_points = (gb_point_ref_t)tb_vector_data(device->points);
         tb_uint16_t*    filled_counts = (tb_uint16_t*)tb_vector_data(device->counts);
         gb_polygon_t    filled_polygon = {filled_points, filled_counts, filled_convex};
@@ -158,11 +158,11 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
         gb_bitmap_render_fill_polygon(device, polygon, hint);
     }
 
-    // stok it
-    if (mode & GB_PAINT_MODE_STOK)
+    // stroke it
+    if (mode & GB_PAINT_MODE_STROKE)
     {
-        // stok polygon
-        gb_bitmap_render_stok_polygon(device, polygon, hint);
+        // stroke polygon
+        gb_bitmap_render_stroke_polygon(device, polygon, hint);
     }
 }
 

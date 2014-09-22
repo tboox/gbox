@@ -25,7 +25,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "bitmap_stok_points"
+#define TB_TRACE_MODULE_NAME            "bitmap_stroke_points"
 #define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_bitmap_render_stok_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+tb_void_t gb_bitmap_render_stroke_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && device->base.paint && device->base.matrix && points && count);
@@ -46,14 +46,14 @@ tb_void_t gb_bitmap_render_stok_points(gb_bitmap_device_ref_t device, gb_point_r
 
     // width == 1 and solid? 
     if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->render.shader)
-        gb_bitmap_render_stok_points_w1(device, points, count);
+        gb_bitmap_render_stroke_points_w1(device, points, count);
     else
     {
         // TODO
-        gb_bitmap_render_stok_points_w1(device, points, count);
+        gb_bitmap_render_stroke_points_w1(device, points, count);
     }
 }
-tb_void_t gb_bitmap_render_stok_points_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+tb_void_t gb_bitmap_render_stroke_points_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && device->bitmap && device->pixmap);

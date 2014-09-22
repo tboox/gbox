@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        stok.h
+ * @file        stroke.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_IMPL_STOK_H
-#define GB_CORE_IMPL_STOK_H
+#ifndef GB_CORE_IMPL_STROKE_H
+#define GB_CORE_IMPL_STROKE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -48,7 +48,7 @@ __tb_extern_c_enter__
  *
  * @return                  is convex polygon?
  */
-tb_bool_t                   gb_stok_make_fill_for_lines(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
+tb_bool_t                   gb_stroke_make_fill_for_lines(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
 
 /* make the filled polygon for points
  *
@@ -60,7 +60,7 @@ tb_bool_t                   gb_stok_make_fill_for_lines(tb_vector_ref_t filled_p
  *
  * @return                  is convex polygon?
  */
-tb_bool_t                   gb_stok_make_fill_for_points(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
+tb_bool_t                   gb_stroke_make_fill_for_points(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
 
 /* make the filled polygon for polygon
  *
@@ -71,7 +71,7 @@ tb_bool_t                   gb_stok_make_fill_for_points(tb_vector_ref_t filled_
  *
  * @return                  is convex polygon?
  */
-tb_bool_t                   gb_stok_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon);
+tb_bool_t                   gb_stroke_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

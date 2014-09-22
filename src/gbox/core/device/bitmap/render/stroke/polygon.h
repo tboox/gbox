@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        points.h
+ * @file        polygon.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STOK_POINTS_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STOK_POINTS_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STROKE_POLYGON_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_STROKE_POLYGON_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,21 +38,13 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* stroke points
+/* stroke polygon
  *
  * @param device    the device
- * @param points    the points 
- * @param count     the points count
+ * @param polygon   the polygon
+ * @param hint      the hint shape
  */
-tb_void_t           gb_bitmap_render_stok_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
-
-/* stroke points with the unit width
- *
- * @param device    the device
- * @param points    the points 
- * @param count     the points count
- */
-tb_void_t           gb_bitmap_render_stok_points_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
+tb_void_t           gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

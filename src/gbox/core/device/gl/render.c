@@ -179,7 +179,7 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_r
         index += count;
     }
 }
-static tb_void_t gb_gl_render_stok_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+static tb_void_t gb_gl_render_stroke_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && points && count);
@@ -190,7 +190,7 @@ static tb_void_t gb_gl_render_stok_lines(gb_gl_device_ref_t device, gb_point_ref
     // done
     gb_glDrawArrays(GB_GL_LINES, 0, (gb_GLint_t)count);
 }
-static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+static tb_void_t gb_gl_render_stroke_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && points && count);
@@ -201,7 +201,7 @@ static tb_void_t gb_gl_render_stok_points(gb_gl_device_ref_t device, gb_point_re
     // done
     gb_glDrawArrays(GB_GL_POINTS, 0, (gb_GLint_t)count);
 }
-static tb_void_t gb_gl_render_stok_polygon(gb_gl_device_ref_t device, gb_point_ref_t points, tb_uint16_t const* counts)
+static tb_void_t gb_gl_render_stroke_polygon(gb_gl_device_ref_t device, gb_point_ref_t points, tb_uint16_t const* counts)
 {
     // check
     tb_assert_abort(device && points && counts);
@@ -338,7 +338,7 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
-    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STOK);
+    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // enter paint
     gb_gl_render_enter_paint(device);
@@ -346,13 +346,13 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
     // the width
     gb_float_t width = gb_paint_width(device->base.paint);
 
-    // width == 1? stok lines
+    // width == 1? stroke lines
     if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
-        gb_gl_render_stok_lines(device, points, count);
+        gb_gl_render_stroke_lines(device, points, count);
     else
     {
         // TODO
-        gb_gl_render_stok_lines(device, points, count);
+        gb_gl_render_stroke_lines(device, points, count);
     }
 
     // leave paint
@@ -362,7 +362,7 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
-    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STOK);
+    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // enter paint
     gb_gl_render_enter_paint(device);
@@ -370,13 +370,13 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
     // the width
     gb_float_t width = gb_paint_width(device->base.paint);
 
-    // width == 1? stok points
+    // width == 1? stroke points
     if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
-        gb_gl_render_stok_points(device, points, count);
+        gb_gl_render_stroke_points(device, points, count);
     else
     {
         // TODO
-        gb_gl_render_stok_points(device, points, count);
+        gb_gl_render_stroke_points(device, points, count);
     }
 
     // leave paint
@@ -400,19 +400,19 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
         gb_gl_render_fill_polygon(device, polygon->points, polygon->counts);
     }
 
-    // stok it
-    if (mode & GB_PAINT_MODE_STOK)
+    // stroke it
+    if (mode & GB_PAINT_MODE_STROKE)
     {
         // the width
         gb_float_t width = gb_paint_width(device->base.paint);
 
-        // width == 1? stok polygon
+        // width == 1? stroke polygon
         if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
-            gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
+            gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
         else
         {
             // TODO
-            gb_gl_render_stok_polygon(device, polygon->points, polygon->counts);
+            gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
         }
     }
 

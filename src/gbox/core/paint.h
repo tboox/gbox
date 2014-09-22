@@ -43,8 +43,8 @@ typedef enum __gb_paint_mode_t
 {
     GB_PAINT_MODE_NONE          = 0 //!< none
 ,   GB_PAINT_MODE_FILL          = 1 //!< fill
-,   GB_PAINT_MODE_STOK          = 2 //!< stok
-,   GB_PAINT_MODE_FILL_STOK     = 3 //!< fill and stok
+,   GB_PAINT_MODE_STROKE        = 2 //!< stroke
+,   GB_PAINT_MODE_FILL_STROKE   = 3 //!< fill and stroke
 
 }gb_paint_mode_t;
 
@@ -57,7 +57,7 @@ typedef enum __gb_paint_flag_t
 
 }gb_paint_flag_t;
 
-/// the paint stok cap type
+/// the paint stroke cap type
 typedef enum __gb_paint_cap_t
 {
     GB_PAINT_CAP_BUTT           = 0 //!< no extension
@@ -66,7 +66,7 @@ typedef enum __gb_paint_cap_t
 
 }gb_paint_cap_t;
 
-/// the paint stok join type
+/// the paint stroke join type
 typedef enum __gb_paint_join_t
 {
     GB_PAINT_JOIN_MITER         = 0 //!< a sharp join

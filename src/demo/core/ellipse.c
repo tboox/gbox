@@ -28,9 +28,9 @@ tb_void_t gb_demo_ellipse_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     gb_canvas_mode_set(canvas, GB_PAINT_MODE_FILL);
     gb_canvas_draw_ellipse(canvas, &ellipse);
 
-    // stok
+    // stroke
     gb_canvas_color_set(canvas, GB_COLOR_BLUE);
-    gb_canvas_mode_set(canvas, GB_PAINT_MODE_STOK);
+    gb_canvas_mode_set(canvas, GB_PAINT_MODE_STROKE);
     gb_canvas_draw_ellipse(canvas, &ellipse);
 }
 tb_void_t gb_demo_ellipse_event(gb_window_ref_t window, gb_event_ref_t event)

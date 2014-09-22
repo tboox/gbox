@@ -25,7 +25,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "bitmap_stok_lines"
+#define TB_TRACE_MODULE_NAME            "bitmap_stroke_lines"
 #define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -36,15 +36,15 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-static tb_void_t gb_bitmap_render_stok_lines_w1_generic(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
+static tb_void_t gb_bitmap_render_stroke_lines_w1_generic(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
 {
 
 }
-static tb_void_t gb_bitmap_render_stok_lines_w1_vertical(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
+static tb_void_t gb_bitmap_render_stroke_lines_w1_vertical(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
 {
 
 }
-static tb_void_t gb_bitmap_render_stok_lines_w1_horizontal(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
+static tb_void_t gb_bitmap_render_stroke_lines_w1_horizontal(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
 {
 
 }
@@ -52,7 +52,7 @@ static tb_void_t gb_bitmap_render_stok_lines_w1_horizontal(gb_bitmap_device_ref_
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_bitmap_render_stok_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(device && device->base.paint && device->base.matrix && points && count);
@@ -62,14 +62,14 @@ tb_void_t gb_bitmap_render_stok_lines(gb_bitmap_device_ref_t device, gb_point_re
 
     // width == 1 and solid? 
     if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->render.shader)
-        gb_bitmap_render_stok_lines_w1(device, points, count);
+        gb_bitmap_render_stroke_lines_w1(device, points, count);
     else
     {
         // TODO
-        gb_bitmap_render_stok_lines_w1(device, points, count);
+        gb_bitmap_render_stroke_lines_w1(device, points, count);
     }
 }
-tb_void_t gb_bitmap_render_stok_lines_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+tb_void_t gb_bitmap_render_stroke_lines_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
     tb_assert_abort(points && count && !(count & 0x1));
@@ -85,10 +85,10 @@ tb_void_t gb_bitmap_render_stok_lines_w1(gb_bitmap_device_ref_t device, gb_point
         pe = points + i + 1;
 
         // horizontal?
-        if (pb->y == pe->y) gb_bitmap_render_stok_lines_w1_horizontal(device, pb, pe);
+        if (pb->y == pe->y) gb_bitmap_render_stroke_lines_w1_horizontal(device, pb, pe);
         // vertical?
-        else if (pb->x == pe->x) gb_bitmap_render_stok_lines_w1_vertical(device, pb, pe);
+        else if (pb->x == pe->x) gb_bitmap_render_stroke_lines_w1_vertical(device, pb, pe);
         // generic?
-        else gb_bitmap_render_stok_lines_w1_generic(device, pb, pe);
+        else gb_bitmap_render_stroke_lines_w1_generic(device, pb, pe);
     }
 }

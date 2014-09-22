@@ -40,10 +40,10 @@ typedef struct __gb_paint_impl_t
     // the paint flag
     tb_uint32_t         flag    : 4;
 
-    // the stok cap
+    // the stroke cap
     tb_uint32_t         cap     : 4;
 
-    // the stok join
+    // the stroke join
     tb_uint32_t         join    : 4;
 
     // the fill rule

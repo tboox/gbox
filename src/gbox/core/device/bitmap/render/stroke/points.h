@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        lines.h
+ * @file        points.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STOK_LINES_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STOK_LINES_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STROKE_POINTS_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_STROKE_POINTS_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,21 +38,21 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* stroke lines
+/* stroke points
  *
  * @param device    the device
  * @param points    the points 
  * @param count     the points count
  */
-tb_void_t           gb_bitmap_render_stok_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
+tb_void_t           gb_bitmap_render_stroke_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
 
-/* stroke lines with the unit width
+/* stroke points with the unit width
  *
  * @param device    the device
  * @param points    the points 
  * @param count     the points count
  */
-tb_void_t           gb_bitmap_render_stok_lines_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
+tb_void_t           gb_bitmap_render_stroke_points_w1(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

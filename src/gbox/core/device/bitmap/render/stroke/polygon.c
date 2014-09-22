@@ -17,19 +17,25 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        stok.h
+ * @file        polygon.c
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STOK_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STOK_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "bitmap_stroke_polygon"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "lines.h"
-#include "points.h"
 #include "polygon.h"
 
-#endif
-
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
+{
+}

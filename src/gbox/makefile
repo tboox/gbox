@@ -22,9 +22,9 @@ gbox_C_FILES 			+= \
 						core/clipper \
 						core/device/bitmap \
 						core/device/bitmap/render \
-						core/device/bitmap/render/stok/lines \
-						core/device/bitmap/render/stok/points \
-						core/device/bitmap/render/stok/polygon \
+						core/device/bitmap/render/stroke/lines \
+						core/device/bitmap/render/stroke/points \
+						core/device/bitmap/render/stroke/polygon \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
 						core/prefix/color \
@@ -34,7 +34,7 @@ gbox_C_FILES 			+= \
 						core/impl/path_cache \
 						core/impl/cache_stack \
 						core/impl/cache_stack \
-						core/impl/stok \
+						core/impl/stroke \
 						core/impl/geometry 
 
 

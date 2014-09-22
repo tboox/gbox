@@ -114,9 +114,9 @@ tb_void_t gb_demo_points_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     ,   { gb_long_to_float(-10),    gb_long_to_float(0)     }
     };
 
-    // stok
+    // stroke
     gb_canvas_color_set(canvas, GB_COLOR_BLUE);
-    gb_canvas_mode_set(canvas, GB_PAINT_MODE_STOK);
+    gb_canvas_mode_set(canvas, GB_PAINT_MODE_STROKE);
     gb_canvas_draw_points(canvas, points, tb_arrayn(points));
 }
 tb_void_t gb_demo_points_event(gb_window_ref_t window, gb_event_ref_t event)

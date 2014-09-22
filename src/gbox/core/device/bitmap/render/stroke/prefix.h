@@ -17,37 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon.h
+ * @file        prefix.h
  * @ingroup     core
- *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STOK_POLYGON_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STOK_POLYGON_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STROKE_PREFIX_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_STROKE_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "../prefix.h"
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_enter__
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interface
- */
-
-/* stroke polygon
- *
- * @param device    the device
- * @param polygon   the polygon
- * @param hint      the hint shape
- */
-tb_void_t           gb_bitmap_render_stok_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
 #endif
+
+

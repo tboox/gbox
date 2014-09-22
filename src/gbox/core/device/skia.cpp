@@ -110,10 +110,10 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl)
     case GB_PAINT_MODE_FILL:
 	    impl->paint->setStyle(SkPaint::kFill_Style);
         break;
-    case GB_PAINT_MODE_STOK:
+    case GB_PAINT_MODE_STROKE:
 	    impl->paint->setStyle(SkPaint::kStroke_Style);
         break;
-    case GB_PAINT_MODE_FILL_STOK:
+    case GB_PAINT_MODE_FILL_STROKE:
 	    impl->paint->setStyle(SkPaint::kStrokeAndFill_Style);
         break;
     default:
@@ -129,7 +129,7 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl)
     else impl->paint->setColor(gb_color_pixel(gb_paint_color(impl->base.paint)));
 
     // init paint for stroking
-    if (mode & GB_PAINT_MODE_STOK)
+    if (mode & GB_PAINT_MODE_STROKE)
     {
         // init stroke width
         impl->paint->setStrokeWidth(gb_float_to_sk(gb_paint_width(impl->base.paint)));
