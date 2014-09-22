@@ -34,6 +34,7 @@
 #include "render.h"
 #include "render/fill/fill.h"
 #include "render/stok/stok.h"
+#include "../../impl/stok.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -77,11 +78,67 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
 }
 tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
-    // TODO: clip it
-    // ...
+    // check
+    tb_assert_abort(device && device->base.paint && device->base.matrix && device->points && points && count);
 
-    // stok points
-    gb_bitmap_render_stok_points(device, points, count);
+    // the width
+    gb_float_t width = gb_paint_width(device->base.paint);
+
+    // clear points
+    tb_vector_clear(device->points);
+
+    // width == 1 and solid? stroke it
+    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->render.shader)
+    {
+        // apply matrix to points
+        tb_size_t index = 0;
+        for (index = 0; index < count; index++)
+        {
+            // apply to point
+            gb_point_t point;
+            gb_matrix_apply_point2(device->base.matrix, points + index, &point);
+
+            // append point
+            tb_vector_insert_tail(device->points, &point);
+        }
+
+        // the stroked points 
+        gb_point_ref_t  stroked_points = (gb_point_ref_t)tb_vector_data(device->points);
+        tb_assert_abort(stroked_points);
+
+        // TODO: clip it
+        // ...
+
+        // stok points
+        gb_bitmap_render_stok_points(device, stroked_points, tb_vector_size(device->points));
+    }
+    // make the filled polygon 
+    else
+    {
+        // check
+        tb_assert_abort(device->counts);
+
+        // clear counts
+        tb_vector_clear(device->counts);
+
+        // make the filled polygon
+        tb_bool_t       filled_convex = gb_stok_make_fill_for_points(device->points, device->counts, device->base.paint, points, count);
+        gb_point_ref_t  filled_points = (gb_point_ref_t)tb_vector_data(device->points);
+        tb_uint16_t*    filled_counts = (tb_uint16_t*)tb_vector_data(device->counts);
+        gb_polygon_t    filled_polygon = {filled_points, filled_counts, filled_convex};
+        tb_assert_abort(filled_points && filled_counts);
+
+        // apply matrix to the filled points
+        gb_matrix_apply_points(device->base.matrix, filled_points, tb_vector_size(device->points));
+
+        // TODO: clip it
+        // ...
+
+        // TODO: paint: fill
+
+        // fill polygon, TODO: hint
+        gb_bitmap_render_fill_polygon(device, &filled_polygon, tb_null);
+    }
 }
 tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {

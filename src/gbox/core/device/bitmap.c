@@ -35,6 +35,17 @@
 #include "bitmap/bitmap.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// the points grow count
+#ifdef __gb_small__
+#   define GB_DEVICE_BITMAP_POINTS_GROW      (64)
+#else
+#   define GB_DEVICE_BITMAP_POINTS_GROW      (128)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
 static tb_void_t gb_device_bitmap_resize(gb_device_impl_t* device, tb_size_t width, tb_size_t height)
@@ -148,8 +159,16 @@ static tb_void_t gb_device_bitmap_exit(gb_device_impl_t* device)
     gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
     tb_assert_and_check_return(impl);
 
+    // exit points
+    if (impl->points) tb_vector_exit(impl->points);
+    impl->points = tb_null;
+
+    // exit counts
+    if (impl->counts) tb_vector_exit(impl->counts);
+    impl->counts = tb_null;
+
     // exit it
-    if (impl) tb_free(impl);
+    tb_free(impl);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +211,14 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         // init pixmap
         impl->pixmap = gb_pixmap(gb_bitmap_pixfmt(bitmap), 0xff);
         tb_assert_and_check_break(impl->pixmap);
+
+        // init points
+        impl->points = tb_vector_init(GB_DEVICE_BITMAP_POINTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+        tb_assert_and_check_break(impl->points);
+
+        // init counts
+        impl->counts = tb_vector_init(8, tb_item_func_uint16());
+        tb_assert_and_check_break(impl->counts);
 
         // ok
         ok = tb_true;

@@ -17,52 +17,31 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        stok.c
  * @ingroup     core
  */
-#ifndef GB_CORE_DEVICE_BITMAP_DEVICE_H
-#define GB_CORE_DEVICE_BITMAP_DEVICE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "stok.h"
+#include "../matrix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * implementation
  */
-
-// the gl render type
-typedef struct __gb_bitmap_render_t
+tb_bool_t gb_stok_make_fill_for_lines(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
-    // the shader
-    gb_shader_ref_t             shader;
-
-}gb_bitmap_render_t;
-
-// the bitmap device type
-typedef struct __gb_bitmap_device_t
+    tb_trace_noimpl();
+    return tb_false;
+}
+tb_bool_t gb_stok_make_fill_for_points(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
-    // the base
-    gb_device_impl_t            base;
-
-    // the bitmap
-    gb_bitmap_ref_t             bitmap;
-
-    // the pixmap
-    gb_pixmap_ref_t             pixmap;
-
-    // the points 
-    tb_vector_ref_t             points;
-
-    // the counts
-    tb_vector_ref_t             counts;
-
-    // the render
-    gb_bitmap_render_t          render;
-
-}gb_bitmap_device_t, *gb_bitmap_device_ref_t;
-
-#endif
-
-
+    tb_trace_noimpl();
+    return tb_false;
+}
+tb_bool_t gb_stok_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
+{
+    tb_trace_noimpl();
+    return tb_false;
+}

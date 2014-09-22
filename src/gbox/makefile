@@ -34,6 +34,7 @@ gbox_C_FILES 			+= \
 						core/impl/path_cache \
 						core/impl/cache_stack \
 						core/impl/cache_stack \
+						core/impl/stok \
 						core/impl/geometry 
 
 
