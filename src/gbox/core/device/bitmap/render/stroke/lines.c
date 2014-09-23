@@ -89,7 +89,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     // draw 1 / 2 line
     tb_long_t dx12 = (dx + 1) >> 1;
     tb_long_t dy12 = (dy + 1) >> 1;
-
+   
     // |slope| < 1?
     tb_byte_t* qb = data + yb * row_bytes + xb * btp;
     tb_byte_t* qe = data + ye * row_bytes + xe * btp;

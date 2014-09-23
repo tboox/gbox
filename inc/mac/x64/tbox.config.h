@@ -11,7 +11,7 @@
 #define TB_CONFIG_VERSION_ALTER         7
 
 // build version
-#define TB_CONFIG_VERSION_BUILD         201409191156
+#define TB_CONFIG_VERSION_BUILD         201409231756
 
 // small
 #define TB_CONFIG_SMALL                 (0)
