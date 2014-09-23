@@ -34,7 +34,7 @@
 #include "lines.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * private implementation
  */
 
 /* using bresenham algorithm
@@ -51,6 +51,7 @@
  * /  
  *  draw 1/2 line
  */
+#if 1
 static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
 {
     // the factors
@@ -145,6 +146,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
             qe -= xinc;
         }
 
+
         /* draw pm if line is (qb, ..., pm, ..., qe)
          * e.g. (0, 1, 2)
          */
@@ -175,6 +177,114 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         if (!(dy & 0x1)) pixel_set(qb, pixel, alpha);
     }
 }
+#else
+static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
+{
+    // the factors
+    tb_byte_t*                  data        = gb_bitmap_data(bitmap);
+    tb_size_t                   btp         = pixmap->btp;
+    tb_size_t                   row_bytes   = gb_bitmap_row_bytes(bitmap);
+    tb_long_t                   xb          = gb_float_to_long(pb->x);
+    tb_long_t                   yb          = gb_float_to_long(pb->y);
+    tb_long_t                   xe          = gb_float_to_long(pe->x);
+    tb_long_t                   ye          = gb_float_to_long(pe->y);
+    gb_pixmap_func_pixel_set_t  pixel_set   = pixmap->pixel_set;
+
+    // the dx and the x-increased bytes
+    tb_long_t dx    = xe - xb;
+    tb_long_t xinc  = btp;
+    if (dx < 0) 
+    {
+        dx = -dx;
+        xinc = -xinc;
+    }
+
+    // the dy and the y-increased bytes
+    tb_long_t dy    = ye - yb;
+    tb_long_t yinc  = row_bytes;
+    if (dy < 0) 
+    {
+        dy = -dy;
+        yinc = -yinc;
+    }
+
+    // dx * 2, dy * 2 for float => fixed
+    tb_long_t dx2 = dx << 1;
+    tb_long_t dy2 = dy << 1;
+
+    // |slope| < 1?
+    tb_byte_t* q = data + yb * row_bytes + xb * btp;
+    if (dx > dy)
+    {
+        // done 
+        tb_long_t i = 0;
+        tb_long_t e = dy2 - dx;
+        for (i = 0; i < dx; ++i)
+        {
+            // set pixel
+            pixel_set(q, pixel, alpha);
+
+            /* (x, y)
+             * e / 1 = dy / dx
+             * => y++ if e = dy / dx >= 0.5 
+             * => y++ if e = dy * 2 - dx >= 0
+             *
+             * (x + 1, y)
+             * e / 2 = dy / dx
+             * => y++ if e = dy * 2 / dx >= 0.5 
+             * => y++ if e = dy * 4 - dx >= 0
+             * => e += dy * 2
+             *
+             * (x, y + 1)
+             * (e + 1) / 1 = dy / dx
+             * => y++ if e = dy / dx - 1 >= 0.5 
+             * => y++ if e = dy * 2 - dx - dx * 2 >= 0
+             * => e -= dx * 2
+             *
+             *  -------------------------------------------
+             * |          |          |          |          |
+             * |          |          |          |          |
+             * |          |          |          |        * |
+             * |          |          |          |  *      e|
+             * |----------------------------*--------------|
+             * |          |          |*         |          | dy
+             * |          |    *     |          |          |
+             * |        * |          |e         |         1|
+             * | *        |e         |          |          |
+             * O------------------------------------------> 
+             *      1               dx
+             */
+            if (e >= 0)
+            {
+                e -= dx2;
+                q += yinc;
+            }
+
+            e += dy2;
+            q += xinc;
+        }
+    }
+    else
+    {
+        // done
+        tb_long_t i = 0;
+        tb_long_t e = dx2 - dy;
+        for (i = 0; i < dy; ++i)
+        {
+            pixel_set(q, pixel, alpha);
+
+            if (e >= 0)
+            {
+                e -= dy2;
+                q += xinc;
+            }
+
+            e += dx2;
+            q += yinc;
+        }
+    }
+}
+#endif
 static tb_void_t gb_bitmap_render_stroke_line_vertical(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
 {
     // the factors
