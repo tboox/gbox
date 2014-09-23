@@ -63,7 +63,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     tb_long_t                   ye          = gb_float_to_long(pe->y);
     gb_pixmap_func_pixel_set_t  pixel_set   = pixmap->pixel_set;
 
-    // the dx and the x-increased size
+    // the dx and the x-increased bytes
     tb_long_t dx    = xe - xb;
     tb_long_t xinc  = btp;
     if (dx < 0) 
@@ -72,7 +72,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         xinc = -xinc;
     }
 
-    // the dy and the y-increased size
+    // the dy and the y-increased bytes
     tb_long_t dy    = ye - yb;
     tb_long_t yinc  = row_bytes;
     if (dy < 0) 
@@ -94,7 +94,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     tb_byte_t* qe = data + ye * row_bytes + xe * btp;
     if (dx > dy)
     {
-        // error 
+        // done 
         tb_long_t i = 0;
         tb_long_t e = dy2 - dx;
         for (i = 0; i < dx12; ++i)
@@ -103,8 +103,35 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
             pixel_set(qb, pixel, alpha);
             pixel_set(qe, pixel, alpha);
 
-            /* if e = dy * 2 - dx >= 0 ?
-             * if dy / dx >= 0.5 ?
+            /* (x, y)
+             * e / 1 = dy / dx
+             * => y++ if e = dy / dx >= 0.5 
+             * => y++ if e = dy * 2 - dx >= 0
+             *
+             * (x + 1, y)
+             * e / 2 = dy / dx
+             * => y++ if e = dy * 2 / dx >= 0.5 
+             * => y++ if e = dy * 4 - dx >= 0
+             * => e += dy * 2
+             *
+             * (x, y + 1)
+             * (e + 1) / 1 = dy / dx
+             * => y++ if e = dy / dx - 1 >= 0.5 
+             * => y++ if e = dy * 2 - dx - dx * 2 >= 0
+             * => e -= dx * 2
+             *
+             *  -------------------------------------------
+             * |          |          |          |          |
+             * |          |          |          |          |
+             * |          |          |          |        * |
+             * |          |          |          |  *      e|
+             * |----------------------------*--------------|
+             * |          |          |*         |          | dy
+             * |          |    *     |          |          |
+             * |        * |          |e         |         1|
+             * | *        |e         |          |          |
+             * O------------------------------------------> 
+             *      1               dx
              */
             if (e >= 0)
             {
@@ -112,6 +139,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
                 qb += yinc;
                 qe -= yinc;
             }
+
             e += dy2;
             qb += xinc;
             qe -= xinc;
@@ -124,32 +152,26 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     }
     else
     {
-        // error 
+        // done
         tb_long_t i = 0;
         tb_long_t e = dx2 - dy;
         for (i = 0; i < dy12; ++i)
         {
-            // set pixel
             pixel_set(qb, pixel, alpha);
             pixel_set(qe, pixel, alpha);
 
-            /* if e = dx * 2 - dy >= 0 ?
-             * if dx / dy >= 0.5 ?
-             */
             if (e >= 0)
             {
                 e -= dy2;
                 qb += xinc;
                 qe -= xinc;
             }
+
             e += dx2;
             qb += yinc;
             qe -= yinc;
         }
 
-        /* draw pm if line is (qb, ..., pm, ..., qe)
-         * e.g. (0, 1, 2)
-         */
         if (!(dy & 0x1)) pixel_set(qb, pixel, alpha);
     }
 }
