@@ -39,25 +39,21 @@
 tb_void_t gb_bitmap_render_stroke_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->bitmap && device->pixmap && device->base.paint && points && count);
+    tb_assert_abort(device && device->pixmap && device->base.paint && device->bitmap && gb_bitmap_data(device->bitmap));
+    tb_assert_abort(points && count);
 
-    // the bitmap data
-    tb_byte_t* data = gb_bitmap_data(device->bitmap);
-    tb_assert_abort(data);
-
-    // the pixel_set func
-    gb_pixmap_func_pixel_set_t pixel_set = device->pixmap->pixel_set;
-    tb_assert_abort(pixel_set);
+    // the factors
+    tb_size_t   index;
+    tb_byte_t*  data        = gb_bitmap_data(device->bitmap);
+    tb_size_t   btp         = device->pixmap->btp;
+    gb_pixel_t  pixel       = device->pixmap->pixel(gb_paint_color(device->base.paint));
+    tb_byte_t   alpha       = gb_paint_alpha(device->base.paint);
+    tb_size_t   row_bytes   = gb_bitmap_row_bytes(device->bitmap);
 
     // done
-    tb_size_t   index;
-    tb_size_t   btp = device->pixmap->btp;
-    gb_pixel_t  pixel = device->pixmap->pixel(gb_paint_color(device->base.paint));
-    tb_byte_t   alpha = gb_paint_alpha(device->base.paint);
-    tb_size_t   row_bytes = gb_bitmap_row_bytes(device->bitmap);
+    gb_pixmap_func_pixel_set_t pixel_set = device->pixmap->pixel_set;
     for (index = 0; index < count; index++)
     {
-        // stroke pixel
         pixel_set(data + gb_float_to_long(points[index].y) * row_bytes + gb_float_to_long(points[index].x) * btp, pixel, alpha);
     }
 }

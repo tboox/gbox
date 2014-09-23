@@ -36,17 +36,166 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-static tb_void_t gb_bitmap_render_stroke_lines_generic(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
-{
 
+/* using bresenham algorithm
+ *
+ *                    draw 1/2 line
+ *                 /      
+ *               /
+ *             /
+ *           /
+ *         *
+ *       /
+ *     /
+ *   /
+ * /  
+ *  draw 1/2 line
+ */
+static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
+{
+    // the factors
+    tb_byte_t*                  data        = gb_bitmap_data(bitmap);
+    tb_size_t                   btp         = pixmap->btp;
+    tb_size_t                   row_bytes   = gb_bitmap_row_bytes(bitmap);
+    tb_long_t                   xb          = gb_float_to_long(pb->x);
+    tb_long_t                   yb          = gb_float_to_long(pb->y);
+    tb_long_t                   xe          = gb_float_to_long(pe->x);
+    tb_long_t                   ye          = gb_float_to_long(pe->y);
+    gb_pixmap_func_pixel_set_t  pixel_set   = pixmap->pixel_set;
+
+    // the dx and the x-increased size
+    tb_long_t dx    = xe - xb;
+    tb_long_t xinc  = btp;
+    if (dx < 0) 
+    {
+        dx = -dx;
+        xinc = -xinc;
+    }
+
+    // the dy and the y-increased size
+    tb_long_t dy    = ye - yb;
+    tb_long_t yinc  = row_bytes;
+    if (dy < 0) 
+    {
+        dy = -dy;
+        yinc = -yinc;
+    }
+
+    // dx * 2, dy * 2 for float => fixed
+    tb_long_t dx2 = dx << 1;
+    tb_long_t dy2 = dy << 1;
+
+    // draw 1 / 2 line
+    tb_long_t dx12 = (dx + 1) >> 1;
+    tb_long_t dy12 = (dy + 1) >> 1;
+
+    // |slope| < 1?
+    tb_byte_t* qb = data + yb * row_bytes + xb * btp;
+    tb_byte_t* qe = data + ye * row_bytes + xe * btp;
+    if (dx > dy)
+    {
+        // error 
+        tb_long_t i = 0;
+        tb_long_t e = dy2 - dx;
+        for (i = 0; i < dx12; ++i)
+        {
+            // set pixel
+            pixel_set(qb, pixel, alpha);
+            pixel_set(qe, pixel, alpha);
+
+            /* if e = dy * 2 - dx >= 0 ?
+             * if dy / dx >= 0.5 ?
+             */
+            if (e >= 0)
+            {
+                e -= dx2;
+                qb += yinc;
+                qe -= yinc;
+            }
+            e += dy2;
+            qb += xinc;
+            qe -= xinc;
+        }
+
+        /* draw pm if line is (qb, ..., pm, ..., qe)
+         * e.g. (0, 1, 2)
+         */
+        if (!(dx & 0x1)) pixel_set(qb, pixel, alpha);
+    }
+    else
+    {
+        // error 
+        tb_long_t i = 0;
+        tb_long_t e = dx2 - dy;
+        for (i = 0; i < dy12; ++i)
+        {
+            // set pixel
+            pixel_set(qb, pixel, alpha);
+            pixel_set(qe, pixel, alpha);
+
+            /* if e = dx * 2 - dy >= 0 ?
+             * if dx / dy >= 0.5 ?
+             */
+            if (e >= 0)
+            {
+                e -= dy2;
+                qb += xinc;
+                qe -= xinc;
+            }
+            e += dx2;
+            qb += yinc;
+            qe -= yinc;
+        }
+
+        /* draw pm if line is (qb, ..., pm, ..., qe)
+         * e.g. (0, 1, 2)
+         */
+        if (!(dy & 0x1)) pixel_set(qb, pixel, alpha);
+    }
 }
-static tb_void_t gb_bitmap_render_stroke_lines_vertical(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
+static tb_void_t gb_bitmap_render_stroke_line_vertical(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
 {
+    // the factors
+    tb_byte_t*  data        = gb_bitmap_data(bitmap);
+    tb_size_t   btp         = pixmap->btp;
+    tb_size_t   row_bytes   = gb_bitmap_row_bytes(bitmap);
+    gb_float_t  yb          = pb->y;
+    gb_float_t  ye          = pe->y;
+    if (yb > ye) 
+    {
+        gb_float_t yt = yb;
+        yb = ye;
+        ye = yt;
+    }
 
+    // done
+    tb_long_t                   h = gb_float_to_long(ye - yb + GB_ONE);
+    tb_byte_t*                  q = data + gb_float_to_long(yb) * row_bytes + gb_float_to_long(pb->x) * btp;
+    gb_pixmap_func_pixel_set_t  pixel_set = pixmap->pixel_set;
+    while (h--)
+    {
+        pixel_set(q, pixel, alpha);
+        q += row_bytes;
+    }
 }
-static tb_void_t gb_bitmap_render_stroke_lines_horizontal(gb_bitmap_device_ref_t device, gb_point_ref_t pb, gb_point_ref_t pe)
+static tb_void_t gb_bitmap_render_stroke_line_horizontal(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
 {
+    // the factors
+    tb_byte_t*  data        = gb_bitmap_data(bitmap);
+    tb_size_t   btp         = pixmap->btp;
+    tb_size_t   row_bytes   = gb_bitmap_row_bytes(bitmap);
+    gb_float_t  xb          = pb->x;
+    gb_float_t  xe          = pe->x;
+    if (xb > xe) 
+    {
+        gb_float_t xt = xb;
+        xb = xe;
+        xe = xt;
+    }
 
+    // done
+    if (xb != xe) pixmap->pixels_fill(data + gb_float_to_long(pb->y) * row_bytes + gb_float_to_long(xb) * btp, pixel, gb_float_to_long(xe - xb + GB_ONE), alpha);
+    else pixmap->pixel_set(data + gb_float_to_long(pb->y) * row_bytes + gb_float_to_long(xb) * btp, pixel, alpha);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -55,12 +204,17 @@ static tb_void_t gb_bitmap_render_stroke_lines_horizontal(gb_bitmap_device_ref_t
 tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
+    tb_assert_abort(device && device->base.paint && device->pixmap && device->bitmap && gb_bitmap_data(device->bitmap));
     tb_assert_abort(points && count && !(count & 0x1));
 
     // done
-    tb_size_t       i = 0;
-    gb_point_ref_t  pb = tb_null;
-    gb_point_ref_t  pe = tb_null;
+    tb_size_t       i       = 0;
+    gb_point_ref_t  pb      = tb_null;
+    gb_point_ref_t  pe      = tb_null;
+    gb_pixmap_ref_t pixmap  = device->pixmap;
+    gb_pixel_t      pixel   = pixmap->pixel(gb_paint_color(device->base.paint));
+    tb_byte_t       alpha   = gb_paint_alpha(device->base.paint);
+    gb_bitmap_ref_t bitmap  = device->bitmap;
     for (i = 0; i < count; i += 2)
     {
         // line: pb => pe
@@ -68,10 +222,10 @@ tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_
         pe = points + i + 1;
 
         // horizontal?
-        if (pb->y == pe->y) gb_bitmap_render_stroke_lines_horizontal(device, pb, pe);
+        if (pb->y == pe->y) gb_bitmap_render_stroke_line_horizontal(bitmap, pixmap, pixel, alpha, pb, pe);
         // vertical?
-        else if (pb->x == pe->x) gb_bitmap_render_stroke_lines_vertical(device, pb, pe);
+        else if (pb->x == pe->x) gb_bitmap_render_stroke_line_vertical(bitmap, pixmap, pixel, alpha, pb, pe);
         // generic?
-        else gb_bitmap_render_stroke_lines_generic(device, pb, pe);
+        else gb_bitmap_render_stroke_line_generic(bitmap, pixmap, pixel, alpha, pb, pe);
     }
 }
