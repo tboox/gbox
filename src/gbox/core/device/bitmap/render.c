@@ -175,10 +175,6 @@ tb_bool_t gb_bitmap_render_init(gb_bitmap_device_ref_t device)
         // init shader
         device->shader = gb_paint_shader(device->base.paint);
 
-        // init fill line func
-        device->fill_line_exit = tb_null;
-        device->fill_line_done = tb_null;
-
         // ok
         ok = tb_true;
 

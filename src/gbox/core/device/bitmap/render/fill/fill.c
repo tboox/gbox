@@ -17,52 +17,56 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        line.h
+ * @file        fill.c
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_LINE_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_LINE_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "bitmap_fill"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "fill.h"
+#include "solid.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * extern
+ * implementation
  */
-__tb_extern_c_enter__
+gb_bitmap_filler_ref_t gb_bitmap_render_fill_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
+{
+    // check
+    tb_assert_abort(device);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interface
- */
+    // done
+    gb_bitmap_filler_ref_t filler = tb_null;
+    if (device->shader)
+    {
+        // TODO
+        tb_trace_noimpl();
+    }
+    else filler = gb_bitmap_render_fill_solid_init(device, bounds);
 
-/* init the line
- *
- * @param device    the device
- * @param bounds    the bounds
- *
- * @return          tb_true or tb_false
- */
-tb_bool_t           gb_bitmap_render_fill_line_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
+    // ok?
+    return filler;
+}
+tb_void_t gb_bitmap_render_fill_exit(gb_bitmap_filler_ref_t filler)
+{
+    // check
+    tb_assert_abort(filler);
 
-/* exit the line
- *
- * @param device    the device
- */
-tb_void_t           gb_bitmap_render_fill_line_exit(gb_bitmap_device_ref_t device);
+    // exit fill
+    if (filler->exit) filler->exit(filler);
+}
+tb_void_t gb_bitmap_render_fill_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
+{   
+    // check
+    tb_assert_abort(filler && filler->done);
 
-/* done the line
- *
- * @param device    the device
- * @param start     the start x-coordinate
- * @param count     the filled pixel count
- */
-tb_void_t           gb_bitmap_render_fill_line_done(gb_bitmap_device_ref_t device, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
-#endif
+    // done fill
+    filler->done(filler, start, count, pixels);
+}

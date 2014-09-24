@@ -32,7 +32,7 @@
  * includes
  */
 #include "rect.h"
-#include "line.h"
+#include "fill.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -47,23 +47,44 @@ tb_void_t gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_
     tb_byte_t*      data        = gb_bitmap_data(device->bitmap);
     tb_size_t       btp         = device->pixmap->btp;
     tb_size_t       row_bytes   = gb_bitmap_row_bytes(device->bitmap);
-    gb_pixel_t      pixel       = device->pixmap->pixel(gb_paint_color(device->base.paint));
-    tb_byte_t       alpha       = gb_paint_alpha(device->base.paint);
 	tb_long_t       x 		    = gb_float_to_long(rect->x);
 	tb_long_t       y 		    = gb_float_to_long(rect->y);
 	tb_long_t       w 		    = gb_float_to_long(rect->w);
 	tb_long_t       h 		    = gb_float_to_long(rect->h);
 	tb_byte_t*      q 		    = data + y * row_bytes + x * btp;
 
-    // done
-    gb_pixmap_func_pixels_fill_t pixels_fill = device->pixmap->pixels_fill;
-	if (!x && (w * btp == row_bytes)) pixels_fill(q, pixel, h * w, alpha);
-	else
-	{
-		while (h--)
-		{
-			pixels_fill(q, pixel, w, alpha);
-			q += row_bytes;
-		}
-	}
+    // optimization for solid
+    if (!x && !device->shader && (w * btp == row_bytes))
+        device->pixmap->pixels_fill(q, device->pixmap->pixel(gb_paint_color(device->base.paint)), h * w, gb_paint_alpha(device->base.paint));
+    // fill for solid
+    else if (!device->shader)
+    {
+        // done fill
+        gb_pixel_t                      pixel       = device->pixmap->pixel(gb_paint_color(device->base.paint));
+        tb_byte_t                       alpha       = gb_paint_alpha(device->base.paint);
+        gb_pixmap_func_pixels_fill_t    pixels_fill = device->pixmap->pixels_fill;
+        while (h--)
+        {
+            pixels_fill(q, pixel, w, alpha);
+            q += row_bytes;
+        }
+    }
+    // fill for shader
+    else
+    {
+        // init fill
+        gb_bitmap_filler_ref_t filler = gb_bitmap_render_fill_init(device, rect);
+        if (filler)
+        {
+            // done fill
+            while (h--)
+            {
+                gb_bitmap_render_fill_done(filler, x, w, q);
+                q += row_bytes;
+            }
+
+            // exit fill
+            gb_bitmap_render_fill_exit(filler);
+        }
+    }
 }

@@ -25,8 +25,9 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/render/stroke/lines \
 						core/device/bitmap/render/stroke/points \
 						core/device/bitmap/render/stroke/polygon \
-						core/device/bitmap/render/fill/line \
+						core/device/bitmap/render/fill/fill \
 						core/device/bitmap/render/fill/rect \
+						core/device/bitmap/render/fill/solid \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
 						core/prefix/color \

@@ -32,32 +32,61 @@
  * types
  */
 
+// the bitmap filler solid type
+typedef struct __gb_bitmap_filler_solid_t
+{
+    // the pixel
+    gb_pixel_t                      pixel;
+
+    // the alpha
+    tb_byte_t                       alpha;
+
+}gb_bitmap_filler_solid_t;
+
+// the bitmap filler type
+typedef struct __gb_bitmap_filler_t
+{
+    union 
+    {
+        // the solid filler
+        gb_bitmap_filler_solid_t    solid;
+
+    }u;
+
+    // the pixels fill func
+    gb_pixmap_func_pixels_fill_t    pixels_fill;
+
+    // the exit func
+    tb_void_t                       (*exit)(struct __gb_bitmap_filler_t* filler);
+
+    // the done func
+    tb_void_t                       (*done)(struct __gb_bitmap_filler_t* filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
+
+}gb_bitmap_filler_t, *gb_bitmap_filler_ref_t;
+
 // the bitmap device type
 typedef struct __gb_bitmap_device_t
 {
     // the base
-    gb_device_impl_t            base;
+    gb_device_impl_t                base;
 
     // the bitmap
-    gb_bitmap_ref_t             bitmap;
+    gb_bitmap_ref_t                 bitmap;
 
     // the pixmap
-    gb_pixmap_ref_t             pixmap;
+    gb_pixmap_ref_t                 pixmap;
 
     // the points 
-    tb_vector_ref_t             points;
+    tb_vector_ref_t                 points;
 
     // the counts
-    tb_vector_ref_t             counts;
+    tb_vector_ref_t                 counts;
 
     // the shader
-    gb_shader_ref_t             shader;
+    gb_shader_ref_t                 shader;
 
-    // exit the fill line
-    tb_void_t                   (*fill_line_exit)(struct __gb_bitmap_device_t* device);
-
-    // done the fill line
-    tb_void_t                   (*fill_line_done)(struct __gb_bitmap_device_t* device, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
+    // the filler
+    gb_bitmap_filler_t              filler;
 
 }gb_bitmap_device_t, *gb_bitmap_device_ref_t;
 

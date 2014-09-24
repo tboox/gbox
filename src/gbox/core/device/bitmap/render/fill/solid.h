@@ -17,32 +17,38 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        line.c
+ * @file        solid.h
  * @ingroup     core
  *
  */
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * trace
- */
-#define TB_TRACE_MODULE_NAME            "bitmap_fill_line"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_SOLID_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_SOLID_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "line.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * extern
  */
-tb_bool_t gb_bitmap_render_fill_line_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
-{
-    return tb_false;
-}
-tb_void_t gb_bitmap_render_fill_line_exit(gb_bitmap_device_ref_t device)
-{
-}
-tb_void_t gb_bitmap_render_fill_line_done(gb_bitmap_device_ref_t device, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
-{
-}
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
+ */
+
+/* init the solid
+ *
+ * @param device        the device
+ * @param bounds        the bounds
+ *
+ * @return              the filler
+ */
+gb_bitmap_filler_ref_t  gb_bitmap_render_fill_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
+#endif
