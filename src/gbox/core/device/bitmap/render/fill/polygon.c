@@ -50,8 +50,6 @@ static tb_void_t gb_bitmap_render_fill_polygon_raster(tb_long_t y, tb_long_t xb,
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-
-// FIXME bounds
 tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check

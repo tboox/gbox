@@ -60,6 +60,7 @@ tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_rast
 	tb_long_t y = gb_float_to_long(raster->bounds->y);
 	tb_long_t w = gb_float_to_long(raster->bounds->w);
 	tb_long_t h = gb_float_to_long(raster->bounds->h);
+    tb_check_return(w > 0 && h > 0);
 
     tb_trace_i("%{rect}", raster->bounds);
 

@@ -42,6 +42,41 @@ tb_bool_t gb_stroke_make_fill_for_points(tb_vector_ref_t filled_points, tb_vecto
 }
 tb_bool_t gb_stroke_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
 {
-    tb_trace_noimpl();
+    // check
+    tb_assert_abort(filled_points && filled_counts && paint && polygon && polygon->points && polygon->counts);
+
+    // clear points and counts first
+    tb_vector_clear(filled_points);
+    tb_vector_clear(filled_counts);
+
+    // done
+    gb_point_ref_t  points = polygon->points;
+    tb_uint16_t*    counts = polygon->counts;
+    tb_uint16_t     count = *counts++;
+    tb_size_t       index = 0;
+    while (index < count)
+    {
+        // append point
+        tb_vector_insert_tail(filled_points, points++);
+        
+        // next point
+        index++;
+
+        // next polygon
+        if (index == count) 
+        {
+            // append count
+            tb_vector_insert_tail(filled_counts, tb_u2p(count));
+
+            // next
+            count = *counts++;
+            index = 0;
+        }
+    }
+
+    // append zero
+    tb_vector_insert_tail(filled_counts, 0);
+
+    // convex?
     return tb_false;
 }

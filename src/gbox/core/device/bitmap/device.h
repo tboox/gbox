@@ -83,6 +83,9 @@ typedef struct __gb_bitmap_device_t
     // the counts
     tb_vector_ref_t                 counts;
 
+    // the bounds
+    gb_rect_t                       bounds;
+
     // the shader
     gb_shader_ref_t                 shader;
 
