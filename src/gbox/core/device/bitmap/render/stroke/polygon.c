@@ -43,11 +43,11 @@ tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_poly
     tb_assert_abort(device && polygon && polygon->points && polygon->counts);
 
     // done
+    tb_uint16_t     index = 0;
+    gb_point_t      points_line[2];
     gb_point_ref_t  points = polygon->points;
     tb_uint16_t*    counts = polygon->counts;
     tb_uint16_t     count = *counts++;
-    tb_size_t       index = 0;
-    gb_point_t      points_line[2];
     while (index < count)
     {
         // the point
@@ -66,8 +66,8 @@ tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_poly
         if (index == count) 
         {
             // next
-            count   = *counts++;
-            index   = 0;
+            count = *counts++;
+            index = 0;
         }
     }
 }

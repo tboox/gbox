@@ -38,11 +38,80 @@
 tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(raster && polygon && bounds);
+    tb_assert_abort(raster && polygon && polygon->points && polygon->counts && bounds);
 
-    // init raster
-    raster->bounds  = bounds;
-    raster->polygon = polygon;
+    // empty polygon?
+    tb_check_return_val(gb_nz(bounds->w) && gb_nz(bounds->h), tb_false);
+
+    // init top and bottom
+    raster->top     = gb_float_to_long(bounds->y);
+    raster->bottom  = gb_float_to_long(bounds->y + bounds->h);
+
+    // init the edge table
+    gb_point_t      pb;
+    gb_point_t      pe;
+    tb_uint16_t     index = 0;
+    tb_uint16_t     edge_index = 0;
+    gb_point_ref_t  points = polygon->points;
+    tb_uint16_t*    counts = polygon->counts;
+    tb_uint16_t     count = *counts++;
+    while (index < count)
+    {
+        // the point
+        pe = *points++;
+
+        // edge?
+        if (index) 
+        {
+            // update the edge index
+            edge_index++;
+
+            // check
+            tb_assert_abort(edge_index < tb_arrayn(raster->edge_pool));
+
+            // make a new edge from the edge pool
+            gb_polygon_raster_edge_ref_t edge = &raster->edge_pool[edge_index];
+
+            // sort the points of the edge
+            gb_point_ref_t top = &pb;
+            gb_point_ref_t bottom = &pe;
+            if (top->y < bottom->y)
+            {
+                top = &pe;
+                bottom = &pb;
+            }
+
+            // the top and bottom coordinates
+//            tb_long_t top_x     = gb_float_to_long(top->x);
+            tb_long_t top_y     = gb_float_to_long(top->y);
+//            tb_long_t bottom_x  = gb_float_to_long(bottom->x);
+            tb_long_t bottom_y  = gb_float_to_long(bottom->y);
+            tb_assert_abort(bottom_y >= top_y && top_y >= raster->bottom);
+
+            /* insert edge to the head of the edge table
+             *
+             * table[index]: => edge => edge => .. => 0
+             *              |
+             *            insert
+             */
+            edge->next = raster->edge_table[top_y - raster->bottom];
+            raster->edge_table[top_y - raster->bottom] = edge_index;
+        }
+
+        // save the previous point
+        pb = pe;
+        
+        // next point
+        index++;
+
+        // next polygon
+        if (index == count) 
+        {
+            // next
+            count = *counts++;
+            index = 0;
+        }
+    }
 
     // ok
     return tb_true;
@@ -53,21 +122,7 @@ tb_void_t gb_polygon_raster_exit(gb_polygon_raster_ref_t raster)
 tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(raster && raster->polygon && raster->bounds && func);
+    tb_assert_abort(raster && func);
 
-    // the factors
-	tb_long_t x = gb_float_to_long(raster->bounds->x);
-	tb_long_t y = gb_float_to_long(raster->bounds->y);
-	tb_long_t w = gb_float_to_long(raster->bounds->w);
-	tb_long_t h = gb_float_to_long(raster->bounds->h);
-    tb_check_return(w > 0 && h > 0);
-
-    tb_trace_i("%{rect}", raster->bounds);
-
-    // done
-    while (h--)
-    {
-        func(y++, x, x + w, priv);
-    }
 }
 

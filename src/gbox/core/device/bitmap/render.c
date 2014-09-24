@@ -104,7 +104,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_
     gb_point_ref_t  points = polygon->points;
     tb_uint16_t*    counts = polygon->counts;
     tb_uint16_t     count = *counts++;
-    tb_size_t       index = 0;
+    tb_uint16_t     index = 0;
     while (index < count)
     {
         // apply to point

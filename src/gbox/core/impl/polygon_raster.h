@@ -30,6 +30,17 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// the polygon edges maxn
+#ifdef __gb_small__
+#   define GB_POLYGON_RASTER_EDGES_MAXN     (2048)
+#else
+#   define GB_POLYGON_RASTER_EDGES_MAXN     (2048 << 1)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_enter__
@@ -38,25 +49,131 @@ __tb_extern_c_enter__
  * types
  */
 
-// the polygon raster type
+// the polygon raster edge type
+typedef struct __gb_polygon_raster_edge_t
+{
+#if 0
+    // the y value at the bottom of edge
+    tb_int16_t      btm;
+
+    // the x value at the top of edge
+    tb_int16_t      x;
+
+    // the direction of y, top => btm: 1 else 0
+    tb_int16_t      yd:     1;
+
+    // for bresenham algorithm
+    tb_int16_t      xinc:   15;
+    tb_int16_t      dx2;
+    tb_int16_t      dy2;
+    tb_int16_t      error;
+    tb_int16_t      line;
+#endif
+
+    // the index of next edge at the edge pool 
+    tb_uint16_t     next;
+
+}gb_polygon_raster_edge_t, *gb_polygon_raster_edge_ref_t;
+
+/* the polygon raster type
+ *
+ * 1. make the edge table    
+ *     (y)
+ *      0 ----------------> . 
+ *      1                 .   .
+ *      2               .       . e2
+ *      3          e1 .           .
+ *      4 ------------------------> . 
+ *      5         .               .
+ *      6       .               .
+ *      7 --> .               . e3
+ *      8       .           .
+ *      9      e4 .       .
+ *      10          .   .
+ *      11            .
+ *
+ * edge_table[0]: e1 e2
+ * edge_table[4]: e3
+ * edge_table[7]: e4
+ *
+ * 2. scanning the edge table  
+ *     (y)
+ *      0                   . 
+ *      1                 . - .
+ *      2               . ----- . e2
+ *      3          e1 . --------- .
+ *      4           .               . 
+ *      5         .               .
+ *      6       .               .
+ *      7     .               . e3
+ *      8       .           .
+ *      9      e4 .       .
+ *      10          .   .
+ *      11            .
+ *
+ * active_edge_table: e1 e2
+ *
+ * 3. scanning the edge table  
+ *     (y)
+ *      0                   . 
+ *      1                 .   .
+ *      2               .       . e2
+ *      3          e1 .           .
+ *      4           . ------------- . 
+ *      5         . ------------- .
+ *      6       . ------------- .
+ *      7     .               . e3
+ *      8       .           .
+ *      9      e4 .       .
+ *      10          .   .
+ *      11            .
+ *
+ * active_edge_table: e1 e3
+ *
+ * 4. scanning the edge table  
+ *     (y)
+ *      0                   . 
+ *      1                 .   .
+ *      2               .       . e2
+ *      3          e1 .           .
+ *      4           .               . 
+ *      5         .               .
+ *      6       .               .
+ *      7     . ------------- . e3
+ *      8       . --------- .
+ *      9      e4 . ----- .
+ *      10          . - .
+ *      11            .
+ *
+ * active_edge_table: e4 e3
+ *
+ * active_edge_table: be sorted by x in ascending
+ *
+ */
 typedef struct __gb_polygon_raster_t
 {
-    // the bounds
-    gb_rect_ref_t       bounds;
+    // the edge pool, tail: 0, index: > 0
+    gb_polygon_raster_edge_t    edge_pool[1 + GB_POLYGON_RASTER_EDGES_MAXN];
 
-    // the polygon 
-    gb_polygon_ref_t    polygon;
+    // the edge table
+    tb_uint16_t                 edge_table[GB_HEIGHT_MAXN];
+
+    // the top of the polygon bounds
+    tb_long_t                   top;
+
+    // the bottom of the polygon bounds
+    tb_long_t                   bottom;
 
 }gb_polygon_raster_t, *gb_polygon_raster_ref_t;
 
 /* the polygon raster func type
  *
- * @param y             the y-coordinate
- * @param xb            the start x-coordinate
- * @param xe            the end x-coordinate 
- * @param priv          the private data
+ * @param y                     the y-coordinate
+ * @param xb                    the start x-coordinate
+ * @param xe                    the end x-coordinate 
+ * @param priv                  the private data
  */
-typedef tb_void_t       (*gb_polygon_raster_func_t)(tb_long_t y, tb_long_t xb, tb_long_t xe, tb_cpointer_t priv);
+typedef tb_void_t               (*gb_polygon_raster_func_t)(tb_long_t y, tb_long_t xb, tb_long_t xe, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
