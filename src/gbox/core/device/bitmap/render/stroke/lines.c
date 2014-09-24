@@ -37,7 +37,7 @@
  * private implementation
  */
 
-/* using bresenham algorithm
+/* using half-bresenham algorithm
  *
  *                    draw 1/2 line
  *                 /      
@@ -97,7 +97,8 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     {
         // done 
         tb_long_t i = 0;
-        tb_long_t e = dy2 - dx;
+        tb_long_t eb = dy2 - dx;
+        tb_long_t ee = eb;
         for (i = 0; i < dx12; ++i)
         {
             // set pixel
@@ -106,19 +107,19 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
 
             /* (x, y)
              * e / 1 = dy / dx
-             * => y++ if e = dy / dx >= 0.5 
-             * => y++ if e = dy * 2 - dx >= 0
+             * => y++ if e = dy / dx > 0.5 
+             * => y++ if e = dy * 2 - dx > 0
              *
              * (x + 1, y)
              * e / 2 = dy / dx
-             * => y++ if e = dy * 2 / dx >= 0.5 
-             * => y++ if e = dy * 4 - dx >= 0
+             * => y++ if e = dy * 2 / dx > 0.5 
+             * => y++ if e = dy * 4 - dx > 0
              * => e += dy * 2
              *
              * (x, y + 1)
              * (e + 1) / 1 = dy / dx
-             * => y++ if e = dy / dx - 1 >= 0.5 
-             * => y++ if e = dy * 2 - dx - dx * 2 >= 0
+             * => y++ if e = dy / dx - 1 > 0.5 
+             * => y++ if e = dy * 2 - dx - dx * 2 > 0
              * => e -= dx * 2
              *
              *  -------------------------------------------
@@ -134,14 +135,20 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
              * O------------------------------------------> 
              *      1               dx
              */
-            if (e >= 0)
+            if (eb > 0)
             {
-                e -= dx2;
+                eb -= dx2;
                 qb += yinc;
+            }
+            
+            if (ee >= 0)
+            {
+                ee -= dx2;
                 qe -= yinc;
             }
 
-            e += dy2;
+            eb += dy2;
+            ee += dy2;
             qb += xinc;
             qe -= xinc;
         }
@@ -156,20 +163,27 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     {
         // done
         tb_long_t i = 0;
-        tb_long_t e = dx2 - dy;
+        tb_long_t eb = dx2 - dy;
+        tb_long_t ee = eb;
         for (i = 0; i < dy12; ++i)
         {
             pixel_set(qb, pixel, alpha);
             pixel_set(qe, pixel, alpha);
 
-            if (e >= 0)
+            if (eb > 0)
             {
-                e -= dy2;
+                eb -= dy2;
                 qb += xinc;
+            }
+
+            if (ee >= 0)
+            {
+                ee -= dy2;
                 qe -= xinc;
             }
 
-            e += dx2;
+            eb += dx2;
+            ee += dx2;
             qb += yinc;
             qe -= yinc;
         }
@@ -178,7 +192,20 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     }
 }
 #else
-static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
+/* using bresenham algorithm
+ *
+ *                 /      
+ *               /
+ *             /
+ *           /
+ *         /
+ *       /
+ *     /
+ *   /
+ * /  
+ *  
+ */
+static tb_void_t gb_bitmap_render_stroke_line_generic2(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
 {
     // the factors
     tb_byte_t*                  data        = gb_bitmap_data(bitmap);
@@ -226,19 +253,19 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
 
             /* (x, y)
              * e / 1 = dy / dx
-             * => y++ if e = dy / dx >= 0.5 
-             * => y++ if e = dy * 2 - dx >= 0
+             * => y++ if e = dy / dx > 0.5 
+             * => y++ if e = dy * 2 - dx > 0
              *
              * (x + 1, y)
              * e / 2 = dy / dx
-             * => y++ if e = dy * 2 / dx >= 0.5 
-             * => y++ if e = dy * 4 - dx >= 0
+             * => y++ if e = dy * 2 / dx > 0.5 
+             * => y++ if e = dy * 4 - dx > 0
              * => e += dy * 2
              *
              * (x, y + 1)
              * (e + 1) / 1 = dy / dx
-             * => y++ if e = dy / dx - 1 >= 0.5 
-             * => y++ if e = dy * 2 - dx - dx * 2 >= 0
+             * => y++ if e = dy / dx - 1 > 0.5 
+             * => y++ if e = dy * 2 - dx - dx * 2 > 0
              * => e -= dx * 2
              *
              *  -------------------------------------------
@@ -254,7 +281,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
              * O------------------------------------------> 
              *      1               dx
              */
-            if (e >= 0)
+            if (e > 0)
             {
                 e -= dx2;
                 q += yinc;
@@ -273,7 +300,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         {
             pixel_set(q, pixel, alpha);
 
-            if (e >= 0)
+            if (e > 0)
             {
                 e -= dy2;
                 q += xinc;
@@ -283,6 +310,9 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
             q += yinc;
         }
     }
+
+    // check
+    tb_assert_abort(q == data + ye * row_bytes + xe * btp);
 }
 #endif
 static tb_void_t gb_bitmap_render_stroke_line_vertical(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, gb_point_ref_t pb, gb_point_ref_t pe)
