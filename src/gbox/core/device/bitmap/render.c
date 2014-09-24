@@ -34,11 +34,37 @@
 #include "render.h"
 #include "render/fill/fill.h"
 #include "render/stroke/stroke.h"
+#include "../../impl/bounds.h"
 #include "../../impl/stroke.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_bool_t gb_bitmap_render_apply_matrix_for_hint(gb_bitmap_device_ref_t device, gb_shape_ref_t hint, gb_shape_ref_t output)
+{
+    // check
+    tb_assert_abort(device && device->base.matrix && output);
+
+    // clear output first
+    output->type = GB_SHAPE_TYPE_NONE;
+
+    // rect and no rotation?
+    if (    hint
+        &&  hint->type == GB_SHAPE_TYPE_RECT
+        &&  gb_ez(device->base.matrix->kx) && gb_ez(device->base.matrix->ky))
+    {
+        // apply matrix to rect
+        gb_point_t points[2];
+        points[0] = gb_point_make(hint->u.rect.x, hint->u.rect.y);
+        points[1] = gb_point_make(hint->u.rect.x + hint->u.rect.w, hint->u.rect.y + hint->u.rect.h);
+        gb_matrix_apply_points(device->base.matrix, points, 2);
+        gb_bounds_make(&output->u.rect, points, 2);
+        output->type = GB_SHAPE_TYPE_RECT;
+    }
+
+    // ok?
+    return output->type != GB_SHAPE_TYPE_NONE;
+}
 static tb_size_t gb_bitmap_render_apply_matrix_for_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_point_ref_t* output)
 {
     // check
@@ -270,10 +296,20 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
         tb_assert_abort(filled_polygon.points && filled_count);
 
         // TODO: clip it
-        // ...
+        tb_bool_t       clipped = tb_false;
 
+        // apply matrix to hint
+        gb_shape_t      filled_hint;
+        if (!clipped && gb_bitmap_render_apply_matrix_for_hint(device, hint, &filled_hint))
+        {
+            // check
+            tb_assert_abort(filled_hint.type == GB_SHAPE_TYPE_RECT);
+
+            // fill rect
+            gb_bitmap_render_fill_rect(device, &filled_hint.u.rect);
+        }
         // fill polygon
-        gb_bitmap_render_fill_polygon(device, &filled_polygon);
+        else gb_bitmap_render_fill_polygon(device, &filled_polygon);
     }
 
     // stroke it

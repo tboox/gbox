@@ -17,18 +17,36 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        fill.h
+ * @file        rect.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_RECT_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_RECT_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "rect.h"
-#include "polygon.h"
+#include "prefix.h"
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
+ */
+
+/* fill rect
+ *
+ * @param device    the device
+ * @param rect      the rect
+ */
+tb_void_t           gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_t rect);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 #endif
-
-
