@@ -58,10 +58,10 @@ static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point
     if (device->version >= 0x20) 
     {
         // check
-        tb_assert_abort(device->render.program);
+        tb_assert_abort(device->program);
 
         // apply it
-        gb_glVertexAttribPointer(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_VERTICES), 2, GB_GL_VERTEX_TYPE, GB_GL_FALSE, 0, points);
+        gb_glVertexAttribPointer(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_VERTICES), 2, GB_GL_VERTEX_TYPE, GB_GL_FALSE, 0, points);
     }
     else 
     {
@@ -100,10 +100,10 @@ static tb_void_t gb_gl_render_enter_solid(gb_gl_device_ref_t device)
     if (device->version >= 0x20)
     {
         // check
-        tb_assert_abort(device->render.program);
+        tb_assert_abort(device->program);
 
         // apply it
-        gb_glVertexAttrib4f(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_COLORS), (gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
+        gb_glVertexAttrib4f(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_COLORS), (gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
     }
     else
     {
@@ -148,7 +148,7 @@ static tb_void_t gb_gl_render_enter_paint(gb_gl_device_ref_t device)
     tb_assert_abort(device);
 
     // enter shader
-    if (device->render.shader) gb_gl_render_enter_shader(device);
+    if (device->shader) gb_gl_render_enter_shader(device);
     // enter solid
     else gb_gl_render_enter_solid(device);
 }
@@ -158,7 +158,7 @@ static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
     tb_assert_abort(device);
 
     // leave shader
-    if (device->render.shader) gb_gl_render_leave_shader(device);
+    if (device->shader) gb_gl_render_leave_shader(device);
     // leave solid
     else gb_gl_render_leave_solid(device);
 }
@@ -231,21 +231,18 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device)
     tb_bool_t ok = tb_false;
     do
     {
-        // init render
-        tb_memset(&device->render, 0, sizeof(device->render));
-
         // init shader
-        device->render.shader = gb_paint_shader(device->base.paint);
+        device->shader = gb_paint_shader(device->base.paint);
 
         // init vertex matrix
-        gb_gl_matrix_convert(device->render.matrix_vertex, device->base.matrix);
+        gb_gl_matrix_convert(device->matrix_vertex, device->base.matrix);
 
         // apply matrix for the fixed vertex if no GB_GL_FIXED macro
 #if defined(GB_CONFIG_FLOAT_FIXED) && !defined(GB_GL_FIXED)
-        device->render.matrix_vertex[0] /= 65536.0f;
-        device->render.matrix_vertex[1] /= 65536.0f;
-        device->render.matrix_vertex[4] /= 65536.0f;
-        device->render.matrix_vertex[5] /= 65536.0f;
+        device->matrix_vertex[0] /= 65536.0f;
+        device->matrix_vertex[1] /= 65536.0f;
+        device->matrix_vertex[4] /= 65536.0f;
+        device->matrix_vertex[5] /= 65536.0f;
 #endif
 
         // init antialiasing
@@ -263,23 +260,23 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device)
         if (device->version >= 0x20)
         {   
             // the program type
-            tb_size_t program_type = device->render.shader? GB_GL_PROGRAM_TYPE_BITMAP : GB_GL_PROGRAM_TYPE_COLOR;
+            tb_size_t program_type = device->shader? GB_GL_PROGRAM_TYPE_BITMAP : GB_GL_PROGRAM_TYPE_COLOR;
 
             // program
-            device->render.program = device->programs[program_type];
-            tb_assert_and_check_break(device->render.program);
+            device->program = device->programs[program_type];
+            tb_assert_and_check_break(device->program);
 
             // bind this program to the current gl context
-            gb_gl_program_bind(device->render.program);
+            gb_gl_program_bind(device->program);
 
             // enable vertex
-            gb_glEnableVertexAttribArray(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_VERTICES));
+            gb_glEnableVertexAttribArray(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_VERTICES));
 
             // apply projection matrix
-            gb_glUniformMatrix4fv(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_MATRIX_PROJECT), 1, GB_GL_FALSE, device->matrix_project);
+            gb_glUniformMatrix4fv(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_MATRIX_PROJECT), 1, GB_GL_FALSE, device->matrix_project);
 
             // apply vertex matrix
-            gb_glUniformMatrix4fv(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_MATRIX_MODEL), 1, GB_GL_FALSE, device->render.matrix_vertex);
+            gb_glUniformMatrix4fv(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_MATRIX_MODEL), 1, GB_GL_FALSE, device->matrix_vertex);
         }
         else
         {
@@ -290,7 +287,7 @@ tb_bool_t gb_gl_render_init(gb_gl_device_ref_t device)
             gb_glMatrixMode(GB_GL_MODELVIEW);
             gb_glPushMatrix();
             gb_glLoadIdentity();
-            gb_glMultMatrixf(device->render.matrix_vertex);
+            gb_glMultMatrixf(device->matrix_vertex);
         }
 
         // ok
@@ -310,13 +307,13 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
     if (device->version >= 0x20)
     {   
         // check
-        tb_assert_and_check_return(device->render.program);
+        tb_assert_and_check_return(device->program);
 
         // disable vertex
-        gb_glDisableVertexAttribArray(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_VERTICES));
+        gb_glDisableVertexAttribArray(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_VERTICES));
  
         // disable texcoord
-        gb_glDisableVertexAttribArray(gb_gl_program_location(device->render.program, GB_GL_PROGRAM_LOCATION_TEXCOORDS));
+        gb_glDisableVertexAttribArray(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_TEXCOORDS));
     }
     else
     {
@@ -347,7 +344,7 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
     gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1? stroke lines
-    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
+    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->matrix_vertex))
         gb_gl_render_stroke_lines(device, points, count);
     else
     {
@@ -371,7 +368,7 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
     gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1? stroke points
-    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
+    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->matrix_vertex))
         gb_gl_render_stroke_points(device, points, count);
     else
     {
@@ -407,7 +404,7 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
         gb_float_t width = gb_paint_width(device->base.paint);
 
         // width == 1? stroke polygon
-        if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->render.matrix_vertex))
+        if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->matrix_vertex))
             gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
         else
         {

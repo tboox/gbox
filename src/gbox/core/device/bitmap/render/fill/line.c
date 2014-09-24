@@ -17,52 +17,32 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        line.c
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_GL_DEVICE_H
-#define GB_CORE_DEVICE_GL_DEVICE_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "bitmap_fill_line"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "interface.h"
-#include "program.h"
-#include "matrix.h"
+#include "line.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * implementation
  */
-
-// the gl device type
-typedef struct __gb_gl_device_t
+tb_bool_t gb_bitmap_render_fill_line_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
 {
-    // the base
-    gb_device_impl_t            base;
-
-    // the window
-    gb_window_ref_t             window;
-
-    // the version: 1.0, 2.x, ...
-    tb_size_t                   version;
-
-    // the programs
-    gb_gl_program_ref_t         programs[GB_GL_PROGRAM_LOCATION_MAXN];
-
-	// the projection matrix for gl >= 2.0
-	gb_gl_matrix_t              matrix_project;
-
-	// the vertex matrix 
-	gb_gl_matrix_t              matrix_vertex;
-
-    // the shader
-    gb_shader_ref_t             shader;
-
-    // the program
-    gb_gl_program_ref_t         program;
-
-}gb_gl_device_t, *gb_gl_device_ref_t;
-
-#endif
-
-
+    return tb_false;
+}
+tb_void_t gb_bitmap_render_fill_line_exit(gb_bitmap_device_ref_t device)
+{
+}
+tb_void_t gb_bitmap_render_fill_line_done(gb_bitmap_device_ref_t device, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
+{
+}

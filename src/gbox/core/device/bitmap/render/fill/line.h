@@ -17,11 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        line.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_DEVICE_H
-#define GB_CORE_DEVICE_BITMAP_DEVICE_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_LINE_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_LINE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -29,38 +30,39 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
  */
 
-// the bitmap device type
-typedef struct __gb_bitmap_device_t
-{
-    // the base
-    gb_device_impl_t            base;
+/* init the line
+ *
+ * @param device    the device
+ * @param bounds    the bounds
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_bitmap_render_fill_line_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
 
-    // the bitmap
-    gb_bitmap_ref_t             bitmap;
+/* exit the line
+ *
+ * @param device    the device
+ */
+tb_void_t           gb_bitmap_render_fill_line_exit(gb_bitmap_device_ref_t device);
 
-    // the pixmap
-    gb_pixmap_ref_t             pixmap;
+/* done the line
+ *
+ * @param device    the device
+ * @param start     the start x-coordinate
+ * @param count     the filled pixel count
+ */
+tb_void_t           gb_bitmap_render_fill_line_done(gb_bitmap_device_ref_t device, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
 
-    // the points 
-    tb_vector_ref_t             points;
-
-    // the counts
-    tb_vector_ref_t             counts;
-
-    // the shader
-    gb_shader_ref_t             shader;
-
-    // exit the fill line
-    tb_void_t                   (*fill_line_exit)(struct __gb_bitmap_device_t* device);
-
-    // done the fill line
-    tb_void_t                   (*fill_line_done)(struct __gb_bitmap_device_t* device, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
-
-}gb_bitmap_device_t, *gb_bitmap_device_ref_t;
-
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 #endif
-
-

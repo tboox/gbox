@@ -172,11 +172,12 @@ tb_bool_t gb_bitmap_render_init(gb_bitmap_device_ref_t device)
     tb_bool_t ok = tb_false;
     do
     {
-        // init render
-        tb_memset(&device->render, 0, sizeof(device->render));
-
         // init shader
-        device->render.shader = gb_paint_shader(device->base.paint);
+        device->shader = gb_paint_shader(device->base.paint);
+
+        // init fill line func
+        device->fill_line_exit = tb_null;
+        device->fill_line_done = tb_null;
 
         // ok
         ok = tb_true;
@@ -201,7 +202,7 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
     gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1 and solid? stroke it
-    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->render.shader)
+    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
     {
         // apply matrix to points
         gb_point_ref_t  stroked_points  = tb_null;
@@ -243,7 +244,7 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
     gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1 and solid? stroke it
-    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->render.shader)
+    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
     {
         // apply matrix to points
         gb_point_ref_t  stroked_points  = tb_null;
@@ -319,7 +320,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
         gb_float_t width = gb_paint_width(device->base.paint);
 
         // width == 1 and solid? stroke it
-        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->render.shader)
+        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
         {
             // apply matrix to points
             gb_polygon_t    stroked_polygon = {polygon->points, polygon->counts, polygon->convex};
