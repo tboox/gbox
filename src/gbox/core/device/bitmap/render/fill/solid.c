@@ -36,7 +36,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_bitmap_render_fill_solid_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
+static tb_void_t gb_bitmap_render_filler_solid_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
 {
     // check
     tb_assert_abort(filler && filler->pixels_fill);
@@ -48,13 +48,13 @@ static tb_void_t gb_bitmap_render_fill_solid_done(gb_bitmap_filler_ref_t filler,
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_bitmap_filler_ref_t gb_bitmap_render_fill_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
+gb_bitmap_filler_ref_t gb_bitmap_render_filler_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(device && device->pixmap && device->base.paint);
 
     // init it
-    device->filler.done             = gb_bitmap_render_fill_solid_done;
+    device->filler.done             = gb_bitmap_render_filler_solid_done;
     device->filler.exit             = tb_null;
     device->filler.u.solid.pixel    = device->pixmap->pixel(gb_paint_color(device->base.paint));
     device->filler.u.solid.alpha    = gb_paint_alpha(device->base.paint);

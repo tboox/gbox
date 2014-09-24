@@ -151,7 +151,7 @@ static tb_void_t gb_bitmap_render_fill_polygon_for_stroking(gb_bitmap_device_ref
     gb_paint_rule_set(device->base.paint, GB_PAINT_RULE_NONZERO);
 
     // fill polygon
-    gb_bitmap_render_fill_polygon(device, polygon);
+    gb_bitmap_render_fill_polygon(device, polygon, tb_null);
 
     // restore the mode
     gb_paint_mode_set(device->base.paint, mode);
@@ -306,7 +306,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
             gb_bitmap_render_fill_rect(device, &filled_hint.u.rect);
         }
         // fill polygon
-        else gb_bitmap_render_fill_polygon(device, &filled_polygon);
+        else gb_bitmap_render_fill_polygon(device, &filled_polygon, bounds);
     }
 
     // stroke it

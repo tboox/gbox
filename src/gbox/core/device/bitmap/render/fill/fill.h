@@ -29,42 +29,6 @@
 #include "rect.h"
 #include "polygon.h"
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_enter__
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interface
- */
-
-/* init fill
- *
- * @param device        the device
- * @param bounds        the bounds
- *
- * @return              the filler
- */
-gb_bitmap_filler_ref_t  gb_bitmap_render_fill_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
-
-/* exit fill
- *
- * @param filler        the filler
- */
-tb_void_t               gb_bitmap_render_fill_exit(gb_bitmap_filler_ref_t filler);
-
-/* done fill
- *
- * @param filler        the filler
- * @param start         the start x-coordinate
- * @param count         the filled pixel count
- */
-tb_void_t               gb_bitmap_render_fill_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
 #endif
 
 

@@ -27,6 +27,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../../impl/polygon_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -87,6 +88,9 @@ typedef struct __gb_bitmap_device_t
 
     // the filler
     gb_bitmap_filler_t              filler;
+
+    // the raster
+    gb_polygon_raster_t             raster;
 
 }gb_bitmap_device_t, *gb_bitmap_device_ref_t;
 

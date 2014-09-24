@@ -38,14 +38,14 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* init the solid
+/* init the solid filler
  *
  * @param device        the device
  * @param bounds        the bounds
  *
  * @return              the filler
  */
-gb_bitmap_filler_ref_t  gb_bitmap_render_fill_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
+gb_bitmap_filler_ref_t  gb_bitmap_render_filler_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

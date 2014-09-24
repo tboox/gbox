@@ -17,37 +17,56 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon.h
+ * @file        polygon_raster.c
  * @ingroup     core
- *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_POLYGON_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_POLYGON_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "polygon_raster"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "polygon_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * extern
+ * implementation
  */
-__tb_extern_c_enter__
+tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
+{
+    // check
+    tb_assert_abort(raster && polygon && bounds);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interface
- */
+    // init raster
+    raster->bounds  = bounds;
+    raster->polygon = polygon;
 
-/* fill polygon
- *
- * @param device    the device
- * @param polygon   the polygon
- * @param bounds    the bounds
- */
-tb_void_t           gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds);
+    // ok
+    return tb_true;
+}
+tb_void_t gb_polygon_raster_exit(gb_polygon_raster_ref_t raster)
+{
+}
+tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(raster && raster->polygon && raster->bounds && func);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
-#endif
+    // the factors
+	tb_long_t x = gb_float_to_long(raster->bounds->x);
+	tb_long_t y = gb_float_to_long(raster->bounds->y);
+	tb_long_t w = gb_float_to_long(raster->bounds->w);
+	tb_long_t h = gb_float_to_long(raster->bounds->h);
+
+    tb_trace_i("%{rect}", raster->bounds);
+
+    // done
+    while (h--)
+    {
+        func(y++, x, x + w, priv);
+    }
+}
+

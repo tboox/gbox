@@ -770,7 +770,7 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
         }
 
         // make bounds from points
-        if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
+        if (impl->flag & GB_PATH_FLAG_DIRTY_BOUNDS)
         {
             // the points
             gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);

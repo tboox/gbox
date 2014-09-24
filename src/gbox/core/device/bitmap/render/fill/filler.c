@@ -17,37 +17,56 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon.h
+ * @file        filler.c
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_POLYGON_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_POLYGON_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "bitmap_filler"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "filler.h"
+#include "solid.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * extern
+ * implementation
  */
-__tb_extern_c_enter__
+gb_bitmap_filler_ref_t gb_bitmap_render_filler_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
+{
+    // check
+    tb_assert_abort(device);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interface
- */
+    // done
+    gb_bitmap_filler_ref_t filler = tb_null;
+    if (device->shader)
+    {
+        // TODO
+        tb_trace_noimpl();
+    }
+    else filler = gb_bitmap_render_filler_solid_init(device, bounds);
 
-/* fill polygon
- *
- * @param device    the device
- * @param polygon   the polygon
- * @param bounds    the bounds
- */
-tb_void_t           gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds);
+    // ok?
+    return filler;
+}
+tb_void_t gb_bitmap_render_filler_exit(gb_bitmap_filler_ref_t filler)
+{
+    // check
+    tb_assert_abort(filler);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
-#endif
+    // exit filler
+    if (filler->exit) filler->exit(filler);
+}
+tb_void_t gb_bitmap_render_filler_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
+{   
+    // check
+    tb_assert_abort(filler && filler->done);
+
+    // done filler
+    filler->done(filler, start, count, pixels);
+}

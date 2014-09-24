@@ -17,56 +17,54 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        fill.c
+ * @file        filler.h
  * @ingroup     core
- *
  */
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * trace
- */
-#define TB_TRACE_MODULE_NAME            "bitmap_fill"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILLER_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_FILLER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "fill.h"
-#include "solid.h"
+#include "rect.h"
+#include "polygon.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * extern
  */
-gb_bitmap_filler_ref_t gb_bitmap_render_fill_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
-{
-    // check
-    tb_assert_abort(device);
+__tb_extern_c_enter__
 
-    // done
-    gb_bitmap_filler_ref_t filler = tb_null;
-    if (device->shader)
-    {
-        // TODO
-        tb_trace_noimpl();
-    }
-    else filler = gb_bitmap_render_fill_solid_init(device, bounds);
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
+ */
 
-    // ok?
-    return filler;
-}
-tb_void_t gb_bitmap_render_fill_exit(gb_bitmap_filler_ref_t filler)
-{
-    // check
-    tb_assert_abort(filler);
+/* init filler
+ *
+ * @param device        the device
+ * @param bounds        the bounds
+ *
+ * @return              the filler
+ */
+gb_bitmap_filler_ref_t  gb_bitmap_render_filler_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
 
-    // exit fill
-    if (filler->exit) filler->exit(filler);
-}
-tb_void_t gb_bitmap_render_fill_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
-{   
-    // check
-    tb_assert_abort(filler && filler->done);
+/* exit filler
+ *
+ * @param filler        the filler
+ */
+tb_void_t               gb_bitmap_render_filler_exit(gb_bitmap_filler_ref_t filler);
 
-    // done fill
-    filler->done(filler, start, count, pixels);
-}
+/* done filler
+ *
+ * @param filler        the filler
+ * @param start         the start x-coordinate
+ * @param count         the fillered pixel count
+ */
+tb_void_t               gb_bitmap_render_filler_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
+#endif
+
+

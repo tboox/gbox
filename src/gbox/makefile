@@ -25,7 +25,7 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/render/stroke/lines \
 						core/device/bitmap/render/stroke/points \
 						core/device/bitmap/render/stroke/polygon \
-						core/device/bitmap/render/fill/fill \
+						core/device/bitmap/render/fill/filler \
 						core/device/bitmap/render/fill/rect \
 						core/device/bitmap/render/fill/solid \
 						core/device/bitmap/render/fill/polygon \
@@ -38,7 +38,8 @@ gbox_C_FILES 			+= \
 						core/impl/cache_stack \
 						core/impl/cache_stack \
 						core/impl/stroke \
-						core/impl/geometry 
+						core/impl/geometry \
+						core/impl/polygon_raster 
 
 
 # gl core files

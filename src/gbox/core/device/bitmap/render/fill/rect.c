@@ -32,7 +32,7 @@
  * includes
  */
 #include "rect.h"
-#include "fill.h"
+#include "filler.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -72,19 +72,19 @@ tb_void_t gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_
     // fill for shader
     else
     {
-        // init fill
-        gb_bitmap_filler_ref_t filler = gb_bitmap_render_fill_init(device, rect);
+        // init filler
+        gb_bitmap_filler_ref_t filler = gb_bitmap_render_filler_init(device, rect);
         if (filler)
         {
-            // done fill
+            // done filler
             while (h--)
             {
-                gb_bitmap_render_fill_done(filler, x, w, q);
+                gb_bitmap_render_filler_done(filler, x, w, q);
                 q += row_bytes;
             }
 
-            // exit fill
-            gb_bitmap_render_fill_exit(filler);
+            // exit filler
+            gb_bitmap_render_filler_exit(filler);
         }
     }
 }
