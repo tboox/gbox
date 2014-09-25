@@ -60,9 +60,9 @@ typedef struct __gb_polygon_raster_edge_t
      *       .           .
      *     .               .
      *    -                 -
-     *    0                 1
+     *    -1                1
      */
-    tb_uint8_t      direction_x : 1;
+    tb_int8_t       direction_x : 2;
 
     // the x value at the top of edge
     tb_int16_t      top_x;
