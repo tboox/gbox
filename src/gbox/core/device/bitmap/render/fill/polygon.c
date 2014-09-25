@@ -53,7 +53,7 @@ static tb_void_t gb_bitmap_render_fill_polygon_raster(tb_long_t y, tb_long_t xb,
 tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->pixmap && device->bitmap && gb_bitmap_data(device->bitmap) && bounds);
+    tb_assert_abort(device && device->base.paint && device->pixmap && device->bitmap && gb_bitmap_data(device->bitmap) && bounds);
 
     // init raster
     if (gb_polygon_raster_init(&device->raster, polygon, bounds)) 
@@ -69,8 +69,11 @@ tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygo
             factors[2].ul   = gb_bitmap_row_bytes(device->bitmap);
             factors[3].ul   = device->pixmap->btp;
 
+            // the paint rule
+            tb_size_t rule = gb_paint_rule(device->base.paint);
+
             // done raster
-            gb_polygon_raster_done(&device->raster, gb_bitmap_render_fill_polygon_raster, factors);
+            gb_polygon_raster_done(&device->raster, rule, gb_bitmap_render_fill_polygon_raster, factors);
 
             // exit filler
             gb_bitmap_render_filler_exit(filler);

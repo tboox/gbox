@@ -38,50 +38,50 @@ __tb_extern_c_enter__
  * types
  */
 
-/// the paint mode type
-typedef enum __gb_paint_mode_t
+/// the paint mode enum
+typedef enum __gb_paint_mode_e
 {
     GB_PAINT_MODE_NONE          = 0 //!< none
 ,   GB_PAINT_MODE_FILL          = 1 //!< fill
 ,   GB_PAINT_MODE_STROKE        = 2 //!< stroke
 ,   GB_PAINT_MODE_FILL_STROKE   = 3 //!< fill and stroke
 
-}gb_paint_mode_t;
+}gb_paint_mode_e;
 
-/// the paint flag type
-typedef enum __gb_paint_flag_t
+/// the paint flag enum
+typedef enum __gb_paint_flag_e
 {
     GB_PAINT_FLAG_NONE          = 0 //!< none
 ,   GB_PAINT_FLAG_ANTIALIASING  = 1 //!< antialiasing
 ,   GB_PAINT_FLAG_FILTER_BITMAP = 2 //!< filter bitmap
 
-}gb_paint_flag_t;
+}gb_paint_flag_e;
 
-/// the paint stroke cap type
-typedef enum __gb_paint_cap_t
+/// the paint stroke cap enum
+typedef enum __gb_paint_cap_e
 {
     GB_PAINT_CAP_BUTT           = 0 //!< no extension
 ,   GB_PAINT_CAP_ROUND          = 1 //!< a semi-circle extension
 ,   GB_PAINT_CAP_SQUARE         = 2 //!< a half square extension
 
-}gb_paint_cap_t;
+}gb_paint_cap_e;
 
-/// the paint stroke join type
-typedef enum __gb_paint_join_t
+/// the paint stroke join enum
+typedef enum __gb_paint_join_e
 {
     GB_PAINT_JOIN_MITER         = 0 //!< a sharp join
 ,   GB_PAINT_JOIN_ROUND         = 1 //!< a round join
 ,   GB_PAINT_JOIN_BEVEL         = 2 //!< a flat bevel join
 
-}gb_paint_join_t;
+}gb_paint_join_e;
 
-/// the paint fill rule type
-typedef enum __gb_paint_rule_t
+/// the paint fill rule enum
+typedef enum __gb_paint_rule_e
 {
-    GB_PAINT_RULE_EVENODD       = 0 //!< even odd fill
+    GB_PAINT_RULE_ODD           = 0 //!< odd fill
 ,   GB_PAINT_RULE_NONZERO       = 1 //!< non-zero fill
 
-}gb_paint_rule_t;
+}gb_paint_rule_e;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

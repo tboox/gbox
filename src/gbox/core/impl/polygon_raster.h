@@ -28,6 +28,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../paint.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -49,10 +50,18 @@ __tb_extern_c_enter__
  * types
  */
 
+// the polygon raster rule enum
+typedef enum __gb_polygon_raster_rule_e
+{
+    GB_POLYGON_RASTER_RULE_ODD      = GB_PAINT_RULE_ODD     //< odd 
+,   GB_POLYGON_RASTER_RULE_NONZERO  = GB_PAINT_RULE_NONZERO //< non-zero 
+
+}gb_polygon_raster_rule_e;
+
 // the polygon raster edge type
 typedef struct __gb_polygon_raster_edge_t
 {
-    /* the x direction
+    /* the x direction for the bresenham 
      *
      *             .
      *           .   .
@@ -63,6 +72,21 @@ typedef struct __gb_polygon_raster_edge_t
      *    -1                1
      */
     tb_int8_t       direction_x : 2;
+
+    /* the y direction for rule
+     *
+     *   . <= -1
+     *     .
+     *       . 
+     *         .
+     *            .  
+     *              .
+     *            => 1
+     *
+     * 1:  top => bottom
+     * -1: bottom => top
+     */
+    tb_int8_t       direction_y : 2;
 
     // the x value at the top of edge
     tb_int16_t      top_x;
@@ -76,7 +100,7 @@ typedef struct __gb_polygon_raster_edge_t
     // the dy*2 for computing slope: dy/dx
     tb_int16_t      dy2;
 
-    // the slope error for the bresenham algorithm
+    // the slope error for the bresenham 
     tb_int16_t      error;
 
     // the index of next edge at the edge pool 
@@ -173,6 +197,9 @@ typedef struct __gb_polygon_raster_t
     // the bottom of the polygon bounds
     tb_long_t                   bottom;
 
+    // the raster rule
+    tb_size_t                   rule;
+
 }gb_polygon_raster_t, *gb_polygon_raster_ref_t;
 
 /* the polygon raster func type
@@ -207,10 +234,11 @@ tb_void_t               gb_polygon_raster_exit(gb_polygon_raster_ref_t raster);
 /* done polygon raster
  *
  * @param raster        the polygon raster
+ * @param rule          the raster rule
  * @param func          the raster func
  * @param priv          the private data
  */
-tb_void_t               gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_raster_func_t func, tb_cpointer_t priv);
+tb_void_t               gb_polygon_raster_done(gb_polygon_raster_ref_t raster, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
