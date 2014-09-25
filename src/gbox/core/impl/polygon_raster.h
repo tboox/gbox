@@ -52,23 +52,32 @@ __tb_extern_c_enter__
 // the polygon raster edge type
 typedef struct __gb_polygon_raster_edge_t
 {
-#if 0
-    // the y value at the bottom of edge
-    tb_int16_t      btm;
+    /* the x direction
+     *
+     *             .
+     *           .   .
+     *         .       . 
+     *       .           .
+     *     .               .
+     *    -                 -
+     *    0                 1
+     */
+    tb_uint8_t      direction_x : 1;
 
     // the x value at the top of edge
-    tb_int16_t      x;
+    tb_int16_t      top_x;
 
-    // the direction of y, top => btm: 1 else 0
-    tb_int16_t      yd:     1;
+    // the y value at the bottom of edge
+    tb_int16_t      bottom_y;
 
-    // for bresenham algorithm
-    tb_int16_t      xinc:   15;
+    // the dx*2 for computing slope: dy/dx
     tb_int16_t      dx2;
+
+    // the dy*2 for computing slope: dy/dx
     tb_int16_t      dy2;
+
+    // the slope error for the bresenham algorithm
     tb_int16_t      error;
-    tb_int16_t      line;
-#endif
 
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
@@ -111,7 +120,7 @@ typedef struct __gb_polygon_raster_edge_t
  *      10          .   .
  *      11            .
  *
- * active_edge_table: e1 e2
+ * active_edges: e1 e2
  *
  * 3. scanning the edge table  
  *     (y)
@@ -128,7 +137,7 @@ typedef struct __gb_polygon_raster_edge_t
  *      10          .   .
  *      11            .
  *
- * active_edge_table: e1 e3
+ * active_edges: e1 e3
  *
  * 4. scanning the edge table  
  *     (y)
@@ -145,9 +154,9 @@ typedef struct __gb_polygon_raster_edge_t
  *      10          . - .
  *      11            .
  *
- * active_edge_table: e4 e3
+ * active_edges: e4 e3
  *
- * active_edge_table: be sorted by x in ascending
+ * active_edges: be sorted by x in ascending
  *
  */
 typedef struct __gb_polygon_raster_t

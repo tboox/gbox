@@ -41,10 +41,10 @@ static tb_void_t gb_bitmap_render_fill_polygon_raster(tb_long_t y, tb_long_t xb,
 {
     // the factors
     tb_value_ref_t factors = (tb_value_ref_t)priv;
-    tb_assert_abort(factors && factors[0].ptr && factors[1].ptr && xe > xb);
+    tb_assert_abort(factors && factors[0].ptr && factors[1].ptr && xe >= xb);
 
     // done filler
-    gb_bitmap_render_filler_done((gb_bitmap_filler_ref_t)factors[0].ptr, xb, xe - xb + 1, (tb_byte_t*)factors[1].ptr + y * factors[2].ul + xb * factors[3].ul);
+    gb_bitmap_render_filler_done((gb_bitmap_filler_ref_t)factors[0].ptr, xb, xe - xb, (tb_byte_t*)factors[1].ptr + y * factors[2].ul + xb * factors[3].ul);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
