@@ -55,7 +55,22 @@ tb_void_t gb_stroke_make_fill_for_points(gb_path_ref_t path, gb_paint_ref_t pain
     {
     case GB_PAINT_CAP_ROUND:
         {
+            // done
+            tb_size_t       index;
+            gb_point_ref_t  point;
+            gb_circle_t     circle;
+            gb_float_t      width_half = gb_rsh(width, 1);
+            for (index = 0; index < count; index++)
+            {
+                // the point
+                point = points + index;
 
+                // make circle
+                circle = gb_circle_make(point->x, point->y, width_half);
+
+                // add circle to the path
+                gb_path_add_circle(path, &circle, GB_PATH_DIRECTION_CW);
+            }
         }
         break;
     case GB_PAINT_CAP_BUTT:
@@ -63,15 +78,17 @@ tb_void_t gb_stroke_make_fill_for_points(gb_path_ref_t path, gb_paint_ref_t pain
     default:
         {
             // done
+            gb_rect_t       rect;
             tb_size_t       index;
-            gb_point_ref_t  point = tb_null;
+            gb_point_ref_t  point;
+            gb_float_t      width_half = gb_rsh(width, 1);
             for (index = 0; index < count; index++)
             {
                 // the point
                 point = points + index;
 
                 // make rect
-                gb_rect_t rect = gb_rect_make(point->x - gb_rsh(width, 1), point->y - gb_rsh(width, 1), width, width);
+                rect = gb_rect_make(point->x - width_half, point->y - width_half, width, width);
 
                 // add rect to the path
                 gb_path_add_rect(path, &rect, GB_PATH_DIRECTION_CW);
