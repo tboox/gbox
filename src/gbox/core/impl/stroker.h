@@ -63,34 +63,12 @@ tb_void_t                   gb_stroker_exit(gb_stroker_ref_t stroker);
  */
 tb_void_t                   gb_stroker_clear(gb_stroker_ref_t stroker);
 
-/* set stroker cap
+/* apply paint to stroker
  * 
  * @param stroker           the stroker
- * @param cap               the stroker cap
+ * @param paint             the paint
  */
-tb_void_t                   gb_stroker_cap_set(gb_stroker_ref_t stroker, tb_size_t cap);
-
-/* set stroker join
- * 
- * @param stroker           the stroker
- * @param join              the stroker join
- */
-tb_void_t                   gb_stroker_join_set(gb_stroker_ref_t stroker, tb_size_t join);
-
-/* set stroker width
- * 
- * @param stroker           the stroker
- * @param width             the stroker width
- */
-tb_void_t                   gb_stroker_width_set(gb_stroker_ref_t stroker, gb_float_t width);
-
-/* done stroker and get the stroked path 
- * 
- * @param stroker           the stroker
- *
- * @return                  the stroked path
- */
-gb_path_ref_t               gb_stroker_done(gb_stroker_ref_t stroker);
+tb_void_t                   gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint);
 
 /* close 
  * 
@@ -158,6 +136,56 @@ tb_void_t                   gb_stroker_add_points(gb_stroker_ref_t stroker, gb_p
  * @param polygon           the polygon 
  */
 tb_void_t                   gb_stroker_add_polygon(gb_stroker_ref_t stroker, gb_polygon_ref_t polygon);
+
+/* done stroker and get the stroked path 
+ * 
+ * @param stroker           the stroker
+ *
+ * @return                  the stroked path
+ */
+gb_path_ref_t               gb_stroker_done(gb_stroker_ref_t stroker);
+
+/* done path to stroker and get the stroked path 
+ * 
+ * @param stroker           the stroker
+ * @param paint             the paint 
+ * @param path              the path 
+ *
+ * @return                  the stroked path
+ */
+gb_path_ref_t               gb_stroker_done_path(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_path_ref_t path);
+
+/* done lines to stroker and get the stroked path 
+ * 
+ * @param stroker           the stroker
+ * @param paint             the paint 
+ * @param points            the points 
+ * @param count             the points count 
+ *
+ * @return                  the stroked path
+ */
+gb_path_ref_t               gb_stroker_done_lines(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
+
+/* done points to stroker and get the stroked path 
+ * 
+ * @param stroker           the stroker
+ * @param paint             the paint 
+ * @param points            the points 
+ * @param count             the points count 
+ *
+ * @return                  the stroked path
+ */
+gb_path_ref_t               gb_stroker_done_points(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
+
+/* done polygon to stroker and get the stroked path 
+ * 
+ * @param stroker           the stroker
+ * @param paint             the paint 
+ * @param polygon           the polygon 
+ *
+ * @return                  the stroked path
+ */
+gb_path_ref_t               gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

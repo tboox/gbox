@@ -140,54 +140,23 @@ tb_void_t gb_stroker_clear(gb_stroker_ref_t stroker)
     // clear the outer path
     if (impl->path_outer) gb_path_clear(impl->path_outer);
 }
-tb_void_t gb_stroker_cap_set(gb_stroker_ref_t stroker, tb_size_t cap)
+tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
 {
     // check
     gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && paint);
+
+    // the width
+    gb_float_t width = gb_paint_width(paint);
 
     // set the cap
-    impl->cap = cap;
-}
-tb_void_t gb_stroker_join_set(gb_stroker_ref_t stroker, tb_size_t join)
-{
-    // check
-    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
-    tb_assert_and_check_return(impl);
+    impl->cap = gb_paint_cap(paint);
 
     // set the join
-    impl->join = join;
-}
-tb_void_t gb_stroker_width_set(gb_stroker_ref_t stroker, gb_float_t width)
-{
-    // check
-    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
-    tb_assert_and_check_return(impl);
+    impl->join = gb_paint_join(paint);
 
     // set the radius
     impl->radius = gb_rsh(width, 1);
-}
-gb_path_ref_t gb_stroker_done(gb_stroker_ref_t stroker)
-{
-    // check
-    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
-    tb_assert_and_check_return_val(impl, tb_null);
-
-    // TODO merge the inner path to the outer path
-    // ...
-
-    // exists the other path? merge it
-    if (impl->path_other && !gb_path_null(impl->path_other))
-    {
-        // add the other path
-        gb_path_add_path(impl->path_outer, impl->path_other);
-
-        // clear the other path
-        gb_path_clear(impl->path_other);
-    }
-
-    // the stroked path
-    return impl->path_outer;
 }
 tb_void_t gb_stroker_clos(gb_stroker_ref_t stroker)
 {
@@ -343,4 +312,82 @@ tb_void_t gb_stroker_add_polygon(gb_stroker_ref_t stroker, gb_polygon_ref_t poly
             index = 0;
         }
     }
+}
+gb_path_ref_t gb_stroker_done(gb_stroker_ref_t stroker)
+{
+    // check
+    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // TODO merge the inner path to the outer path
+    // ...
+
+    // exists the other path? merge it
+    if (impl->path_other && !gb_path_null(impl->path_other))
+    {
+        // add the other path
+        gb_path_add_path(impl->path_outer, impl->path_other);
+
+        // clear the other path
+        gb_path_clear(impl->path_other);
+    }
+
+    // the stroked path
+    return impl->path_outer;
+}
+gb_path_ref_t gb_stroker_done_path(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_path_ref_t path)
+{
+    // clear the stroker
+    gb_stroker_clear(stroker);
+
+    // apply paint to the stroker
+    gb_stroker_apply_paint(stroker, paint);
+
+    // add path to the stroker
+    gb_stroker_add_path(stroker, path);
+
+    // done the stroker
+    return gb_stroker_done(stroker);
+}
+gb_path_ref_t gb_stroker_done_lines(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
+{
+    // clear the stroker
+    gb_stroker_clear(stroker);
+
+    // apply paint to the stroker
+    gb_stroker_apply_paint(stroker, paint);
+
+    // add lines to the stroker
+    gb_stroker_add_lines(stroker, points, count);
+
+    // done the stroker
+    return gb_stroker_done(stroker);
+}
+gb_path_ref_t gb_stroker_done_points(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
+{
+    // clear the stroker
+    gb_stroker_clear(stroker);
+
+    // apply paint to the stroker
+    gb_stroker_apply_paint(stroker, paint);
+
+    // add points to the stroker
+    gb_stroker_add_points(stroker, points, count);
+
+    // done the stroker
+    return gb_stroker_done(stroker);
+}
+gb_path_ref_t gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
+{
+    // clear the stroker
+    gb_stroker_clear(stroker);
+
+    // apply paint to the stroker
+    gb_stroker_apply_paint(stroker, paint);
+
+    // add polygon to the stroker
+    gb_stroker_add_polygon(stroker, polygon);
+
+    // done the stroker
+    return gb_stroker_done(stroker);
 }

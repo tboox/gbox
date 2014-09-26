@@ -251,19 +251,13 @@ static tb_void_t gb_gl_render_fill_stroker_done(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_fill_stroker_path(gb_gl_device_ref_t device, gb_path_ref_t path)
 {
     // check
-    tb_assert_abort(device && device->base.paint);
+    tb_assert_abort(device);
 
     // clear the stroker
     gb_stroker_clear(device->stroker);
 
-    // set the stroker cap
-    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
-
-    // set the stroker join
-    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
-
-    // set the stroker width
-    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+    // apply paint to the stroker
+    gb_stroker_apply_paint(device->stroker, device->base.paint);
 
     // add path to the stroker
     gb_stroker_add_path(device->stroker, path);
@@ -274,19 +268,13 @@ static tb_void_t gb_gl_render_fill_stroker_path(gb_gl_device_ref_t device, gb_pa
 static tb_void_t gb_gl_render_fill_stroker_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->base.paint);
+    tb_assert_abort(device);
 
     // clear the stroker
     gb_stroker_clear(device->stroker);
 
-    // set the stroker cap
-    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
-
-    // set the stroker join
-    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
-
-    // set the stroker width
-    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+    // apply paint to the stroker
+    gb_stroker_apply_paint(device->stroker, device->base.paint);
 
     // add lines to the stroker
     gb_stroker_add_lines(device->stroker, points, count);
@@ -297,19 +285,13 @@ static tb_void_t gb_gl_render_fill_stroker_lines(gb_gl_device_ref_t device, gb_p
 static tb_void_t gb_gl_render_fill_stroker_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->base.paint);
+    tb_assert_abort(device);
 
     // clear the stroker
     gb_stroker_clear(device->stroker);
 
-    // set the stroker cap
-    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
-
-    // set the stroker join
-    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
-
-    // set the stroker width
-    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+    // apply paint to the stroker
+    gb_stroker_apply_paint(device->stroker, device->base.paint);
 
     // add points to the stroker
     gb_stroker_add_points(device->stroker, points, count);
@@ -320,19 +302,13 @@ static tb_void_t gb_gl_render_fill_stroker_points(gb_gl_device_ref_t device, gb_
 static tb_void_t gb_gl_render_fill_stroker_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon)
 {
     // check
-    tb_assert_abort(device && device->base.paint);
+    tb_assert_abort(device);
 
     // clear the stroker
     gb_stroker_clear(device->stroker);
 
-    // set the stroker cap
-    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
-
-    // set the stroker join
-    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
-
-    // set the stroker width
-    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+    // apply paint to the stroker
+    gb_stroker_apply_paint(device->stroker, device->base.paint);
 
     // add polygon to the stroker
     gb_stroker_add_polygon(device->stroker, polygon);
