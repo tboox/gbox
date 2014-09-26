@@ -25,7 +25,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "polygon_raster"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -326,9 +326,18 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
             }
             break;
         default:
-            tb_trace_e("unknown rule: %lu", rule);
+            {
+                // clear it
+                done = 0;
+
+                // trace
+                tb_trace_e("unknown rule: %lu", rule);
+            }
             break;
         }
+
+        // trace
+        tb_trace_d("y: %ld, direction: %d, counter: %ld, %d => %d", y, edge_lsh->direction_y, counter, edge_lsh->top_x, edge_rsh->top_x);
 
         // done func
         if (done) func(y, edge_lsh->top_x, edge_rsh->top_x, priv);
@@ -479,13 +488,21 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
             // make a new edge from the edge pool
             gb_polygon_raster_edge_ref_t edge = &raster->edge_pool[edge_index];
 
+            // init the edge direction
+            edge->direction_x = 1;
+            edge->direction_y = 1;
+
             // sort the points of the edge
             gb_point_ref_t top = &pb;
             gb_point_ref_t bottom = &pe;
             if (bottom->y < top->y)
             {
-                top = &pe;
-                bottom = &pb;
+                // reverse the edge points
+                top     = &pe;
+                bottom  = &pb;
+
+                // reverse the y direction
+                edge->direction_y = -1;
             }
 
             // the top and bottom coordinates
@@ -496,14 +513,15 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
             tb_assert_abort(top_x < TB_MAXS16 && bottom_x < TB_MAXS16 && bottom_y < TB_MAXS16);
             tb_assert_abort(bottom_y >= top_y && top_y >= raster->top && top_y - raster->top < tb_arrayn(raster->edge_table));
 
-            // compute dx*2, dy*2 and the direction for the edge slope
+            // compute dx*2, dy*2 for the edge slope
             edge->dx2           = (tb_int16_t)((bottom_x - top_x) << 1);
             edge->dy2           = (tb_int16_t)((bottom_y - top_y) << 1);
-            edge->direction_x   = 1;
-            edge->direction_y   = edge->dy2 < 0? -1 : 1;
             if (edge->dx2 < 0)
             {
+                // |dx2|
                 edge->dx2 = -edge->dx2;
+                
+                // reverse the x direction
                 edge->direction_x = -1;
             }
             tb_assert_abort(edge->dy2);
