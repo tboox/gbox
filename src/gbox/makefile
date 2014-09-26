@@ -37,7 +37,6 @@ gbox_C_FILES 			+= \
 						core/impl/path_cache \
 						core/impl/cache_stack \
 						core/impl/cache_stack \
-						core/impl/stroke \
 						core/impl/stroker \
 						core/impl/geometry \
 						core/impl/polygon_raster 

@@ -252,8 +252,8 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
     gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
     tb_assert_abort(impl && points && count);
 
-    // make the other path
-    if (impl->path_other) impl->path_other = gb_path_init();
+    // make the other path if not exists
+    if (!impl->path_other) impl->path_other = gb_path_init();
     tb_assert_and_check_return(impl->path_other);
 
     // make the stroked path

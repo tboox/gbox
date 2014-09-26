@@ -35,7 +35,7 @@
 #include "render/fill/fill.h"
 #include "render/stroke/stroke.h"
 #include "../../impl/bounds.h"
-#include "../../impl/stroke.h"
+#include "../../impl/stroker.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -133,10 +133,36 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_
     // the points count
     return tb_vector_size(device->points);
 }
-static tb_void_t gb_bitmap_render_fill_path(gb_bitmap_device_ref_t device, gb_path_ref_t path)
+static gb_rect_ref_t gb_bitmap_render_make_bounds_for_points(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->base.paint && path);
+    tb_assert_abort(device && device->base.matrix && points && count);
+
+    // make approximate bounds using matrix
+    if (bounds)
+    {
+        gb_point_t pt[4];
+        pt[0] = gb_point_make(bounds->x, bounds->y);
+        pt[1] = gb_point_make(bounds->x, bounds->y + bounds->h);
+        pt[2] = gb_point_make(bounds->x + bounds->w, bounds->y + bounds->h);
+        pt[3] = gb_point_make(bounds->x + bounds->w, bounds->y);
+        gb_matrix_apply_points(device->base.matrix, pt, tb_arrayn(pt));
+        gb_bounds_make(&device->bounds, pt, tb_arrayn(pt));
+    }
+    // make accurate bounds
+    else gb_bounds_make(&device->bounds, points, count);
+
+    // ok?
+    return &device->bounds;
+}
+static tb_void_t gb_bitmap_render_stroker_fill(gb_bitmap_device_ref_t device)
+{
+    // check
+    tb_assert_abort(device && device->stroker && device->base.paint);
+
+    // done the stroker
+    gb_path_ref_t path = gb_stroker_done(device->stroker);
+    tb_assert_abort(path);
 
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
@@ -160,27 +186,74 @@ static tb_void_t gb_bitmap_render_fill_path(gb_bitmap_device_ref_t device, gb_pa
     // restore the fill mode
     gb_paint_rule_set(device->base.paint, rule);
 }
-static gb_rect_ref_t gb_bitmap_render_make_bounds_for_points(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds, gb_point_ref_t points, tb_size_t count)
+static tb_void_t gb_bitmap_render_stroker_fill_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->base.matrix && points && count);
+    tb_assert_abort(device && device->base.paint);
 
-    // make approximate bounds using matrix
-    if (bounds)
-    {
-        gb_point_t pt[4];
-        pt[0] = gb_point_make(bounds->x, bounds->y);
-        pt[1] = gb_point_make(bounds->x, bounds->y + bounds->h);
-        pt[2] = gb_point_make(bounds->x + bounds->w, bounds->y + bounds->h);
-        pt[3] = gb_point_make(bounds->x + bounds->w, bounds->y);
-        gb_matrix_apply_points(device->base.matrix, pt, tb_arrayn(pt));
-        gb_bounds_make(&device->bounds, pt, tb_arrayn(pt));
-    }
-    // make accurate bounds
-    else gb_bounds_make(&device->bounds, points, count);
+    // clear the stroker
+    gb_stroker_clear(device->stroker);
 
-    // ok?
-    return &device->bounds;
+    // set the stroker cap
+    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
+
+    // set the stroker join
+    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
+
+    // set the stroker width
+    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+
+    // add lines to the stroker
+    gb_stroker_add_lines(device->stroker, points, count);
+
+    // fill the stroker
+    gb_bitmap_render_stroker_fill(device);
+}
+static tb_void_t gb_bitmap_render_stroker_fill_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
+{
+    // check
+    tb_assert_abort(device && device->base.paint);
+
+    // clear the stroker
+    gb_stroker_clear(device->stroker);
+
+    // set the stroker cap
+    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
+
+    // set the stroker join
+    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
+
+    // set the stroker width
+    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+
+    // add points to the stroker
+    gb_stroker_add_points(device->stroker, points, count);
+
+    // fill the stroker
+    gb_bitmap_render_stroker_fill(device);
+}
+static tb_void_t gb_bitmap_render_stroker_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon)
+{
+    // check
+    tb_assert_abort(device && device->base.paint);
+
+    // clear the stroker
+    gb_stroker_clear(device->stroker);
+
+    // set the stroker cap
+    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
+
+    // set the stroker join
+    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
+
+    // set the stroker width
+    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+
+    // add polygon to the stroker
+    gb_stroker_add_polygon(device->stroker, polygon);
+
+    // fill the stroker
+    gb_bitmap_render_stroker_fill(device);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -234,15 +307,8 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
         // stroke lines
         gb_bitmap_render_stroke_lines(device, stroked_points, stroked_count);
     }
-    // fill the stroked path
-    else
-    {
-        // make the filled path
-        gb_stroke_make_fill_for_lines(device->path, device->base.paint, points, count);
-
-        // fill the path
-        gb_bitmap_render_fill_path(device, device->path);
-    }
+    // fill the stroked lines
+    else gb_bitmap_render_stroker_fill_lines(device, points, count);
 }
 tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
@@ -266,15 +332,8 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
         // stroke points
         gb_bitmap_render_stroke_points(device, stroked_points, stroked_count);
     }
-    // fill the stroked path
-    else
-    {
-        // make the filled path
-        gb_stroke_make_fill_for_points(device->path, device->base.paint, points, count);
-
-        // fill the path
-        gb_bitmap_render_fill_path(device, device->path);
-    }
+    // fill the stroked points
+    else gb_bitmap_render_stroker_fill_points(device, points, count);
 }
 tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
@@ -349,15 +408,8 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
             // stroke polygon
             gb_bitmap_render_stroke_polygon(device, &stroked_polygon);
         }
-        // fill the stroked path
-        else
-        {
-            // make the filled path
-            gb_stroke_make_fill_for_polygon(device->path, device->base.paint, polygon);
-
-            // fill the path
-            gb_bitmap_render_fill_path(device, device->path);
-        }
+        // fill the stroked polygon
+        else gb_bitmap_render_stroker_fill_polygon(device, polygon);
     }
 }
 

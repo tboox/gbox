@@ -167,9 +167,9 @@ static tb_void_t gb_device_bitmap_exit(gb_device_impl_t* device)
     if (impl->counts) tb_vector_exit(impl->counts);
     impl->counts = tb_null;
 
-    // exit path
-    if (impl->path) gb_path_exit(impl->path);
-    impl->path = tb_null;
+    // exit stroker
+    if (impl->stroker) gb_stroker_exit(impl->stroker);
+    impl->stroker = tb_null;
 
     // exit it
     tb_free(impl);
@@ -216,9 +216,9 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         impl->pixmap = gb_pixmap(gb_bitmap_pixfmt(bitmap), 0xff);
         tb_assert_and_check_break(impl->pixmap);
 
-        // init path
-        impl->path = gb_path_init();
-        tb_assert_and_check_break(impl->path);
+        // init stroker
+        impl->stroker = gb_stroker_init();
+        tb_assert_and_check_break(impl->stroker);
 
         // init points
         impl->points = tb_vector_init(GB_DEVICE_BITMAP_POINTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
