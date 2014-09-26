@@ -207,6 +207,10 @@ static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl);
+    
+    // exit stroker
+    if (impl->stroker) gb_stroker_exit(impl->stroker);
+    impl->stroker = tb_null;
 
     // exit programs 
     tb_size_t i = 0;
@@ -257,6 +261,10 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
         // init window
         impl->window                = window;
+
+        // init stroker
+        impl->stroker = gb_stroker_init();
+        tb_assert_and_check_break(impl->stroker);
 
         // init version 
         if (!impl->version)

@@ -29,6 +29,7 @@
 #include "interface.h"
 #include "program.h"
 #include "matrix.h"
+#include "../../impl/stroker.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -60,6 +61,9 @@ typedef struct __gb_gl_device_t
 
     // the program
     gb_gl_program_ref_t         program;
+
+    // the stroker
+    gb_stroker_ref_t            stroker;
 
 }gb_gl_device_t, *gb_gl_device_ref_t;
 
