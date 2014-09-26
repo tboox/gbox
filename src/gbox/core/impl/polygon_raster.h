@@ -36,9 +36,9 @@
 
 // the polygon edges maxn
 #ifdef __gb_small__
-#   define GB_POLYGON_RASTER_EDGES_MAXN     (2048)
+#   define GB_POLYGON_RASTER_EDGES_MAXN     (4096)
 #else
-#   define GB_POLYGON_RASTER_EDGES_MAXN     (2048 << 1)
+#   define GB_POLYGON_RASTER_EDGES_MAXN     (4096 << 1)
 #endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////

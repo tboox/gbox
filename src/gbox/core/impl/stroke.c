@@ -34,7 +34,37 @@
  */
 tb_void_t gb_stroke_make_fill_for_lines(gb_path_ref_t path, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
-    tb_trace_noimpl();
+    // check
+    tb_assert_abort(path && paint && points && count);
+
+    // clear path
+    gb_path_clear(path);
+
+    // the width
+//    gb_float_t width = gb_paint_width(paint);
+
+    // the cap
+    tb_size_t cap = gb_paint_cap(paint);
+
+    // make the cap path for points
+    switch (cap)
+    {
+    case GB_PAINT_CAP_ROUND:
+        {
+
+        }
+        break;
+    case GB_PAINT_CAP_SQUARE:
+        {
+        }
+        break;
+    case GB_PAINT_CAP_BUTT:
+    default:
+        {
+
+        }
+        break;
+    }
 }
 tb_void_t gb_stroke_make_fill_for_points(gb_path_ref_t path, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
