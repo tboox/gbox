@@ -281,6 +281,22 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
     // check
     tb_assert_abort(device && device->base.paint && polygon);
 
+    // line?
+    if (hint && hint->type == GB_SHAPE_TYPE_LINE)
+    {
+        gb_point_t points[2];
+        points[0] = hint->u.line.p0;
+        points[1] = hint->u.line.p1;
+        gb_bitmap_render_draw_lines(device, points, 2, bounds);
+        return ;
+    }
+    // point?
+    else if (hint && hint->type == GB_SHAPE_TYPE_POINT)
+    {
+        gb_bitmap_render_draw_points(device, &hint->u.point, 1, bounds);
+        return ;
+    }
+
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
 
@@ -316,8 +332,6 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
     // stroke it
     if (mode & GB_PAINT_MODE_STROKE)
     {
-        // TODO: line and point hint
-
         // the width
         gb_float_t width = gb_paint_width(device->base.paint);
 
