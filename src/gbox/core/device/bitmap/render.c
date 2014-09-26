@@ -255,6 +255,29 @@ static tb_void_t gb_bitmap_render_stroker_fill_polygon(gb_bitmap_device_ref_t de
     // fill the stroker
     gb_bitmap_render_stroker_fill(device);
 }
+static tb_void_t gb_bitmap_render_stroker_fill_path(gb_bitmap_device_ref_t device, gb_path_ref_t path)
+{
+    // check
+    tb_assert_abort(device && device->base.paint);
+
+    // clear the stroker
+    gb_stroker_clear(device->stroker);
+
+    // set the stroker cap
+    gb_stroker_cap_set(device->stroker, gb_paint_cap(device->base.paint));
+
+    // set the stroker join
+    gb_stroker_join_set(device->stroker, gb_paint_join(device->base.paint));
+
+    // set the stroker width
+    gb_stroker_width_set(device->stroker, gb_paint_width(device->base.paint));
+
+    // add path to the stroker
+    gb_stroker_add_path(device->stroker, path);
+
+    // fill the stroker
+    gb_bitmap_render_stroker_fill(device);
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -284,6 +307,37 @@ tb_void_t gb_bitmap_render_exit(gb_bitmap_device_ref_t device)
     // check
     tb_assert_and_check_return(device);
 
+}
+tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_t path)
+{
+    // check
+    tb_assert_abort(device && device->base.paint && path);
+
+    // the mode
+    tb_size_t mode = gb_paint_mode(device->base.paint);
+
+    // fill it
+    if (mode & GB_PAINT_MODE_FILL)
+    {
+        gb_shape_t hint;
+        gb_bitmap_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+    }
+
+    // stroke it
+    if (mode & GB_PAINT_MODE_STROKE)
+    {
+        // the width
+        gb_float_t width = gb_paint_width(device->base.paint);
+
+        // width == 1 and solid? stroke it
+        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
+        {
+            gb_shape_t hint;
+            gb_bitmap_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+        }
+        // fill the stroked path
+        else gb_bitmap_render_stroker_fill_path(device, path);
+    }
 }
 tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {

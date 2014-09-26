@@ -52,6 +52,13 @@ tb_bool_t           gb_bitmap_render_init(gb_bitmap_device_ref_t device);
  */
 tb_void_t           gb_bitmap_render_exit(gb_bitmap_device_ref_t device);
 
+/* draw path
+ *
+ * @param device    the device
+ * @param path      the path
+ */
+tb_void_t           gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_t path);
+
 /* draw lines
  *
  * @param device    the device

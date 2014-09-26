@@ -111,6 +111,22 @@ static tb_void_t gb_device_gl_draw_clear(gb_device_impl_t* device, gb_color_t co
 	gb_glClearColor((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
 	gb_glClear(GB_GL_COLOR_BUFFER_BIT);
 }
+static tb_void_t gb_device_gl_draw_path(gb_device_impl_t* device, gb_path_ref_t path)
+{
+    // check
+    gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
+    tb_assert_and_check_return(impl && path);
+
+    // init render
+    if (gb_gl_render_init(impl))
+    {
+        // draw path
+        gb_gl_render_draw_path(impl, path);
+    
+        // exit render
+        gb_gl_render_exit(impl);
+    }
+}
 static tb_void_t gb_device_gl_draw_lines(gb_device_impl_t* device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
@@ -230,6 +246,7 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->base.type             = GB_DEVICE_TYPE_GL;
         impl->base.resize           = gb_device_gl_resize;
         impl->base.draw_clear       = gb_device_gl_draw_clear;
+        impl->base.draw_path        = gb_device_gl_draw_path;
         impl->base.draw_lines       = gb_device_gl_draw_lines;
         impl->base.draw_points      = gb_device_gl_draw_points;
         impl->base.draw_polygon     = gb_device_gl_draw_polygon;

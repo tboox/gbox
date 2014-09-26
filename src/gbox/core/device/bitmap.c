@@ -126,6 +126,22 @@ static tb_void_t gb_device_bitmap_draw_polygon(gb_device_impl_t* device, gb_poly
         gb_bitmap_render_exit(impl);
     }
 }
+static tb_void_t gb_device_bitmap_draw_path(gb_device_impl_t* device, gb_path_ref_t path)
+{
+    // check
+    gb_bitmap_device_ref_t impl = (gb_bitmap_device_ref_t)device;
+    tb_assert_and_check_return(impl && path);
+
+    // init render
+    if (gb_bitmap_render_init(impl))
+    {
+        // draw path
+        gb_bitmap_render_draw_path(impl, path);
+    
+        // exit render
+        gb_bitmap_render_exit(impl);
+    }
+}
 static gb_shader_ref_t gb_device_bitmap_shader_linear(gb_device_impl_t* device, tb_size_t mode, gb_gradient_ref_t gradient, gb_line_ref_t line)
 {
     // check
@@ -201,6 +217,7 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         impl->base.type             = GB_DEVICE_TYPE_BITMAP;
         impl->base.resize           = gb_device_bitmap_resize;
         impl->base.draw_clear       = gb_device_bitmap_draw_clear;
+        impl->base.draw_path        = gb_device_bitmap_draw_path;
         impl->base.draw_lines       = gb_device_bitmap_draw_lines;
         impl->base.draw_points      = gb_device_bitmap_draw_points;
         impl->base.draw_polygon     = gb_device_bitmap_draw_polygon;

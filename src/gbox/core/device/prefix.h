@@ -79,6 +79,13 @@ typedef struct __gb_device_impl_t
      * @param color         the color
      */
     tb_void_t               (*draw_clear)(struct __gb_device_impl_t* device, gb_color_t color);
+	
+    /*! draw path
+     *
+     * @param device        the device
+     * @param path          the path
+     */
+    tb_void_t               (*draw_path)(struct __gb_device_impl_t* device, gb_path_ref_t path);
 
     /*! draw lines 
      *

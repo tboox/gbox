@@ -331,6 +331,40 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
     // disable antialiasing
     gb_glDisable(GB_GL_MULTISAMPLE);
 }
+tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
+{
+    // check
+    tb_assert_abort(device && device->base.paint && path);
+
+    // the mode
+    tb_size_t mode = gb_paint_mode(device->base.paint);
+
+    // fill it
+    if (mode & GB_PAINT_MODE_FILL)
+    {
+        gb_shape_t hint;
+        gb_gl_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+    }
+
+    // stroke it
+    if (mode & GB_PAINT_MODE_STROKE)
+    {
+        // the width
+        gb_float_t width = gb_paint_width(device->base.paint);
+
+        // width == 1? stroke polygon
+        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
+        {
+            gb_shape_t hint;
+            gb_gl_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+        }
+        else
+        {
+            // TODO
+            tb_trace_noimpl();
+        }
+    }
+}
 tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
@@ -344,12 +378,12 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
     gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1? stroke lines
-    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->matrix_vertex))
+    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
         gb_gl_render_stroke_lines(device, points, count);
     else
     {
         // TODO
-        gb_gl_render_stroke_lines(device, points, count);
+        tb_trace_noimpl();
     }
 
     // leave paint
@@ -368,12 +402,12 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
     gb_float_t width = gb_paint_width(device->base.paint);
 
     // width == 1? stroke points
-    if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->matrix_vertex))
+    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
         gb_gl_render_stroke_points(device, points, count);
     else
     {
         // TODO
-        gb_gl_render_stroke_points(device, points, count);
+        tb_trace_noimpl();
     }
 
     // leave paint
@@ -404,12 +438,12 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
         gb_float_t width = gb_paint_width(device->base.paint);
 
         // width == 1? stroke polygon
-        if (gb_e1(width) && gb_gl_matrix_identify_for_scale(device->matrix_vertex))
+        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
             gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
         else
         {
             // TODO
-            gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
+            tb_trace_noimpl();
         }
     }
 

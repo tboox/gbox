@@ -153,6 +153,13 @@ tb_void_t           gb_device_bind_clipper(gb_device_ref_t device, gb_clipper_re
  */
 tb_void_t           gb_device_draw_clear(gb_device_ref_t device, gb_color_t color);
 
+/*! draw path
+ *
+ * @param device    the device
+ * @param path      the path
+ */
+tb_void_t           gb_device_draw_path(gb_device_ref_t device, gb_path_ref_t path);
+
 /*! draw lines
  *
  * @param device    the device

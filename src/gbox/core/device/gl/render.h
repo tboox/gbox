@@ -52,6 +52,13 @@ tb_bool_t           gb_gl_render_init(gb_gl_device_ref_t device);
  */
 tb_void_t           gb_gl_render_exit(gb_gl_device_ref_t device);
 
+/* draw path
+ *
+ * @param device    the device
+ * @param path      the path
+ */
+tb_void_t           gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path);
+
 /* draw lines
  *
  * @param device    the device

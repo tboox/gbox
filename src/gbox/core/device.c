@@ -198,6 +198,27 @@ tb_void_t gb_device_draw_clear(gb_device_ref_t device, gb_color_t color)
     // clear it
     impl->draw_clear(impl, color);
 }
+tb_void_t gb_device_draw_path(gb_device_ref_t device, gb_path_ref_t path)
+{
+    // check
+    gb_device_impl_t* impl = (gb_device_impl_t*)device;
+    tb_assert_and_check_return(impl);
+
+    // null?
+    if (gb_path_null(path)) return ;
+
+    // draw path
+    if (impl->draw_path) impl->draw_path(impl, path);
+    else
+    {
+        /* draw the polygon for path
+         *
+         * @note the quality of drawing curve may be not higher and faster for stroking with the width > 1
+         */
+        gb_shape_t hint;
+        gb_device_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+    }
+}
 tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check

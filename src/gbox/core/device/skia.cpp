@@ -253,6 +253,65 @@ static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref
     // ok?
     return ok;
 }
+static tb_void_t gb_device_skia_draw_path(gb_device_impl_t* device, gb_path_ref_t path)
+{
+    // check
+    gb_skia_device_ref_t impl = (gb_skia_device_ref_t)device;
+    tb_assert_and_check_return(impl && impl->canvas && impl->path && path);
+
+    // apply matrix
+	gb_device_skia_apply_matrix(impl);
+
+    // apply paint
+    gb_device_skia_apply_paint(impl);
+
+    // clear path
+    impl->path->reset();
+
+    // init the path fill type
+    tb_size_t rule = gb_paint_rule(impl->base.paint);
+    switch (rule)
+    {
+    case GB_PAINT_RULE_ODD:
+        impl->path->setFillType(SkPath::kEvenOdd_FillType);
+        break;
+    case GB_PAINT_RULE_NONZERO:
+        impl->path->setFillType(SkPath::kWinding_FillType);
+        break;
+    default:
+        break;
+    }
+
+    // done
+    tb_for_all_if (gb_path_item_ref_t, item, path, item)
+    {
+        switch (item->code)
+        {
+        case GB_PATH_CODE_MOVE:
+            impl->path->moveTo(gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            break;
+        case GB_PATH_CODE_LINE:
+            impl->path->lineTo(gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            break;
+        case GB_PATH_CODE_QUAD:
+            impl->path->quadTo(gb_float_to_sk(item->ctrls[0].x), gb_float_to_sk(item->ctrls[0].y), gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            break;
+        case GB_PATH_CODE_CUBE:
+            impl->path->cubicTo(gb_float_to_sk(item->ctrls[0].x), gb_float_to_sk(item->ctrls[0].y), gb_float_to_sk(item->ctrls[1].x), gb_float_to_sk(item->ctrls[1].y), gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            break;
+        case GB_PATH_CODE_CLOS:
+            impl->path->close();
+            break;
+        default:
+            // trace
+            tb_trace_e("invalid code: %lu", item->code);
+            break;
+        }
+    }
+
+    // draw it
+    impl->canvas->drawPath(*impl->path, *impl->paint);
+}
 static tb_void_t gb_device_skia_draw_lines(gb_device_impl_t* device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
@@ -316,7 +375,7 @@ static tb_void_t gb_device_skia_draw_polygon(gb_device_impl_t* device, gb_polygo
     tb_assert_and_check_return(impl && impl->canvas && impl->path && polygon);
 
     // the points
-    gb_point_ref_t   points = polygon->points;
+    gb_point_ref_t      points = polygon->points;
     tb_uint16_t const*  counts = polygon->counts;
     tb_assert_and_check_return(points && counts);
 
@@ -457,6 +516,7 @@ gb_device_ref_t gb_device_init_skia(gb_bitmap_ref_t bitmap)
         impl->base.type             = GB_DEVICE_TYPE_BITMAP;
         impl->base.resize           = gb_device_skia_resize;
         impl->base.draw_clear       = gb_device_skia_draw_clear;
+        impl->base.draw_path        = gb_device_skia_draw_path;
         impl->base.draw_lines       = gb_device_skia_draw_lines;
         impl->base.draw_points      = gb_device_skia_draw_points;
         impl->base.draw_polygon     = gb_device_skia_draw_polygon;
