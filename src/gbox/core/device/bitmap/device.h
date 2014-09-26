@@ -71,6 +71,9 @@ typedef struct __gb_bitmap_device_t
     // the base
     gb_device_impl_t                base;
 
+    // the path
+    gb_path_ref_t                   path;
+
     // the bitmap
     gb_bitmap_ref_t                 bitmap;
 

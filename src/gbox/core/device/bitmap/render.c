@@ -133,13 +133,11 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_
     // the points count
     return tb_vector_size(device->points);
 }
-static tb_void_t gb_bitmap_render_fill_polygon_for_stroking(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
+static tb_void_t gb_bitmap_render_fill_path(gb_bitmap_device_ref_t device, gb_path_ref_t path)
 {
     // check
-    tb_assert_abort(device && device->base.paint);
+    tb_assert_abort(device && device->base.paint && path);
 
-    // TODO
-#if 0
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
 
@@ -152,18 +150,15 @@ static tb_void_t gb_bitmap_render_fill_polygon_for_stroking(gb_bitmap_device_ref
     // switch to the non-zero fill rule
     gb_paint_rule_set(device->base.paint, GB_PAINT_RULE_NONZERO);
 
-    // fill polygon
-    gb_bitmap_render_fill_polygon(device, polygon, bounds);
+    // draw polygon
+    gb_shape_t hint;
+    gb_bitmap_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
 
     // restore the mode
     gb_paint_mode_set(device->base.paint, mode);
 
     // restore the fill mode
     gb_paint_rule_set(device->base.paint, rule);
-#else
-    // stroke polygon
-    gb_bitmap_render_stroke_polygon(device, polygon);
-#endif
 }
 static gb_rect_ref_t gb_bitmap_render_make_bounds_for_points(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds, gb_point_ref_t points, tb_size_t count)
 {
@@ -239,29 +234,14 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
         // stroke lines
         gb_bitmap_render_stroke_lines(device, stroked_points, stroked_count);
     }
-    // make the filled polygon 
+    // fill the stroked path
     else
     {
-        // make the filled polygon
-        tb_bool_t       filled_convex   = gb_stroke_make_fill_for_lines(device->points, device->counts, device->base.paint, points, count);
-        gb_point_ref_t  filled_points   = (gb_point_ref_t)tb_vector_data(device->points);
-        tb_uint16_t*    filled_counts   = (tb_uint16_t*)tb_vector_data(device->counts);
-        tb_size_t       filled_count    = tb_vector_size(device->points);
-        gb_polygon_t    filled_polygon  = {filled_points, filled_counts, filled_convex};
-        tb_assert_abort(filled_points && filled_counts && filled_count);
+        // make the filled path
+        gb_stroke_make_fill_for_lines(device->path, device->base.paint, points, count);
 
-        // apply matrix to the filled points
-        gb_matrix_apply_points(device->base.matrix, filled_points, filled_count);
-
-        // make the filled bounds
-        gb_rect_ref_t   filled_bounds = gb_bitmap_render_make_bounds_for_points(device, tb_null, filled_points, filled_count);
-        tb_assert_abort(filled_bounds);
-
-        // TODO: clip it
-        // ...
-
-        // fill polygon
-        gb_bitmap_render_fill_polygon_for_stroking(device, &filled_polygon, filled_bounds);
+        // fill the path
+        gb_bitmap_render_fill_path(device, device->path);
     }
 }
 tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
@@ -286,29 +266,14 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
         // stroke points
         gb_bitmap_render_stroke_points(device, stroked_points, stroked_count);
     }
-    // make the filled polygon 
+    // fill the stroked path
     else
     {
-        // make the filled polygon
-        tb_bool_t       filled_convex   = gb_stroke_make_fill_for_points(device->points, device->counts, device->base.paint, points, count);
-        gb_point_ref_t  filled_points   = (gb_point_ref_t)tb_vector_data(device->points);
-        tb_uint16_t*    filled_counts   = (tb_uint16_t*)tb_vector_data(device->counts);
-        tb_size_t       filled_count    = tb_vector_size(device->points);
-        gb_polygon_t    filled_polygon  = {filled_points, filled_counts, filled_convex};
-        tb_assert_abort(filled_points && filled_counts && filled_count);
+        // make the filled path
+        gb_stroke_make_fill_for_points(device->path, device->base.paint, points, count);
 
-        // apply matrix to the filled points
-        gb_matrix_apply_points(device->base.matrix, filled_points, filled_count);
-
-        // make the filled bounds
-        gb_rect_ref_t   filled_bounds = gb_bitmap_render_make_bounds_for_points(device, tb_null, filled_points, filled_count);
-        tb_assert_abort(filled_bounds);
-
-        // TODO: clip it
-        // ...
-
-        // fill polygon
-        gb_bitmap_render_fill_polygon_for_stroking(device, &filled_polygon, filled_bounds);
+        // fill the path
+        gb_bitmap_render_fill_path(device, device->path);
     }
 }
 tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
@@ -351,6 +316,8 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
     // stroke it
     if (mode & GB_PAINT_MODE_STROKE)
     {
+        // TODO: line and point hint
+
         // the width
         gb_float_t width = gb_paint_width(device->base.paint);
 
@@ -368,29 +335,14 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
             // stroke polygon
             gb_bitmap_render_stroke_polygon(device, &stroked_polygon);
         }
-        // make the filled polygon 
+        // fill the stroked path
         else
         {
-            // make the filled polygon
-            tb_bool_t       filled_convex   = gb_stroke_make_fill_for_polygon(device->points, device->counts, device->base.paint, polygon);
-            gb_point_ref_t  filled_points   = (gb_point_ref_t)tb_vector_data(device->points);
-            tb_uint16_t*    filled_counts   = (tb_uint16_t*)tb_vector_data(device->counts);
-            tb_size_t       filled_count    = tb_vector_size(device->points);
-            gb_polygon_t    filled_polygon  = {filled_points, filled_counts, filled_convex};
-            tb_assert_abort(filled_points && filled_counts && filled_count);
+            // make the filled path
+            gb_stroke_make_fill_for_polygon(device->path, device->base.paint, polygon);
 
-            // apply matrix to the filled points
-            gb_matrix_apply_points(device->base.matrix, filled_points, filled_count);
-
-            // make the filled bounds
-            gb_rect_ref_t   filled_bounds = gb_bitmap_render_make_bounds_for_points(device, tb_null, filled_points, filled_count);
-            tb_assert_abort(filled_bounds);
-
-            // TODO: clip it
-            // ...
-
-            // fill polygon
-            gb_bitmap_render_fill_polygon_for_stroking(device, &filled_polygon, filled_bounds);
+            // fill the path
+            gb_bitmap_render_fill_path(device, device->path);
         }
     }
 }

@@ -337,30 +337,6 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
             // trace
             tb_trace_d("make: hint: %{rect}", &impl->hint.u.rect);
         }
-        // triangle?
-        else if (   count == 4
-                &&  points[0].x == points[3].x
-                &&  points[0].y == points[3].y
-                &&  codes[0] == GB_PATH_CODE_MOVE
-                &&  codes[1] == GB_PATH_CODE_LINE
-                &&  codes[2] == GB_PATH_CODE_LINE
-                &&  codes[3] == GB_PATH_CODE_LINE
-                &&  points[0].x != points[1].x
-                &&  points[0].y != points[1].y
-                &&  points[0].x != points[2].x
-                &&  points[0].y != points[2].y
-                &&  points[1].x != points[2].x
-                &&  points[1].y != points[2].y)
-        {
-            // make hint
-            impl->hint.type             = GB_SHAPE_TYPE_TRIANGLE;
-            impl->hint.u.triangle.p0    = points[0];
-            impl->hint.u.triangle.p1    = points[1];
-            impl->hint.u.triangle.p2    = points[2];
-
-            // trace
-            tb_trace_d("make: hint: %{triangle}", &impl->hint.u.triangle);
-        }
         // line?
         else if (   count == 2
                 &&  codes[0] == GB_PATH_CODE_MOVE
@@ -1188,7 +1164,7 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
         gb_ellipse_t ellipse = gb_ellipse_make(arc->c0.x, arc->c0.y, arc->rx, arc->ry);
 
         // add ellipse
-        gb_path_add_ellipse(path, &ellipse);
+        gb_path_add_ellipse(path, &ellipse, gb_bz(arc->an)? GB_PATH_DIRECTION_CW : GB_PATH_DIRECTION_CCW);
         return ;
     }
 
@@ -1263,7 +1239,7 @@ tb_void_t gb_path_add_triangle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0,
     // add triangle
     gb_path_add_triangle(path, &triangle);
 }
-tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect)
+tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect, tb_size_t direction)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
@@ -1280,31 +1256,40 @@ tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect)
 
     // add rect
     gb_path_move2_to(path, rect->x, rect->y);
-    gb_path_line2_to(path, rect->x + rect->w, rect->y);
-    gb_path_line2_to(path, rect->x + rect->w, rect->y + rect->h);
-    gb_path_line2_to(path, rect->x, rect->y + rect->h);
+    if (direction == GB_PATH_DIRECTION_CW)
+    {
+        gb_path_line2_to(path, rect->x + rect->w, rect->y);
+        gb_path_line2_to(path, rect->x + rect->w, rect->y + rect->h);
+        gb_path_line2_to(path, rect->x, rect->y + rect->h);
+    }
+    else
+    {
+        gb_path_line2_to(path, rect->x, rect->y + rect->h);
+        gb_path_line2_to(path, rect->x + rect->w, rect->y + rect->h);
+        gb_path_line2_to(path, rect->x + rect->w, rect->y);
+    }
     gb_path_clos(path);
 
     // hint have been maked? remove dirty
     if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
-tb_void_t gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
+tb_void_t gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h, tb_size_t direction)
 {
     // make rect
     gb_rect_t rect = gb_rect_make(x, y, w, h);
 
     // add rect
-    gb_path_add_rect(path, &rect);
+    gb_path_add_rect(path, &rect, direction);
 }
-tb_void_t gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
+tb_void_t gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h, tb_size_t direction)
 {
     // make rect
     gb_rect_t rect = gb_rect_imake(x, y, w, h);
 
     // add rect
-    gb_path_add_rect(path, &rect);
+    gb_path_add_rect(path, &rect, direction);
 }
-tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle)
+tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle, tb_size_t direction)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
@@ -1326,28 +1311,28 @@ tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle)
     gb_ellipse_t ellipse = gb_ellipse_make(circle->c.x, circle->c.y, circle->r, circle->r);
 
     // add ellipse
-    gb_path_add_ellipse(path, &ellipse);
+    gb_path_add_ellipse(path, &ellipse, direction);
     
     // hint have been maked? remove dirty
     if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
-tb_void_t gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r)
+tb_void_t gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r, tb_size_t direction)
 {
     // make circle
     gb_circle_t circle = gb_circle_make(x0, y0, r);
 
     // add circle
-    gb_path_add_circle(path, &circle);
+    gb_path_add_circle(path, &circle, direction);
 }
-tb_void_t gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t r)
+tb_void_t gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t r, tb_size_t direction)
 {
     // make circle
     gb_circle_t circle = gb_circle_imake(x0, y0, r);
 
     // add circle
-    gb_path_add_circle(path, &circle);
+    gb_path_add_circle(path, &circle, direction);
 }
-tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
+tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_size_t direction)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
@@ -1429,35 +1414,49 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse)
      *
      * </pre>
      */
-    gb_path_move2_to(path, x2,          y0                              );
-    gb_path_quad2_to(path, x2,          y0 - sy,    x0 + mx,    y0 - my );
-    gb_path_quad2_to(path, x0 + sx,     y1,         x0,         y1      );
-    gb_path_quad2_to(path, x0 - sx,     y1,         x0 - mx,    y0 - my );
-    gb_path_quad2_to(path, x1,          y0 - sy,    x1,         y0      );
-    gb_path_quad2_to(path, x1,          y0 + sy,    x0 - mx,    y0 + my );
-    gb_path_quad2_to(path, x0 - sx,     y2,         x0,         y2      );
-    gb_path_quad2_to(path, x0 + sx,     y2,         x0 + mx,    y0 + my );
-    gb_path_quad2_to(path, x2,          y0 + sy,    x2,         y0      );
+    gb_path_move2_to(path, x2, y0);
+    if (direction == GB_PATH_DIRECTION_CW)
+    {
+        gb_path_quad2_to(path, x2,          y0 + sy,    x0 + mx,    y0 + my );
+        gb_path_quad2_to(path, x0 + sx,     y2,         x0,         y2      );
+        gb_path_quad2_to(path, x0 - sx,     y2,         x0 - mx,    y0 + my );
+        gb_path_quad2_to(path, x1,          y0 + sy,    x1,         y0      );
+        gb_path_quad2_to(path, x1,          y0 - sy,    x0 - mx,    y0 - my );
+        gb_path_quad2_to(path, x0 - sx,     y1,         x0,         y1      );
+        gb_path_quad2_to(path, x0 + sx,     y1,         x0 + mx,    y0 - my );
+        gb_path_quad2_to(path, x2,          y0 - sy,    x2,         y0      );
+    }
+    else
+    {
+        gb_path_quad2_to(path, x2,          y0 - sy,    x0 + mx,    y0 - my );
+        gb_path_quad2_to(path, x0 + sx,     y1,         x0,         y1      );
+        gb_path_quad2_to(path, x0 - sx,     y1,         x0 - mx,    y0 - my );
+        gb_path_quad2_to(path, x1,          y0 - sy,    x1,         y0      );
+        gb_path_quad2_to(path, x1,          y0 + sy,    x0 - mx,    y0 + my );
+        gb_path_quad2_to(path, x0 - sx,     y2,         x0,         y2      );
+        gb_path_quad2_to(path, x0 + sx,     y2,         x0 + mx,    y0 + my );
+        gb_path_quad2_to(path, x2,          y0 + sy,    x2,         y0      );
+    }
     gb_path_clos(path);
 
     // hint have been maked? remove dirty
     if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
 }
-tb_void_t gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
+tb_void_t gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, tb_size_t direction)
 {
     // make ellipse
     gb_ellipse_t ellipse = gb_ellipse_make(x0, y0, rx, ry);
 
     // add ellipse
-    gb_path_add_ellipse(path, &ellipse);
+    gb_path_add_ellipse(path, &ellipse, direction);
 }
-tb_void_t gb_path_add_ellipse2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry)
+tb_void_t gb_path_add_ellipse2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t direction)
 {
     // make ellipse
     gb_ellipse_t ellipse = gb_ellipse_imake(x0, y0, rx, ry);
 
     // add ellipse
-    gb_path_add_ellipse(path, &ellipse);
+    gb_path_add_ellipse(path, &ellipse, direction);
 }
 #ifdef __gb_debug__
 tb_void_t gb_path_dump(gb_path_ref_t path)

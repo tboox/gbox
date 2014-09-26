@@ -41,13 +41,21 @@ __tb_extern_c_enter__
 /// the path code enum
 typedef enum __gb_path_code_e
 {
-    GB_PATH_CODE_MOVE   = 0 //!< the move-to code
-,   GB_PATH_CODE_LINE   = 1 //!< the line-to code
-,   GB_PATH_CODE_QUAD   = 2 //!< the quad-to code
-,   GB_PATH_CODE_CUBE   = 3 //!< the cube-to code
-,   GB_PATH_CODE_CLOS   = 4 //!< the clos code
+    GB_PATH_CODE_MOVE       = 0 //!< the move-to code
+,   GB_PATH_CODE_LINE       = 1 //!< the line-to code
+,   GB_PATH_CODE_QUAD       = 2 //!< the quad-to code
+,   GB_PATH_CODE_CUBE       = 3 //!< the cube-to code
+,   GB_PATH_CODE_CLOS       = 4 //!< the clos code
 
 }gb_path_code_e;
+
+/// the path direction enum
+typedef enum __gb_path_direction_e
+{
+    GB_PATH_DIRECTION_CW    = 0 //!< the clockwise direction
+,   GB_PATH_DIRECTION_CCW   = 1 //!< the counter-clockwise direction
+
+}gb_path_direction_e;
 
 /// the path item for the iterator
 typedef struct __gb_path_item_t
@@ -381,8 +389,9 @@ tb_void_t           gb_path_add_triangle2i(gb_path_ref_t path, tb_long_t x0, tb_
  *
  * @param path      the path
  * @param rect      the rect
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect);
+tb_void_t           gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect, tb_size_t direction);
 
 /*! add rect(x, y, w, h)
  *
@@ -391,8 +400,9 @@ tb_void_t           gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect);
  * @param y         the y-coordinate
  * @param w         the width
  * @param h         the height
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h);
+tb_void_t           gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h, tb_size_t direction);
 
 /*! add integer rect(x, y, w, h)
  *
@@ -401,15 +411,17 @@ tb_void_t           gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float
  * @param y         the y-coordinate
  * @param w         the width
  * @param h         the height
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h);
+tb_void_t           gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h, tb_size_t direction);
 
 /*! add circle
  *
  * @param path      the path
  * @param circle    the circle
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle);
+tb_void_t           gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle, tb_size_t direction);
 
 /*! add circle(x0, y0, r)
  *
@@ -417,8 +429,9 @@ tb_void_t           gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circl
  * @param x0        the x0-coordinate
  * @param y0        the y0-coordinate
  * @param r         the radius
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r);
+tb_void_t           gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r, tb_size_t direction);
 
 /*! add integer circle(x0, y0, r)
  *
@@ -426,15 +439,17 @@ tb_void_t           gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_fl
  * @param x0        the x0-coordinate
  * @param y0        the y0-coordinate
  * @param r         the radius
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t r);
+tb_void_t           gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t r, tb_size_t direction);
 
 /*! add ellipse
  *
  * @param path      the path
  * @param ellipse   the ellipse
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse);
+tb_void_t           gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_size_t direction);
 
 /*! add ellipse(x0, y0, rx, ry)
  *
@@ -443,8 +458,9 @@ tb_void_t           gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ell
  * @param y0        the y0-coordinate
  * @param rx        the x-radius
  * @param ry        the y-radius
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry);
+tb_void_t           gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, tb_size_t direction);
 
 /*! add integer ellipse(x0, y0, rx, ry)
  *
@@ -453,8 +469,9 @@ tb_void_t           gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_f
  * @param y0        the y0-coordinate
  * @param rx        the x-radius
  * @param ry        the y-radius
+ * @param direction the direction
  */
-tb_void_t           gb_path_add_ellipse2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
+tb_void_t           gb_path_add_ellipse2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t direction);
 
 #ifdef __gb_debug__
 /*! dump path

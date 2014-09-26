@@ -38,40 +38,31 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/* make the filled polygon for lines
+/* make the filled path for lines
  *
- * @param filled_points     the filled polygon points
- * @param filled_counts     the filled polygon counts
+ * @param path              the filled path
  * @param paint             the paint
  * @param points            the stroked points 
  * @param count             the stroked points count 
- *
- * @return                  is convex polygon?
  */
-tb_bool_t                   gb_stroke_make_fill_for_lines(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
+tb_void_t                   gb_stroke_make_fill_for_lines(gb_path_ref_t path, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
 
-/* make the filled polygon for points
+/* make the filled path for points
  *
- * @param filled_points     the filled polygon points
- * @param filled_counts     the filled polygon counts
+ * @param path              the filled path
  * @param paint             the paint
  * @param points            the stroked points
  * @param count             the stroked points count
- *
- * @return                  is convex polygon?
  */
-tb_bool_t                   gb_stroke_make_fill_for_points(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
+tb_void_t                   gb_stroke_make_fill_for_points(gb_path_ref_t path, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count);
 
-/* make the filled polygon for polygon
+/* make the filled path for polygon
  *
- * @param filled_points     the filled polygon points
- * @param filled_counts     the filled polygon counts
+ * @param path              the filled path
  * @param paint             the paint
  * @param polygon           the stroked polygon
- *
- * @return                  is convex polygon?
  */
-tb_bool_t                   gb_stroke_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon);
+tb_void_t                   gb_stroke_make_fill_for_polygon(gb_path_ref_t path, gb_paint_ref_t paint, gb_polygon_ref_t polygon);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -25,58 +25,101 @@
  * includes
  */
 #include "stroke.h"
+#include "../path.h"
+#include "../paint.h"
 #include "../matrix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_stroke_make_fill_for_lines(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
+tb_void_t gb_stroke_make_fill_for_lines(gb_path_ref_t path, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
     tb_trace_noimpl();
-    return tb_false;
 }
-tb_bool_t gb_stroke_make_fill_for_points(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
-{
-    tb_trace_noimpl();
-    return tb_false;
-}
-tb_bool_t gb_stroke_make_fill_for_polygon(tb_vector_ref_t filled_points, tb_vector_ref_t filled_counts, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
+tb_void_t gb_stroke_make_fill_for_points(gb_path_ref_t path, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(filled_points && filled_counts && paint && polygon && polygon->points && polygon->counts);
+    tb_assert_abort(path && paint && points && count);
 
-    // clear points and counts first
-    tb_vector_clear(filled_points);
-    tb_vector_clear(filled_counts);
+    // clear path
+    gb_path_clear(path);
+
+    // the width
+    gb_float_t width = gb_paint_width(paint);
+
+    // the cap
+    tb_size_t cap = gb_paint_cap(paint);
+
+    // make the cap path for points
+    switch (cap)
+    {
+    case GB_PAINT_CAP_ROUND:
+        {
+
+        }
+        break;
+    case GB_PAINT_CAP_BUTT:
+    case GB_PAINT_CAP_SQUARE:
+    default:
+        {
+            // done
+            tb_size_t       index;
+            gb_point_ref_t  point = tb_null;
+            for (index = 0; index < count; index++)
+            {
+                // the point
+                point = points + index;
+
+                // make rect
+                gb_rect_t rect = gb_rect_make(point->x - gb_rsh(width, 1), point->y - gb_rsh(width, 1), width, width);
+
+                // add rect to the path
+                gb_path_add_rect(path, &rect, GB_PATH_DIRECTION_CW);
+            }
+        }
+        break;
+    }
+}
+tb_void_t gb_stroke_make_fill_for_polygon(gb_path_ref_t path, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
+{
+    // check
+    tb_assert_abort(path && paint && polygon && polygon->points && polygon->counts);
+
+    // clear path
+    gb_path_clear(path);
 
     // done
+    gb_point_ref_t  first = tb_null;
+    gb_point_ref_t  point = tb_null;
     gb_point_ref_t  points = polygon->points;
     tb_uint16_t*    counts = polygon->counts;
     tb_uint16_t     count = *counts++;
     tb_size_t       index = 0;
     while (index < count)
     {
-        // append point
-        tb_vector_insert_tail(filled_points, points++);
+        // the point
+        point = points++;
         
+        // first point?
+        if (!index) 
+        {
+            gb_path_move_to(path, point);
+            first = point;
+        }
+        else gb_path_line_to(path, point);
+
         // next point
         index++;
 
         // next polygon
         if (index == count) 
         {
-            // append count
-            tb_vector_insert_tail(filled_counts, tb_u2p(count));
+            // close path
+            if (first && first->x == point->x && first->y == point->y) gb_path_clos(path);
 
             // next
             count = *counts++;
             index = 0;
         }
     }
-
-    // append zero
-    tb_vector_insert_tail(filled_counts, 0);
-
-    // convex?
-    return tb_false;
 }
