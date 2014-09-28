@@ -1327,6 +1327,8 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
         hint_maked              = tb_true;
     }
 
+    // TODO
+
     // the bounds
     gb_float_t x = rect->bounds.x;
     gb_float_t y = rect->bounds.y;

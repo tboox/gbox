@@ -301,12 +301,36 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
     switch (impl->join)
     {
     case GB_PAINT_JOIN_MITER:
-        gb_path_add_rect(impl->path_other, &rect_outer, GB_PATH_DIRECTION_CCW);
+        {
+            // add miter rect
+            gb_path_add_rect(impl->path_other, &rect_outer, GB_PATH_DIRECTION_CCW);
+        }
         break;
     case GB_PAINT_JOIN_BEVEL:
+        {
+            // the bounds
+            gb_float_t x = rect_outer.x;
+            gb_float_t y = rect_outer.y;
+            gb_float_t w = rect_outer.w;
+            gb_float_t h = rect_outer.h;
+
+            // add bevel rect by counter-clockwise
+            gb_path_move2_to(impl->path_other, x,               y + radius);
+            gb_path_line2_to(impl->path_other, x,               y + h - radius);
+            gb_path_line2_to(impl->path_other, x + radius,      y + h);
+            gb_path_line2_to(impl->path_other, x + w - radius,  y + h);
+            gb_path_line2_to(impl->path_other, x + w,           y + h - radius);
+            gb_path_line2_to(impl->path_other, x + w,           y + radius);
+            gb_path_line2_to(impl->path_other, x + w - radius,  y);
+            gb_path_line2_to(impl->path_other, x + radius,      y);
+            gb_path_clos(impl->path_other);
+        }
         break;
     case GB_PAINT_JOIN_ROUND:
-        gb_path_add_round_rect2(impl->path_other, &rect_outer, radius, radius, GB_PATH_DIRECTION_CCW);
+        {
+            // add round rect
+            gb_path_add_round_rect2(impl->path_other, &rect_outer, radius, radius, GB_PATH_DIRECTION_CCW);
+        }
         break;
     default:
         tb_trace_e("unknown join: %lu", impl->join);
