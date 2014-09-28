@@ -30,6 +30,7 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
 						core/prefix/rect \
+						core/prefix/round_rect \
 						core/prefix/color \
 						core/prefix/matrix \
 						core/prefix/quality \
@@ -111,6 +112,7 @@ INC_FILES 				= \
 						core/prefix.h \
 						core/prefix/type.h \
 						core/prefix/rect.h \
+						core/prefix/round_rect.h \
 						core/prefix/float.h \
 						core/prefix/color.h \
 						core/prefix/matrix.h \

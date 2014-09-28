@@ -96,6 +96,21 @@ static tb_long_t gb_prefix_printf_format_rect(tb_cpointer_t object, tb_char_t* c
     // ok?
     return size;
 }
+static tb_long_t gb_prefix_printf_format_round_rect(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    tb_assert_and_check_return_val(object && cstr && maxn, -1);
+
+    // the rect
+    gb_round_rect_ref_t rect = (gb_round_rect_ref_t)object;
+
+    // format
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(x: %{float}, y: %{float}, w: %{float}, h: %{float}, rx: %{float}, %{float}, %{float}, %{float}, ry: %{float}, %{float}, %{float}, %{float})", &rect->bounds.x, &rect->bounds.y, &rect->bounds.w, &rect->bounds.h, &rect->rx[0], &rect->rx[1], &rect->rx[2], &rect->rx[3], &rect->ry[0], &rect->ry[1], &rect->ry[2], &rect->ry[3]);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return size;
+}
 static tb_long_t gb_prefix_printf_format_triangle(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
@@ -260,6 +275,9 @@ tb_bool_t gb_prefix_init()
 
     // register printf("%{rect}", &rect);
     tb_printf_object_register("rect", gb_prefix_printf_format_rect);
+
+    // register printf("%{round_rect}", &rect);
+    tb_printf_object_register("round_rect", gb_prefix_printf_format_round_rect);
 
     // register printf("%{triangle}", &triangle);
     tb_printf_object_register("triangle", gb_prefix_printf_format_triangle);

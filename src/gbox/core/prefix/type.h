@@ -171,7 +171,7 @@ typedef struct __gb_round_rect_t
     // the bounds
     gb_rect_t           bounds;
 
-    /*! the x-radius of the four corner
+    /*! the x-radius of the four corners
      *
      * <pre>
      *  
@@ -189,7 +189,7 @@ typedef struct __gb_round_rect_t
      */
     gb_float_t          rx[GB_RECT_CORNER_MAXN];
 
-    /*! the y-radius of the four corner
+    /*! the y-radius of the four corners
      * <pre>
      *  
      *  lt                     rt
@@ -305,6 +305,7 @@ typedef enum __gb_shape_type_e
 ,   GB_SHAPE_TYPE_ELLIPSE       = 0x0007 //!< ellipse
 ,   GB_SHAPE_TYPE_POLYGON       = 0x0008 //!< polygon
 ,   GB_SHAPE_TYPE_TRIANGLE      = 0x0009 //!< triangle
+,   GB_SHAPE_TYPE_ROUND_RECT    = 0x0010 //!< round rect
 
 }gb_shape_type_e;
 
@@ -343,7 +344,9 @@ typedef struct __gb_shape_t
  
         /// the triangle
         gb_triangle_t   triangle;
-
+ 
+        /// the round rect
+        gb_round_rect_t round_rect;
     }u;
 
 }gb_shape_t, *gb_shape_ref_t;
