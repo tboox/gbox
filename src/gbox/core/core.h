@@ -27,11 +27,9 @@
  * includes
  */
 #include "prefix.h"
-#include "rect.h"
 #include "path.h"
 #include "paint.h"
 #include "shader.h"
-#include "matrix.h"
 #include "pixmap.h"
 #include "bitmap.h"
 #include "canvas.h"

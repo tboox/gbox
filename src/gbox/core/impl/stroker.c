@@ -25,10 +25,8 @@
  * includes
  */
 #include "stroker.h"
-#include "../rect.h"
 #include "../path.h"
 #include "../paint.h"
-#include "../matrix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types

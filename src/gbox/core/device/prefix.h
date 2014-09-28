@@ -31,7 +31,6 @@
 #include "../path.h"
 #include "../paint.h"
 #include "../shader.h"
-#include "../matrix.h"
 #include "../device.h"
 #include "../bitmap.h"
 #include "../pixmap.h"

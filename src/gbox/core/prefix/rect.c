@@ -26,7 +26,7 @@
  */
 #include "rect.h"
 #include "matrix.h"
-#include "impl/bounds.h"
+#include "../impl/bounds.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation

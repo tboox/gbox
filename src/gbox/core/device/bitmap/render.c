@@ -34,7 +34,6 @@
 #include "render.h"
 #include "render/fill/fill.h"
 #include "render/stroke/stroke.h"
-#include "../../rect.h"
 #include "../../impl/bounds.h"
 #include "../../impl/stroker.h"
 

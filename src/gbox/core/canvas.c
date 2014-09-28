@@ -33,7 +33,6 @@
  */
 #include "canvas.h"
 #include "device.h"
-#include "matrix.h"
 #include "path.h"
 #include "paint.h"
 #include "clipper.h"

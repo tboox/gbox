@@ -27,9 +27,11 @@
  */
 #include "../../prefix.h"
 #include "type.h"
+#include "rect.h"
 #include "float.h"
 #include "color.h"
 #include "pixfmt.h"
+#include "matrix.h"
 #include "quality.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////

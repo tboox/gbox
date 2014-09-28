@@ -11,11 +11,9 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
-						core/rect \
 						core/path \
 						core/paint \
 						core/shader \
-						core/matrix \
 						core/pixmap \
 						core/bitmap \
 						core/canvas \
@@ -31,7 +29,9 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/render/fill/solid \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
+						core/prefix/rect \
 						core/prefix/color \
+						core/prefix/matrix \
 						core/prefix/quality \
 						core/bitmap/decoder \
 						core/bitmap/decoder/bmp \
@@ -110,18 +110,18 @@ INC_FILES 				= \
 						core/core.h \
 						core/prefix.h \
 						core/prefix/type.h \
+						core/prefix/rect.h \
 						core/prefix/float.h \
 						core/prefix/color.h \
+						core/prefix/matrix.h \
 						core/prefix/pixfmt.h \
 						core/prefix/prefix.h \
 						core/prefix/quality.h \
-						core/rect.h \
 						core/path.h \
 						core/paint.h \
 						core/shader.h \
 						core/pixmap.h \
 						core/bitmap.h \
-						core/matrix.h \
 						core/canvas.h \
 						core/device.h \
 						core/clipper.h \

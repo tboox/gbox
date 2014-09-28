@@ -72,7 +72,7 @@ typedef struct __gb_color_t
     tb_byte_t           g;
     tb_byte_t           b;
 
-}gb_color_t;
+}gb_color_t, *gb_color_ref_t;
 #else
 typedef struct __gb_color_t
 {
@@ -81,11 +81,8 @@ typedef struct __gb_color_t
     tb_byte_t           r;
     tb_byte_t           a;
 
-}gb_color_t;
+}gb_color_t, *gb_color_ref_t;
 #endif
-
-/// the color ref type
-typedef gb_color_t*     gb_color_ref_t;
 
 /*! the matrix type
  *
@@ -120,10 +117,7 @@ typedef struct __gb_matrix_t
 	gb_float_t 		    sx, kx, tx;
 	gb_float_t 		    ky, sy, ty;
 
-}gb_matrix_t;
-
-/// the matrix ref type
-typedef gb_matrix_t*    gb_matrix_ref_t;
+}gb_matrix_t, *gb_matrix_ref_t;
 
 /// the point type
 typedef struct __gb_point_t
@@ -131,10 +125,7 @@ typedef struct __gb_point_t
     gb_float_t          x;
     gb_float_t          y;
 
-}gb_point_t;
-
-/// the point ref type
-typedef gb_point_t*     gb_point_ref_t;
+}gb_point_t, *gb_point_ref_t;
 
 /// the line type
 typedef struct __gb_line_t
@@ -142,10 +133,7 @@ typedef struct __gb_line_t
     gb_point_t          p0;
     gb_point_t          p1;
 
-}gb_line_t;
-
-/// the line ref type
-typedef gb_line_t*      gb_line_ref_t;
+}gb_line_t, *gb_line_ref_t;
 
 /// the triangle type
 typedef struct __gb_triangle_t
@@ -154,10 +142,7 @@ typedef struct __gb_triangle_t
     gb_point_t          p1;
     gb_point_t          p2;
 
-}gb_triangle_t;
-
-/// the triangle ref type
-typedef gb_triangle_t*  gb_triangle_ref_t;
+}gb_triangle_t, *gb_triangle_ref_t;
 
 /// the rect type
 typedef struct __gb_rect_t
@@ -167,10 +152,61 @@ typedef struct __gb_rect_t
     gb_float_t          w;
     gb_float_t          h;
 
-}gb_rect_t;
+}gb_rect_t, *gb_rect_ref_t;
 
-/// the rect ref type
-typedef gb_rect_t*      gb_rect_ref_t;
+/// the rect corner enum
+typedef enum __gb_rect_corner_e
+{
+    GB_RECT_CORNER_LT   = 0     //<! the left-top corner    
+,   GB_RECT_CORNER_RT   = 1     //<! the right-top corner    
+,   GB_RECT_CORNER_RB   = 2     //<! the right-bottom corner    
+,   GB_RECT_CORNER_LB   = 3     //<! the left-bottom corner    
+,   GB_RECT_CORNER_MAXN = 4     //<! the corner max count
+
+}gb_rect_corner_e;
+
+/// the round rect type
+typedef struct __gb_round_rect_t
+{
+    // the bounds
+    gb_rect_t           bounds;
+
+    /*! the x-radius of the four corner
+     *
+     * <pre>
+     *  
+     *  lt                     rt
+     *   --------------------->
+     * /|\                     |
+     *  |                      |
+     *  |                      |
+     *  |                      |
+     *  |                     \|/
+     *  <----------------------
+     *  lb                     rb
+     *
+     * </pre>
+     */
+    gb_float_t          rx[GB_RECT_CORNER_MAXN];
+
+    /*! the y-radius of the four corner
+     * <pre>
+     *  
+     *  lt                     rt
+     *   --------------------->
+     * /|\                     |
+     *  |                      |
+     *  |                      |
+     *  |                      |
+     *  |                     \|/
+     *  <----------------------
+     *  lb                     rb
+     *
+     * </pre>
+     */
+    gb_float_t          ry[GB_RECT_CORNER_MAXN];
+
+}gb_round_rect_t, *gb_round_rect_ref_t;
 
 /// the circle type
 typedef struct __gb_circle_t
@@ -181,10 +217,7 @@ typedef struct __gb_circle_t
     /// the radius
     gb_float_t          r;
 
-}gb_circle_t;
-
-/// the circle ref type
-typedef gb_circle_t*    gb_circle_ref_t;
+}gb_circle_t, *gb_circle_ref_t;
 
 /// the ellipse type
 typedef struct __gb_ellipse_t
@@ -198,10 +231,7 @@ typedef struct __gb_ellipse_t
     /// the y-radius
     gb_float_t          ry;
 
-}gb_ellipse_t;
-
-/// the ellipse ref type
-typedef gb_ellipse_t*    gb_ellipse_ref_t;
+}gb_ellipse_t, *gb_ellipse_ref_t;
 
 /// the arc type
 typedef struct __gb_arc_t
@@ -221,10 +251,7 @@ typedef struct __gb_arc_t
     /// the sweep angle, clockwise: > 0, counter-clockwise: < 0
     gb_float_t          an;
 
-}gb_arc_t;
-
-/// the arc ref type
-typedef gb_arc_t*       gb_arc_ref_t;
+}gb_arc_t, *gb_arc_ref_t;
 
 /*! the polygon type
  *
@@ -246,10 +273,7 @@ typedef struct __gb_polygon_t
     /// is convex?
     tb_bool_t           convex;
 
-}gb_polygon_t;
-
-/// the polygon ref type
-typedef gb_polygon_t*   gb_polygon_ref_t;
+}gb_polygon_t, *gb_polygon_ref_t;
 
 /// the gradient type
 typedef struct __gb_gradient_t
@@ -263,10 +287,7 @@ typedef struct __gb_gradient_t
     /// the count
     tb_size_t           count;
 
-}gb_gradient_t;
-
-/// the gradient ref type
-typedef gb_gradient_t*  gb_gradient_ref_t;
+}gb_gradient_t, *gb_gradient_ref_t;
 
 /// the path ref type
 typedef tb_iterator_ref_t gb_path_ref_t;
@@ -325,10 +346,7 @@ typedef struct __gb_shape_t
 
     }u;
 
-}gb_shape_t;
-
-/// the shape ref type
-typedef gb_shape_t*     gb_shape_ref_t;
+}gb_shape_t, *gb_shape_ref_t;
 
 /// the device ref type
 typedef struct{}*       gb_device_ref_t;
