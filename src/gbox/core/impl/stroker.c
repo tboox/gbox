@@ -306,6 +306,7 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
     case GB_PAINT_JOIN_BEVEL:
         break;
     case GB_PAINT_JOIN_ROUND:
+        gb_path_add_round_rect2(impl->path_other, &rect_outer, radius, radius, GB_PATH_DIRECTION_CCW);
         break;
     default:
         tb_trace_e("unknown join: %lu", impl->join);

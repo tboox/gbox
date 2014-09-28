@@ -744,6 +744,34 @@ tb_void_t           gb_canvas_clip_rect2(gb_canvas_ref_t canvas, tb_size_t mode,
  */
 tb_void_t           gb_canvas_clip_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h);
 
+/*! clip round rect
+ *
+ * @param canvas    the canvas
+ * @param mode      the clip mode
+ * @param rect      the round rect
+ */
+tb_void_t           gb_canvas_clip_round_rect(gb_canvas_ref_t canvas, tb_size_t mode, gb_round_rect_ref_t rect);
+
+/*! clip round rect(x, y, w, h)
+ *
+ * @param canvas    the canvas
+ * @param mode      the clip mode
+ * @param bounds    the bounds
+ * @param rx        the x-radius
+ * @param ry        the y-radius
+ */
+tb_void_t           gb_canvas_clip_round_rect2(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry);
+
+/*! clip integer round rect(x, y, w, h)
+ *
+ * @param canvas    the canvas
+ * @param mode      the clip mode
+ * @param bounds    the bounds
+ * @param rx        the x-radius
+ * @param ry        the y-radius
+ */
+tb_void_t           gb_canvas_clip_round_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry);
+
 /*! clip circle
  *
  * @param canvas    the canvas
@@ -960,6 +988,31 @@ tb_void_t           gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, g
  * @param h         the height
  */
 tb_void_t           gb_canvas_draw_rect2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h);
+
+/*! draw round rect
+ *
+ * @param canvas    the canvas
+ * @param rect      the round rect
+ */
+tb_void_t           gb_canvas_draw_round_rect(gb_canvas_ref_t canvas, gb_round_rect_ref_t rect);
+
+/*! draw round rect(x, y, w, h)
+ *
+ * @param canvas    the canvas
+ * @param bounds    the bounds
+ * @param rx        the x-radius
+ * @param ry        the y-radius
+ */
+tb_void_t           gb_canvas_draw_round_rect2(gb_canvas_ref_t canvas, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry);
+
+/*! draw integer round rect(x, y, w, h)
+ *
+ * @param canvas    the canvas
+ * @param bounds    the bounds
+ * @param rx        the x-radius
+ * @param ry        the y-radius
+ */
+tb_void_t           gb_canvas_draw_round_rect2i(gb_canvas_ref_t canvas, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry);
 
 /*! draw circle
  *

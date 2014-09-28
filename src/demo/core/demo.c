@@ -20,6 +20,7 @@
 #include "circle.h"
 #include "ellipse.h"
 #include "triangle.h"
+#include "round_rect.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -52,18 +53,19 @@ static tb_size_t        g_index = 0;
 // the demo entries
 static gb_demo_entry_t  g_entries[] =
 {
-    {gb_demo_rect_init,         gb_demo_rect_exit,      gb_demo_rect_draw,      gb_demo_rect_event      }
-,   {gb_demo_path_init,         gb_demo_path_exit,      gb_demo_path_draw,      gb_demo_path_event      }
-,   {gb_demo_line_init,         gb_demo_line_exit,      gb_demo_line_draw,      gb_demo_line_event      }
-,   {gb_demo_quad_init,         gb_demo_quad_exit,      gb_demo_quad_draw,      gb_demo_quad_event      }
-,   {gb_demo_cube_init,         gb_demo_cube_exit,      gb_demo_cube_draw,      gb_demo_cube_event      }
-,   {gb_demo_lines_init,        gb_demo_lines_exit,     gb_demo_lines_draw,     gb_demo_lines_event     }
-,   {gb_demo_point_init,        gb_demo_point_exit,     gb_demo_point_draw,     gb_demo_point_event     }
-,   {gb_demo_points_init,       gb_demo_points_exit,    gb_demo_points_draw,    gb_demo_points_event    }
-,   {gb_demo_circle_init,       gb_demo_circle_exit,    gb_demo_circle_draw,    gb_demo_circle_event    }
-,   {gb_demo_ellipse_init,      gb_demo_ellipse_exit,   gb_demo_ellipse_draw,   gb_demo_ellipse_event   }
-,   {gb_demo_triangle_init,     gb_demo_triangle_exit,  gb_demo_triangle_draw,  gb_demo_triangle_event  }
-,   {gb_demo_arc_init,          gb_demo_arc_exit,       gb_demo_arc_draw,       gb_demo_arc_event       }
+    {gb_demo_rect_init,         gb_demo_rect_exit,          gb_demo_rect_draw,          gb_demo_rect_event          }
+,   {gb_demo_round_rect_init,   gb_demo_round_rect_exit,    gb_demo_round_rect_draw,    gb_demo_round_rect_event    }
+,   {gb_demo_path_init,         gb_demo_path_exit,          gb_demo_path_draw,          gb_demo_path_event          }
+,   {gb_demo_line_init,         gb_demo_line_exit,          gb_demo_line_draw,          gb_demo_line_event          }
+,   {gb_demo_quad_init,         gb_demo_quad_exit,          gb_demo_quad_draw,          gb_demo_quad_event          }
+,   {gb_demo_cube_init,         gb_demo_cube_exit,          gb_demo_cube_draw,          gb_demo_cube_event          }
+,   {gb_demo_lines_init,        gb_demo_lines_exit,         gb_demo_lines_draw,         gb_demo_lines_event         }
+,   {gb_demo_point_init,        gb_demo_point_exit,         gb_demo_point_draw,         gb_demo_point_event         }
+,   {gb_demo_points_init,       gb_demo_points_exit,        gb_demo_points_draw,        gb_demo_points_event        }
+,   {gb_demo_circle_init,       gb_demo_circle_exit,        gb_demo_circle_draw,        gb_demo_circle_event        }
+,   {gb_demo_ellipse_init,      gb_demo_ellipse_exit,       gb_demo_ellipse_draw,       gb_demo_ellipse_event       }
+,   {gb_demo_triangle_init,     gb_demo_triangle_exit,      gb_demo_triangle_draw,      gb_demo_triangle_event      }
+,   {gb_demo_arc_init,          gb_demo_arc_exit,           gb_demo_arc_draw,           gb_demo_arc_event           }
 };
 
 // the matrix

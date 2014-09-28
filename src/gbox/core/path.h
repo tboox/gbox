@@ -422,6 +422,34 @@ tb_void_t           gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float
  */
 tb_void_t           gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h, tb_size_t direction);
 
+/*! add round rect
+ *
+ * @param path      the path
+ * @param rect      the rect
+ * @param direction the direction
+ */
+tb_void_t           gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, tb_size_t direction);
+
+/*! add round rect(x, y, w, h)
+ *
+ * @param path      the path
+ * @param bounds    the bounds
+ * @param rx        the x-radius
+ * @param ry        the y-radius
+ * @param direction the direction
+ */
+tb_void_t           gb_path_add_round_rect2(gb_path_ref_t path, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry, tb_size_t direction);
+
+/*! add integer round rect(x, y, w, h)
+ *
+ * @param path      the path
+ * @param bounds    the bounds
+ * @param rx        the x-radius
+ * @param ry        the y-radius
+ * @param direction the direction
+ */
+tb_void_t           gb_path_add_round_rect2i(gb_path_ref_t path, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry, tb_size_t direction);
+
 /*! add circle
  *
  * @param path      the path

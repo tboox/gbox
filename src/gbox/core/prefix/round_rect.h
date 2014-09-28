@@ -59,14 +59,27 @@ tb_void_t           gb_round_rect_make_same(gb_round_rect_ref_t rect, gb_rect_re
 /*! make round rect using the same integer x and y radius
  *
  * @param rect      the rect 
- * @param x         the x
- * @param y         the y
- * @param w         the width
- * @param h         the height
+ * @param bounds    the bounds 
  * @param rx        the x-radius
  * @param ry        the y-radius
  */
-tb_void_t           gb_round_rect_imake_same(gb_round_rect_ref_t rect, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h, tb_long_t rx, tb_long_t ry);
+tb_void_t           gb_round_rect_imake_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry);
+
+/*! the round rect is rect?
+ *
+ * @param rect      the rect 
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_round_rect_is_rect(gb_round_rect_ref_t rect);
+
+/*! the round rect is ellipse?
+ *
+ * @param rect      the rect 
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_round_rect_is_ellipse(gb_round_rect_ref_t rect);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

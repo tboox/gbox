@@ -23,7 +23,8 @@ application_C_FILES 								+= \
 													../../points \
 													../../circle \
 													../../ellipse \
-													../../triangle 
+													../../triangle \
+													../../round_rect  
 
 # libs
 application_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE)

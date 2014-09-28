@@ -1294,6 +1294,94 @@ tb_void_t gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_si
     // add rect
     gb_path_add_rect(path, &rect, direction);
 }
+tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, tb_size_t direction)
+{
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && rect);
+
+    // is rect? 
+    if (gb_round_rect_is_rect(rect))
+    {
+        // add rect
+        gb_path_add_rect(path, &rect->bounds, direction);
+        return ;
+    }
+    // is ellipse?
+    else if (gb_round_rect_is_ellipse(rect))
+    {
+        // make ellipse
+        gb_ellipse_t ellipse = gb_ellipse_make(gb_rsh(rect->bounds.x + rect->bounds.w, 1), gb_rsh(rect->bounds.y + rect->bounds.h, 1), rect->rx[0], rect->ry[0]);
+
+        // add ellipse
+        gb_path_add_ellipse(path, &ellipse, direction);
+        return ;
+    }
+
+    // null and dirty? make hint
+    tb_bool_t hint_maked = tb_false;
+    if (gb_path_null(path) && (impl->flag & GB_PATH_FLAG_DIRTY_HINT))
+    {
+        impl->hint.type         = GB_SHAPE_TYPE_ROUND_RECT;
+        impl->hint.u.round_rect = *rect;
+        hint_maked              = tb_true;
+    }
+
+    // the bounds
+    gb_float_t x = rect->bounds.x;
+    gb_float_t y = rect->bounds.y;
+    gb_float_t w = rect->bounds.w;
+//    gb_float_t h = rect->bounds.h;
+
+    // the x-radius
+    gb_float_t rx1 = rect->rx[GB_RECT_CORNER_LT];
+    gb_float_t rx2 = rect->rx[GB_RECT_CORNER_RT];
+//    gb_float_t rx3 = rect->rx[GB_RECT_CORNER_RB];
+//    gb_float_t rx4 = rect->rx[GB_RECT_CORNER_LB];
+
+    // the y-radius
+    gb_float_t ry1 = rect->ry[GB_RECT_CORNER_LT];
+//    gb_float_t ry2 = rect->ry[GB_RECT_CORNER_RT];
+//    gb_float_t ry3 = rect->ry[GB_RECT_CORNER_RB];
+//    gb_float_t ry4 = rect->ry[GB_RECT_CORNER_LB];
+
+
+    gb_path_add_arc2(path, x + rx1, y + ry1, rx1, ry1, GB_DEGREE_180, GB_DEGREE_90);
+    return ;
+
+    // add the round rect
+    gb_path_move2_to(path, x, y + ry1);
+    if (direction == GB_PATH_DIRECTION_CW)
+    {
+//        gb_path_arc2_to(path, x + rx1, y + ry1, rx1, ry1, GB_DEGREE_180, GB_DEGREE_90);
+        gb_path_line2_to(path, x + w - rx2, y);
+    }
+    else
+    {
+    }
+    gb_path_clos(path);
+
+    // hint have been maked? remove dirty
+    if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
+}
+tb_void_t gb_path_add_round_rect2(gb_path_ref_t path, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry, tb_size_t direction)
+{
+    // make rect
+    gb_round_rect_t rect;
+    gb_round_rect_make_same(&rect, bounds, rx, ry);
+
+    // draw rect
+    gb_path_add_round_rect(path, &rect, direction);
+}
+tb_void_t gb_path_add_round_rect2i(gb_path_ref_t path, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry, tb_size_t direction)
+{
+    // make rect
+    gb_round_rect_t rect;
+    gb_round_rect_imake_same(&rect, bounds, rx, ry);
+
+    // draw rect
+    gb_path_add_round_rect(path, &rect, direction);
+}
 tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle, tb_size_t direction)
 {
     // check

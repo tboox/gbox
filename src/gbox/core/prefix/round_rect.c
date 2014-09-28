@@ -65,11 +65,20 @@ tb_void_t gb_round_rect_make_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds
     rect->ry[3] = ry;  
     rect->bounds = *bounds;
 }
-tb_void_t gb_round_rect_imake_same(gb_round_rect_ref_t rect, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h, tb_long_t rx, tb_long_t ry)
+tb_void_t gb_round_rect_imake_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry)
 {
-    // make bounds
-    gb_rect_t bounds = gb_rect_imake(x, y, w, h);
-
     // make it
-    gb_round_rect_make_same(rect, &bounds, gb_long_to_float(rx), gb_long_to_float(ry));
+    gb_round_rect_make_same(rect, bounds, gb_long_to_float(rx), gb_long_to_float(ry));
+}
+tb_bool_t gb_round_rect_is_rect(gb_round_rect_ref_t rect)
+{
+    // TODO
+    tb_trace_noimpl();
+    return tb_false;
+}
+tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
+{
+    // TODO
+    tb_trace_noimpl();
+    return tb_false;
 }

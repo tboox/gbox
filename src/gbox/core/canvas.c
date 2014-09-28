@@ -717,6 +717,29 @@ tb_void_t gb_canvas_clip_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_
     // clip rect
     gb_canvas_clip_rect(canvas, mode, &rect);
 }
+tb_void_t gb_canvas_clip_round_rect(gb_canvas_ref_t canvas, tb_size_t mode, gb_round_rect_ref_t rect)
+{
+    // clip round rect
+    gb_clipper_add_round_rect(gb_canvas_clipper(canvas), mode, rect);
+}
+tb_void_t gb_canvas_clip_round_rect2(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry)
+{
+    // make rect
+    gb_round_rect_t rect;
+    gb_round_rect_make_same(&rect, bounds, rx, ry);
+
+    // clip rect
+    gb_canvas_clip_round_rect(canvas, mode, &rect);
+}
+tb_void_t gb_canvas_clip_round_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry)
+{ 
+    // make rect
+    gb_round_rect_t rect;
+    gb_round_rect_imake_same(&rect, bounds, rx, ry);
+
+    // clip rect
+    gb_canvas_clip_round_rect(canvas, mode, &rect);
+}
 tb_void_t gb_canvas_clip_circle(gb_canvas_ref_t canvas, tb_size_t mode, gb_circle_ref_t circle)
 {
     // clip circle
@@ -959,6 +982,62 @@ tb_void_t gb_canvas_draw_rect2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y
 
     // draw rect
     gb_canvas_draw_rect(canvas, &rect);
+}
+tb_void_t gb_canvas_draw_round_rect(gb_canvas_ref_t canvas, gb_round_rect_ref_t rect)
+{
+    // check
+    gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
+    tb_assert_and_check_return(impl && rect);
+
+    // is rect? 
+    if (gb_round_rect_is_rect(rect))
+    {
+        // draw rect
+        gb_canvas_draw_rect(canvas, &rect->bounds);
+        return ;
+    }
+    // is ellipse?
+    else if (gb_round_rect_is_ellipse(rect))
+    {
+        // make ellipse
+        gb_ellipse_t ellipse = gb_ellipse_make(gb_rsh(rect->bounds.x + rect->bounds.w, 1), gb_rsh(rect->bounds.y + rect->bounds.h, 1), rect->rx[0], rect->ry[0]);
+
+        // draw ellipse
+        gb_canvas_draw_ellipse(canvas, &ellipse);
+        return ;
+    }
+
+    // save path
+    gb_path_ref_t path = gb_canvas_save_path(canvas);
+    tb_assert_and_check_return(path);
+
+    // make rect
+    gb_path_clear(path);
+    gb_path_add_round_rect(path, rect, GB_PATH_DIRECTION_CW);
+
+    // draw it
+    gb_canvas_draw_path(canvas, path);
+
+    // load path
+    gb_canvas_load_path(canvas);
+}
+tb_void_t gb_canvas_draw_round_rect2(gb_canvas_ref_t canvas, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry)
+{
+    // make rect
+    gb_round_rect_t rect;
+    gb_round_rect_make_same(&rect, bounds, rx, ry);
+
+    // draw rect
+    gb_canvas_draw_round_rect(canvas, &rect);
+}
+tb_void_t gb_canvas_draw_round_rect2i(gb_canvas_ref_t canvas, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry)
+{
+    // make rect
+    gb_round_rect_t rect;
+    gb_round_rect_imake_same(&rect, bounds, rx, ry);
+
+    // draw rect
+    gb_canvas_draw_round_rect(canvas, &rect);
 }
 tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 {
