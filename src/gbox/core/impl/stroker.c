@@ -25,6 +25,7 @@
  * includes
  */
 #include "stroker.h"
+#include "../rect.h"
 #include "../path.h"
 #include "../paint.h"
 #include "../matrix.h"
@@ -57,6 +58,65 @@ typedef struct __gb_stroker_impl_t
 }gb_stroker_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hint)
+{
+    // check
+    tb_check_return_val(hint, tb_false);
+
+    // done
+    tb_bool_t ok = tb_false;
+    switch (hint->type)
+    {
+    case GB_SHAPE_TYPE_RECT:
+        {
+            gb_stroker_add_rect(stroker, &hint->u.rect);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_LINE:
+        {
+            gb_point_t points[2];
+            points[0] = hint->u.line.p0;
+            points[1] = hint->u.line.p1;
+            gb_stroker_add_lines(stroker, points, tb_arrayn(points));
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_CIRCLE:
+        {
+            gb_stroker_add_circle(stroker, &hint->u.circle);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_ELLIPSE:
+        {
+            gb_stroker_add_ellipse(stroker, &hint->u.ellipse);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_ARC:
+        {
+            gb_stroker_add_arc(stroker, &hint->u.arc);
+            ok = tb_true;
+        }
+        break;
+    case GB_SHAPE_TYPE_POINT:
+        {
+            gb_stroker_add_lines(stroker, &hint->u.point, 1);
+            ok = tb_true;
+        }
+        break;
+    default:
+        break;
+    }
+
+    // ok?
+    return ok;
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
 gb_stroker_ref_t gb_stroker_init()
@@ -83,6 +143,10 @@ gb_stroker_ref_t gb_stroker_init()
         impl->path_inner = gb_path_init();
         tb_assert_and_check_break(impl->path_inner);
    
+        // init the other path
+        impl->path_other = gb_path_init();
+        tb_assert_and_check_break(impl->path_other);
+
         // ok
         ok = tb_true;
 
@@ -173,6 +237,9 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
 tb_void_t gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
 }
+tb_void_t gb_stroker_add_arc(gb_stroker_ref_t stroker, gb_arc_ref_t arc)
+{
+}
 tb_void_t gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path)
 {
     // done
@@ -202,6 +269,94 @@ tb_void_t gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path)
         }
     }
 }
+tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
+{
+    // check
+    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
+    tb_assert_and_check_return(impl && impl->path_other && rect);
+
+    // the radius
+    gb_float_t radius = impl->radius;
+    tb_check_return(gb_bz(radius));
+
+    // the width
+    gb_float_t width = gb_lsh(radius, 1);
+
+    // init the inner rect
+    gb_rect_t rect_inner = *rect;
+    if (rect_inner.w > width && rect_inner.h > width)
+    {
+        // make the inner rect
+        gb_rect_deflate(&rect_inner, radius, radius);
+
+        // add the inner rect to the other path
+        gb_path_add_rect(impl->path_other, &rect_inner, GB_PATH_DIRECTION_CW);
+    }
+
+    // init the outer rect
+    gb_rect_t rect_outer = *rect;
+
+    // make the outer rect
+    gb_rect_inflate(&rect_outer, radius, radius);
+
+    // add the outer rect to the other path
+    switch (impl->join)
+    {
+    case GB_PAINT_JOIN_MITER:
+        gb_path_add_rect(impl->path_other, &rect_outer, GB_PATH_DIRECTION_CCW);
+        break;
+    case GB_PAINT_JOIN_BEVEL:
+        break;
+    case GB_PAINT_JOIN_ROUND:
+        break;
+    default:
+        tb_trace_e("unknown join: %lu", impl->join);
+        break;
+    }
+}
+tb_void_t gb_stroker_add_circle(gb_stroker_ref_t stroker, gb_circle_ref_t circle)
+{
+    // check
+    tb_assert_and_check_return(circle);
+
+    // make ellipse
+    gb_ellipse_t ellipse = gb_ellipse_make(circle->c.x, circle->c.y, circle->r, circle->r);
+
+    // add ellipse
+    gb_stroker_add_ellipse(stroker, &ellipse);
+}
+tb_void_t gb_stroker_add_ellipse(gb_stroker_ref_t stroker, gb_ellipse_ref_t ellipse)
+{
+    // check
+    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
+    tb_assert_and_check_return(impl && impl->path_other && ellipse);
+
+    // the radius
+    gb_float_t radius = impl->radius;
+    tb_check_return(gb_bz(radius));
+
+    // init the inner ellipse
+    gb_ellipse_t ellipse_inner = *ellipse;
+    if (ellipse_inner.rx > radius && ellipse_inner.ry > radius)
+    {
+        // make the inner ellipse
+        ellipse_inner.rx -= radius;
+        ellipse_inner.ry -= radius;
+
+        // add the inner ellipse to the other path
+        gb_path_add_ellipse(impl->path_other, &ellipse_inner, GB_PATH_DIRECTION_CW);
+    }
+
+    // init the outer ellipse
+    gb_ellipse_t ellipse_outer = *ellipse;
+
+    // make the outer ellipse
+    ellipse_outer.rx += radius;
+    ellipse_outer.ry += radius;
+
+    // add the inner and outer ellipse to the other path
+    gb_path_add_ellipse(impl->path_other, &ellipse_outer, GB_PATH_DIRECTION_CCW);
+}
 tb_void_t gb_stroker_add_lines(gb_stroker_ref_t stroker, gb_point_ref_t points, tb_size_t count)
 {
     // check
@@ -219,11 +374,11 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
 {
     // check
     gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
-    tb_assert_abort(impl && points && count);
+    tb_assert_and_check_return(impl && impl->path_other && points && count);
 
-    // make the other path if not exists
-    if (!impl->path_other) impl->path_other = gb_path_init();
-    tb_assert_and_check_return(impl->path_other);
+    // the radius
+    gb_float_t radius = impl->radius;
+    tb_check_return(gb_bz(radius));
 
     // make the stroked path
     switch (impl->cap)
@@ -234,7 +389,6 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
             tb_size_t       index;
             gb_point_ref_t  point;
             gb_circle_t     circle;
-            gb_float_t      radius = impl->radius;
             for (index = 0; index < count; index++)
             {
                 // the point
@@ -243,7 +397,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
                 // make circle
                 circle = gb_circle_make(point->x, point->y, radius);
 
-                // add circle to the path
+                // add circle to the other path
                 gb_path_add_circle(impl->path_other, &circle, GB_PATH_DIRECTION_CW);
             }
         }
@@ -256,7 +410,6 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
             gb_rect_t       rect;
             tb_size_t       index;
             gb_point_ref_t  point;
-            gb_float_t      radius = impl->radius;
             gb_float_t      width = gb_lsh(radius, 1);
             for (index = 0; index < count; index++)
             {
@@ -266,7 +419,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
                 // make rect
                 rect = gb_rect_make(point->x - radius, point->y - radius, width, width);
 
-                // add rect to the path
+                // add rect to the other path
                 gb_path_add_rect(impl->path_other, &rect, GB_PATH_DIRECTION_CW);
             }
         }
@@ -343,8 +496,12 @@ gb_path_ref_t gb_stroker_done_path(gb_stroker_ref_t stroker, gb_paint_ref_t pain
     // apply paint to the stroker
     gb_stroker_apply_paint(stroker, paint);
 
-    // add path to the stroker
-    gb_stroker_add_path(stroker, path);
+    // attempt to add hint first
+    if (!gb_stroker_add_hint(stroker, gb_path_hint(path)))
+    {
+        // add path to the stroker
+        gb_stroker_add_path(stroker, path);
+    }
 
     // done the stroker
     return gb_stroker_done(stroker);
@@ -377,7 +534,7 @@ gb_path_ref_t gb_stroker_done_points(gb_stroker_ref_t stroker, gb_paint_ref_t pa
     // done the stroker
     return gb_stroker_done(stroker);
 }
-gb_path_ref_t gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon)
+gb_path_ref_t gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
 {
     // clear the stroker
     gb_stroker_clear(stroker);
@@ -385,8 +542,12 @@ gb_path_ref_t gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t p
     // apply paint to the stroker
     gb_stroker_apply_paint(stroker, paint);
 
-    // add polygon to the stroker
-    gb_stroker_add_polygon(stroker, polygon);
+    // attempt to add hint first
+    if (!gb_stroker_add_hint(stroker, hint))
+    {
+        // add polygon to the stroker
+        gb_stroker_add_polygon(stroker, polygon);
+    }
 
     // done the stroker
     return gb_stroker_done(stroker);

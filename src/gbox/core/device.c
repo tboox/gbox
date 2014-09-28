@@ -215,8 +215,7 @@ tb_void_t gb_device_draw_path(gb_device_ref_t device, gb_path_ref_t path)
          *
          * @note the quality of drawing curve may be not higher and faster for stroking with the width > 1
          */
-        gb_shape_t hint;
-        gb_device_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+        gb_device_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
     }
 }
 tb_void_t gb_device_draw_lines(gb_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)

@@ -11,6 +11,7 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
+						core/rect \
 						core/path \
 						core/paint \
 						core/shader \
@@ -114,6 +115,7 @@ INC_FILES 				= \
 						core/prefix/pixfmt.h \
 						core/prefix/prefix.h \
 						core/prefix/quality.h \
+						core/rect.h \
 						core/path.h \
 						core/paint.h \
 						core/shader.h \

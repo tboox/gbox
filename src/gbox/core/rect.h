@@ -17,27 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        core.h
- * @defgroup    core
+ * @file        rect.h
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_H
-#define GB_CORE_H
+#ifndef GB_CORE_RECT_H
+#define GB_CORE_RECT_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "rect.h"
-#include "path.h"
-#include "paint.h"
-#include "shader.h"
-#include "matrix.h"
-#include "pixmap.h"
-#include "bitmap.h"
-#include "canvas.h"
-#include "device.h"
-#include "clipper.h"
-#include "svg/svg.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -48,20 +38,40 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/*! init core
+/*! apply matrix to rect
  *
- * @return  tb_true or tb_false
+ * @param rect      the rect 
+ * @param matrix    the matrix
  */
-tb_bool_t   gb_core_init(tb_noarg_t);
+tb_void_t           gb_rect_apply(gb_rect_ref_t rect, gb_matrix_ref_t matrix);
 
-/*! exit core
+/*! apply matrix to rect
+ *
+ * @param rect      the rect 
+ * @param output    the output rect 
+ * @param matrix    the matrix
  */
-tb_void_t   gb_core_exit(tb_noarg_t);
+tb_void_t           gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t output, gb_matrix_ref_t matrix);
+
+/*! inflate rect
+ *
+ * @param rect      the rect 
+ * @param dx        the x-delta value and must be larger than zero
+ * @param dy        the x-delta value and must be larger than zero
+ */
+tb_void_t           gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy);
+
+/*! deflate rect
+ *
+ * @param rect      the rect 
+ * @param dx        the x-delta value and must be smaller than zero
+ * @param dy        the x-delta value and must be smaller than zero
+ */
+tb_void_t           gb_rect_deflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_leave__
+
 #endif
-
-

@@ -133,14 +133,21 @@ tb_void_t           gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex);
  */
 tb_bool_t           gb_path_last(gb_path_ref_t path, gb_point_ref_t point);
 
-/*! the path polygon for filling
+/*! the path hint shape
  *
  * @param path      the path
- * @param hint      the hint shape 
+ *
+ * @return          the hint shape 
+ */
+gb_shape_ref_t      gb_path_hint(gb_path_ref_t path);
+
+/*! the path polygon 
+ *
+ * @param path      the path
  *
  * @return          the polygon
  */
-gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint);
+gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path);
 
 /*! close the current contour
  *

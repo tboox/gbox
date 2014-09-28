@@ -223,6 +223,9 @@ static tb_void_t gb_gl_render_stroke_fill(gb_gl_device_ref_t device, gb_path_ref
     // check
     tb_assert_abort(device && device->stroker && device->base.paint && path);
 
+    // null?
+    tb_check_return(!gb_path_null(path));
+
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
 
@@ -368,8 +371,7 @@ tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
     // fill it
     if (mode & GB_PAINT_MODE_FILL)
     {
-        gb_shape_t hint;
-        gb_gl_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+        gb_gl_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
     }
 
     // stroke it
@@ -381,8 +383,7 @@ tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
         // width == 1? stroke polygon
         if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
         {
-            gb_shape_t hint;
-            gb_gl_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+            gb_gl_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
         }
         // fill the stroked path
         else gb_gl_render_stroke_fill(device, gb_stroker_done_path(device->stroker, device->base.paint, path));
@@ -474,7 +475,7 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
         if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
             gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
         // fill the stroked polygon
-        else gb_gl_render_stroke_fill(device, gb_stroker_done_polygon(device->stroker, device->base.paint, polygon));
+        else gb_gl_render_stroke_fill(device, gb_stroker_done_polygon(device->stroker, device->base.paint, polygon, hint));
     }
 
     // leave paint

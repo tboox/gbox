@@ -107,12 +107,40 @@ tb_void_t                   gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_poin
  */
 tb_void_t                   gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
 
+/* add arc 
+ * 
+ * @param stroker           the stroker
+ * @param arc               the arc 
+ */
+tb_void_t                   gb_stroker_add_arc(gb_stroker_ref_t stroker, gb_arc_ref_t arc);
+
 /* add path 
  * 
  * @param stroker           the stroker
  * @param path              the path 
  */
 tb_void_t                   gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path);
+
+/* add rect 
+ * 
+ * @param stroker           the stroker
+ * @param rect              the rect 
+ */
+tb_void_t                   gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect);
+
+/* add circle 
+ * 
+ * @param stroker           the stroker
+ * @param circle              the circle 
+ */
+tb_void_t                   gb_stroker_add_circle(gb_stroker_ref_t stroker, gb_circle_ref_t circle);
+
+/* add ellipse 
+ * 
+ * @param stroker           the stroker
+ * @param ellipse           the ellipse 
+ */
+tb_void_t                   gb_stroker_add_ellipse(gb_stroker_ref_t stroker, gb_ellipse_ref_t ellipse);
 
 /* add lines 
  * 
@@ -182,10 +210,11 @@ gb_path_ref_t               gb_stroker_done_points(gb_stroker_ref_t stroker, gb_
  * @param stroker           the stroker
  * @param paint             the paint 
  * @param polygon           the polygon 
+ * @param hint              the hint shape
  *
  * @return                  the stroked path
  */
-gb_path_ref_t               gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon);
+gb_path_ref_t               gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon, gb_shape_ref_t hint);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

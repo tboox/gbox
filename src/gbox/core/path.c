@@ -792,7 +792,7 @@ tb_bool_t gb_path_last(gb_path_ref_t path, gb_point_ref_t point)
     // ok?
     return last? tb_true : tb_false;
 }
-gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
+gb_shape_ref_t gb_path_hint(gb_path_ref_t path)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
@@ -801,22 +801,27 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path, gb_shape_ref_t hint)
     // null?
     if (gb_path_null(path)) return tb_null;
 
-    // need hint?
-    if (hint)
+    // hint dirty? remake it
+    if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
     {
-        // hint dirty? remake it
-        if (impl->flag & GB_PATH_FLAG_DIRTY_HINT)
-        {
-            // make hint
-            if (!gb_path_make_hint(impl)) return tb_null;
+        // make hint
+        if (!gb_path_make_hint(impl)) return tb_null;
 
-            // remove dirty
-            impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
-        }
-
-        // save hint
-        *hint = impl->hint;
+        // remove dirty
+        impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
     }
+
+    // ok?
+    return impl->hint.type != GB_SHAPE_TYPE_NONE? &impl->hint : tb_null;
+}
+gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path)
+{
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // null?
+    if (gb_path_null(path)) return tb_null;
 
     // polygon dirty? remake it
     if (impl->flag & GB_PATH_FLAG_DIRTY_POLYGON)

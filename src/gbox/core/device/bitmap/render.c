@@ -34,6 +34,7 @@
 #include "render.h"
 #include "render/fill/fill.h"
 #include "render/stroke/stroke.h"
+#include "../../rect.h"
 #include "../../impl/bounds.h"
 #include "../../impl/stroker.h"
 
@@ -54,11 +55,9 @@ static tb_bool_t gb_bitmap_render_apply_matrix_for_hint(gb_bitmap_device_ref_t d
         &&  gb_ez(device->base.matrix->kx) && gb_ez(device->base.matrix->ky))
     {
         // apply matrix to rect
-        gb_point_t points[2];
-        points[0] = gb_point_make(hint->u.rect.x, hint->u.rect.y);
-        points[1] = gb_point_make(hint->u.rect.x + hint->u.rect.w, hint->u.rect.y + hint->u.rect.h);
-        gb_matrix_apply_points(device->base.matrix, points, tb_arrayn(points));
-        gb_bounds_make(&output->u.rect, points, tb_arrayn(points));
+        gb_rect_apply2(&hint->u.rect, &output->u.rect, device->base.matrix);
+
+        // mark the output hint type
         output->type = GB_SHAPE_TYPE_RECT;
     }
 
@@ -160,6 +159,9 @@ static tb_void_t gb_bitmap_render_stroke_fill(gb_bitmap_device_ref_t device, gb_
     // check
     tb_assert_abort(device && device->stroker && device->base.paint && path);
 
+    // null?
+    tb_check_return(!gb_path_null(path));
+
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
 
@@ -222,8 +224,7 @@ tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_
     // fill it
     if (mode & GB_PAINT_MODE_FILL)
     {
-        gb_shape_t hint;
-        gb_bitmap_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+        gb_bitmap_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
     }
 
     // stroke it
@@ -235,8 +236,7 @@ tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_
         // width == 1 and solid? stroke it
         if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
         {
-            gb_shape_t hint;
-            gb_bitmap_render_draw_polygon(device, gb_path_polygon(path, &hint), &hint, gb_path_bounds(path));
+            gb_bitmap_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
         }
         // fill the stroked path
         else gb_bitmap_render_stroke_fill(device, gb_stroker_done_path(device->stroker, device->base.paint, path));
@@ -366,7 +366,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
             gb_bitmap_render_stroke_polygon(device, &stroked_polygon);
         }
         // fill the stroked polygon
-        else gb_bitmap_render_stroke_fill(device, gb_stroker_done_polygon(device->stroker, device->base.paint, polygon));
+        else gb_bitmap_render_stroke_fill(device, gb_stroker_done_polygon(device->stroker, device->base.paint, polygon, hint));
     }
 }
 
