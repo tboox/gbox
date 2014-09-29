@@ -270,6 +270,9 @@ tb_bool_t gb_prefix_init()
     // register printf("%{point}", &point);
     tb_printf_object_register("point", gb_prefix_printf_format_point);
 
+    // register printf("%{vector}", &vector);
+    tb_printf_object_register("vector", gb_prefix_printf_format_point);
+
     // register printf("%{line}", &line);
     tb_printf_object_register("line", gb_prefix_printf_format_line);
 

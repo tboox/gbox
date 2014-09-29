@@ -127,6 +127,12 @@ typedef struct __gb_point_t
 
 }gb_point_t, *gb_point_ref_t;
 
+/// the vector type
+typedef gb_point_t      gb_vector_t;
+
+/// the vector ref type
+typedef gb_point_ref_t  gb_vector_ref_t;
+
 /// the line type
 typedef struct __gb_line_t
 {

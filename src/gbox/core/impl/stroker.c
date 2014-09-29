@@ -233,6 +233,28 @@ tb_void_t gb_stroker_clos(gb_stroker_ref_t stroker)
 }
 tb_void_t gb_stroker_move_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
 {
+    // check
+    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
+    tb_assert_and_check_return(impl && impl->path_inner && impl->path_outer && point);
+
+    // done
+    switch (impl->cap)
+    {
+    case GB_PAINT_STROKE_CAP_BUTT:
+        {
+        }
+        break;
+    case GB_PAINT_STROKE_CAP_ROUND:
+        {
+        }
+        break;
+    case GB_PAINT_STROKE_CAP_SQUARE:
+        {
+        }
+        break;
+    default:
+        break;
+    }
 }
 tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
 {
