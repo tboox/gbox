@@ -201,7 +201,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
  * /  
  *  
  */
-static tb_void_t gb_bitmap_render_stroke_line_generic2(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
+static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
 {
     // the factors
     tb_byte_t*                  data        = gb_bitmap_data(bitmap);
