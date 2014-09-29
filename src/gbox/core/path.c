@@ -1311,7 +1311,7 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
     else if (gb_round_rect_is_ellipse(rect))
     {
         // make ellipse
-        gb_ellipse_t ellipse = gb_ellipse_make(gb_rsh(rect->bounds.x + rect->bounds.w, 1), gb_rsh(rect->bounds.y + rect->bounds.h, 1), rect->rx[0], rect->ry[0]);
+        gb_ellipse_t ellipse = gb_ellipse_make_from_rect(&rect->bounds);
 
         // add ellipse
         gb_path_add_ellipse(path, &ellipse, direction);

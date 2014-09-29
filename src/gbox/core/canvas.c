@@ -1000,7 +1000,7 @@ tb_void_t gb_canvas_draw_round_rect(gb_canvas_ref_t canvas, gb_round_rect_ref_t 
     else if (gb_round_rect_is_ellipse(rect))
     {
         // make ellipse
-        gb_ellipse_t ellipse = gb_ellipse_make(gb_rsh(rect->bounds.x + rect->bounds.w, 1), gb_rsh(rect->bounds.y + rect->bounds.h, 1), rect->rx[0], rect->ry[0]);
+        gb_ellipse_t ellipse = gb_ellipse_make_from_rect(&rect->bounds);
 
         // draw ellipse
         gb_canvas_draw_ellipse(canvas, &ellipse);

@@ -72,13 +72,35 @@ tb_void_t gb_round_rect_imake_same(gb_round_rect_ref_t rect, gb_rect_ref_t bound
 }
 tb_bool_t gb_round_rect_is_rect(gb_round_rect_ref_t rect)
 {
-    // TODO
-    tb_trace_noimpl();
-    return tb_false;
+    // check
+    tb_assert_abort(rect);
+
+    // is rect?
+    return (    !gb_bz(rect->rx[0])
+            &&  !gb_bz(rect->rx[1])
+            &&  !gb_bz(rect->rx[2])
+            &&  !gb_bz(rect->rx[3])
+            &&  !gb_bz(rect->ry[0])
+            &&  !gb_bz(rect->ry[1])
+            &&  !gb_bz(rect->ry[2])
+            &&  !gb_bz(rect->ry[3]))? tb_true : tb_false;
 }
 tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
 {
-    // TODO
-    tb_trace_noimpl();
-    return tb_false;
+    // check
+    tb_assert_abort(rect);
+
+    // the radius
+    gb_float_t rx = gb_rsh(rect->bounds.w, 1);
+    gb_float_t ry = gb_rsh(rect->bounds.h, 1);
+
+    // is rect?
+    return (    rect->rx[0] >= rx
+            &&  rect->rx[1] >= rx
+            &&  rect->rx[2] >= rx
+            &&  rect->rx[3] >= rx
+            &&  rect->ry[0] >= ry
+            &&  rect->ry[1] >= ry
+            &&  rect->ry[2] >= ry
+            &&  rect->ry[3] >= ry)? tb_true : tb_false;
 }

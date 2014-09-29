@@ -211,6 +211,32 @@ static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref
             ok = tb_true;
         }
         break;
+#if 0 // for lastest version
+    case GB_SHAPE_TYPE_ROUND_RECT:
+        {
+            // the round rect
+            gb_round_rect_ref_t rect = &hint->u.round_rect;
+
+            // the bounds
+            gb_rect_ref_t       bounds = &hint->u.round_rect.bounds;
+
+            // make rrect
+            SkRRect     rrect;
+            SkVector    radii[4];
+            radii[0] = SkVector::make(gb_float_to_sk(rect->rx[0]), gb_float_to_sk(rect->ry[0]));
+            radii[1] = SkVector::make(gb_float_to_sk(rect->rx[1]), gb_float_to_sk(rect->ry[1]));
+            radii[2] = SkVector::make(gb_float_to_sk(rect->rx[2]), gb_float_to_sk(rect->ry[2]));
+            radii[3] = SkVector::make(gb_float_to_sk(rect->rx[3]), gb_float_to_sk(rect->ry[3]));
+            rrect.setRectRadii(SkRect::MakeXYWH(gb_float_to_sk(bounds->x), gb_float_to_sk(bounds->y), gb_float_to_sk(bounds->w), gb_float_to_sk(bounds->h)));
+
+            // draw rrect
+            impl->canvas->drawRRect(rrect, *impl->paint);
+
+            // ok
+            ok = tb_true;
+        }
+        break;
+#endif
     case GB_SHAPE_TYPE_LINE:
         {
             gb_line_ref_t line = &hint->u.line;

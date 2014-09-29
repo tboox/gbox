@@ -622,6 +622,22 @@ static __tb_inline__ gb_ellipse_t   gb_ellipse_imake(tb_long_t x0, tb_long_t y0,
     return e;
 }
 
+/*! make ellipse from rect
+ *
+ * @param rect                      the rect
+ *
+ * @return                          the ellipse
+ */
+static __tb_inline__ gb_ellipse_t   gb_ellipse_make_from_rect(gb_rect_ref_t rect)
+{
+    // the radius
+    gb_float_t rx = gb_rsh(rect->w, 1);
+    gb_float_t ry = gb_rsh(rect->h, 1);
+
+    // make it
+    return gb_ellipse_make(rect->x + rx, rect->y + ry, rx, ry);
+}
+
 /*! make arc
  *
  * @param x0                        the x0

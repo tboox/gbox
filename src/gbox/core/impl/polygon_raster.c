@@ -352,6 +352,9 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
     tb_assert_abort(edge_pool && porder && y <= bottom);
 
     // done
+    tb_int16_t                      dx2;
+    tb_int16_t                      dy2;
+    tb_int16_t                      step_x;
     tb_size_t                       first = 1;
     tb_size_t                       order = 1;
     tb_uint16_t                     prev_x = 0;
@@ -394,23 +397,27 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
         }
 
         // compute the x step size: -1 or 1
-        tb_int16_t step_x = edge->direction_x;
+        step_x = edge->direction_x;
+
+        // the dx2 and dy2
+        dx2 = edge->dx2;
+        dy2 = edge->dy2;
 
         /* update the x coordinate using the bresenham algorithm
          *
          * |slope| < 0.5?
          */
-        if (edge->dx2 > edge->dy2) 
+        if (dx2 > dy2) 
         {
             // increase x until y++
             while (1)
             {
                 if (edge->error > 0)
                 {
-                    edge->error -= edge->dx2;
+                    edge->error -= dx2;
                     break;
                 }
-                edge->error += edge->dy2;
+                edge->error += dy2;
                 edge->top_x += step_x;
             }
         }
@@ -418,10 +425,10 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
         {
             if (edge->error > 0)
             {
-                edge->error -= edge->dy2;
+                edge->error -= dy2;
                 edge->top_x += step_x;
             }
-            edge->error += edge->dx2;
+            edge->error += dx2;
         }
 
         // is order?
@@ -460,8 +467,8 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
     tb_memset(raster->edge_table, 0, sizeof(raster->edge_table));
 
     // init top and bottom of the polygon
-    raster->top     = gb_float_to_long(bounds->y);
-    raster->bottom  = gb_float_to_long(bounds->y + bounds->h);
+    raster->top     = gb_round(bounds->y);
+    raster->bottom  = gb_round(bounds->y + bounds->h);
 
     // init the edge table
     gb_point_t      pb;
@@ -476,82 +483,92 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
         // the point
         pe = *points++;
 
-        // not horizaontal edge?
-        if (index && gb_float_to_long(pb.y) != gb_float_to_long(pe.y)) 
+        // exists edge?
+        if (index)
         {
-            // update the edge index
-            edge_index++;
+            // the yb => ye
+            tb_long_t yb = gb_round(pb.y);
+            tb_long_t ye = gb_round(pe.y);
 
-            // check
-            tb_assert_abort(edge_index < tb_arrayn(raster->edge_pool));
-
-            // make a new edge from the edge pool
-            gb_polygon_raster_edge_ref_t edge = &raster->edge_pool[edge_index];
-
-            // init the edge direction
-            edge->direction_x = 1;
-            edge->direction_y = 1;
-
-            // sort the points of the edge
-            gb_point_ref_t top = &pb;
-            gb_point_ref_t bottom = &pe;
-            if (bottom->y < top->y)
+            // not horizaontal edge?
+            if (yb != ye) 
             {
-                // reverse the edge points
-                top     = &pe;
-                bottom  = &pb;
+                // the xb => xe
+                tb_long_t xb = gb_round(pb.x);
+                tb_long_t xe = gb_round(pe.x);
 
-                // reverse the y direction
-                edge->direction_y = -1;
+                // update the edge index
+                edge_index++;
+
+                // check
+                tb_assert_abort(edge_index < tb_arrayn(raster->edge_pool));
+
+                // make a new edge from the edge pool
+                gb_polygon_raster_edge_ref_t edge = &raster->edge_pool[edge_index];
+
+                // init the edge direction
+                edge->direction_x = 1;
+                edge->direction_y = 1;
+
+                // sort the points of the edge
+                if (ye < yb)
+                {
+                    // reverse the edge points
+                    tb_swap(tb_long_t, xb, xe);
+                    tb_swap(tb_long_t, yb, ye);
+
+                    // reverse the y direction
+                    edge->direction_y = -1;
+                }
+
+                // the top and bottom coordinates
+                tb_long_t top_x     = xb;
+                tb_long_t top_y     = yb;
+                tb_long_t bottom_x  = xe;
+                tb_long_t bottom_y  = ye;
+                tb_assert_abort(top_x < TB_MAXS16 && bottom_x < TB_MAXS16 && bottom_y < TB_MAXS16);
+                tb_assert_abort(bottom_y >= top_y && top_y >= raster->top && top_y - raster->top < tb_arrayn(raster->edge_table));
+
+                // compute dx*2, dy*2 for the edge slope
+                edge->dx2           = (tb_int16_t)((bottom_x - top_x) << 1);
+                edge->dy2           = (tb_int16_t)((bottom_y - top_y) << 1);
+                if (edge->dx2 < 0)
+                {
+                    // |dx2|
+                    edge->dx2 = -edge->dx2;
+                    
+                    // reverse the x direction
+                    edge->direction_x = -1;
+                }
+                tb_assert_abort(edge->dy2);
+
+                // init the top x coordinate for the edge
+                edge->top_x = (tb_int16_t)top_x;
+
+                // init the bottom y coordinate for the edge
+                edge->bottom_y = (tb_int16_t)bottom_y;
+
+                /* compute the slope error for the bresenham algorithm
+                 *
+                 * |slope| > 0.5
+                 * e / 1 = dy / dx
+                 * => y++ if e = dy / dx > 0.5 
+                 * => y++ if e = dy * 2 - dx > 0
+                 *
+                 * |slope| < 0.5
+                 * => y++ if e = dx * 2 - dy > 0
+                 */
+                edge->error = (edge->dx2 > edge->dy2)? (edge->dy2 - (edge->dx2 >> 1)) : (edge->dx2 - (edge->dy2 >> 1));
+
+                /* insert edge to the head of the edge table
+                 *
+                 * table[index]: => edge => edge => .. => 0
+                 *              |
+                 *            insert
+                 */
+                edge->next = raster->edge_table[top_y - raster->top];
+                raster->edge_table[top_y - raster->top] = edge_index;
             }
-
-            // the top and bottom coordinates
-            tb_long_t top_x     = gb_float_to_long(top->x);
-            tb_long_t top_y     = gb_float_to_long(top->y);
-            tb_long_t bottom_x  = gb_float_to_long(bottom->x);
-            tb_long_t bottom_y  = gb_float_to_long(bottom->y);
-            tb_assert_abort(top_x < TB_MAXS16 && bottom_x < TB_MAXS16 && bottom_y < TB_MAXS16);
-            tb_assert_abort(bottom_y >= top_y && top_y >= raster->top && top_y - raster->top < tb_arrayn(raster->edge_table));
-
-            // compute dx*2, dy*2 for the edge slope
-            edge->dx2           = (tb_int16_t)((bottom_x - top_x) << 1);
-            edge->dy2           = (tb_int16_t)((bottom_y - top_y) << 1);
-            if (edge->dx2 < 0)
-            {
-                // |dx2|
-                edge->dx2 = -edge->dx2;
-                
-                // reverse the x direction
-                edge->direction_x = -1;
-            }
-            tb_assert_abort(edge->dy2);
-
-            // init the top x coordinate for the edge
-            edge->top_x = (tb_int16_t)top_x;
-
-            // init the bottom y coordinate for the edge
-            edge->bottom_y = (tb_int16_t)bottom_y;
-
-            /* compute the slope error for the bresenham algorithm
-             *
-             * |slope| > 0.5
-             * e / 1 = dy / dx
-             * => y++ if e = dy / dx > 0.5 
-             * => y++ if e = dy * 2 - dx > 0
-             *
-             * |slope| < 0.5
-             * => y++ if e = dx * 2 - dy > 0
-             */
-            edge->error = (edge->dx2 > edge->dy2)? (edge->dy2 - (edge->dx2 >> 1)) : (edge->dx2 - (edge->dy2 >> 1));
-
-            /* insert edge to the head of the edge table
-             *
-             * table[index]: => edge => edge => .. => 0
-             *              |
-             *            insert
-             */
-            edge->next = raster->edge_table[top_y - raster->top];
-            raster->edge_table[top_y - raster->top] = edge_index;
         }
 
         // save the previous point
