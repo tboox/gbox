@@ -44,6 +44,9 @@ typedef struct __gb_stroker_impl_t
     // the radius
     gb_float_t              radius;
 
+    // the miter limit
+    gb_float_t              miter;
+
     // the outer path and is the stroked path
     gb_path_ref_t           path_outer;
 
@@ -129,8 +132,8 @@ gb_stroker_ref_t gb_stroker_init()
         tb_assert_and_check_break(impl);
 
         // init stroker
-        impl->cap       = GB_PAINT_CAP_BUTT;
-        impl->join      = GB_PAINT_JOIN_MITER;
+        impl->cap       = GB_PAINT_STROKE_CAP_BUTT;
+        impl->join      = GB_PAINT_STROKE_JOIN_MITER;
         impl->radius    = 0;
 
         // init the outer path
@@ -189,8 +192,8 @@ tb_void_t gb_stroker_clear(gb_stroker_ref_t stroker)
     tb_assert_and_check_return(impl);
 
     // clear it
-    impl->cap       = GB_PAINT_CAP_BUTT;
-    impl->join      = GB_PAINT_JOIN_MITER;
+    impl->cap       = GB_PAINT_STROKE_CAP_BUTT;
+    impl->join      = GB_PAINT_STROKE_JOIN_MITER;
     impl->radius    = 0;
 
     // clear the other path
@@ -209,16 +212,21 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     tb_assert_and_check_return(impl && paint);
 
     // the width
-    gb_float_t width = gb_paint_width(paint);
+    gb_float_t width = gb_paint_stroke_width(paint);
+    tb_assert_abort(!gb_lz(width));
 
     // set the cap
-    impl->cap = gb_paint_cap(paint);
+    impl->cap = gb_paint_stroke_cap(paint);
 
     // set the join
-    impl->join = gb_paint_join(paint);
+    impl->join = gb_paint_stroke_join(paint);
 
     // set the radius
     impl->radius = gb_rsh(width, 1);
+
+    // set the miter limit
+    impl->miter = gb_paint_stroke_miter(paint);
+    tb_assert_abort(impl->miter > GB_ONE);
 }
 tb_void_t gb_stroker_clos(gb_stroker_ref_t stroker)
 {
@@ -297,16 +305,41 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
     // make the outer rect
     gb_rect_inflate(&rect_outer, radius, radius);
 
-    // add the outer rect to the other path
-    switch (impl->join)
+    // the join
+    tb_size_t join = impl->join;
+
+    /* add the outer rect to the other path
+     *
+     * ------------------------------ miter join
+     *                    .        . |
+     *                      .    L   |
+     *            bevel join  .      |
+     *                        | .    |  
+     *                        |   .  |
+     * -----------------|     |      |
+     *                  |        R   |
+     *                  |            |
+     *                  |            |
+     *                  |            |
+     *                  |            |
+     *                  | W = R * 2  |
+     * 
+     * W: width
+     * R: radius
+     * miter_limit = L / R > 1
+     */
+    switch (join)
     {
-    case GB_PAINT_JOIN_MITER:
+    case GB_PAINT_STROKE_JOIN_MITER:
         {
+            // TODO limit miter
+            // ...
+
             // add miter rect
             gb_path_add_rect(impl->path_other, &rect_outer, GB_PATH_DIRECTION_CCW);
         }
         break;
-    case GB_PAINT_JOIN_BEVEL:
+    case GB_PAINT_STROKE_JOIN_BEVEL:
         {
             // the bounds
             gb_float_t x = rect_outer.x;
@@ -326,7 +359,7 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
             gb_path_clos(impl->path_other);
         }
         break;
-    case GB_PAINT_JOIN_ROUND:
+    case GB_PAINT_STROKE_JOIN_ROUND:
         {
             // add round rect
             gb_path_add_round_rect2(impl->path_other, &rect_outer, radius, radius, GB_PATH_DIRECTION_CCW);
@@ -406,7 +439,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
     // make the stroked path
     switch (impl->cap)
     {
-    case GB_PAINT_CAP_ROUND:
+    case GB_PAINT_STROKE_CAP_ROUND:
         {
             // done
             tb_size_t       index;
@@ -425,8 +458,8 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
             }
         }
         break;
-    case GB_PAINT_CAP_BUTT:
-    case GB_PAINT_CAP_SQUARE:
+    case GB_PAINT_STROKE_CAP_BUTT:
+    case GB_PAINT_STROKE_CAP_SQUARE:
     default:
         {
             // done

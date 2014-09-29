@@ -486,6 +486,9 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
         // exists edge?
         if (index)
         {
+            // FIXME: 45 degree and (0.5, 1) => (1, 1.5)?
+            // ...
+
             // the yb => ye
             tb_long_t yb = gb_round(pb.y);
             tb_long_t ye = gb_round(pe.y);

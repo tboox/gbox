@@ -75,10 +75,10 @@ static gb_matrix_t      g_matrix;
 static tb_size_t        g_quality = GB_QUALITY_LOW;
 
 // the cap
-static tb_size_t        g_cap = GB_PAINT_CAP_BUTT;
+static tb_size_t        g_cap = GB_PAINT_STROKE_CAP_BUTT;
 
 // the join
-static tb_size_t        g_join = GB_PAINT_JOIN_MITER;
+static tb_size_t        g_join = GB_PAINT_STROKE_JOIN_MITER;
 
 // the width
 static gb_float_t       g_width = GB_ONE;
@@ -167,13 +167,13 @@ tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
     gb_matrix_copy(gb_canvas_save_matrix(canvas), &g_matrix);
 
     // apply cap
-    gb_canvas_cap_set(canvas, g_cap);
+    gb_canvas_stroke_cap_set(canvas, g_cap);
 
     // apply join
-    gb_canvas_join_set(canvas, g_join);
+    gb_canvas_stroke_join_set(canvas, g_join);
 
     // apply width
-    gb_canvas_width_set(canvas, g_width);
+    gb_canvas_stroke_width_set(canvas, g_width);
 
     // done draw
     entry->draw(window, canvas);

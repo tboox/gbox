@@ -132,18 +132,18 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl)
     if (mode & GB_PAINT_MODE_STROKE)
     {
         // init stroke width
-        impl->paint->setStrokeWidth(gb_float_to_sk(gb_paint_width(impl->base.paint)));
+        impl->paint->setStrokeWidth(gb_float_to_sk(gb_paint_stroke_width(impl->base.paint)));
 
         // init cap
-        switch (gb_paint_cap(impl->base.paint))
+        switch (gb_paint_stroke_cap(impl->base.paint))
         {
-        case GB_PAINT_CAP_BUTT:
+        case GB_PAINT_STROKE_CAP_BUTT:
             impl->paint->setStrokeCap(SkPaint::kButt_Cap);
             break;
-        case GB_PAINT_CAP_ROUND:
+        case GB_PAINT_STROKE_CAP_ROUND:
             impl->paint->setStrokeCap(SkPaint::kRound_Cap);
             break;
-        case GB_PAINT_CAP_SQUARE:
+        case GB_PAINT_STROKE_CAP_SQUARE:
             impl->paint->setStrokeCap(SkPaint::kSquare_Cap);
             break;
         default:
@@ -151,15 +151,15 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl)
         }
 
         // init join
-        switch (gb_paint_join(impl->base.paint))
+        switch (gb_paint_stroke_join(impl->base.paint))
         {
-        case GB_PAINT_JOIN_MITER:
+        case GB_PAINT_STROKE_JOIN_MITER:
             impl->paint->setStrokeJoin(SkPaint::kMiter_Join);
             break;
-        case GB_PAINT_JOIN_ROUND:
+        case GB_PAINT_STROKE_JOIN_ROUND:
             impl->paint->setStrokeJoin(SkPaint::kRound_Join);
             break;
-        case GB_PAINT_JOIN_BEVEL:
+        case GB_PAINT_STROKE_JOIN_BEVEL:
             impl->paint->setStrokeJoin(SkPaint::kBevel_Join);
             break;
         default:
@@ -295,13 +295,13 @@ static tb_void_t gb_device_skia_draw_path(gb_device_impl_t* device, gb_path_ref_
     impl->path->reset();
 
     // init the path fill type
-    tb_size_t rule = gb_paint_rule(impl->base.paint);
+    tb_size_t rule = gb_paint_fill_rule(impl->base.paint);
     switch (rule)
     {
-    case GB_PAINT_RULE_ODD:
+    case GB_PAINT_FILL_RULE_ODD:
         impl->path->setFillType(SkPath::kEvenOdd_FillType);
         break;
-    case GB_PAINT_RULE_NONZERO:
+    case GB_PAINT_FILL_RULE_NONZERO:
         impl->path->setFillType(SkPath::kWinding_FillType);
         break;
     default:

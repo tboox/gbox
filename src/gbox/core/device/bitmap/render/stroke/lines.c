@@ -375,6 +375,9 @@ tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_
         pb = points + i;
         pe = points + i + 1;
 
+        // FIXME: 45 degree and (0.5, 1) => (1, 1.5)?
+        // ...
+
         // (xb, yb) => (xe, ye)
         xb = gb_round(pb->x);
         yb = gb_round(pb->y);

@@ -251,7 +251,7 @@ tb_size_t gb_canvas_pixfmt(gb_canvas_ref_t canvas)
     // the pixfmt
     return gb_device_pixfmt(impl->device);
 }
-tb_size_t gb_canvas_width(gb_canvas_ref_t canvas)
+tb_size_t gb_canvas_stroke_width(gb_canvas_ref_t canvas)
 {
     // check
     gb_canvas_impl_t* impl = (gb_canvas_impl_t*)canvas;
@@ -452,17 +452,25 @@ tb_void_t gb_canvas_alpha_set(gb_canvas_ref_t canvas, tb_byte_t alpha)
 {
     gb_paint_alpha_set(gb_canvas_paint(canvas), alpha);
 }
-tb_void_t gb_canvas_width_set(gb_canvas_ref_t canvas, gb_float_t width)
+tb_void_t gb_canvas_stroke_width_set(gb_canvas_ref_t canvas, gb_float_t width)
 {
-    gb_paint_width_set(gb_canvas_paint(canvas), width);
+    gb_paint_stroke_width_set(gb_canvas_paint(canvas), width);
 }
-tb_void_t gb_canvas_cap_set(gb_canvas_ref_t canvas, tb_size_t cap)
+tb_void_t gb_canvas_stroke_cap_set(gb_canvas_ref_t canvas, tb_size_t cap)
 {
-    gb_paint_cap_set(gb_canvas_paint(canvas), cap);
+    gb_paint_stroke_cap_set(gb_canvas_paint(canvas), cap);
 }
-tb_void_t gb_canvas_join_set(gb_canvas_ref_t canvas, tb_size_t join)
+tb_void_t gb_canvas_stroke_join_set(gb_canvas_ref_t canvas, tb_size_t join)
 {
-    gb_paint_join_set(gb_canvas_paint(canvas), join);
+    gb_paint_stroke_join_set(gb_canvas_paint(canvas), join);
+}
+tb_void_t gb_cavas_stroke_miter_set(gb_canvas_ref_t canvas, gb_float_t miter)
+{
+    gb_paint_stroke_miter_set(gb_canvas_paint(canvas), miter);
+}
+tb_void_t gb_canvas_fill_rule_set(gb_canvas_ref_t canvas, tb_size_t rule)
+{
+    gb_paint_fill_rule_set(gb_canvas_paint(canvas), rule);
 }
 tb_void_t gb_canvas_shader_set(gb_canvas_ref_t canvas, gb_shader_ref_t shader)
 {

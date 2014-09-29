@@ -28,6 +28,25 @@
 #include "shader.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// the default cap
+#define GB_PAINT_DEFAULT_CAP                GB_PAINT_STROKE_CAP_BUTT
+
+// the default join
+#define GB_PAINT_DEFAULT_JOIN               GB_PAINT_STROKE_JOIN_MITER
+
+// the default rule
+#define GB_PAINT_DEFAULT_RULE               GB_PAINT_FILL_RULE_ODD
+
+// the default width
+#define GB_PAINT_DEFAULT_WIDTH              GB_ONE
+
+// the default miter miter
+#define GB_PAINT_DEFAULT_MITER              gb_long_to_float(4)
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -49,14 +68,14 @@ typedef struct __gb_paint_impl_t
     // the fill rule
     tb_uint32_t         rule    : 1;
 
-    // the quality
-    tb_uint32_t         quality : 2;
-
     // the paint color
     gb_color_t          color;
 
-    // the pen width
+    // the stroking width
     gb_float_t          width;
+
+    // the miter miter
+    gb_float_t          miter;
 
     // the shader
     gb_shader_ref_t     shader;
@@ -116,14 +135,14 @@ tb_void_t gb_paint_clear(gb_paint_ref_t paint)
     tb_assert_and_check_return(impl);
 
     // clear
-    impl->mode    = GB_PAINT_MODE_NONE;
-    impl->flag    = GB_PAINT_FLAG_NONE;
-    impl->cap     = GB_PAINT_CAP_BUTT;
-    impl->join    = GB_PAINT_JOIN_MITER;
-    impl->rule    = GB_PAINT_RULE_ODD;
-    impl->width   = GB_ONE;
-    impl->color   = GB_COLOR_DEFAULT;
-    impl->quality = GB_QUALITY_TOP;
+    impl->mode          = GB_PAINT_MODE_NONE;
+    impl->flag          = GB_PAINT_FLAG_NONE;
+    impl->cap           = GB_PAINT_DEFAULT_CAP;
+    impl->join          = GB_PAINT_DEFAULT_JOIN;
+    impl->rule          = GB_PAINT_DEFAULT_RULE;
+    impl->width         = GB_PAINT_DEFAULT_WIDTH;
+    impl->color         = GB_COLOR_DEFAULT;
+    impl->miter   = GB_PAINT_DEFAULT_MITER;
 
     // clear shader
     if (impl->shader) gb_shader_exit(impl->shader);
@@ -221,34 +240,34 @@ tb_void_t gb_paint_alpha_set(gb_paint_ref_t paint, tb_byte_t alpha)
     // done
     impl->color.a = alpha;
 }
-gb_float_t gb_paint_width(gb_paint_ref_t paint)
+gb_float_t gb_paint_stroke_width(gb_paint_ref_t paint)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return_val(impl, GB_ONE);
+    tb_assert_and_check_return_val(impl, GB_PAINT_DEFAULT_WIDTH);
 
     // the width
     return impl->width;
 }
-tb_void_t gb_paint_width_set(gb_paint_ref_t paint, gb_float_t width)
+tb_void_t gb_paint_stroke_width_set(gb_paint_ref_t paint, gb_float_t width)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return(impl);
+    tb_assert_and_check_return(impl && !gb_lz(width));
 
     // done
     impl->width = width;
 }
-tb_size_t gb_paint_cap(gb_paint_ref_t paint)
+tb_size_t gb_paint_stroke_cap(gb_paint_ref_t paint)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return_val(impl, GB_PAINT_CAP_BUTT);
+    tb_assert_and_check_return_val(impl, GB_PAINT_DEFAULT_CAP);
 
     // the cap
     return impl->cap;
 }
-tb_void_t gb_paint_cap_set(gb_paint_ref_t paint, tb_size_t cap)
+tb_void_t gb_paint_stroke_cap_set(gb_paint_ref_t paint, tb_size_t cap)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
@@ -257,16 +276,16 @@ tb_void_t gb_paint_cap_set(gb_paint_ref_t paint, tb_size_t cap)
     // done
     impl->cap = (tb_uint32_t)cap;
 }
-tb_size_t gb_paint_join(gb_paint_ref_t paint)
+tb_size_t gb_paint_stroke_join(gb_paint_ref_t paint)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return_val(impl, GB_PAINT_JOIN_MITER);
+    tb_assert_and_check_return_val(impl, GB_PAINT_DEFAULT_JOIN);
 
     // the join
     return impl->join;
 }
-tb_void_t gb_paint_join_set(gb_paint_ref_t paint, tb_size_t join)
+tb_void_t gb_paint_stroke_join_set(gb_paint_ref_t paint, tb_size_t join)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
@@ -275,16 +294,34 @@ tb_void_t gb_paint_join_set(gb_paint_ref_t paint, tb_size_t join)
     // done
     impl->join = (tb_uint32_t)join;
 }
-tb_size_t gb_paint_rule(gb_paint_ref_t paint)
+gb_float_t gb_paint_stroke_miter(gb_paint_ref_t paint)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return_val(impl, GB_PAINT_RULE_ODD);
+    tb_assert_and_check_return_val(impl, GB_PAINT_DEFAULT_MITER);
+
+    // the miter 
+    return impl->miter;
+}
+tb_void_t gb_paint_stroke_miter_set(gb_paint_ref_t paint, gb_float_t miter)
+{
+    // check
+    gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
+    tb_assert_and_check_return(impl && miter > GB_ONE);
+
+    // done
+    impl->miter = miter;
+}
+tb_size_t gb_paint_fill_rule(gb_paint_ref_t paint)
+{
+    // check
+    gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
+    tb_assert_and_check_return_val(impl, GB_PAINT_DEFAULT_RULE);
 
     // the rule
     return impl->rule;
 }
-tb_void_t gb_paint_rule_set(gb_paint_ref_t paint, tb_size_t rule)
+tb_void_t gb_paint_fill_rule_set(gb_paint_ref_t paint, tb_size_t rule)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
@@ -292,24 +329,6 @@ tb_void_t gb_paint_rule_set(gb_paint_ref_t paint, tb_size_t rule)
 
     // done
     impl->rule = (tb_uint32_t)rule;
-}
-tb_size_t gb_paint_quality(gb_paint_ref_t paint)
-{
-    // check
-    gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return_val(impl, GB_QUALITY_TOP);
-
-    // the quality
-    return impl->quality;
-}
-tb_void_t gb_paint_quality_set(gb_paint_ref_t paint, tb_size_t quality)
-{
-    // check
-    gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return(impl && quality <= GB_QUALITY_TOP);
-
-    // done
-    impl->quality = (tb_uint32_t)quality;
 }
 gb_shader_ref_t gb_paint_shader(gb_paint_ref_t paint)
 {

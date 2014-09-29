@@ -58,30 +58,30 @@ typedef enum __gb_paint_flag_e
 }gb_paint_flag_e;
 
 /// the paint stroke cap enum
-typedef enum __gb_paint_cap_e
+typedef enum __gb_paint_stroke_cap_e
 {
-    GB_PAINT_CAP_BUTT           = 0 //!< no extension
-,   GB_PAINT_CAP_ROUND          = 1 //!< a semi-circle extension
-,   GB_PAINT_CAP_SQUARE         = 2 //!< a half square extension
+    GB_PAINT_STROKE_CAP_BUTT    = 0 //!< no extension
+,   GB_PAINT_STROKE_CAP_ROUND   = 1 //!< a semi-circle extension
+,   GB_PAINT_STROKE_CAP_SQUARE  = 2 //!< a half square extension
 
-}gb_paint_cap_e;
+}gb_paint_stroke_cap_e;
 
 /// the paint stroke join enum
-typedef enum __gb_paint_join_e
+typedef enum __gb_paint_stroke_join_e
 {
-    GB_PAINT_JOIN_MITER         = 0 //!< a sharp join
-,   GB_PAINT_JOIN_ROUND         = 1 //!< a round join
-,   GB_PAINT_JOIN_BEVEL         = 2 //!< a flat bevel join
+    GB_PAINT_STROKE_JOIN_MITER  = 0 //!< a sharp join
+,   GB_PAINT_STROKE_JOIN_ROUND  = 1 //!< a round join
+,   GB_PAINT_STROKE_JOIN_BEVEL  = 2 //!< a flat bevel join
 
-}gb_paint_join_e;
+}gb_paint_stroke_join_e;
 
 /// the paint fill rule enum
-typedef enum __gb_paint_rule_e
+typedef enum __gb_paint_fill_rule_e
 {
-    GB_PAINT_RULE_ODD           = 0 //!< odd fill
-,   GB_PAINT_RULE_NONZERO       = 1 //!< non-zero fill
+    GB_PAINT_FILL_RULE_ODD      = 0 //!< odd fill
+,   GB_PAINT_FILL_RULE_NONZERO  = 1 //!< non-zero fill
 
-}gb_paint_rule_e;
+}gb_paint_fill_rule_e;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -178,14 +178,14 @@ tb_void_t           gb_paint_alpha_set(gb_paint_ref_t paint, tb_byte_t alpha);
  *
  * @return          the paint width
  */
-gb_float_t          gb_paint_width(gb_paint_ref_t paint);
+gb_float_t          gb_paint_stroke_width(gb_paint_ref_t paint);
 
 /*! set the paint width
  *
  * @param paint     the paint 
  * @param width     the paint width
  */
-tb_void_t           gb_paint_width_set(gb_paint_ref_t paint, gb_float_t width);
+tb_void_t           gb_paint_stroke_width_set(gb_paint_ref_t paint, gb_float_t width);
 
 /*! the paint cap
  *
@@ -193,14 +193,14 @@ tb_void_t           gb_paint_width_set(gb_paint_ref_t paint, gb_float_t width);
  *
  * @return          the paint cap
  */
-tb_size_t           gb_paint_cap(gb_paint_ref_t paint);
+tb_size_t           gb_paint_stroke_cap(gb_paint_ref_t paint);
 
 /*! set the paint cap
  *
  * @param paint     the paint 
  * @param cap       the paint cap
  */
-tb_void_t           gb_paint_cap_set(gb_paint_ref_t paint, tb_size_t cap);
+tb_void_t           gb_paint_stroke_cap_set(gb_paint_ref_t paint, tb_size_t cap);
 
 /*! the paint join
  *
@@ -208,14 +208,49 @@ tb_void_t           gb_paint_cap_set(gb_paint_ref_t paint, tb_size_t cap);
  *
  * @return          the paint join
  */
-tb_size_t           gb_paint_join(gb_paint_ref_t paint);
+tb_size_t           gb_paint_stroke_join(gb_paint_ref_t paint);
 
 /*! set the paint join
  *
  * @param paint     the paint 
  * @param join      the paint join
  */
-tb_void_t           gb_paint_join_set(gb_paint_ref_t paint, tb_size_t join);
+tb_void_t           gb_paint_stroke_join_set(gb_paint_ref_t paint, tb_size_t join);
+
+/*! the limit of the paint miter join
+ *
+ * <pre>
+ *
+ * ------------------------------ miter join
+ *                    .        . |
+ *                      .    L   |
+ *            bevel join  .      |
+ *                        | .    |  => L / R = sqrt(2)
+ *                        |   .  |
+ * -----------------|     |      |
+ *                  |        R   |
+ *                  |            |
+ *                  |            |
+ *                  |            |
+ *                  |            |
+ *                  | W = R * 2  |
+ * 
+ *  miter_limit = L / R > 1
+ *
+ * </pre>
+ *
+ * @param paint     the paint 
+ *
+ * @return          the miter limit
+ */
+gb_float_t          gb_paint_stroke_miter(gb_paint_ref_t paint);
+
+/*! set the paint miter limit
+ *
+ * @param paint     the paint 
+ * @param miter     the miter limit
+ */
+tb_void_t           gb_paint_stroke_miter_set(gb_paint_ref_t paint, gb_float_t miter);
 
 /*! the paint rule
  *
@@ -223,29 +258,14 @@ tb_void_t           gb_paint_join_set(gb_paint_ref_t paint, tb_size_t join);
  *
  * @return          the paint rule
  */
-tb_size_t           gb_paint_rule(gb_paint_ref_t paint);
+tb_size_t           gb_paint_fill_rule(gb_paint_ref_t paint);
 
 /*! set the paint rule
  *
  * @param paint     the paint 
  * @param rule      the paint rule
  */
-tb_void_t           gb_paint_rule_set(gb_paint_ref_t paint, tb_size_t rule);
-
-/*! the paint quality
- *
- * @param paint     the paint 
- *
- * @return          the paint quality
- */
-tb_size_t           gb_paint_quality(gb_paint_ref_t paint);
-
-/*! set the paint alpha
- *
- * @param paint     the paint 
- * @param alpha     the paint alpha
- */
-tb_void_t           gb_paint_quality_set(gb_paint_ref_t paint, tb_size_t quality);
+tb_void_t           gb_paint_fill_rule_set(gb_paint_ref_t paint, tb_size_t rule);
 
 /*! the paint shader
  *

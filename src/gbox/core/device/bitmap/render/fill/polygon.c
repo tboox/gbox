@@ -70,7 +70,7 @@ tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygo
             factors[3].ul   = device->pixmap->btp;
 
             // the paint rule
-            tb_size_t rule = gb_paint_rule(device->base.paint);
+            tb_size_t rule = gb_paint_fill_rule(device->base.paint);
 
             // done raster
             gb_polygon_raster_done(&device->raster, rule, gb_bitmap_render_fill_polygon_raster, factors);

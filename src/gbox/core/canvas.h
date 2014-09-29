@@ -92,7 +92,7 @@ tb_size_t           gb_canvas_pixfmt(gb_canvas_ref_t canvas);
  *
  * @return          the width
  */
-tb_size_t           gb_canvas_width(gb_canvas_ref_t canvas);
+tb_size_t           gb_canvas_stroke_width(gb_canvas_ref_t canvas);
 
 /*! the canvas height
  *
@@ -255,21 +255,35 @@ tb_void_t           gb_canvas_alpha_set(gb_canvas_ref_t canvas, tb_byte_t alpha)
  * @param canvas    the canvas
  * @param mode      the paint width
  */
-tb_void_t           gb_canvas_width_set(gb_canvas_ref_t canvas, gb_float_t width);
+tb_void_t           gb_canvas_stroke_width_set(gb_canvas_ref_t canvas, gb_float_t width);
 
 /*! set the paint cap 
  *
  * @param canvas    the canvas
  * @param mode      the paint cap
  */
-tb_void_t           gb_canvas_cap_set(gb_canvas_ref_t canvas, tb_size_t cap);
+tb_void_t           gb_canvas_stroke_cap_set(gb_canvas_ref_t canvas, tb_size_t cap);
 
 /*! set the paint join 
  *
  * @param canvas    the canvas
  * @param mode      the paint join
  */
-tb_void_t           gb_canvas_join_set(gb_canvas_ref_t canvas, tb_size_t join);
+tb_void_t           gb_canvas_stroke_join_set(gb_canvas_ref_t canvas, tb_size_t join);
+
+/*! set the paint miter limit
+ *
+ * @param paint     the paint 
+ * @param miter     the miter limit
+ */
+tb_void_t           gb_cavas_stroke_miter_set(gb_canvas_ref_t canvas, gb_float_t miter);
+
+/*! set the paint fill rule
+ *
+ * @param paint     the paint 
+ * @param rule      the paint fill rule
+ */
+tb_void_t           gb_canvas_fill_rule_set(gb_canvas_ref_t canvas, tb_size_t rule);
 
 /*! set the paint shader 
  *

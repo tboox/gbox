@@ -53,8 +53,8 @@ __tb_extern_c_enter__
 // the polygon raster rule enum
 typedef enum __gb_polygon_raster_rule_e
 {
-    GB_POLYGON_RASTER_RULE_ODD      = GB_PAINT_RULE_ODD     //< odd 
-,   GB_POLYGON_RASTER_RULE_NONZERO  = GB_PAINT_RULE_NONZERO //< non-zero 
+    GB_POLYGON_RASTER_RULE_ODD      = GB_PAINT_FILL_RULE_ODD     //< odd 
+,   GB_POLYGON_RASTER_RULE_NONZERO  = GB_PAINT_FILL_RULE_NONZERO //< non-zero 
 
 }gb_polygon_raster_rule_e;
 
