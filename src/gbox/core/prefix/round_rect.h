@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        rect.h
+ * @file        round_rect.h
  * @ingroup     core
  *
  */

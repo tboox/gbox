@@ -92,9 +92,9 @@ tb_void_t gb_demo_path_init(gb_window_ref_t window)
     if (path2)
     {
         // init path
-        gb_path_add_rect2i(path2, -200, -200, 400, 400, GB_PATH_DIRECTION_CW);
-        gb_path_add_rect2i(path2, -100, -100, 200, 200, GB_PATH_DIRECTION_CW);
-        gb_path_add_rect2i(path2, -50, -50, 100, 100, GB_PATH_DIRECTION_CW);
+        gb_path_add_rect2i(path2, -200, -200, 400, 400, GB_ROTATE_DIRECTION_CW);
+        gb_path_add_rect2i(path2, -100, -100, 200, 200, GB_ROTATE_DIRECTION_CW);
+        gb_path_add_rect2i(path2, -50, -50, 100, 100, GB_ROTATE_DIRECTION_CW);
 
         // save path
         g_pathes[g_count++] = path2;

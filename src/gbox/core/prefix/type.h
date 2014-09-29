@@ -127,6 +127,14 @@ typedef struct __gb_point_t
 
 }gb_point_t, *gb_point_ref_t;
 
+/// the rotate direction enum
+typedef enum __gb_rotate_direction_e
+{
+    GB_ROTATE_DIRECTION_CW    = 0 //!< the clockwise direction
+,   GB_ROTATE_DIRECTION_CCW   = 1 //!< the counter-clockwise direction
+
+}gb_rotate_direction_e;
+
 /// the vector type
 typedef gb_point_t      gb_vector_t;
 

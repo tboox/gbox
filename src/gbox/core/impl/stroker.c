@@ -318,7 +318,7 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
         gb_rect_deflate(&rect_inner, radius, radius);
 
         // add the inner rect to the other path
-        gb_path_add_rect(impl->path_other, &rect_inner, GB_PATH_DIRECTION_CW);
+        gb_path_add_rect(impl->path_other, &rect_inner, GB_ROTATE_DIRECTION_CW);
     }
 
     // init the outer rect
@@ -358,7 +358,7 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
             // ...
 
             // add miter rect
-            gb_path_add_rect(impl->path_other, &rect_outer, GB_PATH_DIRECTION_CCW);
+            gb_path_add_rect(impl->path_other, &rect_outer, GB_ROTATE_DIRECTION_CCW);
         }
         break;
     case GB_PAINT_STROKE_JOIN_BEVEL:
@@ -384,7 +384,7 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
     case GB_PAINT_STROKE_JOIN_ROUND:
         {
             // add round rect
-            gb_path_add_round_rect2(impl->path_other, &rect_outer, radius, radius, GB_PATH_DIRECTION_CCW);
+            gb_path_add_round_rect2(impl->path_other, &rect_outer, radius, radius, GB_ROTATE_DIRECTION_CCW);
         }
         break;
     default:
@@ -422,7 +422,7 @@ tb_void_t gb_stroker_add_ellipse(gb_stroker_ref_t stroker, gb_ellipse_ref_t elli
         ellipse_inner.ry -= radius;
 
         // add the inner ellipse to the other path
-        gb_path_add_ellipse(impl->path_other, &ellipse_inner, GB_PATH_DIRECTION_CW);
+        gb_path_add_ellipse(impl->path_other, &ellipse_inner, GB_ROTATE_DIRECTION_CW);
     }
 
     // init the outer ellipse
@@ -433,7 +433,7 @@ tb_void_t gb_stroker_add_ellipse(gb_stroker_ref_t stroker, gb_ellipse_ref_t elli
     ellipse_outer.ry += radius;
 
     // add the inner and outer ellipse to the other path
-    gb_path_add_ellipse(impl->path_other, &ellipse_outer, GB_PATH_DIRECTION_CCW);
+    gb_path_add_ellipse(impl->path_other, &ellipse_outer, GB_ROTATE_DIRECTION_CCW);
 }
 tb_void_t gb_stroker_add_lines(gb_stroker_ref_t stroker, gb_point_ref_t points, tb_size_t count)
 {
@@ -476,7 +476,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
                 circle = gb_circle_make(point->x, point->y, radius);
 
                 // add circle to the other path
-                gb_path_add_circle(impl->path_other, &circle, GB_PATH_DIRECTION_CW);
+                gb_path_add_circle(impl->path_other, &circle, GB_ROTATE_DIRECTION_CW);
             }
         }
         break;
@@ -498,7 +498,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
                 rect = gb_rect_make(point->x - radius, point->y - radius, width, width);
 
                 // add rect to the other path
-                gb_path_add_rect(impl->path_other, &rect, GB_PATH_DIRECTION_CW);
+                gb_path_add_rect(impl->path_other, &rect, GB_ROTATE_DIRECTION_CW);
             }
         }
         break;

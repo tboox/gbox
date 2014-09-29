@@ -31,6 +31,7 @@
 #include "float.h"
 #include "color.h"
 #include "pixfmt.h"
+#include "vector.h"
 #include "matrix.h"
 #include "quality.h"
 #include "round_rect.h"

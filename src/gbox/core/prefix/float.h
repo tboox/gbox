@@ -44,7 +44,7 @@
 #define GB_NAN                  TB_FIXED_NAN
 #define GB_INF                  TB_FIXED_INF
 #define GB_PI                   TB_FIXED_PI
-#define GB_NEAR0                (TB_FIXED_ONE / (1 << 12))
+#define GB_NEAR0                TB_FIXED_NEAR0
 #define GB_SQRT2                TB_FIXED_SQRT2      //!< sqrt(2)
 #define GB_TAN_PIOVER8          (27146)             //!< tan(pi/8)
 #define GB_SQRT2_OVER2          (46341)             //!< sqrt(2)/2
@@ -80,6 +80,9 @@
 #define gb_round(x)             tb_fixed_round(x)
 #define gb_ceil(x)              tb_fixed_ceil(x)
 #define gb_floor(x)             tb_fixed_floor(x)
+
+// is finite?
+#define gb_isfinite(x)          ((x) != TB_FIXED_NAN)
 
 // functions
 #define gb_fabs(x)              tb_fixed_abs(x)
@@ -163,6 +166,9 @@
 #define gb_round(x)             tb_roundf(x)
 #define gb_ceil(x)              tb_ceilf(x)
 #define gb_floor(x)             tb_floorf(x)
+
+// is finite?
+#define gb_isfinite(x)          tb_isfinf(x)
 
 // functions
 #define gb_fabs(x)              tb_fabs(x)

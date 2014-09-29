@@ -57,6 +57,7 @@ __tb_extern_c_enter__
 #define TB_FIXED16_INF                      (TB_MAXS32)
 #define TB_FIXED16_PI                       (0x3243f)
 #define TB_FIXED16_SQRT2                    (92682)
+#define TB_FIXED16_NEAR0                    (TB_FIXED16_ONE / (1 << 12))
 
 // conversion
 #ifdef TB_CONFIG_TYPE_FLOAT
@@ -312,7 +313,7 @@ static __tb_inline__ tb_long_t tb_fixed16_to_long_check(tb_fixed16_t x)
 }
 static __tb_inline__ tb_fixed16_t tb_fixed16_mul_int64(tb_fixed16_t x, tb_fixed16_t y)
 {
-    return (tb_fixed16_t)((tb_hong_t)x * y >> 16);
+    return (tb_fixed16_t)(((tb_hong_t)x * y) >> 16);
 }
 static __tb_inline__ tb_fixed16_t tb_fixed16_div_int64(tb_fixed16_t x, tb_fixed16_t y)
 {
@@ -321,7 +322,7 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_div_int64(tb_fixed16_t x, tb_fixed1
 }
 static __tb_inline__ tb_fixed16_t tb_fixed16_sqre_int64(tb_fixed16_t x)
 {
-    return (tb_fixed16_t)((tb_hong_t)x * x >> 16);
+    return (tb_fixed16_t)(((tb_hong_t)x * x) >> 16);
 }
 static __tb_inline__ tb_fixed16_t tb_fixed16_imul_check(tb_fixed16_t x, tb_long_t y)
 {

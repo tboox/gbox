@@ -1169,7 +1169,7 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
         gb_ellipse_t ellipse = gb_ellipse_make(arc->c0.x, arc->c0.y, arc->rx, arc->ry);
 
         // add ellipse
-        gb_path_add_ellipse(path, &ellipse, gb_bz(arc->an)? GB_PATH_DIRECTION_CW : GB_PATH_DIRECTION_CCW);
+        gb_path_add_ellipse(path, &ellipse, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW);
         return ;
     }
 
@@ -1261,7 +1261,7 @@ tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect, tb_size_t dir
 
     // add rect
     gb_path_move2_to(path, rect->x, rect->y);
-    if (direction == GB_PATH_DIRECTION_CW)
+    if (direction == GB_ROTATE_DIRECTION_CW)
     {
         gb_path_line2_to(path, rect->x + rect->w, rect->y);
         gb_path_line2_to(path, rect->x + rect->w, rect->y + rect->h);
@@ -1345,7 +1345,7 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
 
     // add the round rect
     gb_path_move2_to(path, x, y + ry1);
-    if (direction == GB_PATH_DIRECTION_CW)
+    if (direction == GB_ROTATE_DIRECTION_CW)
     {
         gb_path_arc2_to(path,   x + rx1,        y + ry1,        rx1, ry1, -GB_DEGREE_180,   GB_DEGREE_90    );
         gb_path_line2_to(path,  x + w - rx2,    y                                                           );
@@ -1516,7 +1516,7 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_s
      * </pre>
      */
     gb_path_move2_to(path, x2, y0);
-    if (direction == GB_PATH_DIRECTION_CW)
+    if (direction == GB_ROTATE_DIRECTION_CW)
     {
         gb_path_quad2_to(path, x2,          y0 + sy,    x0 + mx,    y0 + my );
         gb_path_quad2_to(path, x0 + sx,     y2,         x0,         y2      );

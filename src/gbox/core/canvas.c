@@ -1021,7 +1021,7 @@ tb_void_t gb_canvas_draw_round_rect(gb_canvas_ref_t canvas, gb_round_rect_ref_t 
 
     // make rect
     gb_path_clear(path);
-    gb_path_add_round_rect(path, rect, GB_PATH_DIRECTION_CW);
+    gb_path_add_round_rect(path, rect, GB_ROTATE_DIRECTION_CW);
 
     // draw it
     gb_canvas_draw_path(canvas, path);
@@ -1059,7 +1059,7 @@ tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 
     // make circle
     gb_path_clear(path);
-    gb_path_add_circle(path, circle, GB_PATH_DIRECTION_CW);
+    gb_path_add_circle(path, circle, GB_ROTATE_DIRECTION_CW);
 
     // draw it
     gb_canvas_draw_path(canvas, path);
@@ -1095,7 +1095,7 @@ tb_void_t gb_canvas_draw_ellipse(gb_canvas_ref_t canvas, gb_ellipse_ref_t ellips
 
     // make ellipse
     gb_path_clear(path);
-    gb_path_add_ellipse(path, ellipse, GB_PATH_DIRECTION_CW);
+    gb_path_add_ellipse(path, ellipse, GB_ROTATE_DIRECTION_CW);
 
     // draw it
     gb_canvas_draw_path(canvas, path);

@@ -48,10 +48,10 @@ tb_void_t           gb_rect_apply(gb_rect_ref_t rect, gb_matrix_ref_t matrix);
 /*! apply matrix to rect
  *
  * @param rect      the rect 
- * @param output    the output rect 
+ * @param applied   the applied rect 
  * @param matrix    the matrix
  */
-tb_void_t           gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t output, gb_matrix_ref_t matrix);
+tb_void_t           gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t applied, gb_matrix_ref_t matrix);
 
 /*! inflate rect
  *

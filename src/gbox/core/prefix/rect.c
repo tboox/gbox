@@ -35,17 +35,17 @@ tb_void_t gb_rect_apply(gb_rect_ref_t rect, gb_matrix_ref_t matrix)
 {
     gb_rect_apply2(rect, rect, matrix);
 }
-tb_void_t gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t output, gb_matrix_ref_t matrix)
+tb_void_t gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t applied, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_and_check_return(rect && output && matrix);
+    tb_assert_and_check_return(rect && applied && matrix);
 
     // done
     gb_point_t points[2];
     points[0] = gb_point_make(rect->x, rect->y);
     points[1] = gb_point_make(rect->x + rect->w, rect->y + rect->h);
     gb_matrix_apply_points(matrix, points, tb_arrayn(points));
-    gb_bounds_make(output, points, tb_arrayn(points));
+    gb_bounds_make(applied, points, tb_arrayn(points));
 }
 tb_void_t gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 {

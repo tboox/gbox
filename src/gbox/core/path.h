@@ -49,14 +49,6 @@ typedef enum __gb_path_code_e
 
 }gb_path_code_e;
 
-/// the path direction enum
-typedef enum __gb_path_direction_e
-{
-    GB_PATH_DIRECTION_CW    = 0 //!< the clockwise direction
-,   GB_PATH_DIRECTION_CCW   = 1 //!< the counter-clockwise direction
-
-}gb_path_direction_e;
-
 /// the path item for the iterator
 typedef struct __gb_path_item_t
 {
