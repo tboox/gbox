@@ -28,7 +28,8 @@ tb_void_t gb_demo_arc_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     gb_canvas_draw_arc2i(canvas, 0, 0, 100, 50, 45, -22);
     gb_canvas_draw_arc2i(canvas, 0, 0, 10, 10, 300, -181);
     gb_canvas_draw_arc2i(canvas, 0, 0, 50, 20, -100, -222);
-//    gb_canvas_draw_arc2i(canvas, -50, -50, 50, 50, 180, 90);
+    gb_canvas_draw_arc2i(canvas, -50, -50, 50, 50, 180, 90);
+    gb_canvas_draw_arc2i(canvas, 50, -50, 50, 50, 90, 90);
 }
 tb_void_t gb_demo_arc_event(gb_window_ref_t window, gb_event_ref_t event)
 {

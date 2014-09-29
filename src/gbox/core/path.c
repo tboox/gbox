@@ -1327,39 +1327,47 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
         hint_maked              = tb_true;
     }
 
-    // TODO
-
     // the bounds
     gb_float_t x = rect->bounds.x;
     gb_float_t y = rect->bounds.y;
     gb_float_t w = rect->bounds.w;
-//    gb_float_t h = rect->bounds.h;
+    gb_float_t h = rect->bounds.h;
 
     // the x-radius
     gb_float_t rx1 = rect->rx[GB_RECT_CORNER_LT];
     gb_float_t rx2 = rect->rx[GB_RECT_CORNER_RT];
-//    gb_float_t rx3 = rect->rx[GB_RECT_CORNER_RB];
-//    gb_float_t rx4 = rect->rx[GB_RECT_CORNER_LB];
+    gb_float_t rx3 = rect->rx[GB_RECT_CORNER_RB];
+    gb_float_t rx4 = rect->rx[GB_RECT_CORNER_LB];
 
     // the y-radius
     gb_float_t ry1 = rect->ry[GB_RECT_CORNER_LT];
-//    gb_float_t ry2 = rect->ry[GB_RECT_CORNER_RT];
-//    gb_float_t ry3 = rect->ry[GB_RECT_CORNER_RB];
-//    gb_float_t ry4 = rect->ry[GB_RECT_CORNER_LB];
-
-
-    gb_path_add_arc2(path, x + rx1, y + ry1, rx1, ry1, GB_DEGREE_180, GB_DEGREE_90);
-    return ;
+    gb_float_t ry2 = rect->ry[GB_RECT_CORNER_RT];
+    gb_float_t ry3 = rect->ry[GB_RECT_CORNER_RB];
+    gb_float_t ry4 = rect->ry[GB_RECT_CORNER_LB];
 
     // add the round rect
     gb_path_move2_to(path, x, y + ry1);
     if (direction == GB_PATH_DIRECTION_CW)
     {
-//        gb_path_arc2_to(path, x + rx1, y + ry1, rx1, ry1, GB_DEGREE_180, GB_DEGREE_90);
-        gb_path_line2_to(path, x + w - rx2, y);
+        gb_path_arc2_to(path,   x + rx1,        y + ry1,        rx1, ry1, -GB_DEGREE_180,   GB_DEGREE_90    );
+        gb_path_line2_to(path,  x + w - rx2,    y                                                           );
+        gb_path_arc2_to(path,   x + w - rx2,    y + ry2,        rx2, ry2, -GB_DEGREE_90,    GB_DEGREE_90    );
+        gb_path_line2_to(path,  x + w,          y + h - ry3                                                 );
+        gb_path_arc2_to(path,   x + w - rx2,    y + h - ry3,    rx3, ry3, 0,                GB_DEGREE_90    );
+        gb_path_line2_to(path,  x + rx4,        y + h                                                       );
+        gb_path_arc2_to(path,   x + rx4,        y + h - ry4,    rx4, ry4, GB_DEGREE_90,     GB_DEGREE_90    );
+        gb_path_line2_to(path,  x,              y + ry1                                                     );
     }
     else
     {
+        gb_path_line2_to(path,  x,              y + h - ry4                                                 );
+        gb_path_arc2_to(path,   x + rx4,        y + h - ry4,    rx4, ry4, GB_DEGREE_180,    -GB_DEGREE_90   );
+        gb_path_line2_to(path,  x + w - rx3,    y + h                                                       );
+        gb_path_arc2_to(path,   x + w - rx2,    y + h - ry3,    rx3, ry3, GB_DEGREE_90,     -GB_DEGREE_90   );
+        gb_path_line2_to(path,  x + w,          y + ry3                                                     );
+        gb_path_arc2_to(path,   x + w - rx2,    y + ry2,        rx2, ry2, 0,                -GB_DEGREE_90   );
+        gb_path_line2_to(path,  x + rx1,        y                                                           );
+        gb_path_arc2_to(path,   x + rx1,        y + ry1,        rx1, ry1, -GB_DEGREE_90,    -GB_DEGREE_90   );
     }
     gb_path_clos(path);
 
