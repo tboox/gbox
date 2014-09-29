@@ -32,21 +32,17 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_round_rect_make(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_float_t rx[], gb_float_t ry[])
+tb_void_t gb_round_rect_make(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_vector_t radius[])
 {
     // check
-    tb_assert_abort(rect && bounds && rx && ry);
+    tb_assert_abort(rect && bounds && radius);
     tb_assert_static(GB_RECT_CORNER_MAXN == 4);
 
     // make it
-    rect->rx[0] = rx[0]; 
-    rect->rx[1] = rx[1];  
-    rect->rx[2] = rx[2]; 
-    rect->rx[3] = rx[3]; 
-    rect->ry[0] = ry[0]; 
-    rect->ry[1] = ry[1]; 
-    rect->ry[2] = ry[2]; 
-    rect->ry[3] = ry[3]; 
+    rect->radius[0] = radius[0]; 
+    rect->radius[1] = radius[1];  
+    rect->radius[2] = radius[2]; 
+    rect->radius[3] = radius[3]; 
 }
 tb_void_t gb_round_rect_make_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry)
 {
@@ -54,16 +50,15 @@ tb_void_t gb_round_rect_make_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds
     tb_assert_abort(rect && bounds);
     tb_assert_static(GB_RECT_CORNER_MAXN == 4);
 
+    // the radius
+    gb_vector_t radius = gb_vector_make(rx, ry);
+
     // make it
-    rect->rx[0] = rx; 
-    rect->rx[1] = rx; 
-    rect->rx[2] = rx; 
-    rect->rx[3] = rx; 
-    rect->ry[0] = ry; 
-    rect->ry[1] = ry; 
-    rect->ry[2] = ry; 
-    rect->ry[3] = ry;  
-    rect->bounds = *bounds;
+    rect->radius[0] = radius; 
+    rect->radius[1] = radius; 
+    rect->radius[2] = radius; 
+    rect->radius[3] = radius; 
+    rect->bounds    = *bounds;
 }
 tb_void_t gb_round_rect_imake_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, tb_size_t rx, tb_size_t ry)
 {
@@ -76,14 +71,14 @@ tb_bool_t gb_round_rect_is_rect(gb_round_rect_ref_t rect)
     tb_assert_abort(rect);
 
     // is rect?
-    return (    !gb_bz(rect->rx[0])
-            &&  !gb_bz(rect->rx[1])
-            &&  !gb_bz(rect->rx[2])
-            &&  !gb_bz(rect->rx[3])
-            &&  !gb_bz(rect->ry[0])
-            &&  !gb_bz(rect->ry[1])
-            &&  !gb_bz(rect->ry[2])
-            &&  !gb_bz(rect->ry[3]))? tb_true : tb_false;
+    return (    !gb_bz(rect->radius[0].x)
+            &&  !gb_bz(rect->radius[0].y)
+            &&  !gb_bz(rect->radius[1].x)
+            &&  !gb_bz(rect->radius[1].y)
+            &&  !gb_bz(rect->radius[2].x)
+            &&  !gb_bz(rect->radius[2].y)
+            &&  !gb_bz(rect->radius[3].x)
+            &&  !gb_bz(rect->radius[3].y))? tb_true : tb_false;
 }
 tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
 {
@@ -95,12 +90,12 @@ tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
     gb_float_t ry = gb_rsh(rect->bounds.h, 1);
 
     // is rect?
-    return (    rect->rx[0] >= rx
-            &&  rect->rx[1] >= rx
-            &&  rect->rx[2] >= rx
-            &&  rect->rx[3] >= rx
-            &&  rect->ry[0] >= ry
-            &&  rect->ry[1] >= ry
-            &&  rect->ry[2] >= ry
-            &&  rect->ry[3] >= ry)? tb_true : tb_false;
+    return (    rect->radius[0].x >= rx
+            &&  rect->radius[0].y >= ry
+            &&  rect->radius[1].x >= rx
+            &&  rect->radius[1].y >= ry
+            &&  rect->radius[2].x >= rx
+            &&  rect->radius[2].y >= ry
+            &&  rect->radius[3].x >= rx
+            &&  rect->radius[3].y >= ry)? tb_true : tb_false;
 }

@@ -1333,17 +1333,15 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
     gb_float_t w = rect->bounds.w;
     gb_float_t h = rect->bounds.h;
 
-    // the x-radius
-    gb_float_t rx1 = rect->rx[GB_RECT_CORNER_LT];
-    gb_float_t rx2 = rect->rx[GB_RECT_CORNER_RT];
-    gb_float_t rx3 = rect->rx[GB_RECT_CORNER_RB];
-    gb_float_t rx4 = rect->rx[GB_RECT_CORNER_LB];
-
-    // the y-radius
-    gb_float_t ry1 = rect->ry[GB_RECT_CORNER_LT];
-    gb_float_t ry2 = rect->ry[GB_RECT_CORNER_RT];
-    gb_float_t ry3 = rect->ry[GB_RECT_CORNER_RB];
-    gb_float_t ry4 = rect->ry[GB_RECT_CORNER_LB];
+    // the radius
+    gb_float_t rx1 = rect->radius[GB_RECT_CORNER_LT].x;
+    gb_float_t ry1 = rect->radius[GB_RECT_CORNER_LT].y;
+    gb_float_t rx2 = rect->radius[GB_RECT_CORNER_RT].x;
+    gb_float_t ry2 = rect->radius[GB_RECT_CORNER_RT].y;
+    gb_float_t rx3 = rect->radius[GB_RECT_CORNER_RB].x;
+    gb_float_t ry3 = rect->radius[GB_RECT_CORNER_RB].y;
+    gb_float_t rx4 = rect->radius[GB_RECT_CORNER_LB].x;
+    gb_float_t ry4 = rect->radius[GB_RECT_CORNER_LB].y;
 
     // add the round rect
     gb_path_move2_to(path, x, y + ry1);

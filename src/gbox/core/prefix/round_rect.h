@@ -42,10 +42,9 @@ __tb_extern_c_enter__
  *
  * @param rect      the rect 
  * @param bounds    the bounds 
- * @param rx        the x-radius of the four corners
- * @param ry        the y-radius of the four corners
+ * @param radius    the radius of the four corners
  */
-tb_void_t           gb_round_rect_make(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_float_t rx[], gb_float_t ry[]);
+tb_void_t           gb_round_rect_make(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_vector_t radius[]);
 
 /*! make round rect using the same x and y radius
  *

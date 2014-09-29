@@ -177,7 +177,7 @@ typedef struct __gb_round_rect_t
     // the bounds
     gb_rect_t           bounds;
 
-    /*! the x-radius of the four corners
+    /*! the radius of the four corners
      *
      * <pre>
      *  
@@ -193,24 +193,7 @@ typedef struct __gb_round_rect_t
      *
      * </pre>
      */
-    gb_float_t          rx[GB_RECT_CORNER_MAXN];
-
-    /*! the y-radius of the four corners
-     * <pre>
-     *  
-     *  lt                     rt
-     *   --------------------->
-     * /|\                     |
-     *  |                      |
-     *  |                      |
-     *  |                      |
-     *  |                     \|/
-     *  <----------------------
-     *  lb                     rb
-     *
-     * </pre>
-     */
-    gb_float_t          ry[GB_RECT_CORNER_MAXN];
+    gb_vector_t         radius[GB_RECT_CORNER_MAXN];
 
 }gb_round_rect_t, *gb_round_rect_ref_t;
 
@@ -412,6 +395,40 @@ static __tb_inline__ gb_point_t     gb_point_imake(tb_long_t x, tb_long_t y)
     pt.y = gb_long_to_float(y);
 
     return pt;
+}
+
+/*! make vector
+ *
+ * @param x                         the x
+ * @param y                         the y
+ *
+ * @return                          the vector
+ */
+static __tb_inline__ gb_vector_t    gb_vector_make(gb_float_t x, gb_float_t y)
+{
+    gb_vector_t vt;
+
+    vt.x = x;
+    vt.y = y;
+
+    return vt;
+}
+
+/*! make vector with the integer value
+ *
+ * @param x                         the x
+ * @param y                         the y
+ *
+ * @return                          the vector
+ */
+static __tb_inline__ gb_point_t     gb_vector_imake(tb_long_t x, tb_long_t y)
+{
+    gb_vector_t vt;
+
+    vt.x = gb_long_to_float(x);
+    vt.y = gb_long_to_float(y);
+
+    return vt;
 }
 
 /*! make rect
