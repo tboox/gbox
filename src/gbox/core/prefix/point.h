@@ -69,6 +69,13 @@ tb_void_t           gb_point_apply(gb_point_ref_t point, gb_matrix_ref_t matrix)
  */
 tb_void_t           gb_point_apply2(gb_point_ref_t point, gb_point_ref_t applied, gb_matrix_ref_t matrix);
 
+/*! the distance of the point to the other point
+ *
+ * @param point     the point
+ * @param other     the other point
+ */
+gb_float_t          gb_point_distance(gb_point_ref_t point, gb_point_ref_t other);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

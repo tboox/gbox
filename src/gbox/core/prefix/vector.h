@@ -110,8 +110,36 @@ gb_float_t              gb_vector_length(gb_vector_ref_t vector);
  * 
  * @param vector        the vector
  * @param length        the vector length
+ *
+ * @return              tb_true or tb_false
  */
 tb_bool_t               gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length);
+
+/*! normalize the vector
+ * 
+ * @param vector        the vector
+ * 
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_normalize(gb_vector_ref_t vector);
+
+/*! compute the dot product for the two vectors
+ *
+ * @param vector        the vector
+ * @param other         the other vector
+ *
+ * @return              the dot product
+ */
+gb_float_t              gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t other);
+
+/*! compute the cross product for the two vectors
+ * 
+ * @param vector        the vector
+ * @param other         the other vector
+ *
+ * @return              the cross product
+ */
+gb_float_t              gb_vector_cross(gb_vector_ref_t vector, gb_vector_ref_t other);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

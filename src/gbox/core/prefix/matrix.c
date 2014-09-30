@@ -70,7 +70,7 @@ static __tb_inline__ gb_float_t gb_matrix_mul_add(gb_float_t a, gb_float_t b, gb
 static __tb_inline__ tb_double_t gb_matrix_det(gb_float_t sx, gb_float_t sy, gb_float_t kx, gb_float_t ky)
 {
     tb_double_t det = (tb_double_t)sx * sy - (tb_double_t)kx * ky;
-    if (gb_fabs(det) < GB_NEAR0 * GB_NEAR0 * GB_NEAR0) return 0.;
+    if (gb_fabs(det) <= GB_NEAR0 * GB_NEAR0 * GB_NEAR0) return 0.;
     return 1. / det;
 }
 #endif

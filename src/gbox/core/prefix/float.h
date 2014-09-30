@@ -38,7 +38,7 @@
 // constant
 #define GB_ONE                  TB_FIXED_ONE
 #define GB_TWO                  (TB_FIXED_ONE + TB_FIXED_ONE)
-#define GB_HAF                  TB_FIXED_HALF
+#define GB_HALF                 TB_FIXED_HALF
 #define GB_MAF                  TB_FIXED_MAX
 #define GB_MIF                  TB_FIXED_MIN
 #define GB_NAN                  TB_FIXED_NAN
@@ -126,7 +126,7 @@
 // constant
 #define GB_ONE                  (1.0f)
 #define GB_TWO                  (2.0f)
-#define GB_HAF                  (0.5f)
+#define GB_HALF                 (0.5f)
 #define GB_MAF                  TB_MAF
 #define GB_MIF                  TB_MIF
 #define GB_NAN                  TB_NAN
@@ -163,9 +163,9 @@
 #define gb_radian_to_degree(x)  ((x) * GB_180OVERPI)
 
 // round
-#define gb_round(x)             tb_roundf(x)
-#define gb_ceil(x)              tb_ceilf(x)
-#define gb_floor(x)             tb_floorf(x)
+#define gb_round(x)             tb_round(x)
+#define gb_ceil(x)              tb_ceil(x)
+#define gb_floor(x)             tb_floor(x)
 
 // is finite?
 #define gb_isfinite(x)          tb_isfinf(x)

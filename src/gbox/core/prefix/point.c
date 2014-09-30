@@ -25,6 +25,7 @@
  * includes
  */
 #include "point.h"
+#include "vector.h"
 #include "matrix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -64,4 +65,16 @@ tb_void_t gb_point_apply2(gb_point_ref_t point, gb_point_ref_t applied, gb_matri
 	gb_float_t y = point->y;
 	applied->x = gb_matrix_apply_x(matrix, x, y);
 	applied->y = gb_matrix_apply_y(matrix, x, y);
+}
+gb_float_t gb_point_distance(gb_point_ref_t point, gb_point_ref_t other)
+{
+    // check
+    tb_assert_abort(point && other);
+ 
+    // make vector: point => other
+    gb_vector_t vector;
+    gb_vector_make(&vector, other->x - point->x, other->y - point->y);
+
+    // the distance
+    return gb_vector_length(&vector);
 }
