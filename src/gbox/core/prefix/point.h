@@ -76,6 +76,15 @@ tb_void_t           gb_point_apply2(gb_point_ref_t point, gb_point_ref_t applied
  */
 gb_float_t          gb_point_distance(gb_point_ref_t point, gb_point_ref_t other);
 
+/*! be equal to the other point?
+ *
+ * @param point     the point
+ * @param other     the other point
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_point_equal(gb_point_ref_t point, gb_point_ref_t other);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

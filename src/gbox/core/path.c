@@ -1098,6 +1098,14 @@ tb_void_t gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_si
     // arc-to
     gb_path_arc_to(path, &arc);
 }
+tb_void_t gb_path_path_to(gb_path_ref_t path, gb_path_ref_t added)
+{
+    tb_trace_noimpl();
+}
+tb_void_t gb_path_rpath_to(gb_path_ref_t path, gb_path_ref_t added)
+{
+    tb_trace_noimpl();
+}
 tb_void_t gb_path_add_path(gb_path_ref_t path, gb_path_ref_t added)
 {
     // null? copy it
@@ -1132,6 +1140,10 @@ tb_void_t gb_path_add_path(gb_path_ref_t path, gb_path_ref_t added)
             }
         }
     }
+}
+tb_void_t gb_path_add_rpath(gb_path_ref_t path, gb_path_ref_t added)
+{
+    tb_trace_noimpl();
 }
 tb_void_t gb_path_add_line(gb_path_ref_t path, gb_line_ref_t line)
 {

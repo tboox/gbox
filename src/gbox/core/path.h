@@ -288,12 +288,33 @@ tb_void_t           gb_path_arc2_to(gb_path_ref_t path, gb_float_t x0, gb_float_
  */
 tb_void_t           gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an);
 
+/*! add path and ignore the first point
+ *
+ * @param path      the path
+ * @param added     the added path
+ */
+tb_void_t           gb_path_path_to(gb_path_ref_t path, gb_path_ref_t added);
+
+/*! add path in reverse order and ignore the last point
+ *
+ * @param path      the path
+ * @param added     the added path
+ */
+tb_void_t           gb_path_rpath_to(gb_path_ref_t path, gb_path_ref_t added);
+
 /*! add path
  *
  * @param path      the path
  * @param added     the added path
  */
 tb_void_t           gb_path_add_path(gb_path_ref_t path, gb_path_ref_t added);
+
+/*! add path in reverse order
+ *
+ * @param path      the path
+ * @param added     the added path
+ */
+tb_void_t           gb_path_add_rpath(gb_path_ref_t path, gb_path_ref_t added);
 
 /*! add line
  *

@@ -78,3 +78,11 @@ gb_float_t gb_point_distance(gb_point_ref_t point, gb_point_ref_t other)
     // the distance
     return gb_vector_length(&vector);
 }
+tb_bool_t gb_point_equal(gb_point_ref_t point, gb_point_ref_t other)
+{
+    // check
+    tb_assert_abort(point && other);
+ 
+    // equal?
+    return ((point->x == other->x) && (point->y == other->y))? tb_true : tb_false;
+}
