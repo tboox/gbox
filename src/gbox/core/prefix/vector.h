@@ -35,15 +35,32 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * macros
- */
-
-/// make vector from point
-#define gb_vector_make_from_point(point)    (*((gb_vector_ref_t)(point)))
-
-/* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
+
+/*! make vector
+ *
+ * @param vector        the vector
+ * @param x             the x
+ * @param y             the y
+ */
+tb_void_t               gb_vector_make(gb_vector_ref_t vector, gb_float_t x, gb_float_t y);
+
+/*! make vector with the integer value
+ *
+ * @param vector        the vector
+ * @param x             the x
+ * @param y             the y
+ */
+tb_void_t               gb_vector_imake(gb_vector_ref_t vector, tb_long_t x, tb_long_t y);
+
+/*! make vector from the given point
+ *
+ * @param vector        the vector
+ * @param x             the x
+ * @param y             the y
+ */
+tb_void_t               gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point);
 
 /*! nagate the vector
  * 
@@ -84,9 +101,17 @@ tb_void_t               gb_vector_scale2(gb_vector_ref_t vector, gb_vector_ref_t
 /*! the vector length
  * 
  * @param vector        the vector
+ *
+ * @return              the vector length
  */
 gb_float_t              gb_vector_length(gb_vector_ref_t vector);
 
+/*! set the vector length
+ * 
+ * @param vector        the vector
+ * @param length        the vector length
+ */
+tb_bool_t               gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

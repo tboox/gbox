@@ -27,8 +27,6 @@
  * includes
  */
 #include "gbox/gbox.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -44,6 +42,7 @@
 // core
 TB_DEMO_MAIN_DECL(core_path);
 TB_DEMO_MAIN_DECL(core_bitmap);
+TB_DEMO_MAIN_DECL(core_vector);
 
 // other
 TB_DEMO_MAIN_DECL(other_test);

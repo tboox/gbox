@@ -380,12 +380,8 @@ __tb_extern_c_enter__
  */
 static __tb_inline__ gb_point_t     gb_point_make(gb_float_t x, gb_float_t y)
 {
-    gb_point_t pt;
-
-    pt.x = x;
-    pt.y = y;
-
-    return pt;
+    gb_point_t point = {x, y};
+    return point;
 }
 
 /*! make point with the integer value
@@ -397,46 +393,7 @@ static __tb_inline__ gb_point_t     gb_point_make(gb_float_t x, gb_float_t y)
  */
 static __tb_inline__ gb_point_t     gb_point_imake(tb_long_t x, tb_long_t y)
 {
-    gb_point_t pt;
-
-    pt.x = gb_long_to_float(x);
-    pt.y = gb_long_to_float(y);
-
-    return pt;
-}
-
-/*! make vector
- *
- * @param x                         the x
- * @param y                         the y
- *
- * @return                          the vector
- */
-static __tb_inline__ gb_vector_t    gb_vector_make(gb_float_t x, gb_float_t y)
-{
-    gb_vector_t vt;
-
-    vt.x = x;
-    vt.y = y;
-
-    return vt;
-}
-
-/*! make vector with the integer value
- *
- * @param x                         the x
- * @param y                         the y
- *
- * @return                          the vector
- */
-static __tb_inline__ gb_point_t     gb_vector_imake(tb_long_t x, tb_long_t y)
-{
-    gb_vector_t vt;
-
-    vt.x = gb_long_to_float(x);
-    vt.y = gb_long_to_float(y);
-
-    return vt;
+    return gb_point_make(gb_long_to_float(x), gb_long_to_float(y));
 }
 
 /*! make rect
@@ -450,14 +407,8 @@ static __tb_inline__ gb_point_t     gb_vector_imake(tb_long_t x, tb_long_t y)
  */
 static __tb_inline__ gb_rect_t      gb_rect_make(gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
-    gb_rect_t r;
-
-    r.x = x;
-    r.y = y;
-    r.w = w;
-    r.h = h;
-
-    return r;
+    gb_rect_t rect = {x, y, w, h};
+    return rect;
 }
 
 /*! make rect with the integer value
@@ -471,14 +422,7 @@ static __tb_inline__ gb_rect_t      gb_rect_make(gb_float_t x, gb_float_t y, gb_
  */
 static __tb_inline__ gb_rect_t      gb_rect_imake(tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
 {
-    gb_rect_t r;
-
-    r.x = gb_long_to_float(x);
-    r.y = gb_long_to_float(y);
-    r.w = gb_long_to_float(w);
-    r.h = gb_long_to_float(h);
-
-    return r;
+    return gb_rect_make(gb_long_to_float(x), gb_long_to_float(y), gb_long_to_float(w), gb_long_to_float(h));
 }
 
 /*! make line
@@ -492,14 +436,8 @@ static __tb_inline__ gb_rect_t      gb_rect_imake(tb_long_t x, tb_long_t y, tb_s
  */
 static __tb_inline__ gb_line_t      gb_line_make(gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
-    gb_line_t l;
-
-    l.p0.x = x0;
-    l.p0.y = y0;
-    l.p1.x = x1;
-    l.p1.y = y1;
-
-    return l;
+    gb_line_t line = {{x0, y0}, {x1, y1}};
+    return line;
 }
 
 /*! make line with the integer value
@@ -513,14 +451,7 @@ static __tb_inline__ gb_line_t      gb_line_make(gb_float_t x0, gb_float_t y0, g
  */
 static __tb_inline__ gb_line_t      gb_line_imake(tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1)
 {
-    gb_line_t l;
-
-    l.p0.x = gb_long_to_float(x0);
-    l.p0.y = gb_long_to_float(y0);
-    l.p1.x = gb_long_to_float(x1);
-    l.p1.y = gb_long_to_float(y1);
-
-    return l;
+    return gb_line_make(gb_long_to_float(x0), gb_long_to_float(y0), gb_long_to_float(x1), gb_long_to_float(y1));
 }
 
 /*! make triangle
@@ -536,16 +467,8 @@ static __tb_inline__ gb_line_t      gb_line_imake(tb_long_t x0, tb_long_t y0, tb
  */
 static __tb_inline__ gb_triangle_t  gb_triangle_make(gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
-    gb_triangle_t t;
-
-    t.p0.x = x0;
-    t.p0.y = y0;
-    t.p1.x = x1;
-    t.p1.y = y1;
-    t.p2.x = x2;
-    t.p2.y = y2;
-
-    return t;
+    gb_triangle_t triangle = {{x0, y0}, {x1, y1}, {x2, y2}};
+    return triangle;
 }
 
 /*! make triangle with the integer value
@@ -561,16 +484,7 @@ static __tb_inline__ gb_triangle_t  gb_triangle_make(gb_float_t x0, gb_float_t y
  */
 static __tb_inline__ gb_triangle_t  gb_triangle_imake(tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
-    gb_triangle_t t;
-
-    t.p0.x = gb_long_to_float(x0);
-    t.p0.y = gb_long_to_float(y0);
-    t.p1.x = gb_long_to_float(x1);
-    t.p1.y = gb_long_to_float(y1);
-    t.p2.x = gb_long_to_float(x2);
-    t.p2.y = gb_long_to_float(y2);
-
-    return t;
+    return gb_triangle_make(gb_long_to_float(x0), gb_long_to_float(y0), gb_long_to_float(x1), gb_long_to_float(y1), gb_long_to_float(x2), gb_long_to_float(y2));
 }
 
 /*! make circle
@@ -583,13 +497,8 @@ static __tb_inline__ gb_triangle_t  gb_triangle_imake(tb_long_t x0, tb_long_t y0
  */
 static __tb_inline__ gb_circle_t    gb_circle_make(gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
-    gb_circle_t c;
-
-    c.c.x   = x0;
-    c.c.y   = y0;
-    c.r     = r;
-
-    return c;
+    gb_circle_t circle = {{x0, y0}, r};
+    return circle;
 }
 
 /*! make circle with the integer value
@@ -602,13 +511,7 @@ static __tb_inline__ gb_circle_t    gb_circle_make(gb_float_t x0, gb_float_t y0,
  */
 static __tb_inline__ gb_circle_t    gb_circle_imake(tb_long_t x0, tb_long_t y0, tb_size_t r)
 {
-    gb_circle_t c;
-
-    c.c.x   = gb_long_to_float(x0);
-    c.c.y   = gb_long_to_float(y0);
-    c.r     = gb_long_to_float(r);
-
-    return c;
+    return gb_circle_make(gb_long_to_float(x0), gb_long_to_float(y0), gb_long_to_float(r));
 }
 
 /*! make ellipse

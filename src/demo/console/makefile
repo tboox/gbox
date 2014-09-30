@@ -11,6 +11,7 @@ demo_TYPE 									= BIN
 demo_C_FILES 								+= \
 											demo \
 											core/path \
+											core/vector \
 											core/bitmap \
 											other/test
 

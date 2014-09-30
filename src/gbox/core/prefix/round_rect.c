@@ -51,7 +51,8 @@ tb_void_t gb_round_rect_make_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds
     tb_assert_static(GB_RECT_CORNER_MAXN == 4);
 
     // the radius
-    gb_vector_t radius = gb_vector_make(rx, ry);
+    gb_vector_t radius;
+    gb_vector_make(&radius, rx, ry);
 
     // make it
     rect->radius[0] = radius; 

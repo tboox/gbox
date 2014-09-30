@@ -36,10 +36,31 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+tb_void_t gb_vector_make(gb_vector_ref_t vector, gb_float_t x, gb_float_t y)
+{
+    // check
+    tb_assert_abort(vector);
+
+    // make it
+    vector->x = x;
+    vector->y = y;
+}
+tb_void_t gb_vector_imake(gb_vector_ref_t vector, tb_long_t x, tb_long_t y)
+{
+    gb_vector_make(vector, gb_long_to_float(x), gb_long_to_float(y));
+}
+tb_void_t gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point)
+{
+    // check
+    tb_assert_abort(vector && point);
+
+    // make it
+    *vector = *((gb_vector_ref_t)point);
+}
 tb_void_t gb_vector_negate(gb_vector_ref_t vector)
 {
     // check
-    tb_assert_and_check_return(vector);
+    tb_assert_abort(vector);
 
     // negate it
     vector->x = -vector->x;
@@ -53,7 +74,7 @@ tb_void_t gb_vector_rotate(gb_vector_ref_t vector, tb_size_t direction)
 tb_void_t gb_vector_rotate2(gb_vector_ref_t vector, gb_vector_ref_t rotated, tb_size_t direction)
 {
     // check
-    tb_assert_and_check_return(vector && rotated);
+    tb_assert_abort(vector && rotated);
 
     /* rotate it
      *
@@ -80,7 +101,7 @@ tb_void_t gb_vector_scale(gb_vector_ref_t vector, gb_float_t scale)
 tb_void_t gb_vector_scale2(gb_vector_ref_t vector, gb_vector_ref_t scaled, gb_float_t scale)
 {
     // check
-    tb_assert_and_check_return(vector && scaled);
+    tb_assert_abort(vector && scaled);
 
     // scale it
     scaled->x = gb_mul(vector->x, scale);
@@ -89,33 +110,47 @@ tb_void_t gb_vector_scale2(gb_vector_ref_t vector, gb_vector_ref_t scaled, gb_fl
 gb_float_t gb_vector_length(gb_vector_ref_t vector)
 {
     // check
-    tb_assert_and_check_return_val(vector, 0);
+    tb_assert_abort(vector);
 
     // the dx and dy
     gb_float_t dx = vector->x;
     gb_float_t dy = vector->y;
 
+    // the length
+    gb_float_t length = 0;
+
+#ifdef GB_CONFIG_FLOAT_FIXED
     // attempt to compute the length directly
-    gb_float_t length = gb_sqre(dx) + gb_sqre(dy);
-    if (gb_isfinite(length)) length = gb_sqrt(length);
+    tb_hong_t dd = ((tb_hong_t)dx * dx + (tb_hong_t)dy * dy) >> 16;
+    if (!(dd >> 32)) length = gb_sqrt((tb_long_t)dd);
     else
     {
-#ifdef TB_CONFIG_TYPE_FLOAT
+#   ifdef TB_CONFIG_TYPE_FLOAT
         // compute the length using the double value
-        tb_double_t xx = gb_float_to_tb(dx);
-        tb_double_t yy = gb_float_to_tb(dy);
-        length = (tb_float_t)tb_sqrt(xx * xx + yy * yy);
-#else
+        tb_double_t xx      = gb_float_to_tb(dx);
+        tb_double_t yy      = gb_float_to_tb(dy);
+        tb_float_t  lengthf = (tb_float_t)tb_sqrt(xx * xx + yy * yy);
+        length = tb_float_to_gb(lengthf);
+#   else
         // trace
-        tb_trace_e("compute length failed!");
-
-        // clear length
-        length = 0;
-
+        tb_trace_e("cannot compute: %{vector}.length", vector);
+        
         // abort it for the debug mode
         tb_assert_abort(0);
-#endif
+#   endif
     }
+#else
+    // attempt to compute the length directly
+    tb_float_t dd = dx * dx + dy * dy;
+    if (gb_isfinite(dd)) length = dd;
+    else
+    {
+        // compute the length using the double value
+        tb_double_t xx = dx;
+        tb_double_t yy = dy;
+        length = (tb_float_t)tb_sqrt(xx * xx + yy * yy);
+    }
+#endif
 
     // ok?
     return length;
