@@ -298,7 +298,7 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
 
     // init matrix
     gb_matrix_t matrix;
-    gb_matrix_init_translate(&matrix, arc->c0.x, arc->c0.y);
+    gb_matrix_init_translate(&matrix, arc->c.x, arc->c.y);
     gb_matrix_scale(&matrix, arc->rx, arc->ry);
     gb_matrix_sincos(&matrix, start_point.y, start_point.x);
     if (!clockwise) gb_matrix_scale(&matrix, GB_ONE, -GB_ONE);

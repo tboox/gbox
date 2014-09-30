@@ -17,54 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        ellipse.h
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_PREFIX_PREFIX_H
-#define GB_CORE_PREFIX_PREFIX_H
+#ifndef GB_CORE_PREFIX_ELLIPSE_H
+#define GB_CORE_PREFIX_ELLIPSE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../../prefix.h"
 #include "type.h"
-#include "arc.h"
-#include "line.h"
-#include "rect.h"
-#include "point.h"
-#include "float.h"
-#include "color.h"
-#include "circle.h"
-#include "pixfmt.h"
-#include "vector.h"
-#include "matrix.h"
-#include "ellipse.h"
-#include "quality.h"
-#include "triangle.h"
-#include "round_rect.h"
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * macros
- */
-
-/// the width maxn
-#define GB_WIDTH_MAXN           (8192)
-
-/// the height maxn
-#define GB_HEIGHT_MAXN          (8192)
-
-/*! the min-alpha
- *
- * is_transparent = alpha < GB_ALPHA_MINN? tb_true : tb_false
- */
-#define GB_ALPHA_MINN           ((tb_byte_t)((GB_QUALITY_TOP - gb_quality()) << 3))
-
-/*! the max-alpha 
- *
- * @code
- * has_alpha = alpha < GB_QUALITY_ALPHA_MAXN? tb_true : tb_false
- * @endcode
- */
-#define GB_ALPHA_MAXN           ((tb_byte_t)(0xff - ((GB_QUALITY_TOP - gb_quality()) << 3)))
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -75,20 +38,36 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/*! init prefix
+/*! make ellipse
  *
- * @return  tb_true or tb_false
+ * @param ellipse   the ellipse
+ * @param x0        the x0
+ * @param y0        the y0
+ * @param rx        the x-radius
+ * @param ry        the y-radius
  */
-tb_bool_t   gb_prefix_init(tb_noarg_t);
+tb_void_t           gb_ellipse_make(gb_ellipse_ref_t ellipse, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry);
 
-/*! exit prefix
+/*! make ellipse with the integer value
+ *
+ * @param ellipse   the ellipse
+ * @param x0        the x0
+ * @param y0        the y0
+ * @param rx        the x-radius
+ * @param ry        the y-radius
  */
-tb_void_t   gb_prefix_exit(tb_noarg_t);
+tb_void_t           gb_ellipse_imake(gb_ellipse_ref_t ellipse, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry);
+
+/*! make ellipse from rect
+ *
+ * @param ellipse   the ellipse
+ * @param rect      the rect
+ */
+tb_void_t           gb_ellipse_make_from_rect(gb_ellipse_ref_t ellipse, gb_rect_ref_t rect);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_leave__
+
 #endif
-
-

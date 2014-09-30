@@ -679,7 +679,8 @@ tb_void_t gb_canvas_arc_to(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 tb_void_t gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_make(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_make(&arc, x0, y0, rx, ry, ab, an);
 
     // arc-to
     gb_canvas_arc_to(canvas, &arc);
@@ -687,7 +688,8 @@ tb_void_t gb_canvas_arc2_to(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0
 tb_void_t gb_canvas_arc2i_to(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_imake(&arc, x0, y0, rx, ry, ab, an);
 
     // arc-to
     gb_canvas_arc_to(canvas, &arc);
@@ -705,7 +707,8 @@ tb_void_t gb_canvas_clip_triangle(gb_canvas_ref_t canvas, tb_size_t mode, gb_tri
 tb_void_t gb_canvas_clip_triangle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
     // make triangle
-    gb_triangle_t triangle = gb_triangle_make(x0, y0, x1, y1, x2, y2);
+    gb_triangle_t triangle;
+    gb_triangle_make(&triangle, x0, y0, x1, y1, x2, y2);
 
     // clip triangle
     gb_canvas_clip_triangle(canvas, mode, &triangle);
@@ -713,7 +716,8 @@ tb_void_t gb_canvas_clip_triangle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_fl
 tb_void_t gb_canvas_clip_triangle2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
     // make triangle
-    gb_triangle_t triangle = gb_triangle_imake(x0, y0, x1, y1, x2, y2);
+    gb_triangle_t triangle;
+    gb_triangle_imake(&triangle, x0, y0, x1, y1, x2, y2);
 
     // clip triangle
     gb_canvas_clip_triangle(canvas, mode, &triangle);
@@ -772,7 +776,8 @@ tb_void_t gb_canvas_clip_circle(gb_canvas_ref_t canvas, tb_size_t mode, gb_circl
 tb_void_t gb_canvas_clip_circle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
     // make circle
-    gb_circle_t circle = gb_circle_make(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_make(&circle, x0, y0, r);
 
     // clip circle
     gb_canvas_clip_circle(canvas, mode, &circle);
@@ -780,7 +785,8 @@ tb_void_t gb_canvas_clip_circle2(gb_canvas_ref_t canvas, tb_size_t mode, gb_floa
 tb_void_t gb_canvas_clip_circle2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t r)
 {
     // make circle
-    gb_circle_t circle = gb_circle_imake(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_imake(&circle, x0, y0, r);
 
     // clip circle
     gb_canvas_clip_circle(canvas, mode, &circle);
@@ -793,7 +799,8 @@ tb_void_t gb_canvas_clip_ellipse(gb_canvas_ref_t canvas, tb_size_t mode, gb_elli
 tb_void_t gb_canvas_clip_ellipse2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_make(x0, y0, rx, ry);
+    gb_ellipse_t ellipse;
+    gb_ellipse_make(&ellipse, x0, y0, rx, ry);
 
     // clip ellipse
     gb_canvas_clip_ellipse(canvas, mode, &ellipse);
@@ -801,7 +808,8 @@ tb_void_t gb_canvas_clip_ellipse2(gb_canvas_ref_t canvas, tb_size_t mode, gb_flo
 tb_void_t gb_canvas_clip_ellipse2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry)
 {
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_imake(x0, y0, rx, ry);
+    gb_ellipse_t ellipse;
+    gb_ellipse_imake(&ellipse, x0, y0, rx, ry);
 
     // clip ellipse
     gb_canvas_clip_ellipse(canvas, mode, &ellipse);
@@ -913,7 +921,8 @@ tb_void_t gb_canvas_draw_arc(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 tb_void_t gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_make(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_make(&arc, x0, y0, rx, ry, ab, an);
 
     // draw arc
     gb_canvas_draw_arc(canvas, &arc);
@@ -921,7 +930,8 @@ tb_void_t gb_canvas_draw_arc2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t 
 tb_void_t gb_canvas_draw_arc2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;    
+    gb_arc_imake(&arc, x0, y0, rx, ry, ab, an);
 
     // draw arc
     gb_canvas_draw_arc(canvas, &arc);
@@ -952,7 +962,8 @@ tb_void_t gb_canvas_draw_triangle(gb_canvas_ref_t canvas, gb_triangle_ref_t tria
 tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
     // make triangle
-    gb_triangle_t triangle = gb_triangle_make(x0, y0, x1, y1, x2, y2);
+    gb_triangle_t triangle;
+    gb_triangle_make(&triangle, x0, y0, x1, y1, x2, y2);
 
     // draw triangle
     gb_canvas_draw_triangle(canvas, &triangle);
@@ -960,7 +971,8 @@ tb_void_t gb_canvas_draw_triangle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_flo
 tb_void_t gb_canvas_draw_triangle2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
     // make triangle
-    gb_triangle_t triangle = gb_triangle_imake(x0, y0, x1, y1, x2, y2);
+    gb_triangle_t triangle;
+    gb_triangle_imake(&triangle, x0, y0, x1, y1, x2, y2);
 
     // draw triangle
     gb_canvas_draw_triangle(canvas, &triangle);
@@ -1030,7 +1042,8 @@ tb_void_t gb_canvas_draw_round_rect(gb_canvas_ref_t canvas, gb_round_rect_ref_t 
     else if (gb_round_rect_is_ellipse(rect))
     {
         // make ellipse
-        gb_ellipse_t ellipse = gb_ellipse_make_from_rect(&rect->bounds);
+        gb_ellipse_t ellipse;
+        gb_ellipse_make_from_rect(&ellipse, &rect->bounds);
 
         // draw ellipse
         gb_canvas_draw_ellipse(canvas, &ellipse);
@@ -1092,7 +1105,8 @@ tb_void_t gb_canvas_draw_circle(gb_canvas_ref_t canvas, gb_circle_ref_t circle)
 tb_void_t gb_canvas_draw_circle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
     // make circle
-    gb_circle_t circle = gb_circle_make(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_make(&circle, x0, y0, r);
 
     // draw circle
     gb_canvas_draw_circle(canvas, &circle);
@@ -1100,7 +1114,8 @@ tb_void_t gb_canvas_draw_circle2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float
 tb_void_t gb_canvas_draw_circle2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t r)
 {
     // make circle
-    gb_circle_t circle = gb_circle_imake(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_imake(&circle, x0, y0, r);
 
     // draw circle
     gb_canvas_draw_circle(canvas, &circle);
@@ -1128,7 +1143,8 @@ tb_void_t gb_canvas_draw_ellipse(gb_canvas_ref_t canvas, gb_ellipse_ref_t ellips
 tb_void_t gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_make(x0, y0, rx, ry);
+    gb_ellipse_t ellipse;
+    gb_ellipse_make(&ellipse, x0, y0, rx, ry);
 
     // draw ellipse
     gb_canvas_draw_ellipse(canvas, &ellipse);
@@ -1136,7 +1152,8 @@ tb_void_t gb_canvas_draw_ellipse2(gb_canvas_ref_t canvas, gb_float_t x0, gb_floa
 tb_void_t gb_canvas_draw_ellipse2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry)
 {
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_imake(x0, y0, rx, ry);
+    gb_ellipse_t ellipse;
+    gb_ellipse_imake(&ellipse, x0, y0, rx, ry);
 
     // draw ellipse
     gb_canvas_draw_ellipse(canvas, &ellipse);

@@ -220,7 +220,7 @@ typedef struct __gb_circle_t
 typedef struct __gb_ellipse_t
 {
     /// the center point
-    gb_point_t          c0;
+    gb_point_t          c;
 
     /// the x-radius 
     gb_float_t          rx;
@@ -234,7 +234,7 @@ typedef struct __gb_ellipse_t
 typedef struct __gb_arc_t
 {
     /// the center point
-    gb_point_t          c0;
+    gb_point_t          c;
 
     /// the x-radius 
     gb_float_t          rx;
@@ -366,181 +366,6 @@ typedef struct{}*       gb_shader_ref_t;
 /// the clipper ref type
 typedef struct{}*       gb_clipper_ref_t;
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * inline
- */
-__tb_extern_c_enter__
-
-/*! make triangle
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param x1                        the x1
- * @param y1                        the y1
- * @param x2                        the x2
- * @param y2                        the y2
- *
- * @return                          the triangle
- */
-static __tb_inline__ gb_triangle_t  gb_triangle_make(gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
-{
-    gb_triangle_t triangle = {{x0, y0}, {x1, y1}, {x2, y2}};
-    return triangle;
-}
-
-/*! make triangle with the integer value
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param x1                        the x1
- * @param y1                        the y1
- * @param x2                        the x2
- * @param y2                        the y2
- *
- * @return                          the triangle
- */
-static __tb_inline__ gb_triangle_t  gb_triangle_imake(tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
-{
-    return gb_triangle_make(gb_long_to_float(x0), gb_long_to_float(y0), gb_long_to_float(x1), gb_long_to_float(y1), gb_long_to_float(x2), gb_long_to_float(y2));
-}
-
-/*! make circle
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param r                         the radius
- *
- * @return                          the circle
- */
-static __tb_inline__ gb_circle_t    gb_circle_make(gb_float_t x0, gb_float_t y0, gb_float_t r)
-{
-    gb_circle_t circle = {{x0, y0}, r};
-    return circle;
-}
-
-/*! make circle with the integer value
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param r                         the radius
- *
- * @return                          the circle
- */
-static __tb_inline__ gb_circle_t    gb_circle_imake(tb_long_t x0, tb_long_t y0, tb_size_t r)
-{
-    return gb_circle_make(gb_long_to_float(x0), gb_long_to_float(y0), gb_long_to_float(r));
-}
-
-/*! make ellipse
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param rx                        the x-radius
- * @param ry                        the y-radius
- *
- * @return                          the ellipse
- */
-static __tb_inline__ gb_ellipse_t   gb_ellipse_make(gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
-{
-    gb_ellipse_t e;
-
-    e.c0.x  = x0;
-    e.c0.y  = y0;
-    e.rx    = rx;
-    e.ry    = ry;
-
-    return e;
-}
-
-/*! make ellipse with the integer value
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param rx                        the x-radius
- * @param ry                        the y-radius
- *
- * @return                          the ellipse
- */
-static __tb_inline__ gb_ellipse_t   gb_ellipse_imake(tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry)
-{
-    gb_ellipse_t e;
-
-    e.c0.x  = gb_long_to_float(x0);
-    e.c0.y  = gb_long_to_float(y0);
-    e.rx    = gb_long_to_float(rx);
-    e.ry    = gb_long_to_float(ry);
-
-    return e;
-}
-
-/*! make ellipse from rect
- *
- * @param rect                      the rect
- *
- * @return                          the ellipse
- */
-static __tb_inline__ gb_ellipse_t   gb_ellipse_make_from_rect(gb_rect_ref_t rect)
-{
-    // the radius
-    gb_float_t rx = gb_rsh(rect->w, 1);
-    gb_float_t ry = gb_rsh(rect->h, 1);
-
-    // make it
-    return gb_ellipse_make(rect->x + rx, rect->y + ry, rx, ry);
-}
-
-/*! make arc
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param rx                        the x-radius
- * @param ry                        the y-radius
- * @param ab                        the start angle
- * @param an                        the sweep angle, 0 - 360
- *
- * @return                          the arc
- */
-static __tb_inline__ gb_arc_t       gb_arc_make(gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
-{
-    gb_arc_t a;
-
-    a.c0.x  = x0;
-    a.c0.y  = y0;
-    a.rx    = rx;
-    a.ry    = ry;
-    a.ab    = ab;
-    a.an    = an;
-
-    return a;
-}
-
-/*! make arc with the integer value
- *
- * @param x0                        the x0
- * @param y0                        the y0
- * @param rx                        the x-radius
- * @param ry                        the y-radius
- * @param ab                        the start angle
- * @param an                        the sweep angle, 0 - 360
- *
- * @return                          the arc
- */
-static __tb_inline__ gb_arc_t       gb_arc_imake(tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
-{
-    gb_arc_t a;
-
-    a.c0.x  = gb_long_to_float(x0);
-    a.c0.y  = gb_long_to_float(y0);
-    a.rx    = gb_long_to_float(rx);
-    a.ry    = gb_long_to_float(ry);
-    a.ab    = gb_long_to_float(ab);
-    a.an    = gb_long_to_float(an);
-
-    return a;
-}
-
-
-__tb_extern_c_leave__
 #endif
 
 

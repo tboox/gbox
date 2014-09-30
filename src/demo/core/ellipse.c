@@ -21,7 +21,8 @@ tb_void_t gb_demo_ellipse_exit(gb_window_ref_t window)
 tb_void_t gb_demo_ellipse_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 {
     // ellipse
-    gb_ellipse_t ellipse = gb_ellipse_imake(0, 0, 200, 100);
+    gb_ellipse_t ellipse;
+    gb_ellipse_imake(&ellipse, 0, 0, 200, 100);
 
     // fill
     gb_canvas_color_set(canvas, GB_COLOR_RED);

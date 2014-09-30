@@ -254,14 +254,14 @@ static tb_bool_t gb_device_skia_draw_hint(gb_device_impl_t* device, gb_shape_ref
     case GB_SHAPE_TYPE_ELLIPSE:
         {
             gb_ellipse_ref_t ellipse = &hint->u.ellipse;
-	        impl->canvas->drawOval(SkRect::MakeXYWH(gb_float_to_sk(ellipse->c0.x - ellipse->rx), gb_float_to_sk(ellipse->c0.y - ellipse->ry), gb_float_to_sk(ellipse->rx + ellipse->rx), gb_float_to_sk(ellipse->ry + ellipse->ry)), *impl->paint);
+	        impl->canvas->drawOval(SkRect::MakeXYWH(gb_float_to_sk(ellipse->c.x - ellipse->rx), gb_float_to_sk(ellipse->c.y - ellipse->ry), gb_float_to_sk(ellipse->rx + ellipse->rx), gb_float_to_sk(ellipse->ry + ellipse->ry)), *impl->paint);
             ok = tb_true;
         }
         break;
     case GB_SHAPE_TYPE_ARC:
         {
             gb_arc_ref_t arc = &hint->u.arc;
-	        impl->canvas->drawArc(SkRect::MakeXYWH(gb_float_to_sk(arc->c0.x - arc->rx), gb_float_to_sk(arc->c0.y - arc->ry), SkScalarMul(gb_float_to_sk(arc->rx), SkIntToScalar(2)), SkScalarMul(gb_float_to_sk(arc->ry), SkIntToScalar(2))), gb_float_to_sk(arc->ab), gb_float_to_sk(arc->an), false, *impl->paint);
+	        impl->canvas->drawArc(SkRect::MakeXYWH(gb_float_to_sk(arc->c.x - arc->rx), gb_float_to_sk(arc->c.y - arc->ry), SkScalarMul(gb_float_to_sk(arc->rx), SkIntToScalar(2)), SkScalarMul(gb_float_to_sk(arc->ry), SkIntToScalar(2))), gb_float_to_sk(arc->ab), gb_float_to_sk(arc->an), false, *impl->paint);
             ok = tb_true;
         }
         break;

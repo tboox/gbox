@@ -398,7 +398,8 @@ tb_void_t gb_stroker_add_circle(gb_stroker_ref_t stroker, gb_circle_ref_t circle
     tb_assert_and_check_return(circle);
 
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_make(circle->c.x, circle->c.y, circle->r, circle->r);
+    gb_ellipse_t ellipse;
+    gb_ellipse_make(&ellipse, circle->c.x, circle->c.y, circle->r, circle->r);
 
     // add ellipse
     gb_stroker_add_ellipse(stroker, &ellipse);
@@ -473,7 +474,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
                 point = points + index;
 
                 // make circle
-                circle = gb_circle_make(point->x, point->y, radius);
+                gb_circle_make(&circle, point->x, point->y, radius);
 
                 // add circle to the other path
                 gb_path_add_circle(impl->path_other, &circle, GB_ROTATE_DIRECTION_CW);

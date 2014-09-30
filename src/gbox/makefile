@@ -29,13 +29,17 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/render/fill/solid \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
+						core/prefix/arc \
 						core/prefix/line \
 						core/prefix/rect \
 						core/prefix/color \
 						core/prefix/point \
 						core/prefix/vector \
 						core/prefix/matrix \
+						core/prefix/circle \
+						core/prefix/ellipse \
 						core/prefix/quality \
+						core/prefix/triangle \
 						core/prefix/round_rect \
 						core/bitmap/decoder \
 						core/bitmap/decoder/bmp \
@@ -114,16 +118,20 @@ INC_FILES 				= \
 						core/core.h \
 						core/prefix.h \
 						core/prefix/type.h \
+						core/prefix/arc.h \
 						core/prefix/line.h \
 						core/prefix/rect.h \
 						core/prefix/point.h \
 						core/prefix/float.h \
 						core/prefix/color.h \
+						core/prefix/circle.h \
 						core/prefix/vector.h \
 						core/prefix/matrix.h \
 						core/prefix/pixfmt.h \
 						core/prefix/prefix.h \
+						core/prefix/ellipse.h \
 						core/prefix/quality.h \
+						core/prefix/triangle.h \
 						core/prefix/round_rect.h \
 						core/path.h \
 						core/paint.h \

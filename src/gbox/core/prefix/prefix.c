@@ -156,7 +156,7 @@ static tb_long_t gb_prefix_printf_format_ellipse(tb_cpointer_t object, tb_char_t
     gb_ellipse_ref_t ellipse = (gb_ellipse_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c0: %{point}, rx: %{float}, ry: %{float})", &ellipse->c0, &ellipse->rx, &ellipse->ry);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c: %{point}, rx: %{float}, ry: %{float})", &ellipse->c, &ellipse->rx, &ellipse->ry);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -171,7 +171,7 @@ static tb_long_t gb_prefix_printf_format_arc(tb_cpointer_t object, tb_char_t* cs
     gb_arc_ref_t arc = (gb_arc_ref_t)object;
 
     // format
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c0: %{point}, rx: %{float}, ry: %{float}, ab: %{float}, an: %{float})", &arc->c0, &arc->rx, &arc->ry, &arc->ab, &arc->an);
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(c: %{point}, rx: %{float}, ry: %{float}, ab: %{float}, an: %{float})", &arc->c, &arc->rx, &arc->ry, &arc->ab, &arc->an);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?

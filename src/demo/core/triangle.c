@@ -21,7 +21,8 @@ tb_void_t gb_demo_triangle_exit(gb_window_ref_t window)
 tb_void_t gb_demo_triangle_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 {
     // triangle
-    gb_triangle_t triangle = gb_triangle_imake(-100, 100, 0, -100, 100, 100);
+    gb_triangle_t triangle;
+    gb_triangle_imake(&triangle, -100, 100, 0, -100, 100, 100);
 
     // fill
     gb_canvas_color_set(canvas, GB_COLOR_RED);

@@ -21,7 +21,8 @@ tb_void_t gb_demo_circle_exit(gb_window_ref_t window)
 tb_void_t gb_demo_circle_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 {
     // circle
-    gb_circle_t circle = gb_circle_imake(0, 0, 200);
+    gb_circle_t circle;
+    gb_circle_imake(&circle, 0, 0, 200);
 
     // fill
     gb_canvas_color_set(canvas, GB_COLOR_RED);

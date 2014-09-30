@@ -730,8 +730,8 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
             case GB_SHAPE_TYPE_ELLIPSE:
                 {
                     // make bounds
-                    impl->bounds.x  = impl->hint.u.ellipse.c0.x - impl->hint.u.ellipse.rx;
-                    impl->bounds.y  = impl->hint.u.ellipse.c0.y - impl->hint.u.ellipse.ry;
+                    impl->bounds.x  = impl->hint.u.ellipse.c.x - impl->hint.u.ellipse.rx;
+                    impl->bounds.y  = impl->hint.u.ellipse.c.y - impl->hint.u.ellipse.ry;
                     impl->bounds.w  = gb_lsh(impl->hint.u.ellipse.rx, 1);
                     impl->bounds.h  = gb_lsh(impl->hint.u.ellipse.ry, 1);
                     impl->flag      &= ~GB_PATH_FLAG_DIRTY_BOUNDS;
@@ -1083,7 +1083,8 @@ tb_void_t gb_path_arc_to(gb_path_ref_t path, gb_arc_ref_t arc)
 tb_void_t gb_path_arc2_to(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_make(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_make(&arc, x0, y0, rx, ry, ab, an);
 
     // arc-to
     gb_path_arc_to(path, &arc);
@@ -1091,7 +1092,8 @@ tb_void_t gb_path_arc2_to(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_f
 tb_void_t gb_path_arc2i_to(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_imake(&arc, x0, y0, rx, ry, ab, an);
 
     // arc-to
     gb_path_arc_to(path, &arc);
@@ -1182,7 +1184,8 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
     if (arc->an >= GB_DEGREE_360 || arc->an <= -GB_DEGREE_360)
     {
         // make ellipse
-        gb_ellipse_t ellipse = gb_ellipse_make(arc->c0.x, arc->c0.y, arc->rx, arc->ry);
+        gb_ellipse_t ellipse;
+        gb_ellipse_make(&ellipse, arc->c.x, arc->c.y, arc->rx, arc->ry);
 
         // add ellipse
         gb_path_add_ellipse(path, &ellipse, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW);
@@ -1207,7 +1210,8 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
 tb_void_t gb_path_add_arc2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_make(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_make(&arc, x0, y0, rx, ry, ab, an);
 
     // add arc
     gb_path_add_arc(path, &arc);
@@ -1215,7 +1219,8 @@ tb_void_t gb_path_add_arc2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_
 tb_void_t gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_long_t ab, tb_long_t an)
 {
     // make arc
-    gb_arc_t arc = gb_arc_imake(x0, y0, rx, ry, ab, an);
+    gb_arc_t arc;
+    gb_arc_imake(&arc, x0, y0, rx, ry, ab, an);
 
     // add arc
     gb_path_add_arc(path, &arc);
@@ -1247,7 +1252,8 @@ tb_void_t gb_path_add_triangle(gb_path_ref_t path, gb_triangle_ref_t triangle)
 tb_void_t gb_path_add_triangle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
     // make triangle
-    gb_triangle_t triangle = gb_triangle_make(x0, y0, x1, y1, x2, y2);
+    gb_triangle_t triangle;
+    gb_triangle_make(&triangle, x0, y0, x1, y1, x2, y2);
 
     // add triangle
     gb_path_add_triangle(path, &triangle);
@@ -1255,7 +1261,8 @@ tb_void_t gb_path_add_triangle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0
 tb_void_t gb_path_add_triangle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1, tb_long_t x2, tb_long_t y2)
 {
     // make triangle
-    gb_triangle_t triangle = gb_triangle_imake(x0, y0, x1, y1, x2, y2);
+    gb_triangle_t triangle;
+    gb_triangle_imake(&triangle, x0, y0, x1, y1, x2, y2);
 
     // add triangle
     gb_path_add_triangle(path, &triangle);
@@ -1329,7 +1336,8 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
     else if (gb_round_rect_is_ellipse(rect))
     {
         // make ellipse
-        gb_ellipse_t ellipse = gb_ellipse_make_from_rect(&rect->bounds);
+        gb_ellipse_t ellipse;
+        gb_ellipse_make_from_rect(&ellipse, &rect->bounds);
 
         // add ellipse
         gb_path_add_ellipse(path, &ellipse, direction);
@@ -1427,7 +1435,8 @@ tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle, tb_size
     }
 
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_make(circle->c.x, circle->c.y, circle->r, circle->r);
+    gb_ellipse_t ellipse;
+    gb_ellipse_make(&ellipse, circle->c.x, circle->c.y, circle->r, circle->r);
 
     // add ellipse
     gb_path_add_ellipse(path, &ellipse, direction);
@@ -1438,7 +1447,8 @@ tb_void_t gb_path_add_circle(gb_path_ref_t path, gb_circle_ref_t circle, tb_size
 tb_void_t gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t r, tb_size_t direction)
 {
     // make circle
-    gb_circle_t circle = gb_circle_make(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_make(&circle, x0, y0, r);
 
     // add circle
     gb_path_add_circle(path, &circle, direction);
@@ -1446,7 +1456,8 @@ tb_void_t gb_path_add_circle2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, 
 tb_void_t gb_path_add_circle2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t r, tb_size_t direction)
 {
     // make circle
-    gb_circle_t circle = gb_circle_imake(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_imake(&circle, x0, y0, r);
 
     // add circle
     gb_path_add_circle(path, &circle, direction);
@@ -1469,8 +1480,8 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_s
     // init center and radius
     gb_float_t rx = ellipse->rx;
     gb_float_t ry = ellipse->ry;
-    gb_float_t x0 = ellipse->c0.x;
-    gb_float_t y0 = ellipse->c0.y;
+    gb_float_t x0 = ellipse->c.x;
+    gb_float_t y0 = ellipse->c.y;
 
     // init factor
     gb_float_t sx = gb_mul(rx, GB_TAN_PIOVER8); //< tan(pi/8)
@@ -1564,7 +1575,8 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_s
 tb_void_t gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, tb_size_t direction)
 {
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_make(x0, y0, rx, ry);
+    gb_ellipse_t ellipse;
+    gb_ellipse_make(&ellipse, x0, y0, rx, ry);
 
     // add ellipse
     gb_path_add_ellipse(path, &ellipse, direction);
@@ -1572,7 +1584,8 @@ tb_void_t gb_path_add_ellipse2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0,
 tb_void_t gb_path_add_ellipse2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_size_t rx, tb_size_t ry, tb_size_t direction)
 {
     // make ellipse
-    gb_ellipse_t ellipse = gb_ellipse_imake(x0, y0, rx, ry);
+    gb_ellipse_t ellipse;
+    gb_ellipse_imake(&ellipse, x0, y0, rx, ry);
 
     // add ellipse
     gb_path_add_ellipse(path, &ellipse, direction);

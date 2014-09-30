@@ -76,7 +76,8 @@ gb_shader_ref_t gb_shader_init_radial(gb_canvas_ref_t canvas, tb_size_t mode, gb
 gb_shader_ref_t gb_shader_init2_radial(gb_canvas_ref_t canvas, tb_size_t mode, gb_gradient_ref_t gradient, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
     // make circle
-    gb_circle_t circle = gb_circle_make(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_make(&circle, x0, y0, r);
 
     // init
     return gb_shader_init_radial(canvas, mode, gradient, &circle);
@@ -84,7 +85,8 @@ gb_shader_ref_t gb_shader_init2_radial(gb_canvas_ref_t canvas, tb_size_t mode, g
 gb_shader_ref_t gb_shader_init2i_radial(gb_canvas_ref_t canvas, tb_size_t mode, gb_gradient_ref_t gradient, tb_long_t x0, tb_long_t y0, tb_size_t r)
 {
     // make circle
-    gb_circle_t circle = gb_circle_imake(x0, y0, r);
+    gb_circle_t circle;
+    gb_circle_imake(&circle, x0, y0, r);
 
     // init
     return gb_shader_init_radial(canvas, mode, gradient, &circle);
