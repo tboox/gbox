@@ -567,7 +567,8 @@ tb_void_t gb_canvas_move_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 tb_void_t gb_canvas_move2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // move-to
     gb_canvas_move_to(canvas, &point);
@@ -575,7 +576,8 @@ tb_void_t gb_canvas_move2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 tb_void_t gb_canvas_move2i_to(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 {
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // move-to
     gb_canvas_move_to(canvas, &point);
@@ -587,7 +589,8 @@ tb_void_t gb_canvas_line_to(gb_canvas_ref_t canvas, gb_point_ref_t point)
 tb_void_t gb_canvas_line2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // line-to
     gb_canvas_line_to(canvas, &point);
@@ -595,7 +598,8 @@ tb_void_t gb_canvas_line2_to(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 tb_void_t gb_canvas_line2i_to(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 {    
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // line-to
     gb_canvas_line_to(canvas, &point);
@@ -607,10 +611,12 @@ tb_void_t gb_canvas_quad_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl, gb_poin
 tb_void_t gb_canvas_quad2_to(gb_canvas_ref_t canvas, gb_float_t cx, gb_float_t cy, gb_float_t x, gb_float_t y)
 {
     // make ctrl
-    gb_point_t ctrl = gb_point_make(cx, cy);
+    gb_point_t ctrl;
+    gb_point_make(&ctrl, cx, cy);
 
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // quad-to
     gb_canvas_quad_to(canvas, &ctrl, &point);
@@ -618,10 +624,12 @@ tb_void_t gb_canvas_quad2_to(gb_canvas_ref_t canvas, gb_float_t cx, gb_float_t c
 tb_void_t gb_canvas_quad2i_to(gb_canvas_ref_t canvas, tb_long_t cx, tb_long_t cy, tb_long_t x, tb_long_t y)
 {
     // make ctrl
-    gb_point_t ctrl = gb_point_imake(cx, cy);
+    gb_point_t ctrl;
+    gb_point_imake(&ctrl, cx, cy);
 
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // quad-to
     gb_canvas_quad_to(canvas, &ctrl, &point);
@@ -633,13 +641,16 @@ tb_void_t gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_poi
 tb_void_t gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {
     // make ctrl0
-    gb_point_t ctrl0 = gb_point_make(cx0, cy0);
+    gb_point_t ctrl0;
+    gb_point_make(&ctrl0, cx0, cy0);
 
     // make ctrl1
-    gb_point_t ctrl1 = gb_point_make(cx1, cy1);
+    gb_point_t ctrl1;
+    gb_point_make(&ctrl1, cx1, cy1);
 
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // cube-to
     gb_canvas_cube_to(canvas, &ctrl0, &ctrl1, &point);
@@ -647,13 +658,16 @@ tb_void_t gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t 
 tb_void_t gb_canvas_cube2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
 {
     // make ctrl0
-    gb_point_t ctrl0 = gb_point_imake(cx0, cy0);
+    gb_point_t ctrl0;
+    gb_point_imake(&ctrl0, cx0, cy0);
 
     // make ctrl1
-    gb_point_t ctrl1 = gb_point_imake(cx1, cy1);
+    gb_point_t ctrl1;
+    gb_point_imake(&ctrl1, cx1, cy1);
 
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // cube-to
     gb_canvas_cube_to(canvas, &ctrl0, &ctrl1, &point);
@@ -712,7 +726,8 @@ tb_void_t gb_canvas_clip_rect(gb_canvas_ref_t canvas, tb_size_t mode, gb_rect_re
 tb_void_t gb_canvas_clip_rect2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
     // make rect
-    gb_rect_t rect = gb_rect_make(x, y, w, h);
+    gb_rect_t rect;
+    gb_rect_make(&rect, x, y, w, h);
 
     // clip rect
     gb_canvas_clip_rect(canvas, mode, &rect);
@@ -720,7 +735,8 @@ tb_void_t gb_canvas_clip_rect2(gb_canvas_ref_t canvas, tb_size_t mode, gb_float_
 tb_void_t gb_canvas_clip_rect2i(gb_canvas_ref_t canvas, tb_size_t mode, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
 {
     // make rect
-    gb_rect_t rect = gb_rect_imake(x, y, w, h);
+    gb_rect_t rect;
+    gb_rect_imake(&rect, x, y, w, h);
 
     // clip rect
     gb_canvas_clip_rect(canvas, mode, &rect);
@@ -825,7 +841,8 @@ tb_void_t gb_canvas_draw_point(gb_canvas_ref_t canvas, gb_point_ref_t point)
 tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y)
 {
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // draw point
     gb_canvas_draw_point(canvas, &point);
@@ -833,7 +850,8 @@ tb_void_t gb_canvas_draw_point2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t
 tb_void_t gb_canvas_draw_point2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y)
 {
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // draw point
     gb_canvas_draw_point(canvas, &point);
@@ -857,7 +875,8 @@ tb_void_t gb_canvas_draw_line(gb_canvas_ref_t canvas, gb_line_ref_t line)
 tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
     // make line
-    gb_line_t line = gb_line_make(x0, y0, x1, y1);
+    gb_line_t line;
+    gb_line_make(&line, x0, y0, x1, y1);
 
     // draw line
     gb_canvas_draw_line(canvas, &line);
@@ -865,7 +884,8 @@ tb_void_t gb_canvas_draw_line2(gb_canvas_ref_t canvas, gb_float_t x0, gb_float_t
 tb_void_t gb_canvas_draw_line2i(gb_canvas_ref_t canvas, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1)
 {
     // make line
-    gb_line_t line = gb_line_imake(x0, y0, x1, y1);
+    gb_line_t line;
+    gb_line_imake(&line, x0, y0, x1, y1);
 
     // draw line
     gb_canvas_draw_line(canvas, &line);
@@ -978,7 +998,8 @@ tb_void_t gb_canvas_draw_rect(gb_canvas_ref_t canvas, gb_rect_ref_t rect)
 tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
 {
     // make rect
-    gb_rect_t rect = gb_rect_make(x, y, w, h);
+    gb_rect_t rect;
+    gb_rect_make(&rect, x, y, w, h);
 
     // draw rect
     gb_canvas_draw_rect(canvas, &rect);
@@ -986,7 +1007,8 @@ tb_void_t gb_canvas_draw_rect2(gb_canvas_ref_t canvas, gb_float_t x, gb_float_t 
 tb_void_t gb_canvas_draw_rect2i(gb_canvas_ref_t canvas, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
 {
     // make rect
-    gb_rect_t rect = gb_rect_imake(x, y, w, h);
+    gb_rect_t rect;
+    gb_rect_imake(&rect, x, y, w, h);
 
     // draw rect
     gb_canvas_draw_rect(canvas, &rect);

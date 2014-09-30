@@ -283,8 +283,9 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
          *
          * ctrl = ctrl^ * matrix
          */
-        gb_point_t ctrl_point = gb_point_make(GB_ONE, tan_angle);
-        gb_matrix_apply_point(&matrix, &ctrl_point);
+        gb_point_t ctrl_point;
+        gb_point_make(&ctrl_point, GB_ONE, tan_angle);
+        gb_point_apply(&ctrl_point, &matrix);
 
         // patch the last quad pair
         points[count++] = ctrl_point;
@@ -303,7 +304,7 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     if (!clockwise) gb_matrix_scale(&matrix, GB_ONE, -GB_ONE);
 
     // apply matrix for the first point
-    gb_matrix_apply_point(&matrix, points);
+    gb_point_apply(points, &matrix);
 
     // done func
     func(tb_null, points, priv);
@@ -314,8 +315,8 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     for (; pb < pe; pb += 2) 
     {
         // apply matrix for the quad points
-        gb_matrix_apply_point(&matrix, pb);
-        gb_matrix_apply_point(&matrix, pb + 1);
+        gb_point_apply(pb, &matrix);
+        gb_point_apply(pb + 1, &matrix);
 
         // done
         func(pb, pb + 1, priv);

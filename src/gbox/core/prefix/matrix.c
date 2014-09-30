@@ -32,6 +32,7 @@
  * includes
  */
 #include "matrix.h"
+#include "point.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -478,5 +479,5 @@ tb_void_t gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_ref_t points, 
 
     // apply it
     tb_size_t i = 0;
-    for (i = 0; i < count; i++) gb_matrix_apply_point(matrix, points + i);
+    for (i = 0; i < count; i++) gb_point_apply(points + i, matrix);
 }

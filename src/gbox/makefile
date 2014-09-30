@@ -29,8 +29,10 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/render/fill/solid \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
+						core/prefix/line \
 						core/prefix/rect \
 						core/prefix/color \
+						core/prefix/point \
 						core/prefix/vector \
 						core/prefix/matrix \
 						core/prefix/quality \
@@ -112,7 +114,9 @@ INC_FILES 				= \
 						core/core.h \
 						core/prefix.h \
 						core/prefix/type.h \
+						core/prefix/line.h \
 						core/prefix/rect.h \
+						core/prefix/point.h \
 						core/prefix/float.h \
 						core/prefix/color.h \
 						core/prefix/vector.h \

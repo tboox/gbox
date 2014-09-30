@@ -77,7 +77,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_points(gb_bitmap_device_ref_t
     {
         // apply to point
         gb_point_t point;
-        gb_matrix_apply_point2(device->base.matrix, points + index, &point);
+        gb_point_apply2(points + index, &point, device->base.matrix);
 
         // append point
         tb_vector_insert_tail(device->points, &point);
@@ -107,7 +107,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_
     {
         // apply to point
         gb_point_t point;
-        gb_matrix_apply_point2(device->base.matrix, points++, &point);
+        gb_point_apply2(points++, &point, device->base.matrix);
 
         // append point
         tb_vector_insert_tail(device->points, &point);
@@ -140,10 +140,10 @@ static gb_rect_ref_t gb_bitmap_render_make_bounds_for_points(gb_bitmap_device_re
     if (bounds)
     {
         gb_point_t pt[4];
-        pt[0] = gb_point_make(bounds->x, bounds->y);
-        pt[1] = gb_point_make(bounds->x, bounds->y + bounds->h);
-        pt[2] = gb_point_make(bounds->x + bounds->w, bounds->y + bounds->h);
-        pt[3] = gb_point_make(bounds->x + bounds->w, bounds->y);
+        gb_point_make(&pt[0], bounds->x, bounds->y);
+        gb_point_make(&pt[1], bounds->x, bounds->y + bounds->h);
+        gb_point_make(&pt[2], bounds->x + bounds->w, bounds->y + bounds->h);
+        gb_point_make(&pt[3], bounds->x + bounds->w, bounds->y);
         gb_matrix_apply_points(device->base.matrix, pt, tb_arrayn(pt));
         gb_bounds_make(&device->bounds, pt, tb_arrayn(pt));
     }

@@ -46,7 +46,8 @@ gb_shader_ref_t gb_shader_init_linear(gb_canvas_ref_t canvas, tb_size_t mode, gb
 gb_shader_ref_t gb_shader_init2_linear(gb_canvas_ref_t canvas, tb_size_t mode, gb_gradient_ref_t gradient, gb_float_t xb, gb_float_t yb, gb_float_t xe, gb_float_t ye)
 {
     // make line
-    gb_line_t line = gb_line_make(xb, yb, xe, ye);
+    gb_line_t line;
+    gb_line_make(&line, xb, yb, xe, ye);
 
     // init
     return gb_shader_init_linear(canvas, mode, gradient, &line);
@@ -54,7 +55,8 @@ gb_shader_ref_t gb_shader_init2_linear(gb_canvas_ref_t canvas, tb_size_t mode, g
 gb_shader_ref_t gb_shader_init2i_linear(gb_canvas_ref_t canvas, tb_size_t mode, gb_gradient_ref_t gradient, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
 {
     // make line
-    gb_line_t line = gb_line_imake(xb, yb, xe, ye);
+    gb_line_t line;
+    gb_line_imake(&line, xb, yb, xe, ye);
 
     // init
     return gb_shader_init_linear(canvas, mode, gradient, &line);

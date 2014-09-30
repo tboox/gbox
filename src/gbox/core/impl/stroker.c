@@ -495,7 +495,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
                 point = points + index;
 
                 // make rect
-                rect = gb_rect_make(point->x - radius, point->y - radius, width, width);
+                gb_rect_make(&rect, point->x - radius, point->y - radius, width, width);
 
                 // add rect to the other path
                 gb_path_add_rect(impl->path_other, &rect, GB_ROTATE_DIRECTION_CW);

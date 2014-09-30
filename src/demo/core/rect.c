@@ -21,7 +21,8 @@ tb_void_t gb_demo_rect_exit(gb_window_ref_t window)
 tb_void_t gb_demo_rect_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 {
     // rect
-    gb_rect_t rect = gb_rect_imake(-100, -100, 200, 200);
+    gb_rect_t rect;
+    gb_rect_imake(&rect, -100, -100, 200, 200);
 
     // fill
     gb_canvas_color_set(canvas, GB_COLOR_RED);

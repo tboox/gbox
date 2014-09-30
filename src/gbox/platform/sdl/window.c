@@ -125,8 +125,8 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
                     gb_event_t              event = {0};
                     event.type              = GB_EVENT_TYPE_MOUSE;
                     event.u.mouse.code      = GB_MOUSE_MOVE;
-                    event.u.mouse.cursor    = gb_point_imake(evet.motion.x, evet.motion.y);
                     event.u.mouse.button    = impl->button;
+                    gb_point_imake(&event.u.mouse.cursor, evet.motion.x, evet.motion.y);
 
                     // done event
                     gb_window_impl_event((gb_window_ref_t)impl, &event);
@@ -139,7 +139,7 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
                     gb_event_t              event = {0};
                     event.type              = GB_EVENT_TYPE_MOUSE;
                     event.u.mouse.code      = evet.type == SDL_MOUSEBUTTONDOWN? GB_MOUSE_DOWN : GB_MOUSE_UP;
-                    event.u.mouse.cursor    = gb_point_imake(evet.button.x, evet.button.y);
+                    gb_point_imake(&event.u.mouse.cursor, evet.button.x, evet.button.y);
 
                     // init button
                     switch (evet.button.button)

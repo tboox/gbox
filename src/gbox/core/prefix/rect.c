@@ -31,6 +31,21 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+tb_void_t gb_rect_make(gb_rect_ref_t rect, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h)
+{
+    // check
+    tb_assert_abort(rect);
+
+    // make it
+    rect->x = x;
+    rect->y = y;
+    rect->w = w;
+    rect->h = h;
+}
+tb_void_t gb_rect_imake(gb_rect_ref_t rect, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h)
+{
+    gb_rect_make(rect, gb_long_to_float(x), gb_long_to_float(y), gb_long_to_float(w), gb_long_to_float(h));
+}
 tb_void_t gb_rect_apply(gb_rect_ref_t rect, gb_matrix_ref_t matrix)
 {
     gb_rect_apply2(rect, rect, matrix);
@@ -38,19 +53,19 @@ tb_void_t gb_rect_apply(gb_rect_ref_t rect, gb_matrix_ref_t matrix)
 tb_void_t gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t applied, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_and_check_return(rect && applied && matrix);
+    tb_assert_abort(rect && applied && matrix);
 
     // done
     gb_point_t points[2];
-    points[0] = gb_point_make(rect->x, rect->y);
-    points[1] = gb_point_make(rect->x + rect->w, rect->y + rect->h);
+    gb_point_make(&points[0], rect->x, rect->y);
+    gb_point_make(&points[1], rect->x + rect->w, rect->y + rect->h);
     gb_matrix_apply_points(matrix, points, tb_arrayn(points));
     gb_bounds_make(applied, points, tb_arrayn(points));
 }
 tb_void_t gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 {
     // check
-    tb_assert_and_check_return(rect && gb_bz(dx) && gb_bz(dy));
+    tb_assert_abort(rect && gb_bz(dx) && gb_bz(dy));
 
     // inflate it
     rect->x -= dx;
@@ -61,7 +76,7 @@ tb_void_t gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 tb_void_t gb_rect_deflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 {
     // check
-    tb_assert_and_check_return(rect && gb_bz(dx) && gb_bz(dy));
+    tb_assert_abort(rect && gb_bz(dx) && gb_bz(dy));
     tb_assert_abort(rect->w >= gb_lsh(dx, 1) && rect->h >= gb_lsh(dy, 1));
 
     // deflate it

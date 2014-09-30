@@ -891,7 +891,8 @@ tb_void_t gb_path_move_to(gb_path_ref_t path, gb_point_ref_t point)
 tb_void_t gb_path_move2_to(gb_path_ref_t path, gb_float_t x, gb_float_t y)
 {
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // move-to
     gb_path_move_to(path, &point);
@@ -899,7 +900,8 @@ tb_void_t gb_path_move2_to(gb_path_ref_t path, gb_float_t x, gb_float_t y)
 tb_void_t gb_path_move2i_to(gb_path_ref_t path, tb_long_t x, tb_long_t y)
 {
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // move-to
     gb_path_move_to(path, &point);
@@ -931,7 +933,8 @@ tb_void_t gb_path_line_to(gb_path_ref_t path, gb_point_ref_t point)
 tb_void_t gb_path_line2_to(gb_path_ref_t path, gb_float_t x, gb_float_t y)
 {
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // line-to
     gb_path_line_to(path, &point);
@@ -939,7 +942,8 @@ tb_void_t gb_path_line2_to(gb_path_ref_t path, gb_float_t x, gb_float_t y)
 tb_void_t gb_path_line2i_to(gb_path_ref_t path, tb_long_t x, tb_long_t y)
 {    
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // line-to
     gb_path_line_to(path, &point);
@@ -972,10 +976,12 @@ tb_void_t gb_path_quad_to(gb_path_ref_t path, gb_point_ref_t ctrl, gb_point_ref_
 tb_void_t gb_path_quad2_to(gb_path_ref_t path, gb_float_t cx, gb_float_t cy, gb_float_t x, gb_float_t y)
 {
     // make ctrl
-    gb_point_t ctrl = gb_point_make(cx, cy);
+    gb_point_t ctrl;
+    gb_point_make(&ctrl, cx, cy);
 
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // quad-to
     gb_path_quad_to(path, &ctrl, &point);
@@ -983,10 +989,12 @@ tb_void_t gb_path_quad2_to(gb_path_ref_t path, gb_float_t cx, gb_float_t cy, gb_
 tb_void_t gb_path_quad2i_to(gb_path_ref_t path, tb_long_t cx, tb_long_t cy, tb_long_t x, tb_long_t y)
 {
     // make ctrl
-    gb_point_t ctrl = gb_point_imake(cx, cy);
+    gb_point_t ctrl;
+    gb_point_imake(&ctrl, cx, cy);
 
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // quad-to
     gb_path_quad_to(path, &ctrl, &point);
@@ -1020,13 +1028,16 @@ tb_void_t gb_path_cube_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref
 tb_void_t gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {
     // make ctrl0
-    gb_point_t ctrl0 = gb_point_make(cx0, cy0);
+    gb_point_t ctrl0;
+    gb_point_make(&ctrl0, cx0, cy0);
 
     // make ctrl1
-    gb_point_t ctrl1 = gb_point_make(cx1, cy1);
+    gb_point_t ctrl1;
+    gb_point_make(&ctrl1, cx1, cy1);
 
     // make point
-    gb_point_t point = gb_point_make(x, y);
+    gb_point_t point;
+    gb_point_make(&point, x, y);
 
     // cube-to
     gb_path_cube_to(path, &ctrl0, &ctrl1, &point);
@@ -1034,13 +1045,16 @@ tb_void_t gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, g
 tb_void_t gb_path_cube2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
 {
     // make ctrl0
-    gb_point_t ctrl0 = gb_point_imake(cx0, cy0);
+    gb_point_t ctrl0;
+    gb_point_imake(&ctrl0, cx0, cy0);
 
     // make ctrl1
-    gb_point_t ctrl1 = gb_point_imake(cx1, cy1);
+    gb_point_t ctrl1;
+    gb_point_imake(&ctrl1, cx1, cy1);
 
     // make point
-    gb_point_t point = gb_point_imake(x, y);
+    gb_point_t point;
+    gb_point_imake(&point, x, y);
 
     // cube-to
     gb_path_cube_to(path, &ctrl0, &ctrl1, &point);
@@ -1143,7 +1157,8 @@ tb_void_t gb_path_add_line(gb_path_ref_t path, gb_line_ref_t line)
 tb_void_t gb_path_add_line2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
     // make line
-    gb_line_t line = gb_line_make(x0, y0, x1, y1);
+    gb_line_t line;
+    gb_line_make(&line, x0, y0, x1, y1);
 
     // add line
     gb_path_add_line(path, &line);
@@ -1151,7 +1166,8 @@ tb_void_t gb_path_add_line2(gb_path_ref_t path, gb_float_t x0, gb_float_t y0, gb
 tb_void_t gb_path_add_line2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1)
 {
     // make line
-    gb_line_t line = gb_line_imake(x0, y0, x1, y1);
+    gb_line_t line;
+    gb_line_imake(&line, x0, y0, x1, y1);
 
     // add line
     gb_path_add_line(path, &line);
@@ -1281,7 +1297,8 @@ tb_void_t gb_path_add_rect(gb_path_ref_t path, gb_rect_ref_t rect, tb_size_t dir
 tb_void_t gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h, tb_size_t direction)
 {
     // make rect
-    gb_rect_t rect = gb_rect_make(x, y, w, h);
+    gb_rect_t rect;
+    gb_rect_make(&rect, x, y, w, h);
 
     // add rect
     gb_path_add_rect(path, &rect, direction);
@@ -1289,7 +1306,8 @@ tb_void_t gb_path_add_rect2(gb_path_ref_t path, gb_float_t x, gb_float_t y, gb_f
 tb_void_t gb_path_add_rect2i(gb_path_ref_t path, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h, tb_size_t direction)
 {
     // make rect
-    gb_rect_t rect = gb_rect_imake(x, y, w, h);
+    gb_rect_t rect;
+    gb_rect_imake(&rect, x, y, w, h);
 
     // add rect
     gb_path_add_rect(path, &rect, direction);

@@ -244,7 +244,7 @@ static tb_void_t gb_window_glut_mouse(tb_int_t button, tb_int_t state, tb_int_t 
 
     // init event
     gb_event_t event = {0};
-    event.u.mouse.cursor = gb_point_imake(x, y);
+    gb_point_imake(&event.u.mouse.cursor, x, y);
 
     // left
 	if (button == GLUT_LEFT_BUTTON) 
@@ -286,7 +286,7 @@ static tb_void_t gb_window_glut_mouse(tb_int_t button, tb_int_t state, tb_int_t 
         event.type              = GB_EVENT_TYPE_MOUSE;
         event.u.mouse.button    = GB_MOUSE_BUTTON_MIDDLE;
         event.u.mouse.code      = GB_MOUSE_SCROLL;
-        event.u.mouse.scroll    = gb_point_imake(x, button == 3? y - 10 : y + 10);
+        gb_point_imake(&event.u.mouse.scroll, x, button == 3? y - 10 : y + 10);
 
         // clear button
         impl->button            = GB_MOUSE_BUTTON_NONE;
@@ -313,8 +313,8 @@ static tb_void_t gb_window_glut_motion(tb_int_t x, tb_int_t y)
     gb_event_t event = {0};
     event.type              = GB_EVENT_TYPE_MOUSE;
     event.u.mouse.code      = GB_MOUSE_MOVE;
-    event.u.mouse.cursor    = gb_point_imake(x, y);
     event.u.mouse.button    = impl->button;
+    gb_point_imake(&event.u.mouse.cursor, x, y);
 
     // done event
     gb_window_impl_event((gb_window_ref_t)impl, &event);

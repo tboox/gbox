@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        rect.h
+ * @file        point.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_PREFIX_RECT_H
-#define GB_CORE_PREFIX_RECT_H
+#ifndef GB_CORE_PREFIX_POINT_H
+#define GB_CORE_PREFIX_POINT_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,58 +38,36 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/*! make rect
+/*! make point
  *
- * @param rect      the rect
+ * @param point     the point
  * @param x         the x
  * @param y         the y
- * @param w         the width
- * @param h         the height
- *
  */
-tb_void_t           gb_rect_make(gb_rect_ref_t rect, gb_float_t x, gb_float_t y, gb_float_t w, gb_float_t h);
+tb_void_t           gb_point_make(gb_point_ref_t point, gb_float_t x, gb_float_t y);
 
-/*! make rect with the integer value
+/*! make point with the integer value
  *
- * @param rect      the rect
+ * @param point     the point
  * @param x         the x
  * @param y         the y
- * @param w         the width
- * @param h         the height
- *
  */
-tb_void_t           gb_rect_imake(gb_rect_ref_t rect, tb_long_t x, tb_long_t y, tb_size_t w, tb_size_t h);
+tb_void_t           gb_point_imake(gb_point_ref_t point, tb_long_t x, tb_long_t y);
 
-/*! apply matrix to rect
+/*! apply matrix to point
  *
- * @param rect      the rect 
+ * @param point      the point 
  * @param matrix    the matrix
  */
-tb_void_t           gb_rect_apply(gb_rect_ref_t rect, gb_matrix_ref_t matrix);
+tb_void_t           gb_point_apply(gb_point_ref_t point, gb_matrix_ref_t matrix);
 
-/*! apply matrix to rect
+/*! apply matrix to point
  *
- * @param rect      the rect 
- * @param applied   the applied rect 
+ * @param point      the point 
+ * @param applied   the applied point 
  * @param matrix    the matrix
  */
-tb_void_t           gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t applied, gb_matrix_ref_t matrix);
-
-/*! inflate rect
- *
- * @param rect      the rect 
- * @param dx        the x-delta value and must be larger than zero
- * @param dy        the x-delta value and must be larger than zero
- */
-tb_void_t           gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy);
-
-/*! deflate rect
- *
- * @param rect      the rect 
- * @param dx        the x-delta value and must be smaller than zero
- * @param dy        the x-delta value and must be smaller than zero
- */
-tb_void_t           gb_rect_deflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy);
+tb_void_t           gb_point_apply2(gb_point_ref_t point, gb_point_ref_t applied, gb_matrix_ref_t matrix);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -17,50 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        line.h
+ * @ingroup     core
+ *
  */
-#ifndef GB_CORE_PREFIX_PREFIX_H
-#define GB_CORE_PREFIX_PREFIX_H
+#ifndef GB_CORE_PREFIX_LINE_H
+#define GB_CORE_PREFIX_LINE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../../prefix.h"
 #include "type.h"
-#include "line.h"
-#include "rect.h"
-#include "point.h"
-#include "float.h"
-#include "color.h"
-#include "pixfmt.h"
-#include "vector.h"
-#include "matrix.h"
-#include "quality.h"
-#include "round_rect.h"
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * macros
- */
-
-/// the width maxn
-#define GB_WIDTH_MAXN           (8192)
-
-/// the height maxn
-#define GB_HEIGHT_MAXN          (8192)
-
-/*! the min-alpha
- *
- * is_transparent = alpha < GB_ALPHA_MINN? tb_true : tb_false
- */
-#define GB_ALPHA_MINN           ((tb_byte_t)((GB_QUALITY_TOP - gb_quality()) << 3))
-
-/*! the max-alpha 
- *
- * @code
- * has_alpha = alpha < GB_QUALITY_ALPHA_MAXN? tb_true : tb_false
- * @endcode
- */
-#define GB_ALPHA_MAXN           ((tb_byte_t)(0xff - ((GB_QUALITY_TOP - gb_quality()) << 3)))
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -71,20 +38,44 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/*! init prefix
+/*! make line
  *
- * @return  tb_true or tb_false
+ * @param line      the line
+ * @param x0        the x0
+ * @param y0        the y0
+ * @param x1        the x1
+ * @param y1        the y1
  */
-tb_bool_t   gb_prefix_init(tb_noarg_t);
+tb_void_t           gb_line_make(gb_line_ref_t line, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1);
 
-/*! exit prefix
+/*! make line with the integer value
+ *
+ * @param line      the line
+ * @param x0        the x0
+ * @param y0        the y0
+ * @param x1        the x1
+ * @param y1        the y1
  */
-tb_void_t   gb_prefix_exit(tb_noarg_t);
+tb_void_t           gb_line_imake(gb_line_ref_t line, tb_long_t x0, tb_long_t y0, tb_long_t x1, tb_long_t y1);
+
+/*! apply matrix to line
+ *
+ * @param line      the line 
+ * @param matrix    the matrix
+ */
+tb_void_t           gb_line_apply(gb_line_ref_t line, gb_matrix_ref_t matrix);
+
+/*! apply matrix to line
+ *
+ * @param line      the line 
+ * @param applied   the applied line 
+ * @param matrix    the matrix
+ */
+tb_void_t           gb_line_apply2(gb_line_ref_t line, gb_line_ref_t applied, gb_matrix_ref_t matrix);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_leave__
+
 #endif
-
-
