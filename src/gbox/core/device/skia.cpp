@@ -314,16 +314,16 @@ static tb_void_t gb_device_skia_draw_path(gb_device_impl_t* device, gb_path_ref_
         switch (item->code)
         {
         case GB_PATH_CODE_MOVE:
-            impl->path->moveTo(gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            impl->path->moveTo(gb_float_to_sk(item->points[0].x), gb_float_to_sk(item->points[0].y));
             break;
         case GB_PATH_CODE_LINE:
-            impl->path->lineTo(gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            impl->path->lineTo(gb_float_to_sk(item->points[1].x), gb_float_to_sk(item->points[1].y));
             break;
         case GB_PATH_CODE_QUAD:
-            impl->path->quadTo(gb_float_to_sk(item->ctrls[0].x), gb_float_to_sk(item->ctrls[0].y), gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            impl->path->quadTo(gb_float_to_sk(item->points[1].x), gb_float_to_sk(item->points[1].y), gb_float_to_sk(item->points[2].x), gb_float_to_sk(item->points[2].y));
             break;
         case GB_PATH_CODE_CUBE:
-            impl->path->cubicTo(gb_float_to_sk(item->ctrls[0].x), gb_float_to_sk(item->ctrls[0].y), gb_float_to_sk(item->ctrls[1].x), gb_float_to_sk(item->ctrls[1].y), gb_float_to_sk(item->point.x), gb_float_to_sk(item->point.y));
+            impl->path->cubicTo(gb_float_to_sk(item->points[1].x), gb_float_to_sk(item->points[1].y), gb_float_to_sk(item->points[2].x), gb_float_to_sk(item->points[2].y), gb_float_to_sk(item->points[3].x), gb_float_to_sk(item->points[3].y));
             break;
         case GB_PATH_CODE_CLOS:
             impl->path->close();

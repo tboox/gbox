@@ -39,6 +39,33 @@ tb_int_t gb_demo_core_path_main(tb_int_t argc, tb_char_t** argv)
         // dump path
         gb_path_dump(path);
 #endif
+
+#if 1
+        // reverse dump
+        tb_rfor_all_if (gb_path_item_ref_t, item, path, item)
+        {
+            switch (item->code)
+            {
+            case GB_PATH_CODE_MOVE:
+                tb_trace_i("move_to: %{point}", &item->points[0]);
+                break;
+            case GB_PATH_CODE_LINE:
+                tb_trace_i("line_to: %{point}", &item->points[1]);
+                break;
+            case GB_PATH_CODE_QUAD:
+                tb_trace_i("quad_to: %{point}, %{point}", &item->points[1], &item->points[2]);
+                break;
+            case GB_PATH_CODE_CUBE:
+                tb_trace_i("cube_to: %{point}, %{point}, %{point}", &item->points[1], &item->points[2], &item->points[3]);
+                break;
+            case GB_PATH_CODE_CLOS:
+                tb_trace_i("closed");
+                break;
+            default:
+                break;
+            }
+        }
+#endif
     
         // exit path
         gb_path_exit(path);

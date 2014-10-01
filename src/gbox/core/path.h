@@ -55,11 +55,16 @@ typedef struct __gb_path_item_t
     /// the code
     tb_size_t       code;
 
+#if 0
     /// the point
     gb_point_t      point;
 
     /// the ctrls
     gb_point_t      ctrls[2];
+#endif
+
+    /// the points
+    gb_point_t      points[4];
 
 }gb_path_item_t, *gb_path_item_ref_t;
 

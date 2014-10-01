@@ -466,16 +466,16 @@ tb_void_t gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path)
         switch (item->code)
         {
         case GB_PATH_CODE_MOVE:
-            gb_stroker_move_to(stroker, &item->point);
+            gb_stroker_move_to(stroker, &item->points[0]);
             break;
         case GB_PATH_CODE_LINE:
-            gb_stroker_line_to(stroker, &item->point);
+            gb_stroker_line_to(stroker, &item->points[1]);
             break;
         case GB_PATH_CODE_QUAD:
-            gb_stroker_quad_to(stroker, &item->ctrls[0], &item->point);
+            gb_stroker_quad_to(stroker, &item->points[1], &item->points[2]);
             break;
         case GB_PATH_CODE_CUBE:
-            gb_stroker_cube_to(stroker, &item->ctrls[0], &item->ctrls[1], &item->point);
+            gb_stroker_cube_to(stroker, &item->points[1], &item->points[2], &item->points[3]);
             break;
         case GB_PATH_CODE_CLOS:
             gb_stroker_clos(stroker);
