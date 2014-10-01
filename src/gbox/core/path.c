@@ -45,6 +45,9 @@
 #   define GB_PATH_POINTS_GROW      (64)
 #endif
 
+// the point step for code
+#define gb_path_point_step(code)    ((code) < 1? 1 : (code) - 1)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
@@ -132,7 +135,7 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
     tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
 
     // the last point step
-    tb_size_t point_step = tb_abs(code - 1);
+    tb_size_t point_step = gb_path_point_step(code);
 
     // the last point index
     tb_size_t point_last = tb_vector_size(impl->points);
@@ -168,10 +171,9 @@ static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
     /* the next
      *
      * code_index++
-     * point_index += tb_abs(code - 1)
-     * point_count == |code - 1|: 1 0 1 2 3
+     * point_index += point_step
      */
-    return itor + (0x10000 | (code < 1? 1 : code - 1));
+    return itor + (0x10000 | gb_path_point_step(code));
 }
 static tb_size_t gb_path_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
 {
@@ -187,15 +189,14 @@ static tb_size_t gb_path_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
     tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
 
     // check the point index
-    tb_assert_abort((itor & 0xffff) >= (code < 1? 1 : code - 1));
+    tb_assert_abort((itor & 0xffff) >= gb_path_point_step(code));
 
     /* the prev
      *
-     * code_inde--
-     * point_index -= tb_abs(code - 1)
-     * point_count == |code - 1| == (code < 1? 1 : code - 1): 1 0 1 2 3
+     * code_index--
+     * point_index -= point_step
      */
-    return itor - (0x10000 | (code < 1? 1 : code - 1));
+    return itor - (0x10000 | gb_path_point_step(code));
 }
 static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor)
 {
@@ -370,10 +371,6 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         if (!impl->polygon_points) impl->polygon_points = tb_vector_init(tb_vector_size(impl->points), tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
         tb_assert_and_check_return_val(impl->polygon_points, tb_false);
 
-        // the points
-        gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);
-        tb_assert_and_check_return_val(points, tb_false);
-
         // clear polygon points and counts
         tb_vector_clear(impl->polygon_points);
         tb_vector_clear(impl->polygon_counts);
@@ -383,29 +380,28 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         values[0].ptr = impl->polygon_points;
         values[1].u16 = 0;
 
-        // init polygon points and counts
-        gb_point_ref_t last = tb_null;
-        tb_for_all (tb_uint8_t, code, impl->codes)
+        // done
+        tb_for_all_if (gb_path_item_ref_t, item, (gb_path_ref_t)impl, item)
         {
-            // done
-            switch (code)
+            switch (item->code)
             {
             case GB_PATH_CODE_MOVE:
-            case GB_PATH_CODE_LINE:
                 {
                     // append count
-                    if (code == GB_PATH_CODE_MOVE) 
-                    {
-                        if (values[1].u16) tb_vector_insert_tail(impl->polygon_counts, tb_u2p(values[1].u16));
-                        values[1].u16 = 0;
-                    }
+                    if (values[1].u16) tb_vector_insert_tail(impl->polygon_counts, tb_u2p(values[1].u16));
 
                     // make point
-                    gb_point_ref_t point = points++;
-                    tb_vector_insert_tail(impl->polygon_points, point);
+                    tb_vector_insert_tail(impl->polygon_points, &item->points[0]);
 
-                    // save last point
-                    last = point;
+                    // init the points count
+                    values[1].u16 = 1;
+ 
+                }
+                break;
+            case GB_PATH_CODE_LINE:
+                {
+                    // make point
+                    tb_vector_insert_tail(impl->polygon_points, &item->points[1]);
 
                     // update the points count
                     values[1].u16++;
@@ -414,24 +410,13 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             case GB_PATH_CODE_QUAD:
                 {
                     // make quad points
-                    gb_point_ref_t ctrl = points++;
-                    gb_point_ref_t point = points++;
-                    gb_geometry_make_quad(last, ctrl, point, gb_path_make_quad_or_cube_to, values);
-
-                    // save last point
-                    last = point;
+                    gb_geometry_make_quad(&item->points[0], &item->points[1], &item->points[2], gb_path_make_quad_or_cube_to, values);
                 }
                 break;
             case GB_PATH_CODE_CUBE:
                 {
                     // make cube points
-                    gb_point_ref_t ctrl0 = points++;
-                    gb_point_ref_t ctrl1 = points++;
-                    gb_point_ref_t point = points++;
-                    gb_geometry_make_cube(last, ctrl0, ctrl1, point, gb_path_make_quad_or_cube_to, values);
-
-                    // save last point
-                    last = point;
+                    gb_geometry_make_cube(&item->points[0], &item->points[1], &item->points[2], &item->points[3], gb_path_make_quad_or_cube_to, values);
                 }
                 break;
             case GB_PATH_CODE_CLOS:
@@ -473,7 +458,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             }
 
             // update count
-            count += tb_abs(code - 1);
+            count += gb_path_point_step(code);
         }
 
         // append the last count
