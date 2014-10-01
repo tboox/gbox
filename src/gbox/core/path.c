@@ -123,19 +123,16 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl, 0);
 
-    // the point count for code
-    static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
-
     // the last code index
     tb_size_t code_last = tb_vector_size(impl->codes);
     if (code_last) code_last--;
     
     // the last code
-    tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_last);
-    tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
+    tb_long_t code = (tb_long_t)tb_iterator_item(impl->codes, code_last);
+    tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
 
     // the last point step
-    tb_size_t point_step = s_point_count_for_code[code];
+    tb_size_t point_step = tb_abs(code - 1);
 
     // the last point index
     tb_size_t point_last = tb_vector_size(impl->points);
@@ -164,25 +161,17 @@ static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl && impl->codes, 0);
 
-    // the point count for code
-    static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
-
-    // the code and point index
-    tb_size_t code_index    = itor >> 16;
-    tb_size_t point_index   = itor & 0xffff;
-
     // the code
-    tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
-    tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
+    tb_long_t code = (tb_long_t)tb_iterator_item(impl->codes, itor >> 16);
+    tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
 
-    // the next code index
-    code_index++;
-
-    // the next point index
-    point_index += s_point_count_for_code[code];
-
-    // next
-    return ((code_index << 16) | point_index);
+    /* the next
+     *
+     * code_index++
+     * point_index += tb_abs(code - 1)
+     * point_count == |code - 1|: 1 0 1 2 3
+     */
+    return itor + (0x10000 | (code < 1? 1 : code - 1));
 }
 static tb_size_t gb_path_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
 {
@@ -190,26 +179,23 @@ static tb_size_t gb_path_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
     tb_assert_return_val(impl && impl->codes, 0);
 
-    // the point count for code
-    static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
-
-    // the code and point index
-    tb_size_t code_index    = itor >> 16;
-    tb_size_t point_index   = itor & 0xffff;
-    tb_assert_return_val(code_index, 0);
-
-    // the previous code index
-    code_index--;
+    // check the code index
+    tb_assert_abort(itor >> 16);
 
     // the code
-    tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
-    tb_assert_abort(code < tb_arrayn(s_point_count_for_code) && point_index >= s_point_count_for_code[code]);
+    tb_long_t code = (tb_size_t)tb_iterator_item(impl->codes, (itor >> 16) - 1);
+    tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
 
-    // the previous point index
-    point_index -= s_point_count_for_code[code];
+    // check the point index
+    tb_assert_abort((itor & 0xffff) >= (code < 1? 1 : code - 1));
 
-    // next
-    return ((code_index << 16) | point_index);
+    /* the prev
+     *
+     * code_inde--
+     * point_index -= tb_abs(code - 1)
+     * point_count == |code - 1| == (code < 1? 1 : code - 1): 1 0 1 2 3
+     */
+    return itor - (0x10000 | (code < 1? 1 : code - 1));
 }
 static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor)
 {
@@ -221,107 +207,14 @@ static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor
     tb_size_t code_index    = itor >> 16;
     tb_size_t point_index   = itor & 0xffff;
 
+    // the code
+    tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
+    tb_assert_abort(code < 1 || point_index);
+
     // init item
-    impl->item.code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
-    switch (impl->item.code)
-    {
-    case GB_PATH_CODE_MOVE:
-        {
-            // the point
-            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
-            tb_assert_abort(point);
-
-            // save point
-            impl->item.points[0] = *point;
-        }
-        break;
-    case GB_PATH_CODE_LINE:
-        {
-            // check
-            tb_assert_abort(point_index);
-
-            // the previous point
-            gb_point_ref_t point_prev = (gb_point_ref_t)tb_iterator_item(impl->points, point_index - 1);
-            tb_assert_abort(point_prev);
-
-            // the point
-            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
-            tb_assert_abort(point);
-
-            // save point
-            impl->item.points[0] = *point_prev;
-            impl->item.points[1] = *point;
-        }
-        break;
-    case GB_PATH_CODE_QUAD:
-        {
-            // check
-            tb_assert_abort(point_index);
-
-            // the previous point
-            gb_point_ref_t point_prev = (gb_point_ref_t)tb_iterator_item(impl->points, point_index - 1);
-            tb_assert_abort(point_prev);
-
-            // the ctrl
-            gb_point_ref_t ctrl = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
-            tb_assert_abort(ctrl);
-
-            // the point
-            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index + 1);
-            tb_assert_abort(point);
-
-            // save points
-            impl->item.points[0] = *point_prev;
-            impl->item.points[1] = *ctrl;
-            impl->item.points[2] = *point;
-        }
-        break;
-    case GB_PATH_CODE_CUBE:
-        {
-            // check
-            tb_assert_abort(point_index);
-
-            // the previous point
-            gb_point_ref_t point_prev = (gb_point_ref_t)tb_iterator_item(impl->points, point_index - 1);
-            tb_assert_abort(point_prev);
-
-            // the ctrl0
-            gb_point_ref_t ctrl0 = (gb_point_ref_t)tb_iterator_item(impl->points, point_index);
-            tb_assert_abort(ctrl0);
-
-            // the ctrl1
-            gb_point_ref_t ctrl1 = (gb_point_ref_t)tb_iterator_item(impl->points, point_index + 1);
-            tb_assert_abort(ctrl1);
-
-            // the point
-            gb_point_ref_t point = (gb_point_ref_t)tb_iterator_item(impl->points, point_index + 2);
-            tb_assert_abort(point);
-
-            // save points
-            impl->item.points[0] = *point_prev;
-            impl->item.points[1] = *ctrl0;
-            impl->item.points[2] = *ctrl1;
-            impl->item.points[3] = *point;
-        }
-        break;
-    case GB_PATH_CODE_CLOS:
-        {
-            // check
-            tb_assert_abort(point_index);
-
-            // the previous point
-            gb_point_ref_t point_prev = (gb_point_ref_t)tb_iterator_item(impl->points, point_index - 1);
-            tb_assert_abort(point_prev);
-
-            // save points
-            impl->item.points[0] = *point_prev;
-        }
-        break;
-    default:
-        // trace
-        tb_trace_e("invalid code: %lu", impl->item.code);
-        return tb_null;
-    }
+    impl->item.code     = code;
+    impl->item.points   = (gb_point_ref_t)tb_iterator_item(impl->points, code < 1? point_index : point_index - 1);
+    tb_assert_abort(impl->item.points);
 
     // data
     return &impl->item;
@@ -564,16 +457,13 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
     // only move-to and line-to? using the points directly
     else
     {
-        // the point count for code
-        static tb_uint16_t s_point_count_for_code[] = {1, 1, 2, 3, 0};
-
         // init polygon counts
         tb_uint16_t count = 0;
         tb_vector_clear(impl->polygon_counts);
-        tb_for_all (tb_uint8_t, code, impl->codes)
+        tb_for_all (tb_int8_t, code, impl->codes)
         {
             // check
-            tb_assert_abort(code < tb_arrayn(s_point_count_for_code));
+            tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
 
             // append count
             if (code == GB_PATH_CODE_MOVE) 
@@ -583,7 +473,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             }
 
             // update count
-            count += s_point_count_for_code[code];
+            count += tb_abs(code - 1);
         }
 
         // append the last count
