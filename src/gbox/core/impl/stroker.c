@@ -169,7 +169,26 @@ static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t cente
 }
 static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
 {
-    tb_trace_noimpl();
+    // check
+    tb_assert_abort(path && center && end && normal);
+
+    // TODO
+// 0.5522847498307936
+// 36195
+// (sqrt(2) - 1) * 4 / 3
+#define FACTOR    (36195)
+
+    // the factors
+    gb_float_t    x0 = center->x;
+    gb_float_t    y0 = center->y;
+    gb_float_t    nx = normal->x;
+    gb_float_t    ny = normal->y;
+    gb_float_t    sx = gb_mul(nx, FACTOR);
+    gb_float_t    sy = gb_mul(ny, FACTOR);
+
+    // cap the round
+    gb_path_cube2_to(path, x0 + nx - sy, y0 + ny + sx, x0 - ny + sx, y0 + nx + sy, x0 - ny, y0 + nx);
+    gb_path_cube2_to(path, x0 - ny - sx, y0 + nx - sy, x0 - nx - sy, y0 - ny + sx, end->x, end->y);
 }
 static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
 {

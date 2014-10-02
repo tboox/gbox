@@ -85,6 +85,7 @@ tb_int_t gb_demo_core_vector_main(tb_int_t argc, tb_char_t** argv)
     gb_demo_core_vector_test_length(0, 10);
     gb_demo_core_vector_test_length(1, 10);
     gb_demo_core_vector_test_length(10, 10);
+    gb_demo_core_vector_test_length(200, 200);
     gb_demo_core_vector_test_length(512, 512);
     gb_demo_core_vector_test_length(1024, 1024);
     gb_demo_core_vector_test_length(4096, 4096);

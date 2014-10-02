@@ -132,26 +132,7 @@ gb_float_t gb_vector_length(gb_vector_ref_t vector)
     // attempt to compute the length directly
     tb_hong_t dd = ((tb_hong_t)dx * dx + (tb_hong_t)dy * dy) >> 16;
     if (!(dd >> 32) && (tb_fixed_t)dd > 0) length = gb_sqrt((tb_fixed_t)dd);
-    else if (dd)
-    {
-#   ifdef TB_CONFIG_TYPE_FLOAT
-        // compute the length using the double value
-        tb_double_t xx = gb_float_to_tb(dx);
-        tb_double_t yy = gb_float_to_tb(dy);
-        tb_float_t  ll = (tb_float_t)tb_sqrt(xx * xx + yy * yy);
-        length = tb_float_to_gb(ll);
-
-        // trace
-        tb_trace_w("compute double %{vector}.length, will be slower!", vector);
-        
-#   else
-        // trace
-        tb_trace_e("cannot compute %{vector}.length", vector);
-        
-        // the invalid length
-        length = GB_NAN;
-#   endif
-    }
+    else if (dd > 0) length = (gb_float_t)(tb_isqrti64(dd) << 8);
     else length = GB_NEAR0;
 #else
     // attempt to compute the length directly
