@@ -68,6 +68,13 @@ tb_void_t               gb_vector_make_from_point(gb_vector_ref_t vector, gb_poi
  */
 tb_void_t               gb_vector_negate(gb_vector_ref_t vector);
 
+/*! nagate the vector to the given vector
+ * 
+ * @param vector        the vector
+ * @param negated       the negated vector
+ */
+tb_void_t               gb_vector_negate2(gb_vector_ref_t vector, gb_vector_ref_t negated);
+
 /*! rotate 90 degrees 
  * 
  * @param vector        the vector

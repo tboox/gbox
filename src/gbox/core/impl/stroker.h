@@ -107,13 +107,6 @@ tb_void_t                   gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_poin
  */
 tb_void_t                   gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
 
-/* add arc 
- * 
- * @param stroker           the stroker
- * @param arc               the arc 
- */
-tb_void_t                   gb_stroker_add_arc(gb_stroker_ref_t stroker, gb_arc_ref_t arc);
-
 /* add path 
  * 
  * @param stroker           the stroker

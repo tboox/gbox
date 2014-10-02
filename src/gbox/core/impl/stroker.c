@@ -35,9 +35,11 @@
 /* the stroker capper func type
  *
  * @param path      the path
+ * @param center    the center point
  * @param end       the end point
+ * @param normal    the normal vector for outer
  */
-typedef tb_void_t   (*gb_stroker_capper_t)(gb_path_ref_t path, gb_point_ref_t end);
+typedef tb_void_t   (*gb_stroker_capper_t)(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal);
 
 // the stroker impl type 
 typedef struct __gb_stroker_impl_t
@@ -71,6 +73,12 @@ typedef struct __gb_stroker_impl_t
 
     // the first point of the outer contour
     gb_point_t              outer_first;
+
+    // the previous normal for the outer
+    gb_vector_t             normal_prev;
+
+    // the first normal_first for the outer
+    gb_vector_t             normal_first;
 
     // the segment count
     tb_long_t               segment_count;
@@ -119,12 +127,6 @@ static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hi
             ok = tb_true;
         }
         break;
-    case GB_SHAPE_TYPE_ARC:
-        {
-            gb_stroker_add_arc(stroker, &hint->u.arc);
-            ok = tb_true;
-        }
-        break;
     case GB_SHAPE_TYPE_POINT:
         {
             gb_stroker_add_lines(stroker, &hint->u.point, 1);
@@ -138,21 +140,74 @@ static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hi
     // ok?
     return ok;
 }
-static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t end)
+static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
 {
     // check
     tb_assert_abort(path && end);
 
-    // cap th butt
+    /* cap th butt
+     *  
+     *                       normal
+     *              ----------------------> first outer
+     *             |  radius   |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     * reverse add |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     * last inner \|/         \|/         \|/
+     *          inner        center       outer
+     *             <------------------------
+     *                        cap
+     */
     gb_path_line_to(path, end);
 }
-static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t end)
+static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
 {
     tb_trace_noimpl();
 }
-static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t end)
+static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
 {
-    tb_trace_noimpl();
+    // check
+    tb_assert_abort(path && center && end && normal);
+
+    // make the patched vector
+    gb_vector_t patched;
+    gb_vector_rotate2(normal, &patched, GB_ROTATE_DIRECTION_CW);
+
+    /* cap the square
+     * 
+     *                       normal
+     *              ----------------------> first outer
+     *             |  radius   |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     * reverse add |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     * last inner \|/         \|/         \|/
+     *    end   inner        center       outer
+     *            /|\                      |
+     *             |                       | patched
+     *             |                       |
+     *             |                      \|/
+     *             <------------------------
+     *                        cap
+     *
+     */
+    gb_path_line2_to(path, center->x + normal->x + patched.x, center->y + normal->y + patched.y);
+    gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
+    gb_path_line_to(path, end);
 }
 static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
 {
@@ -188,7 +243,7 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
          *             |           |           |
          *             |           |           |
          * last inner \|/         \|/         \|/
-         *          inner         line        outer
+         *          inner        center       outer
          *
          *             <------------------------
          *                     end cap
@@ -198,13 +253,15 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
             // cap the end point
             gb_point_t inner_last;
             gb_path_last(impl->path_inner, &inner_last);
-            impl->capper(impl->path_outer, &inner_last);
+            impl->capper(impl->path_outer, &impl->point_prev, &inner_last, &impl->normal_prev);
 
             // add the inner contour in reverse order to the outer path
             gb_path_rpath_to(impl->path_outer, impl->path_inner);
 
             // cap the start point
-            impl->capper(impl->path_outer, &impl->outer_first);
+            gb_vector_t normal_first;
+            gb_vector_negate2(&impl->normal_first, &normal_first);
+            impl->capper(impl->path_outer, &impl->point_first, &impl->outer_first, &normal_first);
 
             // close the outer contour
             gb_path_clos(impl->path_outer);
@@ -428,6 +485,9 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
         // save the first point of the outer contour
         gb_point_make(&impl->outer_first, impl->point_prev.x + normal.x, impl->point_prev.y + normal.y);
 
+        // save the first normal
+        impl->normal_first = normal;
+
         // move to the start point for the inner and outer path
         gb_path_move_to(impl->path_outer, &impl->outer_first);
         gb_path_move2_to(impl->path_inner, impl->point_prev.x - normal.x, impl->point_prev.y - normal.y);
@@ -440,6 +500,9 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
     // update the previous point
     impl->point_prev = *point;
 
+    // update the previous normal
+    impl->normal_prev = normal;
+
     // update the segment count
     impl->segment_count++;
 }
@@ -449,11 +512,6 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     tb_trace_noimpl();
 }
 tb_void_t gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
-{
-    // TODO
-    tb_trace_noimpl();
-}
-tb_void_t gb_stroker_add_arc(gb_stroker_ref_t stroker, gb_arc_ref_t arc)
 {
     // TODO
     tb_trace_noimpl();

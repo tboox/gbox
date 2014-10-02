@@ -66,6 +66,15 @@ tb_void_t gb_vector_negate(gb_vector_ref_t vector)
     vector->x = -vector->x;
     vector->y = -vector->y;
 }
+tb_void_t gb_vector_negate2(gb_vector_ref_t vector, gb_vector_ref_t negated)
+{
+    // check
+    tb_assert_abort(vector && negated);
+
+    // negate it
+    negated->x = -vector->x;
+    negated->y = -vector->y;
+}
 tb_void_t gb_vector_rotate(gb_vector_ref_t vector, tb_size_t direction)
 {
     // rotate it
