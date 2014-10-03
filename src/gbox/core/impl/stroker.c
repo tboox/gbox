@@ -172,23 +172,117 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
     // check
     tb_assert_abort(path && center && end && normal);
 
-    // TODO
-// 0.5522847498307936
-// 36195
-// (sqrt(2) - 1) * 4 / 3
-#define FACTOR    (36195)
+    /* cap th round
+     *                        
+     *                        .
+     *                     .   . L
+     *                  .       .
+     *               .           c1
+     *            .
+     *         .                  c2
+     *      .                     .
+     *   .   a                    . L
+     * ............................
+     *              1         
+     *
+     * L = 4 * tan(a / 4) / 3
+     *
+     *      L
+     * ........... c1
+     * .
+     * .
+     * .
+     * .
+     * .
+     * .
+     * .
+     * .                          c2
+     * .                          .
+     * .                          .
+     * .                          . L
+     * . a = 90                   .
+     * ............................
+     *
+     * L = 4 * tan(pi/8) / 3 if a == 90 degree
+     *
+     *
+     *                       normal
+     *              ----------------------> first outer
+     *             |  radius   |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     * reverse add |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *             |           |           |
+     *         p3 \|/         \|/         \|/ p1
+     *          inner        center       outer
+     *             .           .           .
+     *          L4 . .         .         . . L1
+     *             .   .       .  arc  .   .
+     *            c4       .   .   .       c1
+     *                 c3.............c2
+     *                    L3   p2   L2
+     *                      
+     *                        cap
+     *
+     * factor = 4 * tan(pi/8) / 3
+     *
+     * L1 = (normal * factor).rotate(90, cw)
+     *    = (lx, ly).rotate(90, cw)
+     *    = (-ly, lx)
+     *
+     * L2 = (normal * factor)
+     *    = (lx, ly)
+     *
+     * L3 = -L2
+     *    = (-lx, -ly)
+     *
+     * L4 = L1
+     *    = (-ly, lx)
+     *
+     * p1 = center + normal
+     *    = (x0 + nx, y0 + ny)
+     *
+     * p2 = center + normal.rotate(90, cw)
+     *    = (x0 - ny, y0 + nx)
+     *
+     * p3 = center - normal
+     *    = (x0 - nx, y0 - ny)
+     *    = end
+     *
+     * c1 = p1 + L1
+     *    = (x0 + nx - ly, y0 + ny + lx)
+     *
+     * c2 = p2 + L2
+     *    = (x0 - ny + lx, y0 + nx + ly)
+     *
+     * c3 = p2 + L3
+     *    = (x0 - ny - lx, y0 + nx - ly)
+     *
+     * c4 = p3 + L4
+     *    = (x0 - nx - ly, y0 - ny + lx)
+     *
+     * cap:
+     * cube_to(c1, c2, p2) = cube_to(x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx)
+     * cube_to(c3, c4, p3) = cube_to(x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, x0 - nx, y0 - ny)
+     */
 
     // the factors
     gb_float_t    x0 = center->x;
     gb_float_t    y0 = center->y;
     gb_float_t    nx = normal->x;
     gb_float_t    ny = normal->y;
-    gb_float_t    sx = gb_mul(nx, FACTOR);
-    gb_float_t    sy = gb_mul(ny, FACTOR);
+    gb_float_t    lx = gb_mul(nx, GB_ARC2CUBE_FACTOR);
+    gb_float_t    ly = gb_mul(ny, GB_ARC2CUBE_FACTOR);
 
     // cap the round
-    gb_path_cube2_to(path, x0 + nx - sy, y0 + ny + sx, x0 - ny + sx, y0 + nx + sy, x0 - ny, y0 + nx);
-    gb_path_cube2_to(path, x0 - ny - sx, y0 + nx - sy, x0 - nx - sy, y0 - ny + sx, end->x, end->y);
+    gb_path_cube2_to(path, x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx);
+    gb_path_cube2_to(path, x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, end->x, end->y);
 }
 static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
 {
