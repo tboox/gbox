@@ -248,4 +248,12 @@ gb_float_t gb_vector_cross(gb_vector_ref_t vector, gb_vector_ref_t other)
     // done the cross product
     return gb_mul(ax, by) - gb_mul(ay, bx);
 }
+tb_bool_t gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector_ref_t other)
+{
+    // check
+    tb_assert_abort(vector && other);
+
+    // is clockwise direction?
+    return gb_mul(vector->x, other->y) > gb_mul(vector->y, other->x);
+}
 

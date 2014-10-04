@@ -32,14 +32,25 @@
  * types
  */
 
-/* the stroker capper func type
+/* the stroker capper type
  *
- * @param path      the path
- * @param center    the center point
- * @param end       the end point
- * @param normal    the normal vector for outer
+ * @param path                  the path
+ * @param center                the center point
+ * @param end                   the end point
+ * @param normal                the normal vector of the outer contour
  */
-typedef tb_void_t   (*gb_stroker_capper_t)(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal);
+typedef tb_void_t               (*gb_stroker_capper_t)(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal);
+
+/* the stroker joiner type
+ *
+ * @param inner                 the inner path
+ * @param outer                 the outer path
+ * @param center                the center point
+ * @param radius                the radius
+ * @param normal_unit_before    the before unit normal of the outer contour
+ * @param normal_unit_after     the after unit normal of the outer contour
+ */
+typedef tb_void_t               (*gb_stroker_joiner_t)(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after);
 
 // the stroker impl type 
 typedef struct __gb_stroker_impl_t
@@ -80,11 +91,20 @@ typedef struct __gb_stroker_impl_t
     // the first normal_first for the outer
     gb_vector_t             normal_first;
 
+    // the previous unit normal of the outer contour
+    gb_vector_t             normal_unit_prev;
+
+    // the first unit normal of the outer contour
+    gb_vector_t             normal_unit_first;
+
     // the segment count
     tb_long_t               segment_count;
 
     // the capper
     gb_stroker_capper_t     capper;
+
+    // the joiner
+    gb_stroker_joiner_t     joiner;
 
 }gb_stroker_impl_t;
 
@@ -179,16 +199,16 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
      *                  .       .
      *               .           c1
      *            .
-     *         .                  c2
-     *      .                     .
-     *   .   a                    . L
-     * ............................
+     *         .                   c2
+     *      .                      .
+     *   .   a                     . L
+     * . . . . . . . . . . . . . . .
      *              1         
      *
      * L = 4 * tan(a / 4) / 3
      *
      *      L
-     * ........... c1
+     * . . . . . . c1
      * .
      * .
      * .
@@ -196,12 +216,12 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
      * .
      * .
      * .
-     * .                          c2
-     * .                          .
-     * .                          .
-     * .                          . L
-     * . a = 90                   .
-     * ............................
+     * .                           c2
+     * .                           .
+     * .                           .
+     * .                           . L
+     * . a = 90                    .
+     * . . . . . . . . . . . . . . .
      *
      * L = 4 * tan(pi/8) / 3 if a == 90 degree
      *
@@ -225,7 +245,7 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
      *          L4 . .         .         . . L1
      *             .   .       .  arc  .   .
      *            c4       .   .   .       c1
-     *                 c3.............c2
+     *                 c3. . . . . . .c2
      *                    L3   p2   L2
      *                      
      *                        cap
@@ -322,11 +342,43 @@ static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t cen
     gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
     gb_path_line_to(path, end);
 }
+static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+{
+}
+static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+{
+}
+static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+{
+    // check
+    tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+
+    // the after normal
+    gb_vector_t normal_after;
+    gb_vector_scale2(normal_unit_after, &normal_after, radius);
+
+    // counter-clockwise? reverse it
+    if (!gb_vector_is_clockwise(normal_unit_before, normal_unit_after))
+    {
+        // swap the inner and outer path
+        tb_swap(gb_path_ref_t, inner, outer);
+
+        // reverse the after normal
+        gb_vector_negate(&normal_after);
+    }
+
+    // join the outer contour
+    gb_path_line2_to(outer, center->x + normal_after.x, center->y + normal_after.y);
+    
+    // join the inner contour
+    gb_path_line2_to(inner, center->x, center->y);
+    gb_path_line2_to(inner, center->x - normal_after.x, center->y - normal_after.y);
+}
 static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
 {
     // check
     tb_assert_abort(impl && impl->path_inner && impl->path_outer);
-    tb_assert_abort(impl->capper);
+    tb_assert_abort(impl->capper && impl->joiner);
 
     // exists contour now?
     if (impl->segment_count > 0)
@@ -334,8 +386,32 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
         // closed?
         if (closed)
         {
-            // TODO
-            tb_trace_noimpl();
+            // join it
+            impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &impl->normal_unit_first);
+
+            // close the outer contour
+            gb_path_clos(impl->path_outer);
+
+            /* add the inner contour in reverse order to the outer path
+             *
+             *              -->
+             * . . . . . . . . .
+             * .               .
+             * .   . . . . .   .
+             * .   .       .   .
+             * .   .       .   .
+             * .   . inner .   .
+             * .   . . . . x   .
+             * .               .
+             * . . . . . . . . x outer 
+             * <--
+             */
+            gb_point_t inner_last;
+            gb_path_last(impl->path_inner, &inner_last);
+            gb_path_move_to(impl->path_outer, &inner_last);
+            gb_path_rpath_to(impl->path_outer, impl->path_inner);
+            gb_path_clos(impl->path_outer);
+
         }
         /* add caps to the start and end point
          *
@@ -408,6 +484,7 @@ gb_stroker_ref_t gb_stroker_init()
         impl->radius        = 0;
         impl->segment_count = -1;
         impl->capper        = gb_stroker_capper_butt;
+        impl->joiner        = gb_stroker_joiner_miter;
 
         // init the outer path
         impl->path_outer = gb_path_init();
@@ -470,6 +547,7 @@ tb_void_t gb_stroker_clear(gb_stroker_ref_t stroker)
     impl->radius        = 0;
     impl->segment_count = -1;
     impl->capper        = gb_stroker_capper_butt;
+    impl->joiner        = gb_stroker_joiner_miter;
 
     // clear the other path
     if (impl->path_other) gb_path_clear(impl->path_other);
@@ -512,8 +590,20 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     };
     tb_assert_abort(impl->cap < tb_arrayn(s_cappers));
 
+    // the joiners
+    static gb_stroker_joiner_t s_joiners[] = 
+    {
+        gb_stroker_joiner_miter
+    ,   gb_stroker_joiner_round
+    ,   gb_stroker_joiner_bevel
+    };
+    tb_assert_abort(impl->join < tb_arrayn(s_joiners));
+
     // set capper
     impl->capper = s_cappers[impl->cap];
+
+    // set joiner
+    impl->joiner = s_joiners[impl->join];
 }
 tb_void_t gb_stroker_clos(gb_stroker_ref_t stroker)
 {
@@ -589,8 +679,11 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
     // body?
     if (impl->segment_count > 0)
     {
-        // TODO
-        tb_trace_noimpl();
+        // check
+        tb_assert_abort(impl->joiner);
+
+        // join it
+        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &normal_unit);
     }
     // start?
     else
@@ -600,6 +693,9 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
 
         // save the first normal
         impl->normal_first = normal;
+
+        // sve the first unit normal
+        impl->normal_unit_first = normal_unit;
 
         // move to the start point for the inner and outer path
         gb_path_move_to(impl->path_outer, &impl->outer_first);
@@ -615,6 +711,9 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
 
     // update the previous normal
     impl->normal_prev = normal;
+
+    // update the previous unit normal
+    impl->normal_unit_prev = normal_unit;
 
     // update the segment count
     impl->segment_count++;

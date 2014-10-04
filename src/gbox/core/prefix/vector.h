@@ -148,6 +148,24 @@ gb_float_t              gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t ot
  */
 gb_float_t              gb_vector_cross(gb_vector_ref_t vector, gb_vector_ref_t other);
 
+/*! the other vector is in the clockwise of the vector
+ *
+ * <pre>
+ * . . . . . . . . . vector
+ * .
+ * .
+ * .
+ * .
+ * other
+ * </pre>
+ * 
+ * @param vector        the vector
+ * @param other         the other vector
+ * 
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector_ref_t other);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
