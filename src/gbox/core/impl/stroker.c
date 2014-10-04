@@ -342,6 +342,43 @@ static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t cen
     gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
     gb_path_line_to(path, end);
 }
+static tb_void_t gb_stroker_joiner_inner(gb_path_ref_t inner, gb_point_ref_t center, gb_vector_ref_t normal_after)
+{
+    /* join the inner contour
+     *               
+     *               <-
+     *               . . . . center
+     *               .     .
+     *               .     .
+     * . . . . . . . . . . . 
+     * before        .    ->
+     *               .
+     *               .
+     *               .
+     *               .
+     *             after
+     *
+     * @note need patch a center first for the radius is larger than segments
+     * 
+     *          i2 . .
+     *           .   .
+     *           .   .
+     * . . . . . . . . . . . . . 
+     * .         .   .   \|/   .
+     *i1 . . . . . c . . . . . . - normal_before
+     *           .   .      .   
+     *           .<- .    .  
+     *           .   .  .  outer
+     *           .   . 
+     *           . . .
+     *           |
+     *      normal_after
+     *
+     * inner: i1 => c = > i2
+     */
+    gb_path_line2_to(inner, center->x, center->y);
+    gb_path_line2_to(inner, center->x - normal_after->x, center->y - normal_after->y);
+}
 static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
 {
 }
@@ -353,7 +390,29 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
     // check
     tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
 
-    // the after normal
+    /* the after normal
+     *
+     *                      normal_before
+     *            outer          |
+     * . . . . . . . . . . . . . o1
+     * .                         . .
+     * .           -->      i2 . c . o2 -> normal_after
+     * .                     .   .   .
+     * . . . . . . . . . . . . . i1  .
+     *            inner      .       .
+     *                       .       .
+     *                       .       .
+     *                       .       .
+     *                 inner .       . outer
+     *                       .       .
+     *                       .       .
+     *                       .       .
+     *                       .       .
+     *
+     *
+     * outer: o1 => o2
+     * inner: i1 => c = > i2
+     */
     gb_vector_t normal_after;
     gb_vector_scale2(normal_unit_after, &normal_after, radius);
 
@@ -369,10 +428,9 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
 
     // join the outer contour
     gb_path_line2_to(outer, center->x + normal_after.x, center->y + normal_after.y);
-    
+
     // join the inner contour
-    gb_path_line2_to(inner, center->x, center->y);
-    gb_path_line2_to(inner, center->x - normal_after.x, center->y - normal_after.y);
+    gb_stroker_joiner_inner(inner, center, &normal_after);
 }
 static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
 {
