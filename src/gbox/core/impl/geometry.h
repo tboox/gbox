@@ -87,6 +87,16 @@ tb_void_t           gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb,
  */
 tb_void_t           gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, tb_cpointer_t priv);
 
+/* make the quad points for the arc
+ *
+ * @param start     the start unit vector
+ * @param stop      the stop unit vector
+ * @param matrix    the user matrix
+ * @param func      the make func
+ * @param priv      the make func private data for user
+ */
+tb_void_t           gb_geometry_make_arc2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_geometry_quad_func_t func, tb_cpointer_t priv);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
