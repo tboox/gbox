@@ -166,6 +166,15 @@ gb_float_t              gb_vector_cross(gb_vector_ref_t vector, gb_vector_ref_t 
  */
 tb_bool_t               gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector_ref_t other);
 
+/*! be equal to the other vector?
+ *
+ * @param vector        the vector
+ * @param other         the other vector
+ * 
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_equal(gb_vector_ref_t vector, gb_vector_ref_t other);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

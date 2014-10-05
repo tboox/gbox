@@ -216,122 +216,6 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     // check
     tb_assert_and_check_return(arc && func);
 
-#if 0
-    // done the degenerated arc
-    if (gb_ez(arc->rx) && gb_ez(arc->ry))
-    {
-        gb_point_t point;
-        gb_point_make(&point, arc->c.x, arc->c.y);
-        func(tb_null, &point, priv);
-        return ;
-    }
-
-    // the direction and sweep angle
-    tb_bool_t  clockwise = tb_true;
-    gb_float_t sweep_angle = arc->an;
-    if (sweep_angle < 0)
-    {
-        // counter-clockwise
-        clockwise = tb_false;
-
-        // |sweep_angle|
-        sweep_angle = -sweep_angle;
-    }
-    if (sweep_angle > GB_DEGREE_360) sweep_angle = GB_DEGREE_360;
-
-    // make quad points count
-    tb_size_t count = 1 + ((gb_float_to_long(sweep_angle) / 45) << 1);
-    tb_assert_abort(count & 0x1);
-
-    // make quad points
-    gb_point_t points[tb_arrayn(g_quad_points_of_unit_circle)];
-    tb_memcpy(points, g_quad_points_of_unit_circle, count * sizeof(gb_point_t));
-
-    // patch the last quad pair
-    gb_float_t patched_angle = sweep_angle - gb_long_to_float(((count - 1) * 45) >> 1);
-    if (gb_nz(patched_angle))
-    {
-        // the patched angle must be larger than zero
-        tb_assert_abort(gb_bz(patched_angle));
-
-        // the stop point for the unit circle
-        gb_point_t stop_point;
-        gb_sincos(gb_degree_to_radian(sweep_angle), &stop_point.y, &stop_point.x);
-
-        // the last point
-        gb_point_t last_point = points[count - 1];
-
-        // init matrix
-        gb_matrix_t matrix;
-        gb_matrix_init_sincos(&matrix, last_point.y, last_point.x);
-
-        /* compute tan(patched_angle/2)
-         *
-         * tan(x) = x + x^3/3 while x < pi/2
-         */
-        gb_float_t angle = gb_degree_to_radian(gb_rsh(patched_angle, 1));
-        gb_float_t tan_angle = angle + gb_idiv(gb_mul(gb_mul(angle, angle), angle), 3);
-
-        /* compute the ctrl point, last => ctrl => stop
-         *
-         * |     last
-         * |      /       ctrl
-         * |     /       /
-         * |    /      /
-         * |   /     /
-         * |  /    /         stop
-         * | /   /     
-         * |/ /        
-         * ------------------- last^
-         *                    | 
-         *                    | tan(patched_angle/2)
-         *                    |
-         *                   ctrl^
-         *
-         * ctrl^:   (1, tan(patched_angle/2))
-         * matrix:  rotate_sincos(last_point.y, last_point.x)
-         *
-         * ctrl = ctrl^ * matrix
-         */
-        gb_point_t ctrl_point;
-        gb_point_make(&ctrl_point, GB_ONE, tan_angle);
-        gb_point_apply(&ctrl_point, &matrix);
-
-        // patch the last quad pair
-        points[count++] = ctrl_point;
-        points[count++] = stop_point;
-    }
-
-    // the start point for arc
-    gb_point_t start_point;
-    gb_sincos(gb_degree_to_radian(arc->ab), &start_point.y, &start_point.x);
-
-    // init matrix
-    gb_matrix_t matrix;
-    gb_matrix_init_translate(&matrix, arc->c.x, arc->c.y);
-    gb_matrix_scale(&matrix, arc->rx, arc->ry);
-    gb_matrix_sincos(&matrix, start_point.y, start_point.x);
-    if (!clockwise) gb_matrix_scale(&matrix, GB_ONE, -GB_ONE);
-
-    // apply matrix for the first point
-    gb_point_apply(points, &matrix);
-
-    // done func
-    func(tb_null, points, priv);
-
-    // walk points
-    gb_point_ref_t pb = points + 1;
-    gb_point_ref_t pe = points + count;
-    for (; pb < pe; pb += 2) 
-    {
-        // apply matrix for the quad points
-        gb_point_apply(pb, &matrix);
-        gb_point_apply(pb + 1, &matrix);
-
-        // done
-        func(pb, pb + 1, priv);
-    }
-#else
     // done the degenerated arc
     if (gb_ez(arc->rx) && gb_ez(arc->ry))
     {
@@ -346,7 +230,7 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     gb_vector_t stop;
     gb_sincos(gb_degree_to_radian(arc->ab), &start.y, &start.x);
     gb_sincos(gb_degree_to_radian(arc->ab + arc->an), &stop.y, &stop.x);
- 
+
     // init matrix
     gb_matrix_t matrix;
     gb_matrix_init_scale(&matrix, arc->rx, arc->ry);
@@ -357,7 +241,6 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
      * arc = matrix * unit_arc
      */
     gb_geometry_make_arc2(&start, &stop, &matrix, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW, func, priv);
-#endif
 }
 tb_void_t gb_geometry_make_arc2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_geometry_quad_func_t func, tb_cpointer_t priv)
 {

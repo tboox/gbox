@@ -25,6 +25,7 @@
  * includes
  */
 #include "stroker.h"
+#include "geometry.h"
 #include "../path.h"
 #include "../paint.h"
 
@@ -342,6 +343,15 @@ static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t cen
     gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
     gb_path_line_to(path, end);
 }
+static tb_void_t gb_stroker_joiner_outer(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
+{
+    // check
+    gb_path_ref_t outer = (gb_path_ref_t)priv;
+    tb_assert_abort(outer && point);
+
+    // add quadratic curve for the outer contour
+    if (ctrl) gb_path_quad_to(outer, ctrl, point);
+}
 static tb_void_t gb_stroker_joiner_inner(gb_path_ref_t inner, gb_point_ref_t center, gb_vector_ref_t normal_after)
 {
     /* join the inner contour
@@ -384,6 +394,44 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
 }
 static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
 {
+    // check
+    tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+
+    // the unit normal vectors and direction
+    gb_vector_t start       = *normal_unit_before;
+    gb_vector_t stop        = *normal_unit_after;
+    tb_size_t   direction   = GB_ROTATE_DIRECTION_CW;
+
+    // counter-clockwise? reverse it
+    if (!gb_vector_is_clockwise(normal_unit_before, normal_unit_after))
+    {
+        // swap the inner and outer path
+        tb_swap(gb_path_ref_t, inner, outer);
+
+        // reverse the start normal
+        gb_vector_negate(&start);
+
+        // reverse the stop normal
+        gb_vector_negate(&stop);
+
+        // reverse direction
+        direction = GB_ROTATE_DIRECTION_CCW;
+    }
+ 
+    // init matrix
+    gb_matrix_t matrix;
+    gb_matrix_init_scale(&matrix, radius, radius);
+    gb_matrix_translate_lhs(&matrix, center->x, center->y);
+
+    /* make arc
+     *
+     * arc = matrix * unit_arc
+     */
+    gb_geometry_make_arc2(&start, &stop, &matrix, direction, gb_stroker_joiner_outer, outer);
+
+    // join the inner contour
+    gb_vector_scale(&stop, radius);
+    gb_stroker_joiner_inner(inner, center, &stop);
 }
 static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
 {
