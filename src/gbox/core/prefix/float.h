@@ -204,8 +204,8 @@
 #define gb_lz(x)                (gb_nz(x) < 0)
 #define gb_bz(x)                (gb_nz(x) > 0)
 
-#define gb_n1(x)                ((x) != GB_ONE)
-#define gb_e1(x)                ((x) == GB_ONE)
+#define gb_n1(x)                (GB_ONE != (x))
+#define gb_e1(x)                (GB_ONE == (x))
 #define gb_l1(x)                ((x) < GB_ONE)
 #define gb_b1(x)                ((x) > GB_ONE)
 

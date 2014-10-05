@@ -423,10 +423,7 @@ static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t oute
     gb_matrix_init_scale(&matrix, radius, radius);
     gb_matrix_translate_lhs(&matrix, center->x, center->y);
 
-    /* make arc
-     *
-     * arc = matrix * unit_arc
-     */
+    // join the outer contour
     gb_geometry_make_arc2(&start, &stop, &matrix, direction, gb_stroker_joiner_outer, outer);
 
     // join the inner contour
