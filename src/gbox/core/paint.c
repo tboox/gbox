@@ -26,6 +26,7 @@
  */
 #include "paint.h"
 #include "shader.h"
+#include "impl/stroker.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -43,8 +44,8 @@
 // the default width
 #define GB_PAINT_DEFAULT_WIDTH              GB_ONE
 
-// the default miter miter
-#define GB_PAINT_DEFAULT_MITER              gb_long_to_float(4)
+// the default miter limit
+#define GB_PAINT_DEFAULT_MITER              GB_STROKER_DEFAULT_MITER
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -307,7 +308,7 @@ tb_void_t gb_paint_stroke_miter_set(gb_paint_ref_t paint, gb_float_t miter)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return(impl && miter > GB_ONE);
+    tb_assert_and_check_return(impl);
 
     // done
     impl->miter = miter;

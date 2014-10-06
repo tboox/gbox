@@ -46,6 +46,7 @@
 #define GB_PI                   TB_FIXED_PI
 #define GB_NEAR0                TB_FIXED_NEAR0
 #define GB_SQRT2                TB_FIXED_SQRT2      //!< sqrt(2)
+#define GB_ONEOVER_SQRT2        (46341)             //!< 1/sqrt(2)
 #define GB_TAN_PIOVER8          (27146)             //!< tan(pi/8)
 #define GB_SQRT2_OVER2          (46341)             //!< sqrt(2)/2
 #define GB_PIOVER180            (1143)              //<! pi/180
@@ -135,6 +136,7 @@
 #define GB_PI                   TB_PI
 #define GB_NEAR0                (1.0f / (1 << 12))
 #define GB_SQRT2                (1.414213562f)      //!< sqrt(2)
+#define GB_ONEOVER_SQRT2        (0.707106781f)      //!< 1/sqrt(2)
 #define GB_TAN_PIOVER8          (0.414213562f)      //!< tan(pi/8)
 #define GB_SQRT2_OVER2          (0.707106781f)      //!< sqrt(2)/2
 #define GB_PIOVER180            (0.017453293f)      //<! pi/180

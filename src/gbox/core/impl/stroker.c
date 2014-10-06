@@ -50,8 +50,19 @@ typedef tb_void_t               (*gb_stroker_capper_t)(gb_path_ref_t path, gb_po
  * @param radius                the radius
  * @param normal_unit_before    the before unit normal of the outer contour
  * @param normal_unit_after     the after unit normal of the outer contour
+ * @param miter_invert          the invert miter limit
  */
-typedef tb_void_t               (*gb_stroker_joiner_t)(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after);
+typedef tb_void_t               (*gb_stroker_joiner_t)(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert);
+
+// the stroker joiner angle type enum
+typedef enum __gb_stroker_joiner_angle_type_e 
+{
+    GB_STROKER_JOINER_ANGLE_NEAR0   = 0
+,   GB_STROKER_JOINER_ANGLE_NEAR180 = 1
+,   GB_STROKER_JOINER_ANGLE_OBTUSE  = 2
+,   GB_STROKER_JOINER_ANGLE_SHARP   = 3
+
+}gb_stroker_joiner_angle_type_e;
 
 // the stroker impl type 
 typedef struct __gb_stroker_impl_t
@@ -67,6 +78,9 @@ typedef struct __gb_stroker_impl_t
 
     // the miter limit
     gb_float_t              miter;
+
+    // the invert miter limit: 1 / miter
+    gb_float_t              miter_invert;
 
     // the outer path and is the output path
     gb_path_ref_t           path_outer;
@@ -343,6 +357,46 @@ static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t cen
     gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
     gb_path_line_to(path, end);
 }
+static gb_float_t gb_stroker_joiner_angle(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, tb_size_t* ptype)
+{
+    // check
+    tb_assert_abort(normal_unit_before && normal_unit_after);
+
+    /* the cos(angle) value
+     *
+     *                   normal_before
+     *                         | 
+     * . . . . . . . . . . . . .   
+     *                         .       
+     *                       R .    
+     *                         .   
+     *                         . angle   
+     *               . . . . . c . . . . . --> normal_after
+     *               .         .    R    .
+     *               .         .         .
+     *               .         .         .
+     *               .         .         .
+     * . . . . . . . . . . . . .         .
+     *               .                   .
+     *               .                   .
+     *               .                   .
+     *               .                   .
+     *               .                   . 
+     *               .                   .
+     *                            
+     */
+    gb_float_t angle = gb_vector_dot(normal_unit_before, normal_unit_after);
+
+    // compute the angle type
+    if (ptype)
+    {
+        if (gb_lz(angle)) *ptype = (GB_ONE + angle) <= GB_NEAR0? GB_STROKER_JOINER_ANGLE_NEAR180 : GB_STROKER_JOINER_ANGLE_OBTUSE;
+        else *ptype = (GB_ONE - angle) <= GB_NEAR0? GB_STROKER_JOINER_ANGLE_NEAR0 : GB_STROKER_JOINER_ANGLE_SHARP;
+    }
+
+    // the angle
+    return angle;
+}
 static tb_void_t gb_stroker_joiner_outer(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
@@ -389,13 +443,154 @@ static tb_void_t gb_stroker_joiner_inner(gb_path_ref_t inner, gb_point_ref_t cen
     gb_path_line2_to(inner, center->x, center->y);
     gb_path_line2_to(inner, center->x - normal_after->x, center->y - normal_after->y);
 }
-static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
-{
-}
-static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert)
 {
     // check
     tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+
+    /*                   normal_before
+     *                         | 
+     * . . . . . . . . . . . . . . . . . . miter 
+     *                         .    L  . .
+     *                         .     .   .
+     *                         .   .     .
+     *                         . a       .
+     *               . . . . . c . . . . . --> normal_after
+     *               .         .    R    .
+     *               .         .         .
+     *               .         .         .
+     *               .         .         .
+     * . . . . . . . . . . . . .         .
+     *               .                   .
+     *               .                   .
+     *               .                   .
+     *               .                   .
+     *               .                   . 
+     *               .                   .
+     *                            
+     * R: radius
+     * M: miter limit
+     * L: miter length
+     * a: degree
+     *
+     * M = L / R
+     * L = R / cos(a/2)
+     */
+
+    // compute the cos(a) value of the angle
+    tb_size_t   type;
+    gb_float_t  cos_a = gb_stroker_joiner_angle(normal_unit_before, normal_unit_after, &type);
+
+    // the join is nearly line? ignore this join directly
+    if (type == GB_STROKER_JOINER_ANGLE_NEAR0) return ;
+
+    // the unit normal vectors and direction
+    gb_vector_t before       = *normal_unit_before;
+    gb_vector_t after        = *normal_unit_after;
+
+    // done miter
+    gb_vector_t     miter;
+    tb_bool_t       miter_join = tb_true;
+    do
+    {
+        // the join is nearly 180 degrees? join the bevel
+        if (type == GB_STROKER_JOINER_ANGLE_NEAR180)
+        {
+            miter_join = tb_false;
+            break;
+        }
+
+        // counter-clockwise? reverse it
+        tb_bool_t clockwise;
+        if (!(clockwise = gb_vector_is_clockwise(normal_unit_before, normal_unit_after)))
+        {
+            // swap the inner and outer path
+            tb_swap(gb_path_ref_t, inner, outer);
+
+            // reverse the before normal
+            gb_vector_negate(&before);
+
+            // reverse the after normal
+            gb_vector_negate(&after);
+        }
+
+        /* right angle? done the more faster and accuracy miter
+         *
+         * .       .
+         * .     .
+         * .   . L
+         * . .
+         * . . . . .
+         *     R
+         *
+         * if (M = L / R >= sqrt(2)) miter
+         * if (1 / m <= 1 / sqrt(2)) miter
+         */
+        if (gb_ez(cos_a) && miter_invert <= GB_ONEOVER_SQRT2)
+        {
+            gb_vector_make(&miter, gb_mul(before.x + after.x, radius), gb_mul(before.y + after.y, radius));
+            break;
+        }
+
+        /* compute the cos(a/2)
+         *
+         * cos(a/2) = sqrt((1 + cos(a)) / 2)
+         */
+        gb_float_t cos_half_a = gb_sqrt(gb_rsh(GB_ONE + cos_a, 1));
+
+        /* limit the miter length
+         *
+         * if (L / R > M) strip
+         * if (L > M * R) strip
+         * if (R / cos(a/2) > M * R) strip
+         * if (1 / cos(a/2) > M) strip
+         * if (1 / M > cos(a/2)) strip
+         */
+        if (miter_invert > cos_half_a) 
+        {
+            miter_join = tb_false;
+            break;
+        }
+
+        /* compute the miter length
+         *
+         * L = R / cos(a/2)
+         */
+        gb_float_t length = gb_div(radius, cos_half_a);
+
+        // TODO
+        // compute the miter vector
+        if (0)//type == GB_STROKER_JOINER_ANGLE_OBTUSE)
+        {
+            gb_vector_make(&miter, after.x - before.x, after.y - before.y);
+            if (!clockwise) gb_vector_negate(&miter);
+        }
+        else gb_vector_make(&miter, before.x + after.x, before.y + after.y);
+        gb_vector_length_set(&miter, length);
+
+    } while (0);
+
+    // scale the after normal
+    gb_vector_scale(&after, radius);
+
+    // join the outer contour
+    if (miter_join) gb_path_line2_to(outer, center->x + miter.x, center->y + miter.y);
+    else gb_path_line2_to(outer, center->x + after.x, center->y + after.y);
+
+    // join the inner contour
+    gb_stroker_joiner_inner(inner, center, &after);
+}
+static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert)
+{
+    // check
+    tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+
+    // compute the angle type
+    tb_size_t type;
+    gb_stroker_joiner_angle(normal_unit_before, normal_unit_after, &type);
+
+    // the join is nearly line? ignore this join directly
+    if (type == GB_STROKER_JOINER_ANGLE_NEAR0) return ;
 
     // the unit normal vectors and direction
     gb_vector_t start       = *normal_unit_before;
@@ -430,7 +625,7 @@ static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t oute
     gb_vector_scale(&stop, radius);
     gb_stroker_joiner_inner(inner, center, &stop);
 }
-static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert)
 {
     // check
     tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
@@ -490,7 +685,7 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
         if (closed)
         {
             // join it
-            impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &impl->normal_unit_first);
+            impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &impl->normal_unit_first, impl->miter_invert);
 
             // close the outer contour
             gb_path_clos(impl->path_outer);
@@ -584,10 +779,12 @@ gb_stroker_ref_t gb_stroker_init()
         // init stroker
         impl->cap           = GB_PAINT_STROKE_CAP_BUTT;
         impl->join          = GB_PAINT_STROKE_JOIN_MITER;
+        impl->miter         = GB_STROKER_DEFAULT_MITER;
         impl->radius        = 0;
         impl->segment_count = -1;
         impl->capper        = gb_stroker_capper_butt;
         impl->joiner        = gb_stroker_joiner_miter;
+        impl->miter_invert  = gb_invert(GB_STROKER_DEFAULT_MITER);
 
         // init the outer path
         impl->path_outer = gb_path_init();
@@ -647,10 +844,12 @@ tb_void_t gb_stroker_clear(gb_stroker_ref_t stroker)
     // clear it
     impl->cap           = GB_PAINT_STROKE_CAP_BUTT;
     impl->join          = GB_PAINT_STROKE_JOIN_MITER;
+    impl->miter         = GB_STROKER_DEFAULT_MITER;
     impl->radius        = 0;
     impl->segment_count = -1;
     impl->capper        = gb_stroker_capper_butt;
     impl->joiner        = gb_stroker_joiner_miter;
+    impl->miter_invert  = gb_invert(GB_STROKER_DEFAULT_MITER);
 
     // clear the other path
     if (impl->path_other) gb_path_clear(impl->path_other);
@@ -671,6 +870,9 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     gb_float_t width = gb_paint_stroke_width(paint);
     tb_assert_abort(!gb_lz(width));
 
+    // the miter
+    gb_float_t miter = gb_paint_stroke_miter(paint);
+
     // set the cap
     impl->cap = gb_paint_stroke_cap(paint);
 
@@ -680,9 +882,19 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     // set the radius
     impl->radius = gb_rsh(width, 1);
 
+    // set the invert miter limit
+    if (impl->miter != miter)
+    {
+        impl->miter_invert = 0;
+        if (impl->join == GB_PAINT_STROKE_JOIN_MITER)
+        {
+            if (!gb_l1(miter)) impl->join = GB_PAINT_STROKE_JOIN_BEVEL;
+            else impl->miter_invert = gb_invert(miter);
+        }
+    }
+
     // set the miter limit
-    impl->miter = gb_paint_stroke_miter(paint);
-    tb_assert_abort(impl->miter > GB_ONE);
+    impl->miter = miter;
 
     // the cappers
     static gb_stroker_capper_t s_cappers[] = 
@@ -786,7 +998,7 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
         tb_assert_abort(impl->joiner);
 
         // join it
-        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &normal_unit);
+        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &normal_unit, impl->miter_invert);
     }
     // start?
     else
@@ -892,6 +1104,8 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
 
     // the join
     tb_size_t join = impl->join;
+    if (join == GB_PAINT_STROKE_JOIN_MITER && impl->miter < GB_SQRT2)
+        join = GB_PAINT_STROKE_JOIN_BEVEL;
 
     /* add the outer rect to the other path
      *
@@ -917,9 +1131,6 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
     {
     case GB_PAINT_STROKE_JOIN_MITER:
         {
-            // TODO limit miter
-            // ...
-
             // add miter rect
             gb_path_add_rect(impl->path_other, &rect_outer, GB_ROTATE_DIRECTION_CCW);
         }
