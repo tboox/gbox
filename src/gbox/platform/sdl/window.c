@@ -112,8 +112,14 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
         // spak
         time = gb_window_impl_spak((gb_window_ref_t)impl);
 
+        // lock the surface
+        SDL_LockSurface(impl->surface);
+
         // draw
         gb_window_impl_draw((gb_window_ref_t)impl, impl->canvas);
+
+        // unlock the surface
+        SDL_UnlockSurface(impl->surface);
 
         // flip 
         if (SDL_Flip(impl->surface) < 0) stop = tb_true;

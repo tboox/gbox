@@ -25,6 +25,7 @@
  * includes
  */
 #include "../gbox.h"
+#include "impl/window.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -95,7 +96,7 @@ tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_ini
         impl->argv = argv;
 
         // init window info
-        impl->info.framerate    = 60;
+        impl->info.framerate    = GB_WINDOW_DEFAULT_FRAMERATE;
         impl->info.flag         = GB_WINDOW_FLAG_NONE;
 
         // notify: init application

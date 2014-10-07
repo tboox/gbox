@@ -42,8 +42,8 @@ __tb_extern_c_enter__
  * macros
  */
 
-// the default framerate: 60
-#define GB_WINDOW_DEFAULT_FRAMERATE         (60)
+// the default framerate: 30
+#define GB_WINDOW_DEFAULT_FRAMERATE         (30)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
