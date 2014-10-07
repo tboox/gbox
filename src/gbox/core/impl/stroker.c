@@ -1053,7 +1053,7 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
         impl->miter_invert = 0;
         if (impl->join == GB_PAINT_STROKE_JOIN_MITER)
         {
-            if (!gb_l1(miter)) impl->join = GB_PAINT_STROKE_JOIN_BEVEL;
+            if (miter >= GB_ONE) impl->join = GB_PAINT_STROKE_JOIN_BEVEL;
             else impl->miter_invert = gb_invert(miter);
         }
     }

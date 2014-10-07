@@ -221,7 +221,7 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
             g_width += GB_ONE;
             break;
         case GB_KEY_DOWN:
-            if (gb_b1(g_width)) g_width -= GB_ONE;
+            if (g_width > GB_ONE) g_width -= GB_ONE;
             break;
         case 'f':
             gb_window_fullscreen(window, tb_true);

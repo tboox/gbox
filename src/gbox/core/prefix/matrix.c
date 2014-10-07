@@ -162,7 +162,7 @@ tb_bool_t gb_matrix_invert(gb_matrix_ref_t matrix)
     if (gb_ez(matrix->kx) && gb_ez(matrix->ky))
     {
         // invert it if sx != 1.0
-        if (gb_n1(matrix->sx))
+        if (GB_ONE != matrix->sx)
         {
             tb_assert_and_check_return_val(gb_fabs(matrix->sx) >= GB_NEAR0, tb_false);
             mx.sx = gb_invert(matrix->sx);
@@ -170,7 +170,7 @@ tb_bool_t gb_matrix_invert(gb_matrix_ref_t matrix)
         }
 
         // invert it if sy != 1.0
-        if (gb_n1(matrix->sy))
+        if (GB_ONE != matrix->sy)
         {
             tb_assert_and_check_return_val(gb_fabs(matrix->sy) > GB_NEAR0, tb_false);
             mx.sy = gb_invert(matrix->sy);
@@ -220,9 +220,12 @@ tb_bool_t gb_matrix_identity(gb_matrix_ref_t matrix)
     tb_assert_abort(matrix);
 
     // is identity?
-    return (gb_e1(matrix->sx) && gb_e1(matrix->sy)
-        && gb_ez(matrix->kx) && gb_ez(matrix->ky)
-        && gb_ez(matrix->tx) && gb_ez(matrix->ty))? tb_true : tb_false;
+    return (    GB_ONE == matrix->sx
+            &&  GB_ONE == matrix->sy
+            &&  gb_ez(matrix->kx)
+            &&  gb_ez(matrix->ky)
+            &&  gb_ez(matrix->tx) 
+            &&  gb_ez(matrix->ty))? tb_true : tb_false;
 }
 tb_bool_t gb_matrix_rotate(gb_matrix_ref_t matrix, gb_float_t degrees)
 {
@@ -270,7 +273,7 @@ tb_bool_t gb_matrix_scale(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy)
     tb_assert_abort(matrix);
 
     // 1/1 ?
-    tb_check_return_val(gb_n1(sx) || gb_n1(sy), tb_true);
+    tb_check_return_val(GB_ONE != sx || GB_ONE != sy, tb_true);
 
 #if 0
     // scale
@@ -290,7 +293,7 @@ tb_bool_t gb_matrix_scale(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy)
 tb_bool_t gb_matrix_scale_lhs(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy)
 {
     // 1/1 ?
-    tb_check_return_val(gb_n1(sx) || gb_n1(sy), tb_true);
+    tb_check_return_val(GB_ONE != sx || GB_ONE != sy, tb_true);
 
     // scale
     gb_matrix_t mx;
@@ -300,7 +303,7 @@ tb_bool_t gb_matrix_scale_lhs(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t 
 tb_bool_t gb_matrix_scalep(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy, gb_float_t px, gb_float_t py)
 {
     // 1/1 ?
-    tb_check_return_val(gb_n1(sx) || gb_n1(sy), tb_true);
+    tb_check_return_val(GB_ONE != sx || GB_ONE != sy, tb_true);
 
     // scale
     gb_matrix_t mx;
@@ -310,7 +313,7 @@ tb_bool_t gb_matrix_scalep(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy,
 tb_bool_t gb_matrix_scalep_lhs(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy, gb_float_t px, gb_float_t py)
 {
     // 1/1 ?
-    tb_check_return_val(gb_n1(sx) || gb_n1(sy), tb_true);
+    tb_check_return_val(GB_ONE != sx || GB_ONE != sy, tb_true);
 
     // scale
     gb_matrix_t mx;

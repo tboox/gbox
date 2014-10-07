@@ -247,6 +247,17 @@ static tb_void_t gb_gl_render_stroke_fill(gb_gl_device_ref_t device, gb_path_ref
     // restore the fill mode
     gb_paint_fill_rule_set(device->base.paint, rule);
 }
+static __tb_inline__ tb_bool_t gb_gl_render_stroke_only(gb_gl_device_ref_t device)
+{
+    // check
+    tb_assert_abort(device && device->base.paint && device->base.matrix);
+
+    // width == 1 and solid? only stroke it
+    return (    GB_ONE == gb_paint_stroke_width(device->base.paint)
+            &&  GB_ONE == gb_fabs(device->base.matrix->sx)
+            &&  GB_ONE == gb_fabs(device->base.matrix->sy) 
+            &&  !device->shader)? tb_true : tb_false;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -377,14 +388,8 @@ tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
     // stroke it
     if (mode & GB_PAINT_MODE_STROKE)
     {
-        // the width
-        gb_float_t width = gb_paint_stroke_width(device->base.paint);
-
-        // width == 1? stroke polygon
-        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
-        {
-            gb_gl_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
-        }
+        // only stroke?
+        if (gb_gl_render_stroke_only(device)) gb_gl_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
         // fill the stroked path
         else gb_gl_render_stroke_fill(device, gb_stroker_done_path(device->stroker, device->base.paint, path));
     }
@@ -398,12 +403,8 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
     // enter paint
     gb_gl_render_enter_paint(device);
 
-    // the width
-    gb_float_t width = gb_paint_stroke_width(device->base.paint);
-
-    // width == 1? stroke lines
-    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
-        gb_gl_render_stroke_lines(device, points, count);
+    // only stroke?
+    if (gb_gl_render_stroke_only(device)) gb_gl_render_stroke_lines(device, points, count);
     // fill the stroked lines
     else gb_gl_render_stroke_fill(device, gb_stroker_done_lines(device->stroker, device->base.paint, points, count));
 
@@ -419,12 +420,8 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
     // enter paint
     gb_gl_render_enter_paint(device);
 
-    // the width
-    gb_float_t width = gb_paint_stroke_width(device->base.paint);
-
-    // width == 1? stroke points
-    if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
-        gb_gl_render_stroke_points(device, points, count);
+    // only stroke?
+    if (gb_gl_render_stroke_only(device)) gb_gl_render_stroke_points(device, points, count);
     // fill the stroked points
     else gb_gl_render_stroke_fill(device, gb_stroker_done_points(device->stroker, device->base.paint, points, count));
 
@@ -468,12 +465,8 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
     // stroke it
     if (mode & GB_PAINT_MODE_STROKE)
     {
-        // the width
-        gb_float_t width = gb_paint_stroke_width(device->base.paint);
-
-        // width == 1? stroke polygon
-        if (gb_e1(width) && gb_e1(gb_fabs(device->base.matrix->sx)) && gb_e1(gb_fabs(device->base.matrix->sy)) && !device->shader)
-            gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
+        // only stroke?
+        if (gb_gl_render_stroke_only(device)) gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);
         // fill the stroked polygon
         else gb_gl_render_stroke_fill(device, gb_stroker_done_polygon(device->stroker, device->base.paint, polygon, hint));
     }
