@@ -39,6 +39,13 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// the default framerate: 60
+#define GB_WINDOW_DEFAULT_FRAMERATE         (60)
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -126,6 +133,14 @@ typedef struct __gb_window_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interface
  */
+
+/* spak window
+ *
+ * @param window            the window
+ *
+ * @return                  the time before spanking
+ */
+tb_hong_t                   gb_window_impl_spak(gb_window_ref_t window);
 
 /* draw window
  *

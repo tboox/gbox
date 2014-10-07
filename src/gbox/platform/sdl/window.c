@@ -104,9 +104,14 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
 
     // loop
     SDL_Event evet;
+    tb_hong_t time;
     tb_bool_t stop = tb_false;
+    tb_size_t delay = 1000 / (impl->base.info.framerate? impl->base.info.framerate : GB_WINDOW_DEFAULT_FRAMERATE);
     while (!stop)
     {
+        // spak
+        time = gb_window_impl_spak((gb_window_ref_t)impl);
+
         // draw
         gb_window_impl_draw((gb_window_ref_t)impl, impl->canvas);
 
@@ -268,9 +273,11 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
             }
         }
 
-        // FIXME
+        // compute the delta time
+        time = tb_cache_time_spak() - time;
+
         // wait 
-        SDL_Delay(1000 / impl->base.info.framerate);
+        if (delay > (tb_size_t)time) SDL_Delay(delay - (tb_size_t)time);
     }
  
     // done exit

@@ -361,7 +361,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
             // ...
 
             // stroke polygon
-            gb_bitmap_render_stroke_polygon(device, &stroked_polygon);
+            if (stroked_count) gb_bitmap_render_stroke_polygon(device, &stroked_polygon);
         }
         // fill the stroked polygon
         else gb_bitmap_render_stroke_fill(device, gb_stroker_done_polygon(device->stroker, device->base.paint, polygon, hint));

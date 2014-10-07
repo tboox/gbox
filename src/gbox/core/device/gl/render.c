@@ -122,12 +122,8 @@ static tb_void_t gb_gl_render_leave_solid(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_enter_shader(gb_gl_device_ref_t device)
 {   
     // check
-    tb_assert_abort(device);
+    tb_assert_abort(device && device->base.paint);
  
-    // the paint
-    gb_paint_ref_t paint = device->base.paint;
-    tb_assert_abort(paint);
-
     // disable blend
     gb_glDisable(GB_GL_BLEND);
 

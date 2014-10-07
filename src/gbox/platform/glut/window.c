@@ -58,6 +58,12 @@ typedef struct __gb_window_glut_impl_t
     // the canvas
     gb_canvas_ref_t         canvas;
 
+    // the delay for framerate
+    tb_size_t               delay;
+
+    // the spak time
+    tb_hong_t               time;
+
     // the button
     tb_size_t               button;
 
@@ -90,11 +96,17 @@ static tb_void_t gb_window_glut_display()
     gb_window_glut_impl_t* impl = gb_window_glut_get();
     tb_assert_and_check_return(impl && impl->canvas);
 
-    // done draw
+    // spak
+    impl->time = gb_window_impl_spak((gb_window_ref_t)impl);
+
+    // draw
     gb_window_impl_draw((gb_window_ref_t)impl, impl->canvas);
 
 	// flush
 	glutSwapBuffers();
+
+    // compute the spak time
+    impl->time = tb_cache_time_spak() - impl->time;
 }
 static tb_void_t gb_window_glut_reshape(tb_int_t width, tb_int_t height)
 {
@@ -331,8 +343,11 @@ static tb_void_t gb_window_glut_timer(tb_int_t value)
     // post to draw it
     glutPostRedisplay();
 
+    // compute the delay for framerate
+    if (!impl->delay) impl->delay = 1000 / (impl->base.info.framerate? impl->base.info.framerate : GB_WINDOW_DEFAULT_FRAMERATE);
+
     // next timer
-    glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, value);
+    glutTimerFunc(impl->delay > (tb_size_t)impl->time? impl->delay - (tb_size_t)impl->time : 0, gb_window_glut_timer, value);
 }
 static tb_void_t gb_window_glut_visibility(tb_int_t state)
 {
