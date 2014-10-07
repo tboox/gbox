@@ -52,8 +52,10 @@ typedef tb_void_t               (*gb_stroker_capper_t)(gb_path_ref_t path, gb_po
  * @param normal_unit_before    the before unit normal of the outer contour
  * @param normal_unit_after     the after unit normal of the outer contour
  * @param miter_invert          the invert miter limit
+ * @param is_line_to_prev       is previous line-to?
+ * @param is_line_to            is line-to?
  */
-typedef tb_void_t               (*gb_stroker_joiner_t)(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert);
+typedef tb_void_t               (*gb_stroker_joiner_t)(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to);
 
 // the stroker joiner angle type enum
 typedef enum __gb_stroker_joiner_angle_type_e 
@@ -461,7 +463,7 @@ static tb_void_t gb_stroker_joiner_inner(gb_path_ref_t inner, gb_point_ref_t cen
     gb_path_line2_to(inner, center->x, center->y);
     gb_path_line2_to(inner, center->x - normal_after->x, center->y - normal_after->y);
 }
-static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert)
+static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to)
 {
     // check
     tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
@@ -514,6 +516,10 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
         // the join is nearly 180 degrees? join the bevel
         if (type == GB_STROKER_JOINER_ANGLE_NEAR180)
         {
+            // disable the line-to optimization
+            is_line_to = tb_false;
+ 
+            // switch to the bevel join
             miter_join = tb_false;
             break;
         }
@@ -566,6 +572,10 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
          */
         if (miter_invert > cos_half_a) 
         {
+            // disable the line-to optimization
+            is_line_to = tb_false;
+ 
+            // switch to the bevel join
             miter_join = tb_false;
             break;
         }
@@ -620,13 +630,25 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
     gb_vector_scale(&after, radius);
 
     // join the outer contour
-    if (miter_join) gb_path_line2_to(outer, center->x + miter.x, center->y + miter.y);
-    else gb_path_line2_to(outer, center->x + after.x, center->y + after.y);
+    if (miter_join) 
+    {
+        if (is_line_to_prev)
+        {
+            // ignore one point for optimization if join the previous line-to contour
+            gb_point_t last;
+            gb_point_make(&last, center->x + miter.x, center->y + miter.y);
+            gb_path_last_set(outer, &last);
+        }
+        else gb_path_line2_to(outer, center->x + miter.x, center->y + miter.y);
+    }
+
+    // ignore one point for optimization if join the line-to contour
+    if (!is_line_to) gb_path_line2_to(outer, center->x + after.x, center->y + after.y);
 
     // join the inner contour
     gb_stroker_joiner_inner(inner, center, &after);
 }
-static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert)
+static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to)
 {
     // check
     tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
@@ -671,7 +693,7 @@ static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t oute
     gb_vector_scale(&stop, radius);
     gb_stroker_joiner_inner(inner, center, &stop);
 }
-static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert)
+static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to)
 {
     // check
     tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
@@ -766,7 +788,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
         tb_assert_abort(impl->joiner);
 
         // join it
-        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, radius, &impl->normal_unit_prev, normal_unit, impl->miter_invert);
+        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, radius, &impl->normal_unit_prev, normal_unit, impl->miter_invert, impl->is_line_to_prev, is_line_to);
     }
     // start?
     else
@@ -824,7 +846,7 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
         if (closed)
         {
             // join it
-            impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &impl->normal_unit_first, impl->miter_invert);
+            impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &impl->normal_unit_first, impl->miter_invert, impl->is_line_to_prev, impl->is_line_to_first);
 
             // close the outer contour
             gb_path_clos(impl->path_outer);
