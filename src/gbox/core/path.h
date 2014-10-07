@@ -126,6 +126,13 @@ tb_void_t           gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex);
  */
 tb_bool_t           gb_path_last(gb_path_ref_t path, gb_point_ref_t point);
 
+/*! set the last point
+ *
+ * @param path      the path
+ * @param point     the last point
+ */
+tb_void_t           gb_path_last_set(gb_path_ref_t path, gb_point_ref_t point);
+
 /*! the path hint shape
  *
  * @param path      the path

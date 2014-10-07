@@ -730,6 +730,20 @@ tb_bool_t gb_path_last(gb_path_ref_t path, gb_point_ref_t point)
     // ok?
     return last? tb_true : tb_false;
 }
+tb_void_t gb_path_last_set(gb_path_ref_t path, gb_point_ref_t point)
+{
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && point);
+
+    // the last point
+    gb_point_ref_t last = tb_null;
+    if (tb_vector_size(impl->points)) last = (gb_point_ref_t)tb_vector_last(impl->points);
+    tb_assert_abort(last);
+
+    // save it
+    if (last) *last = *point;
+}
 gb_shape_ref_t gb_path_hint(gb_path_ref_t path)
 {
     // check

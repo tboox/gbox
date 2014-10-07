@@ -39,8 +39,9 @@
  * @param center                the center point
  * @param end                   the end point
  * @param normal                the normal vector of the outer contour
+ * @param is_line_to            is line-to?
  */
-typedef tb_void_t               (*gb_stroker_capper_t)(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal);
+typedef tb_void_t               (*gb_stroker_capper_t)(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to);
 
 /* the stroker joiner type
  *
@@ -115,6 +116,12 @@ typedef struct __gb_stroker_impl_t
     // the segment count
     tb_long_t               segment_count;
 
+    // the previous operation of the contour is line-to?
+    tb_bool_t               is_line_to_prev;
+
+    // the first operation of the contour is line-to?
+    tb_bool_t               is_line_to_first;
+
     // the capper
     gb_stroker_capper_t     capper;
 
@@ -175,7 +182,7 @@ static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hi
     // ok?
     return ok;
 }
-static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
+static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
     // check
     tb_assert_abort(path && end);
@@ -202,7 +209,7 @@ static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t cente
      */
     gb_path_line_to(path, end);
 }
-static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
+static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
     // check
     tb_assert_abort(path && center && end && normal);
@@ -319,7 +326,7 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
     gb_path_cube2_to(path, x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx);
     gb_path_cube2_to(path, x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, end->x, end->y);
 }
-static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal)
+static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
     // check
     tb_assert_abort(path && center && end && normal);
@@ -353,9 +360,20 @@ static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t cen
      *                        cap
      *
      */
-    gb_path_line2_to(path, center->x + normal->x + patched.x, center->y + normal->y + patched.y);
-    gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
-    gb_path_line_to(path, end);
+    if (is_line_to)
+    {
+        // ignore the two points for optimization if cap the line-to contour
+        gb_point_t last;
+        gb_point_make(&last, center->x + normal->x + patched.x, center->y + normal->y + patched.y);
+        gb_path_last_set(path, &last);
+        gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
+    }
+    else
+    {
+        gb_path_line2_to(path, center->x + normal->x + patched.x, center->y + normal->y + patched.y);
+        gb_path_line2_to(path, center->x - normal->x + patched.x, center->y - normal->y + patched.y);
+        gb_path_line_to(path, end);
+    }
 }
 static gb_float_t gb_stroker_joiner_angle(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, tb_size_t* ptype)
 {
@@ -558,11 +576,39 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
          */
         gb_float_t length = gb_div(radius, cos_half_a);
 
-        // TODO
         // compute the miter vector
-        if (0)//type == GB_STROKER_JOINER_ANGLE_OBTUSE)
+        if (type == GB_STROKER_JOINER_ANGLE_OBTUSE)
         {
-            gb_vector_make(&miter, after.x - before.x, after.y - before.y);
+            /* compute the more accurate miter vector for the obtuse angle
+             *
+             *                              miter
+             *                               .
+             *            after.rotate(ccw) .
+             *                          .  .  . before.rotate(cw)
+             *                          . . .
+             *                          . .
+             *                          .
+             *                        . .
+             *                      . . .
+             *          before    .  .  .
+             *              \   .   .   .
+             *                .    .    .
+             *              .   .angle  .
+             *            . . . . c . . . -> after
+             *          .   .       .   .
+             *        .     .         . .
+             *      .       .       .   .
+             *    .         .     .     .
+             *  .           .   .       .
+             *              . .         .
+             *              .           .
+             *            . .           .
+             *          .   .           .
+             *              .           .
+             *
+             * miter = before.rotate(cw) + after.rotate(ccw)
+             */
+            gb_vector_make(&miter, after.y - before.y, before.x - after.x);
             if (!clockwise) gb_vector_negate(&miter);
         }
         else gb_vector_make(&miter, before.x + after.x, before.y + after.y);
@@ -672,6 +718,99 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
     // join the inner contour
     gb_stroker_joiner_inner(inner, center, &normal_after);
 }
+static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
+{
+    // check
+    tb_assert_abort(impl && point && normal && normal_unit);
+    tb_assert_abort(impl->segment_count >= 0);
+
+    // the radius
+    gb_float_t radius = impl->radius;
+    tb_assert_and_check_return_val(gb_bz(radius), tb_false);
+
+    /* compute the unit normal vector
+     *                              
+     *        ---------------------->  normal
+     *       |  radius   |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *       |           |           |
+     *      \|/         \|/         \|/
+     *    inner         line        outer
+     *
+     */
+    gb_vector_make(normal_unit, point->x - impl->point_prev.x, point->y - impl->point_prev.y);
+    if (!gb_vector_normalize(normal_unit)) 
+    {
+        // failed
+        tb_assert_abort(0);
+        return tb_false;
+    }
+    gb_vector_rotate(normal_unit, GB_ROTATE_DIRECTION_CCW);
+
+    // compute the normal vector
+    gb_vector_scale2(normal_unit, normal, radius);
+
+    // body?
+    if (impl->segment_count > 0)
+    {
+        // check
+        tb_assert_abort(impl->joiner);
+
+        // join it
+        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, radius, &impl->normal_unit_prev, normal_unit, impl->miter_invert);
+    }
+    // start?
+    else
+    {
+        // save the first point of the outer contour
+        gb_point_make(&impl->outer_first, impl->point_prev.x + normal->x, impl->point_prev.y + normal->y);
+
+        // save the first normal
+        impl->normal_first = *normal;
+
+        // save the first unit normal
+        impl->normal_unit_first = *normal_unit;
+
+        // save the first line-to state?
+        impl->is_line_to_first = is_line_to;
+
+        // move to the start point for the inner and outer path
+        gb_path_move_to(impl->path_outer, &impl->outer_first);
+        gb_path_move2_to(impl->path_inner, impl->point_prev.x - normal->x, impl->point_prev.y - normal->y);
+    }
+
+    // update the previous line-to state?
+    impl->is_line_to_prev = is_line_to;
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_stroker_leave_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
+{
+    // check
+    tb_assert_abort(impl && point && normal && normal_unit);
+
+    // update the previous point
+    impl->point_prev = *point;
+
+    // update the previous normal
+    impl->normal_prev = *normal;
+
+    // update the previous unit normal
+    impl->normal_unit_prev = *normal_unit;
+
+    // update the segment count
+    impl->segment_count++;
+}
 static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
 {
     // check
@@ -740,7 +879,7 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
             // cap the end point
             gb_point_t inner_last;
             gb_path_last(impl->path_inner, &inner_last);
-            impl->capper(impl->path_outer, &impl->point_prev, &inner_last, &impl->normal_prev);
+            impl->capper(impl->path_outer, &impl->point_prev, &inner_last, &impl->normal_prev, impl->is_line_to_prev);
 
             // add the inner contour in reverse order to the outer path
             gb_path_rpath_to(impl->path_outer, impl->path_inner);
@@ -748,7 +887,7 @@ static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
             // cap the start point
             gb_vector_t normal_first;
             gb_vector_negate2(&impl->normal_first, &normal_first);
-            impl->capper(impl->path_outer, &impl->point_first, &impl->outer_first, &normal_first);
+            impl->capper(impl->path_outer, &impl->point_first, &impl->outer_first, &normal_first, impl->is_line_to_first);
 
             // close the outer contour
             gb_path_clos(impl->path_outer);
@@ -777,14 +916,16 @@ gb_stroker_ref_t gb_stroker_init()
         tb_assert_and_check_break(impl);
 
         // init stroker
-        impl->cap           = GB_PAINT_STROKE_CAP_BUTT;
-        impl->join          = GB_PAINT_STROKE_JOIN_MITER;
-        impl->miter         = GB_STROKER_DEFAULT_MITER;
-        impl->radius        = 0;
-        impl->segment_count = -1;
-        impl->capper        = gb_stroker_capper_butt;
-        impl->joiner        = gb_stroker_joiner_miter;
-        impl->miter_invert  = gb_invert(GB_STROKER_DEFAULT_MITER);
+        impl->cap               = GB_PAINT_STROKE_CAP_BUTT;
+        impl->join              = GB_PAINT_STROKE_JOIN_MITER;
+        impl->miter             = GB_STROKER_DEFAULT_MITER;
+        impl->radius            = 0;
+        impl->segment_count     = -1;
+        impl->capper            = gb_stroker_capper_butt;
+        impl->joiner            = gb_stroker_joiner_miter;
+        impl->miter_invert      = gb_invert(GB_STROKER_DEFAULT_MITER);
+        impl->is_line_to_prev   = tb_false;
+        impl->is_line_to_first  = tb_false;
 
         // init the outer path
         impl->path_outer = gb_path_init();
@@ -842,14 +983,16 @@ tb_void_t gb_stroker_clear(gb_stroker_ref_t stroker)
     tb_assert_and_check_return(impl);
 
     // clear it
-    impl->cap           = GB_PAINT_STROKE_CAP_BUTT;
-    impl->join          = GB_PAINT_STROKE_JOIN_MITER;
-    impl->miter         = GB_STROKER_DEFAULT_MITER;
-    impl->radius        = 0;
-    impl->segment_count = -1;
-    impl->capper        = gb_stroker_capper_butt;
-    impl->joiner        = gb_stroker_joiner_miter;
-    impl->miter_invert  = gb_invert(GB_STROKER_DEFAULT_MITER);
+    impl->cap               = GB_PAINT_STROKE_CAP_BUTT;
+    impl->join              = GB_PAINT_STROKE_JOIN_MITER;
+    impl->miter             = GB_STROKER_DEFAULT_MITER;
+    impl->radius            = 0;
+    impl->segment_count     = -1;
+    impl->capper            = gb_stroker_capper_butt;
+    impl->joiner            = gb_stroker_joiner_miter;
+    impl->miter_invert      = gb_invert(GB_STROKER_DEFAULT_MITER);
+    impl->is_line_to_prev   = tb_false;
+    impl->is_line_to_first  = tb_false;
 
     // clear the other path
     if (impl->path_other) gb_path_clear(impl->path_other);
@@ -956,82 +1099,17 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
     // only be a point?
     if (gb_point_equal(&impl->point_prev, point)) return ;
 
-    // check
-    tb_assert_abort(impl->segment_count >= 0);
-
-    // the radius
-    gb_float_t radius = impl->radius;
-    tb_check_return(gb_bz(radius));
-
-    /* compute the unit normal vector
-     *                              
-     *        ---------------------->  normal
-     *       |  radius   |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *       |           |           |
-     *      \|/         \|/         \|/
-     *    inner         line        outer
-     *
-     */
-    gb_vector_t normal_unit;
-    gb_vector_make(&normal_unit, point->x - impl->point_prev.x, point->y - impl->point_prev.y);
-    if (!gb_vector_normalize(&normal_unit)) return ;
-    gb_vector_rotate(&normal_unit, GB_ROTATE_DIRECTION_CCW);
-
-    // compute the normal vector
+    // enter-to 
     gb_vector_t normal;
-    gb_vector_scale2(&normal_unit, &normal, radius);
-
-    // body?
-    if (impl->segment_count > 0)
-    {
-        // check
-        tb_assert_abort(impl->joiner);
-
-        // join it
-        impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, impl->radius, &impl->normal_unit_prev, &normal_unit, impl->miter_invert);
-    }
-    // start?
-    else
-    {
-        // save the first point of the outer contour
-        gb_point_make(&impl->outer_first, impl->point_prev.x + normal.x, impl->point_prev.y + normal.y);
-
-        // save the first normal
-        impl->normal_first = normal;
-
-        // sve the first unit normal
-        impl->normal_unit_first = normal_unit;
-
-        // move to the start point for the inner and outer path
-        gb_path_move_to(impl->path_outer, &impl->outer_first);
-        gb_path_move2_to(impl->path_inner, impl->point_prev.x - normal.x, impl->point_prev.y - normal.y);
-    }
+    gb_vector_t normal_unit;
+    if (!gb_stroker_enter_to(impl, point, &normal, &normal_unit, tb_true)) return ;
 
     // line to the point for the inner and outer path
     gb_path_line2_to(impl->path_outer, point->x + normal.x, point->y + normal.y);
     gb_path_line2_to(impl->path_inner, point->x - normal.x, point->y - normal.y);
 
-    // update the previous point
-    impl->point_prev = *point;
-
-    // update the previous normal
-    impl->normal_prev = normal;
-
-    // update the previous unit normal
-    impl->normal_unit_prev = normal_unit;
-
-    // update the segment count
-    impl->segment_count++;
+    // leave-to
+    gb_stroker_leave_to(impl, point, &normal, &normal_unit);
 }
 tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_point_ref_t point)
 {
