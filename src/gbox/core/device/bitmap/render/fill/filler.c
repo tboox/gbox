@@ -62,11 +62,11 @@ tb_void_t gb_bitmap_render_filler_exit(gb_bitmap_filler_ref_t filler)
     // exit filler
     if (filler->exit) filler->exit(filler);
 }
-tb_void_t gb_bitmap_render_filler_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
+tb_void_t gb_bitmap_render_filler_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels, tb_size_t repeat)
 {   
     // check
     tb_assert_abort(filler && filler->done);
 
     // done filler
-    filler->done(filler, start, count, pixels);
+    filler->done(filler, start, count, pixels, repeat);
 }
