@@ -66,7 +66,7 @@ __tb_extern_c_enter__
  */
 gb_float_t          gb_quad_near_distance(gb_point_t points[3]);
 
-/* compute the approximate divided count
+/* compute the approximate divided count for approaching the line-to
  *
  * @param points    the points
  *

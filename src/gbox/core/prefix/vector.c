@@ -220,6 +220,15 @@ tb_bool_t gb_vector_normalize(gb_vector_ref_t vector)
 {
     return gb_vector_length_set(vector, GB_ONE);
 }
+tb_bool_t gb_vector_normalize2(gb_vector_ref_t vector, gb_vector_ref_t normalized)
+{
+    // check
+    tb_assert_abort(vector && normalized);
+
+    // normalized it
+    *normalized = *vector;
+    return gb_vector_normalize(normalized);
+}
 gb_float_t gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t other)
 {
     // check

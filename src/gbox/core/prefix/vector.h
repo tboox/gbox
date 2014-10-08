@@ -130,7 +130,18 @@ tb_bool_t               gb_vector_length_set(gb_vector_ref_t vector, gb_float_t 
  */
 tb_bool_t               gb_vector_normalize(gb_vector_ref_t vector);
 
+/*! normalize to the given vector
+ * 
+ * @param vector        the vector
+ * @param normalized    the normalized vector
+ * 
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_normalize2(gb_vector_ref_t vector, gb_vector_ref_t normalized);
+
 /*! compute the dot product for the two vectors
+ *
+ * dot = |vector| * |other| * cos(a)
  *
  * @param vector        the vector
  * @param other         the other vector
@@ -141,6 +152,8 @@ gb_float_t              gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t ot
 
 /*! compute the cross product for the two vectors
  * 
+ * cross = |vector| * |other| * sin(a)
+ *
  * @param vector        the vector
  * @param other         the other vector
  *

@@ -741,7 +741,7 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
     // join the inner contour
     gb_stroker_joiner_inner(inner, center, &normal_after);
 }
-static tb_bool_t gb_stroker_make_normals(gb_point_ref_t before, gb_point_ref_t after, gb_float_t radius, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
+static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t after, gb_float_t radius, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
 {
     // check
     tb_assert_abort(before && after && normal && normal_unit);
@@ -783,6 +783,31 @@ static tb_bool_t gb_stroker_make_normals(gb_point_ref_t before, gb_point_ref_t a
     // ok
     return tb_true;
 }
+static tb_bool_t gb_stroker_normals_too_curvy(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+{
+    // check
+    tb_assert_abort(normal_unit_before && normal_unit_after);
+
+    /*                
+     *              curve
+     *               . .
+     *             .     .
+     *           .         .
+     * before   .           .   after
+     *      \  .             . /
+     *        .      . .     .
+     *           . .     . .
+     *             .     .
+     *               . .
+     *              angle
+     *
+     * cos(angle) <= sqrt(2) / 2 + 0.1
+     * angle >= 135 + 5.7 degrees
+     *
+     * curvy: angle(curve) = 180 - angle <= 39.3 degrees
+     */
+    return gb_vector_dot(normal_unit_before, normal_unit_after) <= (GB_SQRT2_OVER2 + GB_ONE / 10);
+}
 static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal)
 {
     // check
@@ -792,13 +817,13 @@ static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t
     gb_path_line2_to(impl->path_outer, point->x + normal->x, point->y + normal->y);
     gb_path_line2_to(impl->path_inner, point->x - normal->x, point->y - normal->y);
 }
-static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_ab, gb_vector_ref_t normal_unit_ab, gb_vector_ref_t normal_bc, gb_vector_ref_t normal_unit_bc, tb_long_t divided_count)
+static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_ab, gb_vector_ref_t normal_unit_ab, gb_vector_ref_t normal_bc, gb_vector_ref_t normal_unit_bc, tb_size_t divided_count)
 {
     // check
     tb_assert_abort(impl && points && normal_ab && normal_unit_ab && normal_bc && normal_unit_bc);
 
     // compute the normal and unit normal vectors for b => c
-    if (!gb_stroker_make_normals(&points[1], &points[2], impl->radius, normal_bc, normal_unit_bc)) 
+    if (!gb_stroker_normals_make(&points[1], &points[2], impl->radius, normal_bc, normal_unit_bc)) 
     {
         // b nearly equals c? make line-to 
         gb_stroker_make_line_to(impl, &points[2], normal_ab);
@@ -807,6 +832,63 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         *normal_bc = *normal_ab;
         *normal_unit_bc = *normal_unit_ab;
         return ;
+    }
+
+    // this curve is too curvy? divide it 
+    if (divided_count && gb_stroker_normals_too_curvy(normal_unit_ab, normal_unit_bc))
+    {
+        // chop the quad at half
+        gb_point_t output[5];
+        gb_quad_chop_at_half(points, output);
+
+        // make sub-quad-to curves for the inner and outer contour
+        gb_vector_t normal;
+        gb_vector_t normal_unit;
+        gb_stroker_make_quad_to(impl, output, normal_ab, normal_unit_ab, &normal, &normal_unit, divided_count - 1);
+        gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_bc, normal_unit_bc, divided_count - 1);
+    }
+    else
+    {
+        // check
+        tb_assert_abort(impl->path_inner && impl->path_outer);
+
+        /* make the center normal of the p0 and p2
+         *
+         *             normal_b
+         *                |
+         *              curve
+         *               . .
+         *             .     .
+         *           .         .
+         * normal_ab.           .   normal_bc
+         *      \  .             . /
+         *        .      . .     .
+         *           . .     . .
+         *             .     .
+         *               . .
+         *              angle
+         *
+         *
+         */
+        gb_vector_t normal_b;
+        gb_vector_make(&normal_b, points[2].x - points[0].x, points[2].y - points[0].y);
+        gb_vector_rotate(&normal_b, GB_ROTATE_DIRECTION_CCW);
+
+        /* compute the length of the normal_b and set it
+         *
+         * length = R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
+         */
+        gb_float_t dot = gb_vector_dot(normal_unit_ab, normal_unit_bc);
+        if (!gb_vector_length_set(&normal_b, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, dot)))))
+        {
+            // failed
+            tb_assert_abort(0);
+            return ;
+        }
+
+        // quad-to the inner and outer contour
+        gb_path_quad2_to(impl->path_outer, points[1].x + normal_b.x, points[1].y + normal_b.y, points[2].x + normal_bc->x, points[2].y + normal_bc->y);
+        gb_path_quad2_to(impl->path_inner, points[1].x - normal_b.x, points[1].y - normal_b.y, points[2].x - normal_bc->x, points[2].y - normal_bc->y);
     }
 }
 static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
@@ -820,7 +902,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
     tb_assert_and_check_return_val(gb_bz(radius), tb_false);
 
     // compute the normal and unit normal vectors
-    if (!gb_stroker_make_normals(&impl->point_prev, point, radius, normal, normal_unit)) return tb_false;
+    if (!gb_stroker_normals_make(&impl->point_prev, point, radius, normal, normal_unit)) return tb_false;
 
     // body?
     if (impl->segment_count > 0)
