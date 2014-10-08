@@ -410,7 +410,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             case GB_PATH_CODE_QUAD:
                 {
                     // make quad points
-                    gb_geometry_make_quad(&item->points[0], &item->points[1], &item->points[2], gb_path_make_quad_or_cube_to, values);
+                    gb_geometry_make_quad(item->points, gb_path_make_quad_or_cube_to, values);
                 }
                 break;
             case GB_PATH_CODE_CUBE:

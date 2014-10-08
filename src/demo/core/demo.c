@@ -274,8 +274,8 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
             gb_float_t dh = gb_long_to_float(gb_window_height(window));
 
             // the x0 and y0
-            gb_float_t x0 = gb_rsh(dw, 1);
-            gb_float_t y0 = gb_rsh(dh, 1);
+            gb_float_t x0 = gb_half(dw);
+            gb_float_t y0 = gb_half(dh);
 
             // the dx and dy
             gb_float_t dx = x > x0? (x - x0) : (x0 - x);

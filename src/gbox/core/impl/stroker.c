@@ -25,6 +25,7 @@
  * includes
  */
 #include "stroker.h"
+#include "quad.h"
 #include "geometry.h"
 #include "../path.h"
 #include "../paint.h"
@@ -560,7 +561,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
          *
          * cos(a/2) = sqrt((1 + cos(a)) / 2)
          */
-        gb_float_t cos_half_a = gb_sqrt(gb_rsh(GB_ONE + cos_a, 1));
+        gb_float_t cos_half_a = gb_sqrt(gb_avg(GB_ONE, cos_a));
 
         /* limit the miter length
          *
@@ -740,14 +741,12 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
     // join the inner contour
     gb_stroker_joiner_inner(inner, center, &normal_after);
 }
-static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
+static tb_bool_t gb_stroker_make_normals(gb_point_ref_t before, gb_point_ref_t after, gb_float_t radius, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
 {
     // check
-    tb_assert_abort(impl && point && normal && normal_unit);
-    tb_assert_abort(impl->segment_count >= 0);
+    tb_assert_abort(before && after && normal && normal_unit);
 
     // the radius
-    gb_float_t radius = impl->radius;
     tb_assert_and_check_return_val(gb_bz(radius), tb_false);
 
     /* compute the unit normal vector
@@ -769,7 +768,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
      *    inner         line        outer
      *
      */
-    gb_vector_make(normal_unit, point->x - impl->point_prev.x, point->y - impl->point_prev.y);
+    gb_vector_make(normal_unit, after->x - before->x, after->y - before->y);
     if (!gb_vector_normalize(normal_unit)) 
     {
         // failed
@@ -780,6 +779,48 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
 
     // compute the normal vector
     gb_vector_scale2(normal_unit, normal, radius);
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal)
+{
+    // check
+    tb_assert_abort(impl && impl->path_inner && impl->path_outer && point && normal);
+
+    // line to the point for the inner and outer path
+    gb_path_line2_to(impl->path_outer, point->x + normal->x, point->y + normal->y);
+    gb_path_line2_to(impl->path_inner, point->x - normal->x, point->y - normal->y);
+}
+static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_ab, gb_vector_ref_t normal_unit_ab, gb_vector_ref_t normal_bc, gb_vector_ref_t normal_unit_bc, tb_long_t divided_count)
+{
+    // check
+    tb_assert_abort(impl && points && normal_ab && normal_unit_ab && normal_bc && normal_unit_bc);
+
+    // compute the normal and unit normal vectors for b => c
+    if (!gb_stroker_make_normals(&points[1], &points[2], impl->radius, normal_bc, normal_unit_bc)) 
+    {
+        // b nearly equals c? make line-to 
+        gb_stroker_make_line_to(impl, &points[2], normal_ab);
+        
+        // save the normal and unit normal for b => c
+        *normal_bc = *normal_ab;
+        *normal_unit_bc = *normal_unit_ab;
+        return ;
+    }
+}
+static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
+{
+    // check
+    tb_assert_abort(impl && point && normal && normal_unit);
+    tb_assert_abort(impl->segment_count >= 0);
+
+    // the radius
+    gb_float_t radius = impl->radius;
+    tb_assert_and_check_return_val(gb_bz(radius), tb_false);
+
+    // compute the normal and unit normal vectors
+    if (!gb_stroker_make_normals(&impl->point_prev, point, radius, normal, normal_unit)) return tb_false;
 
     // body?
     if (impl->segment_count > 0)
@@ -1045,7 +1086,7 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     impl->join = gb_paint_stroke_join(paint);
 
     // set the radius
-    impl->radius = gb_rsh(width, 1);
+    impl->radius = gb_half(width);
 
     // set the invert miter limit
     if (impl->miter != miter)
@@ -1126,17 +1167,53 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
     gb_vector_t normal_unit;
     if (!gb_stroker_enter_to(impl, point, &normal, &normal_unit, tb_true)) return ;
 
-    // line to the point for the inner and outer path
-    gb_path_line2_to(impl->path_outer, point->x + normal.x, point->y + normal.y);
-    gb_path_line2_to(impl->path_inner, point->x - normal.x, point->y - normal.y);
+    // make line-to for the inner and outer contour
+    gb_stroker_make_line_to(impl, point, &normal);
 
     // leave-to
     gb_stroker_leave_to(impl, point, &normal, &normal_unit);
 }
 tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_point_ref_t point)
 {
-    // TODO
-    tb_trace_noimpl();
+    // check
+    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
+    tb_assert_and_check_return(impl && ctrl && point);
+
+    // is point for a => b and b => c?
+    tb_bool_t is_point_for_ab = gb_point_equal(&impl->point_prev, ctrl);
+    tb_bool_t is_point_for_bc = gb_point_equal(ctrl, point);
+
+    // only be point or line?
+    if (is_point_for_ab | is_point_for_bc) 
+    {
+        // is line-to?
+        if (is_point_for_ab ^ is_point_for_bc) 
+        {
+            gb_stroker_line_to(stroker, point);
+        }
+
+        // only point
+        return;
+    }
+
+    // enter-to 
+    gb_vector_t normal_ab;
+    gb_vector_t normal_bc;
+    gb_vector_t normal_unit_ab;
+    gb_vector_t normal_unit_bc;
+    if (!gb_stroker_enter_to(impl, ctrl, &normal_ab, &normal_unit_ab, tb_false)) return ;
+
+    // init points
+    gb_point_t points[3];
+    points[0] = impl->point_prev;
+    points[1] = *ctrl;
+    points[2] = *point;
+
+    // make quad-to curves for the inner and outer contour
+    gb_stroker_make_quad_to(impl, points, &normal_ab, &normal_unit_ab, &normal_bc, &normal_unit_bc, GB_QUAD_DIVIDED_MAXN);
+
+    // leave-to
+    gb_stroker_leave_to(impl, point, &normal_bc, &normal_unit_bc);
 }
 tb_void_t gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {

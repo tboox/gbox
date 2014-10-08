@@ -59,13 +59,11 @@ typedef tb_void_t   (*gb_geometry_quad_func_t)(gb_point_ref_t ctrl, gb_point_ref
 
 /* make points for the quad bezier
  *
- * @param pb        the begin point
- * @param cp        the ctrl point 
- * @param pe        the end point
+ * @param points    the points
  * @param func      the make func
  * @param priv      the make func private data for user
  */
-tb_void_t           gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv);
+tb_void_t           gb_geometry_make_quad(gb_point_t points[3], gb_geometry_line_func_t func, tb_cpointer_t priv);
 
 /* make points for the cube bezier
  *

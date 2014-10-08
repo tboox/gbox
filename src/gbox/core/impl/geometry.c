@@ -25,6 +25,7 @@
  * includes
  */
 #include "geometry.h"
+#include "quad.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * globals
@@ -94,58 +95,53 @@ static gb_point_t g_quad_points_of_unit_circle[] =
 };
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_void_t gb_geometry_make_quad_impl(gb_point_t points[3], tb_size_t count, gb_geometry_line_func_t func, tb_cpointer_t priv)
+{
+    /* divide it
+     * 
+     *
+     *                  p1
+     *                  .
+     *                .  .
+     *              .     .
+     *            .        .
+     *       o1 . . . . . . . o3
+     *        .      o2      .
+     *      .                 .
+     *    .                    .
+     * p0, o0                p2, o4
+     *
+     */
+    if (count)
+    {
+        // chop the quad at half
+        gb_point_t output[5];
+        gb_quad_chop_at_half(points, output);
+
+        // make quad(o0, o1, o2)
+        gb_geometry_make_quad_impl(output, count - 1, func, priv);
+
+        // make quad(o2, o3, o4)
+        gb_geometry_make_quad_impl(output + 2, count - 1, func, priv);
+    }
+    else func(points + 2, priv);
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-
-/*
- *            cp
- *            . 
- *           / \
- *          /   \
- *         /     \
- *        /       \
- *    cpb/----.----\ cpe                  
- *      /     p0    \
- *     /             \
- *    /               \
- *   /                 \
- *  /                   \
- * /                     \
- * pb                    pe
- *
- *
- * (pb, cp, pe) => (pb, cpb, p0) & (p0, cpe, pe)
- *
- * e = |cp - (pb + pe) / 2| <= 1
- */
-tb_void_t gb_geometry_make_quad(gb_point_ref_t pb, gb_point_ref_t cp, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv)
+tb_void_t gb_geometry_make_quad(gb_point_t points[3], gb_geometry_line_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_return(func && pb && cp && pe);
+    tb_assert_abort(func && points);
 
-    // compute error
-    gb_float_t mx = cp->x - gb_rsh(pb->x + pe->x, 1);
-    gb_float_t my = cp->y - gb_rsh(pb->y + pe->y, 1);
+    // compute the divided count first
+    tb_size_t count = gb_quad_divided_count(points);
 
-    // error <= 1?
-    if (gb_fabs(mx) + gb_fabs(my) <= GB_ONE) func(pe, priv);
-    else
-    {
-        // compute quad points
-        gb_point_t p0, cpb, cpe;
-        cpb.x   = gb_rsh(pb->x + cp->x, 1);
-        cpb.y   = gb_rsh(pb->y + cp->y, 1);
-        cpe.x   = gb_rsh(cp->x + pe->x, 1);
-        cpe.y   = gb_rsh(cp->y + pe->y, 1);
-        p0.x    = gb_rsh(cpb.x + cpe.x, 1);
-        p0.y    = gb_rsh(cpb.y + cpe.y, 1);
-
-        // make quad: pb => cpb => p0
-        gb_geometry_make_quad(pb, &cpb, &p0, func, priv);
-
-        // make quad: p0 => cpe => p0
-        gb_geometry_make_quad(&p0, &cpe, pe, func, priv);
-    }
+    // make quad
+    gb_geometry_make_quad_impl(points, count, func, priv);
 }
 
 /*

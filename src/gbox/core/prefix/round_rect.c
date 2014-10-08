@@ -87,8 +87,8 @@ tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
     tb_assert_abort(rect);
 
     // the radius
-    gb_float_t rx = gb_rsh(rect->bounds.w, 1);
-    gb_float_t ry = gb_rsh(rect->bounds.h, 1);
+    gb_float_t rx = gb_half(rect->bounds.w);
+    gb_float_t ry = gb_half(rect->bounds.h);
 
     // is rect?
     return (    rect->radius[0].x >= rx

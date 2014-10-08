@@ -51,8 +51,8 @@ tb_void_t gb_ellipse_make_from_rect(gb_ellipse_ref_t ellipse, gb_rect_ref_t rect
     tb_assert_abort(ellipse && rect);
 
     // the radius
-    gb_float_t rx = gb_rsh(rect->w, 1);
-    gb_float_t ry = gb_rsh(rect->h, 1);
+    gb_float_t rx = gb_half(rect->w);
+    gb_float_t ry = gb_half(rect->h);
 
     // make it
     gb_ellipse_make(ellipse, rect->x + rx, rect->y + ry, rx, ry);
