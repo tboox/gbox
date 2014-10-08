@@ -128,6 +128,9 @@ static tb_void_t gb_device_skia_apply_paint(gb_skia_device_ref_t impl)
     // init paint for solid
     else impl->paint->setColor(gb_color_pixel(gb_paint_color(impl->base.paint)));
 
+    // apply alpha
+    impl->paint->setAlpha(gb_paint_alpha(impl->base.paint));
+
     // init paint for stroking
     if (mode & GB_PAINT_MODE_STROKE)
     {

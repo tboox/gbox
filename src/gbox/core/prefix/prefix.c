@@ -234,6 +234,21 @@ static tb_long_t gb_prefix_printf_format_shape(tb_cpointer_t object, tb_char_t* 
     // ok?
     return ok;
 }
+static tb_long_t gb_prefix_printf_format_color(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    tb_assert_and_check_return_val(object && cstr && maxn, -1);
+
+    // the color
+    gb_color_ref_t color = (gb_color_ref_t)object;
+
+    // format
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "(a: %u, r: %u, g: %u, b: %u)", color->a, color->r, color->g, color->b);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return size;
+}
 static tb_long_t gb_prefix_printf_format_matrix(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
@@ -308,6 +323,9 @@ tb_bool_t gb_prefix_init()
 
     // register printf("%{shape}", &shape);
     tb_printf_object_register("shape", gb_prefix_printf_format_shape);
+
+    // register printf("%{color}", &color);
+    tb_printf_object_register("color", gb_prefix_printf_format_color);
 
     // register printf("%{matrix}", &matrix);
     tb_printf_object_register("matrix", gb_prefix_printf_format_matrix);

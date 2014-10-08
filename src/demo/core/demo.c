@@ -83,6 +83,9 @@ static tb_size_t        g_join = GB_PAINT_STROKE_JOIN_MITER;
 // the width
 static gb_float_t       g_width = GB_ONE;
 
+// the alpha
+static tb_byte_t        g_alpha = 255;
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
@@ -175,6 +178,9 @@ tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
     // apply width
     gb_canvas_stroke_width_set(canvas, g_width);
 
+    // apply alpha
+    gb_canvas_alpha_set(canvas, g_alpha);
+
     // done draw
     entry->draw(window, canvas);
 
@@ -235,6 +241,9 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
             break;
         case 'j':
             g_join = (g_join + 1) % 3;
+            break;
+        case 'a':
+            g_alpha -= 15;
             break;
         case 'i':
             tb_timer_task_post(gb_window_timer(window), 1000, tb_true, gb_demo_info, (tb_cpointer_t)window);

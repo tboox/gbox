@@ -274,7 +274,6 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
         tb_size_t   btp_dst = dp->btp;
         tb_size_t   btp_src = sp->btp;
         tb_size_t   has_alpha = 0;
-	    tb_byte_t 	max_alpha = GB_ALPHA_MAXN;
         tb_size_t   row_bytes = gb_bitmap_row_bytes(bitmap);
         tb_size_t   row_bytes_align4 = tb_align4(linesize);
         tb_byte_t*  p = data + (height - 1) * row_bytes;
@@ -298,7 +297,7 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
                     dp->color_set(d, c);
 
                     // has alpha?
-                    if (!has_alpha) has_alpha = c.a < max_alpha;
+                    if (!has_alpha) has_alpha = c.a <= GB_ALPHA_MAXN;
                 }
 
                 // next line
@@ -324,7 +323,7 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
                     dp->color_set(d, c);
 
                     // has alpha?
-                    if (!has_alpha) has_alpha = c.a < max_alpha;
+                    if (!has_alpha) has_alpha = c.a <= GB_ALPHA_MAXN;
                 }
 
                 // next line
@@ -352,7 +351,7 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
                     dp->color_set(d, c);
 
                     // has alpha?
-                    if (!has_alpha) has_alpha = c.a < max_alpha;
+                    if (!has_alpha) has_alpha = c.a <= GB_ALPHA_MAXN;
                 }
 
                 // next line

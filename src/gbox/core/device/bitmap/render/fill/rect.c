@@ -45,8 +45,8 @@ tb_void_t gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_
 
     // the factors
     tb_byte_t*      data        = gb_bitmap_data(device->bitmap);
-    tb_size_t       btp         = device->pixmap->btp;
     tb_size_t       row_bytes   = gb_bitmap_row_bytes(device->bitmap);
+    tb_size_t       btp         = device->pixmap->btp;
 	tb_long_t       x 		    = gb_float_to_long(rect->x);
 	tb_long_t       y 		    = gb_float_to_long(rect->y);
 	tb_long_t       w 		    = gb_float_to_long(rect->w);

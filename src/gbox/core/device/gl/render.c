@@ -81,14 +81,21 @@ static tb_void_t gb_gl_render_enter_solid(gb_gl_device_ref_t device)
     // the color 
     gb_color_t color = gb_paint_color(paint);
 
+    // the alpha
+    tb_byte_t alpha = gb_paint_alpha(paint);
+
     // disable texture
     gb_glDisable(GB_GL_TEXTURE_2D);
 
-    // enable blend?
-    if (color.a != 0xff)
+    // exists alpha?
+    if (alpha != 0xff)
     {
+        // enable blend
         gb_glEnable(GB_GL_BLEND);
         gb_glBlendFunc(GB_GL_SRC_ALPHA, GB_GL_ONE_MINUS_SRC_ALPHA);
+
+        // apply the alpha 
+        color.a = alpha;
     }
     else
     {

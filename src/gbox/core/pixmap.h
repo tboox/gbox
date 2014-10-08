@@ -151,7 +151,7 @@ typedef gb_pixmap_t const*      gb_pixmap_ref_t;
 /*! get the pixmap from the pixel format 
  *
  * @param pixfmt        the pixfmt with endian
- * @param alpha         the alpha value, do blend-alpha operation if (alpha > GB_ALPHA_MINN && alpha < GB_ALPHA_MAXN) 
+ * @param alpha         the alpha value, do blend-alpha operation if (alpha >= GB_ALPHA_MINN && alpha <= GB_ALPHA_MAXN) 
  *
  * @return              the pixmap
  */

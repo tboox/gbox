@@ -61,7 +61,7 @@
 /*! the max-alpha 
  *
  * @code
- * has_alpha = alpha < GB_QUALITY_ALPHA_MAXN? tb_true : tb_false
+ * has_alpha = alpha <= GB_QUALITY_ALPHA_MAXN? tb_true : tb_false
  * @endcode
  */
 #define GB_ALPHA_MAXN           ((tb_byte_t)(0xff - ((GB_QUALITY_TOP - gb_quality()) << 3)))

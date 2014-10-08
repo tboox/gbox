@@ -202,7 +202,7 @@ gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
     tb_assert_abort(pixfmt);
 
     // opaque?
-	if (alpha >= GB_ALPHA_MAXN)
+	if (alpha > GB_ALPHA_MAXN)
 	{
         // check
 		tb_assert_abort(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_lo));
@@ -211,7 +211,7 @@ gb_pixmap_ref_t gb_pixmap(tb_size_t pixfmt, tb_byte_t alpha)
 		return bendian? g_pixmaps_bo[pixfmt - 1] : g_pixmaps_lo[pixfmt - 1];
 	}
     // alpha?
-	else if (alpha > GB_ALPHA_MINN)
+	else if (alpha >= GB_ALPHA_MINN)
 	{
         // check
 		tb_assert_abort(pixfmt && (pixfmt - 1) < tb_arrayn(g_pixmaps_la));

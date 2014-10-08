@@ -44,6 +44,9 @@
 // the default width
 #define GB_PAINT_DEFAULT_WIDTH              GB_ONE
 
+// the default alpha
+#define GB_PAINT_DEFAULT_ALPHA              (255)
+
 // the default miter limit
 #define GB_PAINT_DEFAULT_MITER              GB_STROKER_DEFAULT_MITER
 
@@ -71,6 +74,9 @@ typedef struct __gb_paint_impl_t
 
     // the paint color
     gb_color_t          color;
+
+    // the paint alpha
+    tb_byte_t           alpha;
 
     // the stroking width
     gb_float_t          width;
@@ -143,7 +149,8 @@ tb_void_t gb_paint_clear(gb_paint_ref_t paint)
     impl->rule          = GB_PAINT_DEFAULT_RULE;
     impl->width         = GB_PAINT_DEFAULT_WIDTH;
     impl->color         = GB_COLOR_DEFAULT;
-    impl->miter   = GB_PAINT_DEFAULT_MITER;
+    impl->alpha         = GB_PAINT_DEFAULT_ALPHA;
+    impl->miter         = GB_PAINT_DEFAULT_MITER;
 
     // clear shader
     if (impl->shader) gb_shader_exit(impl->shader);
@@ -230,7 +237,7 @@ tb_byte_t gb_paint_alpha(gb_paint_ref_t paint)
     tb_assert_and_check_return_val(impl, 0xff);
 
     // the alpha
-    return impl->color.a;
+    return impl->alpha;
 }
 tb_void_t gb_paint_alpha_set(gb_paint_ref_t paint, tb_byte_t alpha)
 {
@@ -239,7 +246,7 @@ tb_void_t gb_paint_alpha_set(gb_paint_ref_t paint, tb_byte_t alpha)
     tb_assert_and_check_return(impl);
 
     // done
-    impl->color.a = alpha;
+    impl->alpha = alpha;
 }
 gb_float_t gb_paint_stroke_width(gb_paint_ref_t paint)
 {
