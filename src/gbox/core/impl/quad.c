@@ -27,6 +27,56 @@
 #include "quad.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_void_t gb_quad_make_line_impl(gb_point_t points[3], tb_size_t count, gb_quad_line_func_t func, tb_cpointer_t priv)
+{
+    /* divide it
+     * 
+     *
+     *                  p1
+     *                  .
+     *                .  .
+     *              .     .
+     *            .        .
+     *       o1 . . . . . . . o3
+     *        .      o2      .
+     *      .                 .
+     *    .                    .
+     * p0, o0                p2, o4
+     *
+     */
+    if (count)
+    {
+        // chop the quad at half
+        gb_point_t output[5];
+        gb_quad_chop_at_half(points, output);
+
+        // make line for quad(o0, o1, o2)
+        gb_quad_make_line_impl(output, count - 1, func, priv);
+
+        // make line to quad(o2, o3, o4)
+        gb_quad_make_line_impl(output + 2, count - 1, func, priv);
+    }
+    else func(points + 2, priv);
+}
+static tb_void_t gb_quad_chop_x_or_y_at(gb_float_t const* xy, gb_float_t* output, gb_float_t factor) 
+{
+    // compute the interpolation of p0 => p1
+    gb_float_t xy01 = gb_interp(xy[0], xy[2], factor);
+
+    // compute the interpolation of p1 => p2
+    gb_float_t xy12 = gb_interp(xy[2], xy[4], factor);
+
+    // make output
+    output[0] = xy[0];
+    output[2] = xy01;
+    output[4] = gb_interp(xy01, xy12, factor);
+    output[6] = xy12;
+    output[8] = xy[4];
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
 gb_float_t gb_quad_near_distance(gb_point_t points[3])
@@ -43,7 +93,7 @@ gb_float_t gb_quad_near_distance(gb_point_t points[3])
     // compute the more approximate distance
     return (dx > dy)? (dx + gb_half(dy)) : (dy + gb_half(dx));
 }
-tb_size_t gb_quad_divided_count(gb_point_t points[3])
+tb_size_t gb_quad_divide_line_count(gb_point_t points[3])
 {
     // check
     tb_assert_abort(points);
@@ -63,6 +113,17 @@ tb_size_t gb_quad_divided_count(gb_point_t points[3])
 
     // ok
     return count;
+}
+tb_void_t gb_quad_chop_at(gb_point_t points[3], gb_point_t output[5], gb_float_t factor)
+{
+    // check
+    tb_assert_abort(points && output && gb_bz(factor) && factor < GB_ONE);
+
+    // chop x-coordinates at the factor
+    gb_quad_chop_x_or_y_at(&points[0].x, &output[0].x, factor);
+
+    // chop y-coordinates at the factor
+    gb_quad_chop_x_or_y_at(&points[0].y, &output[0].y, factor);
 }
 tb_void_t gb_quad_chop_at_half(gb_point_t points[3], gb_point_t output[5])
 {
@@ -96,3 +157,15 @@ tb_void_t gb_quad_chop_at_half(gb_point_t points[3], gb_point_t output[5])
     gb_point_make(&output[3], x12, y12);
     output[4] = points[2];
 }
+tb_void_t gb_quad_make_line(gb_point_t points[3], gb_quad_line_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(func && points);
+
+    // compute the divided count first
+    tb_size_t count = gb_quad_divide_line_count(points);
+
+    // make line
+    gb_quad_make_line_impl(points, count, func, priv);
+}
+

@@ -86,6 +86,9 @@
 // is finite?
 #define gb_isfinite(x)          ((x) != TB_FIXED_NAN)
 
+// interpolation
+#define gb_interp(x, y, f)      ((x) + gb_mul((y) - (x), (f)))
+
 // functions
 #define gb_fabs(x)              tb_fixed_abs(x)
 #define gb_avg(x, y)            tb_fixed_avg(x, y)
@@ -169,6 +172,9 @@
 
 // is finite?
 #define gb_isfinite(x)          tb_isfinf(x)
+
+// interpolation
+#define gb_interp(x, y, f)      ((x) + ((y) - (x)) * (f))
 
 // functions
 #define gb_fabs(x)              tb_fabs(x)

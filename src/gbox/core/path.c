@@ -31,6 +31,7 @@
  * includes
  */
 #include "path.h"
+#include "impl/quad.h"
 #include "impl/bounds.h"
 #include "impl/geometry.h"
 
@@ -410,7 +411,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             case GB_PATH_CODE_QUAD:
                 {
                     // make quad points
-                    gb_geometry_make_quad(item->points, gb_path_make_quad_or_cube_to, values);
+                    gb_quad_make_line(item->points, gb_path_make_quad_or_cube_to, values);
                 }
                 break;
             case GB_PATH_CODE_CUBE:

@@ -42,6 +42,17 @@ __tb_extern_c_enter__
 #define GB_QUAD_DIVIDED_MAXN          (5)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+/* the quad line func type
+ * 
+ * @param point     the point 
+ * @param priv      the user private data
+ */
+typedef tb_void_t   (*gb_quad_line_func_t)(gb_point_ref_t point, tb_cpointer_t priv);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
@@ -72,9 +83,28 @@ gb_float_t          gb_quad_near_distance(gb_point_t points[3]);
  *
  * @return          the approximate divided count
  */
-tb_size_t           gb_quad_divided_count(gb_point_t points[3]);
+tb_size_t           gb_quad_divide_line_count(gb_point_t points[3]);
 
-/* chop the quad points at the half position
+/* chop the quad curve at the given position
+ *
+ *               chop
+ *                |
+ *              . .
+ *  factor .      p1.
+ *      .            . (1 - factor)
+ *   .                .
+ * .                   .
+ * p0                   p2
+ *
+ * quad(p0, p1, p2) => quad(o0, o1, o2) + quad(o2, o3, o4)
+ *
+ * @param points    the points
+ * @param output    the output points
+ * @param factor    the length factor of the chopped curve, must be in range: (0, 1)
+ */
+tb_void_t           gb_quad_chop_at(gb_point_t points[3], gb_point_t output[5], gb_float_t factor);
+
+/* chop the quad curve at the half position
  *
  *           chop
  *            |
@@ -91,6 +121,13 @@ tb_size_t           gb_quad_divided_count(gb_point_t points[3]);
  */
 tb_void_t           gb_quad_chop_at_half(gb_point_t points[3], gb_point_t output[5]);
 
+/* make line-to points for the quadratic curve
+ *
+ * @param points    the points
+ * @param func      the make func
+ * @param priv      the make func private data for user
+ */
+tb_void_t           gb_quad_make_line(gb_point_t points[3], gb_quad_line_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

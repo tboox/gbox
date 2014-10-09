@@ -783,11 +783,8 @@ static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t a
     // ok
     return tb_true;
 }
-static tb_bool_t gb_stroker_normals_too_curvy(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+static __tb_inline__ tb_bool_t gb_stroker_normals_too_curvy(gb_float_t cos_angle)
 {
-    // check
-    tb_assert_abort(normal_unit_before && normal_unit_after);
-
     /*                
      *              curve
      *               . .
@@ -801,12 +798,12 @@ static tb_bool_t gb_stroker_normals_too_curvy(gb_vector_ref_t normal_unit_before
      *               . .
      *              angle
      *
-     * cos(angle) <= sqrt(2) / 2 + 0.1
-     * angle >= 135 + 5.7 degrees
+     * cos(angle) <= sqrt(2) / 2 + 0.1 
+     * angle >= 45 - 9 = 36 degrees
      *
-     * curvy: angle(curve) = 180 - angle <= 39.3 degrees
+     * curvy: angle(curve) = 180 - angle <= 135 + 9 = 144 degrees
      */
-    return gb_vector_dot(normal_unit_before, normal_unit_after) <= (GB_SQRT2_OVER2 + GB_ONE / 10);
+    return (cos_angle <= (GB_SQRT2_OVER2 + GB_ONE / 10));
 }
 static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal)
 {
@@ -817,25 +814,28 @@ static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t
     gb_path_line2_to(impl->path_outer, point->x + normal->x, point->y + normal->y);
     gb_path_line2_to(impl->path_inner, point->x - normal->x, point->y - normal->y);
 }
-static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_ab, gb_vector_ref_t normal_unit_ab, gb_vector_ref_t normal_bc, gb_vector_ref_t normal_unit_bc, tb_size_t divided_count)
+static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_01, gb_vector_ref_t normal_unit_01, gb_vector_ref_t normal_12, gb_vector_ref_t normal_unit_12, tb_size_t divided_count)
 {
     // check
-    tb_assert_abort(impl && points && normal_ab && normal_unit_ab && normal_bc && normal_unit_bc);
+    tb_assert_abort(impl && points && normal_01 && normal_unit_01 && normal_12 && normal_unit_12);
 
     // compute the normal and unit normal vectors for b => c
-    if (!gb_stroker_normals_make(&points[1], &points[2], impl->radius, normal_bc, normal_unit_bc)) 
+    if (!gb_stroker_normals_make(&points[1], &points[2], impl->radius, normal_12, normal_unit_12)) 
     {
-        // b nearly equals c? make line-to 
-        gb_stroker_make_line_to(impl, &points[2], normal_ab);
+        // p1 nearly equals p2? make line-to 
+        gb_stroker_make_line_to(impl, &points[2], normal_01);
         
         // save the normal and unit normal for b => c
-        *normal_bc = *normal_ab;
-        *normal_unit_bc = *normal_unit_ab;
+        *normal_12 = *normal_01;
+        *normal_unit_12 = *normal_unit_01;
         return ;
     }
 
-    // this curve is too curvy? divide it 
-    if (divided_count && gb_stroker_normals_too_curvy(normal_unit_ab, normal_unit_bc))
+    // compute the cos(angle) of the normal_01 and normal_12
+    gb_float_t cos_angle = gb_vector_dot(normal_unit_01, normal_unit_12);
+
+    // this curve is too curvy? divide to the more flat curve 
+    if (divided_count && gb_stroker_normals_too_curvy(cos_angle))
     {
         // chop the quad at half
         gb_point_t output[5];
@@ -844,42 +844,53 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         // make sub-quad-to curves for the inner and outer contour
         gb_vector_t normal;
         gb_vector_t normal_unit;
-        gb_stroker_make_quad_to(impl, output, normal_ab, normal_unit_ab, &normal, &normal_unit, divided_count - 1);
-        gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_bc, normal_unit_bc, divided_count - 1);
+        gb_stroker_make_quad_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
+        gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_12, normal_unit_12, divided_count - 1);
     }
+    // for flat curve
     else
     {
         // check
         tb_assert_abort(impl->path_inner && impl->path_outer);
 
-        /* make the center normal of the p0 and p2
+        /* compute the approximate normal for p1 => p1^
          *
-         *             normal_b
-         *                |
-         *              curve
-         *               . .
-         *             .     .
-         *           .         .
-         * normal_ab.           .   normal_bc
-         *      \  .             . /
-         *        .      . .     .
-         *           . .     . .
-         *             .     .
-         *               . .
-         *              angle
+         *                      normal_1(p1, p1^)
+         *                            p1^
+         *                            .
+         *                        .   .   .
+         *                    .       .  .   .
+         * normal_01      .          .. . R     .       normal_12
+         *       \    .          .    p1   .       .   /
+         *        .          .        .       .       .
+         *       R .     .             .         .   . 
+         *           .                 .         p2 . R
+         *         p0  .               .           .
+         *               .             .          .
+         *                 .           .         .
+         *                   .          .       .
+         *                     .        .      .
+         *                       .      .     .
+         *                         .    .    .
+         *                           .   .  .
+         *                             . . .
+         *                               .. O 
+         *                              angle
          *
          *
+         * (O, p1) ~= (O, p1^) if be flat curve
+         *
+         * normal_1(p1, p1^) ~= (p0, p2).rotate(90, ccw) if be flat curve
          */
-        gb_vector_t normal_b;
-        gb_vector_make(&normal_b, points[2].x - points[0].x, points[2].y - points[0].y);
-        gb_vector_rotate(&normal_b, GB_ROTATE_DIRECTION_CCW);
+        gb_vector_t normal_1;
+        gb_vector_make(&normal_1, points[2].x - points[0].x, points[2].y - points[0].y);
+        gb_vector_rotate(&normal_1, GB_ROTATE_DIRECTION_CCW);
 
-        /* compute the length of the normal_b and set it
+        /* compute the approximate length of the normal_1 and set it
          *
-         * length = R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
+         * length(p1, p1^) ~= R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
          */
-        gb_float_t dot = gb_vector_dot(normal_unit_ab, normal_unit_bc);
-        if (!gb_vector_length_set(&normal_b, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, dot)))))
+        if (!gb_vector_length_set(&normal_1, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle)))))
         {
             // failed
             tb_assert_abort(0);
@@ -887,8 +898,8 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         }
 
         // quad-to the inner and outer contour
-        gb_path_quad2_to(impl->path_outer, points[1].x + normal_b.x, points[1].y + normal_b.y, points[2].x + normal_bc->x, points[2].y + normal_bc->y);
-        gb_path_quad2_to(impl->path_inner, points[1].x - normal_b.x, points[1].y - normal_b.y, points[2].x - normal_bc->x, points[2].y - normal_bc->y);
+        gb_path_quad2_to(impl->path_outer, points[1].x + normal_1.x, points[1].y + normal_1.y, points[2].x + normal_12->x, points[2].y + normal_12->y);
+        gb_path_quad2_to(impl->path_inner, points[1].x - normal_1.x, points[1].y - normal_1.y, points[2].x - normal_12->x, points[2].y - normal_12->y);
     }
 }
 static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
@@ -1261,15 +1272,15 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
     tb_assert_and_check_return(impl && ctrl && point);
 
-    // is point for a => b and b => c?
-    tb_bool_t is_point_for_ab = gb_point_equal(&impl->point_prev, ctrl);
-    tb_bool_t is_point_for_bc = gb_point_equal(ctrl, point);
+    // is point for p0 => p1 and p1 => p2?
+    tb_bool_t is_point_for_01 = gb_point_equal(&impl->point_prev, ctrl);
+    tb_bool_t is_point_for_12 = gb_point_equal(ctrl, point);
 
     // only be point or line?
-    if (is_point_for_ab | is_point_for_bc) 
+    if (is_point_for_01 | is_point_for_12) 
     {
         // is line-to?
-        if (is_point_for_ab ^ is_point_for_bc) 
+        if (is_point_for_01 ^ is_point_for_12) 
         {
             gb_stroker_line_to(stroker, point);
         }
@@ -1279,11 +1290,11 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     }
 
     // enter-to 
-    gb_vector_t normal_ab;
-    gb_vector_t normal_bc;
-    gb_vector_t normal_unit_ab;
-    gb_vector_t normal_unit_bc;
-    if (!gb_stroker_enter_to(impl, ctrl, &normal_ab, &normal_unit_ab, tb_false)) return ;
+    gb_vector_t normal_01;
+    gb_vector_t normal_12;
+    gb_vector_t normal_unit_01;
+    gb_vector_t normal_unit_12;
+    if (!gb_stroker_enter_to(impl, ctrl, &normal_01, &normal_unit_01, tb_false)) return ;
 
     // init points
     gb_point_t points[3];
@@ -1291,11 +1302,11 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     points[1] = *ctrl;
     points[2] = *point;
 
-    // make quad-to curves for the inner and outer contour
-    gb_stroker_make_quad_to(impl, points, &normal_ab, &normal_unit_ab, &normal_bc, &normal_unit_bc, GB_QUAD_DIVIDED_MAXN);
+    // make more flat quad-to curves for the inner and outer contour
+    gb_stroker_make_quad_to(impl, points, &normal_01, &normal_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
 
     // leave-to
-    gb_stroker_leave_to(impl, point, &normal_bc, &normal_unit_bc);
+    gb_stroker_leave_to(impl, point, &normal_12, &normal_unit_12);
 }
 tb_void_t gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {

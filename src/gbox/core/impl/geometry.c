@@ -94,55 +94,10 @@ static gb_point_t g_quad_points_of_unit_circle[] =
 #endif
 };
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * private implementation
- */
-static tb_void_t gb_geometry_make_quad_impl(gb_point_t points[3], tb_size_t count, gb_geometry_line_func_t func, tb_cpointer_t priv)
-{
-    /* divide it
-     * 
-     *
-     *                  p1
-     *                  .
-     *                .  .
-     *              .     .
-     *            .        .
-     *       o1 . . . . . . . o3
-     *        .      o2      .
-     *      .                 .
-     *    .                    .
-     * p0, o0                p2, o4
-     *
-     */
-    if (count)
-    {
-        // chop the quad at half
-        gb_point_t output[5];
-        gb_quad_chop_at_half(points, output);
-
-        // make quad(o0, o1, o2)
-        gb_geometry_make_quad_impl(output, count - 1, func, priv);
-
-        // make quad(o2, o3, o4)
-        gb_geometry_make_quad_impl(output + 2, count - 1, func, priv);
-    }
-    else func(points + 2, priv);
-}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_geometry_make_quad(gb_point_t points[3], gb_geometry_line_func_t func, tb_cpointer_t priv)
-{
-    // check
-    tb_assert_abort(func && points);
-
-    // compute the divided count first
-    tb_size_t count = gb_quad_divided_count(points);
-
-    // make quad
-    gb_geometry_make_quad_impl(points, count, func, priv);
-}
 
 /*
  *
