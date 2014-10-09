@@ -111,13 +111,73 @@ static tb_size_t gb_quad_unit_divide(gb_float_t numer, gb_float_t denom, gb_floa
 }
 static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
 {
-    gb_float_t x0 = points[1].x - points[0].x;
-    gb_float_t y0 = points[1].y - points[0].y;
-    gb_float_t x1 = points[0].x - points[1].x - points[1].x + points[2].x;
-    gb_float_t y1 = points[0].y - points[1].y - points[1].y + points[2].y;
+    /* parameter: f = factor
+     *
+     * function of the x-coordinate:
+     * X(f) = x0 * (1 - f) ^ 2 + 2 * x1 * f * (1 - f) + x2 * f ^ 2
+     * => X'(f) = 2 * (x1 - x0) + 2 * (x0 - 2 * x1 + x2) * f
+     * => X''(f) = 2 * (x0 - 2 * x1 + x2)
+     *
+     * Ax = 2 * (x1 - x0)
+     * Bx = 2 * (x0 - 2 * x1 + x2)
+     *
+     * => X'(f) = Ax + Bx * f
+     * => X''(f) = Bx
+     *
+     * function of the y-coordinate:
+     * Y(f) = y0 * (1 - f) ^ 2 + 2 * y1 * f * (1 - f) + y2 * f ^ 2
+     * => Y'(f) = 2 * (y1 - y0) + 2 * (y0 - 2 * y1 + y2) * f
+     * => Y''(f) = 2 * (y0 - 2 * y1 + y2)
+     *
+     * Ay = 2 * (y1 - y0)
+     * By = 2 * (y0 - 2 * y1 + y2)
+     *
+     * => Y'(f) = Ay + By * f
+     * => Y''(f) = By
+     *
+     * curvature:
+     *          |X'(f)Y''(f) - X''(f)Y'(f)|
+     * K(f) = -------------------------------
+     *           (X'(f)^2 + Y'(f)^2)^(3/2)
+     *
+     *          |(Ax + Bx * f) * By - Bx * (Ay + By * f)|
+     *      = ---------------------------------------------
+     *          ((Ax + Bx * f)^2 + (Ay + By * f)^2)^(3/2)
+     *
+     *          |Ax * By + Bx * By * f - Bx * Ay - Bx * By * f|
+     *      = ------------------------------------------------------------------------------------
+     *          (Ax^2 + 2 * Ax * Bx * f + Bx^2 * f^2 + Ay^2 + 2 * Ay * By * f + By^2 * f^2)^(3/2)
+     *
+     *          |Ax * By - Bx * Ay|
+     *      = ------------------------------------------------------------------------------------
+     *          (Ax^2 + Ay^2 + 2 * f * (Ax * Bx + Ay * By) + (Bx^2 + By^2) * f^2)^(3/2)
+     *
+     *          |Ax * By - Bx * Ay|
+     *      = -----------------------
+     *            (F(f))^(3/2)
+     *
+     * F(f) = Ax^2 + Ay^2 + 2 * f * (Ax * Bx + Ay * By) + (Bx^2 + By^2) * f^2
+     * => F'(f) = 2 * (Ax * Bx + Ay * By) + 2 * f * (Bx^2 + By^2)
+     *
+     * max(K(f)) => min(F(f)) => F'(f) == 0
+     * => 2 * (Ax * Bx + Ay * By) + 2 * f * (Bx^2 + By^2) = 0
+     * => f = -(Ax * Bx + Ay * By) / (Bx^2 + By^2)
+     *
+     * so
+     *
+     * the curvature is maximum if f == -(Ax * Bx + Ay * By) / (Bx^2 + By^2)
+     */
+    gb_float_t ax = points[1].x - points[0].x;
+    gb_float_t ay = points[1].y - points[0].y;
+    gb_float_t bx = points[0].x - points[1].x - points[1].x + points[2].x;
+    gb_float_t by = points[0].y - points[1].y - points[1].y + points[2].y;
 
+    /* compute the factor of the max curvature
+     *
+     * -(Ax * Bx + Ay * By) / (Bx^2 + By^2)
+     */
     gb_float_t factor = 0;
-    gb_quad_unit_divide(-(gb_mul(x0, x1) + gb_mul(y0, y1)), gb_mul(x1, x1) + gb_mul(y1, y1), &factor);
+    gb_quad_unit_divide(-(gb_mul(ax, bx) + gb_mul(ay, by)), gb_sqre(bx) + gb_sqre(by), &factor);
     
     // ok
     return factor;
