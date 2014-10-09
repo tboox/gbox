@@ -62,6 +62,26 @@ tb_void_t               gb_vector_imake(gb_vector_ref_t vector, tb_long_t x, tb_
  */
 tb_void_t               gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point);
 
+/*! make the unit vector
+ *
+ * @param vector        the vector
+ * @param x             the x
+ * @param y             the y
+ *
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_make_unit(gb_vector_ref_t vector, gb_float_t x, gb_float_t y);
+
+/*! make unit vector with the integer value
+ *
+ * @param vector        the vector
+ * @param x             the x
+ * @param y             the y
+ *
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_imake_unit(gb_vector_ref_t vector, tb_long_t x, tb_long_t y);
+
 /*! nagate the vector
  * 
  * @param vector        the vector

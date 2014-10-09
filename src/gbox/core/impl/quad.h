@@ -135,7 +135,7 @@ tb_void_t           gb_quad_chop_at_half(gb_point_t const points[3], gb_point_t 
  * quad(p0, p1, p2) => quad(o0, o1, o2) + quad(o2, o3, o4)
  *
  * @param points    the points
- * @param output    the output points
+ * @param output    the output points, optional
  *
  * return           the chopped curve count, 1 or 2
  */

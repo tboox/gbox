@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        arc.h
+ * @file        float.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_IMPL_ARC_H
-#define GB_CORE_IMPL_ARC_H
+#ifndef GB_CORE_IMPL_FLOAT_H
+#define GB_CORE_IMPL_FLOAT_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,46 +38,22 @@ __tb_extern_c_enter__
  * macros
  */
 
-// tan(pi/8) * 4 / 3
-#ifdef GB_CONFIG_FLOAT_FIXED
-#   define GB_ARC_MAKE_CUBIC_FACTOR     (36195)
-#else
-#   define GB_ARC_MAKE_CUBIC_FACTOR     (0.5522847498f)
-#endif
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * types
- */
-
-/* the arc quad func type
- * 
- * @param ctrl      the ctrl point, the point is first if be null
- * @param point     the point 
- * @param priv      the user private data
- */
-typedef tb_void_t   (*gb_arc_quad_func_t)(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv);
+// is in the unit range(0, 1)?
+#define gb_float_in_unit_range(x)       (gb_bz(x) && (x) < GB_ONE)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
-/* make the quad curves for the arc
+/* compute numer / denom and check it
  *
- * @param arc       the arc
- * @param func      the make func
- * @param priv      the make func private data for user
- */
-tb_void_t           gb_arc_make_quad(gb_arc_ref_t arc, gb_arc_quad_func_t func, tb_cpointer_t priv);
-
-/* make the quad curves for the arc
+ * @param numer     the numerator
+ * @param denom     the denominator
+ * @param result    the result, must be in range: (0, 1)
  *
- * @param start     the start unit vector
- * @param stop      the stop unit vector
- * @param matrix    the user matrix
- * @param func      the make func
- * @param priv      the make func private data for user
+ * @return          the result is in range(0, 1): 1, otherwise: 0
  */
-tb_void_t           gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_arc_quad_func_t func, tb_cpointer_t priv);
+tb_size_t           gb_float_unit_divide(gb_float_t numer, gb_float_t denom, gb_float_t* result);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

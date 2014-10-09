@@ -780,8 +780,7 @@ static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t a
      *    inner         line        outer
      *
      */
-    gb_vector_make(normal_unit, after->x - before->x, after->y - before->y);
-    if (!gb_vector_normalize(normal_unit)) 
+    if (!gb_vector_make_unit(normal_unit, after->x - before->x, after->y - before->y)) 
     {
         // failed
         tb_assert_abort(0);
@@ -936,6 +935,11 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_path_quad2_to(impl->path_outer, points[1].x + normal_1.x, points[1].y + normal_1.y, points[2].x + normal_12->x, points[2].y + normal_12->y);
         gb_path_quad2_to(impl->path_inner, points[1].x - normal_1.x, points[1].y - normal_1.y, points[2].x - normal_12->x, points[2].y - normal_12->y);
     }
+}
+static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_01, gb_vector_ref_t normal_unit_01, gb_vector_ref_t normal_23, gb_vector_ref_t normal_unit_23, tb_size_t divided_count)
+{
+    // check
+    tb_assert_abort(impl && points && normal_01 && normal_unit_01 && normal_23 && normal_unit_23);
 }
 static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
 {
@@ -1311,17 +1315,12 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     tb_bool_t is_point_for_01 = gb_point_equal(&impl->point_prev, ctrl);
     tb_bool_t is_point_for_12 = gb_point_equal(ctrl, point);
 
-    // only be point or line?
+    // only be line?
     if (is_point_for_01 | is_point_for_12) 
     {
-        // is line-to?
-        if (is_point_for_01 ^ is_point_for_12) 
-        {
-            gb_stroker_line_to(stroker, point);
-        }
-
-        // only point
-        return;
+        // line-to it
+        gb_stroker_line_to(stroker, point);
+        return ;
     }
 
     // enter-to 
@@ -1408,8 +1407,63 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
 }
 tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
-    // TODO
-    tb_trace_noimpl();
+    // check
+    gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
+    tb_assert_and_check_return(impl && ctrl0 && ctrl1 && point);
+
+    // is point for p0 => p1 and p1 => p2 and p2 = > p3?
+    tb_bool_t is_point_for_01 = gb_point_equal(&impl->point_prev, ctrl0);
+    tb_bool_t is_point_for_12 = gb_point_equal(ctrl0, ctrl1);
+    tb_bool_t is_point_for_23 = gb_point_equal(ctrl1, point);
+
+    // only be quad?
+    if (is_point_for_01 | is_point_for_12 | is_point_for_23) 
+    {
+        // quad-to it
+        gb_stroker_quad_to(stroker, is_point_for_01? ctrl1 : ctrl0, point);
+
+        // only point
+        return ;
+    }
+ 
+    // enter-to 
+    gb_vector_t normal_01;
+    gb_vector_t normal_23;
+    gb_vector_t normal_unit_01;
+    gb_vector_t normal_unit_23;
+    if (!gb_stroker_enter_to(impl, ctrl0, &normal_01, &normal_unit_01, tb_false)) return ;
+
+    // init points
+    gb_point_t points[4];
+    points[0] = impl->point_prev;
+    points[1] = *ctrl0;
+    points[2] = *ctrl1;
+    points[3] = *point;
+
+    // chop the cubic curve at the max curvature
+    gb_point_t  output[13];
+    tb_size_t   count = gb_cubic_chop_at_max_curvature(points, output);
+    tb_assert_abort(count);
+
+    // make every cubic sub-curves
+    tb_size_t   index;
+    gb_vector_t normal2_01 = normal_01;
+    gb_vector_t normal2_unit_01 = normal_unit_01;
+    for (index = 0; index < count; index++)
+    {
+        // make more flat cubic-to curves for the sub-curve
+        gb_stroker_make_cubic_to(impl, &output[(index << 1) + index], &normal2_01, &normal2_unit_01, &normal_23, &normal_unit_23, GB_CUBIC_DIVIDED_MAXN);
+
+        // end?
+        tb_check_break(index != count - 1);
+
+        // update the start normal
+        normal2_01 = normal_23;
+        normal2_unit_01 = normal_unit_23;
+    }
+
+    // leave-to
+    gb_stroker_leave_to(impl, point, &normal_23, &normal_unit_23);
 }
 tb_void_t gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path)
 {

@@ -25,6 +25,7 @@
  * includes
  */
 #include "quad.h"
+#include "float.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -74,40 +75,6 @@ static tb_void_t gb_quad_chop_xy_at(gb_float_t const* xy, gb_float_t* output, gb
     output[4] = gb_interp(xy01, xy12, factor);
     output[6] = xy12;
     output[8] = xy[4];
-}
-static tb_size_t gb_quad_unit_divide(gb_float_t numer, gb_float_t denom, gb_float_t* result)
-{
-    // check
-    tb_assert_abort(result);
-
-    // negate it
-    if (gb_lz(numer)) 
-    {
-        numer = -numer;
-        denom = -denom;
-    }
-
-    // must be valid numerator and denominator
-    if (gb_ez(denom) || gb_ez(numer) || numer >= denom) 
-        return 0;
-
-    // the result: numer / denom
-    gb_float_t r = gb_div(numer, denom);
-
-    // must be finite value
-    tb_assert_and_check_return_val(gb_isfinite(r), 0);
-
-    // must be in range: [0, 1)
-    tb_assert_and_check_return_val(!gb_lz(r) && r < GB_ONE, 0);
-
-    // too smaller? not save result
-    tb_check_return_val(gb_nz(r), 0);
-
-    // save result
-    *result = r;
-
-    // ok
-    return 1;
 }
 static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
 {
@@ -177,7 +144,7 @@ static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
      * -(Ax * Bx + Ay * By) / (Bx^2 + By^2)
      */
     gb_float_t factor = 0;
-    gb_quad_unit_divide(-(gb_mul(ax, bx) + gb_mul(ay, by)), gb_sqre(bx) + gb_sqre(by), &factor);
+    gb_float_unit_divide(-(gb_mul(ax, bx) + gb_mul(ay, by)), gb_sqre(bx) + gb_sqre(by), &factor);
     
     // ok
     return factor;
@@ -237,7 +204,7 @@ tb_size_t gb_quad_divide_line_count(gb_point_t const points[3])
 tb_void_t gb_quad_chop_at(gb_point_t const points[3], gb_point_t output[5], gb_float_t factor)
 {
     // check
-    tb_assert_abort(points && output && gb_bz(factor) && factor < GB_ONE);
+    tb_assert_abort(points && output && gb_float_in_unit_range(factor));
 
     // chop x-coordinates at the factor
     gb_quad_chop_xy_at(&points[0].x, &output[0].x, factor);
@@ -280,21 +247,27 @@ tb_void_t gb_quad_chop_at_half(gb_point_t const points[3], gb_point_t output[5])
 tb_size_t gb_quad_chop_at_max_curvature(gb_point_t const points[3], gb_point_t output[5])
 {
     // check
-    tb_assert_abort(points && output);
+    tb_assert_abort(points);
 
     // find the factor of the max curvature
     gb_float_t factor = gb_quad_find_max_curvature(points);
 
-    // chop it
+    // done
     tb_size_t count = 2;
-    if (gb_nz(factor)) gb_quad_chop_at(points, output, factor);
-    else
+    if (output)
     {
-        tb_memcpy(output, points, 3 * sizeof(gb_point_t));
-        count = 1;
+        // chop it
+        if (gb_nz(factor)) gb_quad_chop_at(points, output, factor);
+        // using the whole curve
+        else
+        {
+            tb_memcpy(output, points, 3 * sizeof(gb_point_t));
+            count = 1;
+        }
     }
+    else if (gb_ez(factor)) count = 1;
 
-    // the chopped count
+    // the sub-curve count
     return count;
 }
 tb_void_t gb_quad_make_line(gb_point_t const points[3], gb_quad_line_func_t func, tb_cpointer_t priv)

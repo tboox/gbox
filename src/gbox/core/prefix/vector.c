@@ -57,6 +57,26 @@ tb_void_t gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point
     // make it
     *vector = *((gb_vector_ref_t)point);
 }
+tb_bool_t gb_vector_make_unit(gb_vector_ref_t vector, gb_float_t x, gb_float_t y)
+{
+    // check
+    tb_assert_abort(vector);
+
+    // attempt to make the unit vector
+    gb_vector_t unit;
+    gb_vector_make(&unit, x, y);
+    if (!gb_vector_normalize(&unit)) return tb_false;
+
+    // save it
+    *vector = unit;
+
+    // ok
+    return tb_true;
+}
+tb_bool_t gb_vector_imake_unit(gb_vector_ref_t vector, tb_long_t x, tb_long_t y)
+{
+    return gb_vector_make_unit(vector, gb_long_to_float(x), gb_long_to_float(y));
+}
 tb_void_t gb_vector_negate(gb_vector_ref_t vector)
 {
     // check
@@ -225,9 +245,15 @@ tb_bool_t gb_vector_normalize2(gb_vector_ref_t vector, gb_vector_ref_t normalize
     // check
     tb_assert_abort(vector && normalized);
 
-    // normalized it
-    *normalized = *vector;
-    return gb_vector_normalize(normalized);
+    // attempt to normalize it
+    gb_vector_t unit = *vector;
+    if (!gb_vector_normalize(&unit)) return tb_false;
+
+    // save it
+    *normalized = unit;
+
+    // ok
+    return tb_true;
 }
 gb_float_t gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t other)
 {

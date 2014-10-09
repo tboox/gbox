@@ -50,6 +50,7 @@ gbox_C_FILES 			+= \
 						core/impl/arc \
 						core/impl/quad \
 						core/impl/cubic \
+						core/impl/float \
 						core/impl/polygon_raster 
 
 
