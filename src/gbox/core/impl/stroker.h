@@ -105,14 +105,14 @@ tb_void_t                   gb_stroker_line_to(gb_stroker_ref_t stroker, gb_poin
  */
 tb_void_t                   gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_point_ref_t point);
 
-/*! cube to the ctrl0, ctrl1, point
+/*! cubic to the ctrl0, ctrl1, point
  *
  * @param stroker           the stroker
  * @param ctrl0             the control0 point
  * @param ctrl1             the control1 point
  * @param point             the point
  */
-tb_void_t                   gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
+tb_void_t                   gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
 
 /* add path 
  * 

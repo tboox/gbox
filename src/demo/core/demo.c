@@ -12,7 +12,7 @@
 #include "rect.h"
 #include "path.h"
 #include "quad.h"
-#include "cube.h"
+#include "cubic.h"
 #include "line.h"
 #include "lines.h"
 #include "point.h"
@@ -58,7 +58,7 @@ static gb_demo_entry_t  g_entries[] =
 ,   {gb_demo_path_init,         gb_demo_path_exit,          gb_demo_path_draw,          gb_demo_path_event          }
 ,   {gb_demo_line_init,         gb_demo_line_exit,          gb_demo_line_draw,          gb_demo_line_event          }
 ,   {gb_demo_quad_init,         gb_demo_quad_exit,          gb_demo_quad_draw,          gb_demo_quad_event          }
-,   {gb_demo_cube_init,         gb_demo_cube_exit,          gb_demo_cube_draw,          gb_demo_cube_event          }
+,   {gb_demo_cubic_init,        gb_demo_cubic_exit,         gb_demo_cubic_draw,         gb_demo_cubic_event          }
 ,   {gb_demo_lines_init,        gb_demo_lines_exit,         gb_demo_lines_draw,         gb_demo_lines_event         }
 ,   {gb_demo_point_init,        gb_demo_point_exit,         gb_demo_point_draw,         gb_demo_point_event         }
 ,   {gb_demo_points_init,       gb_demo_points_exit,        gb_demo_points_draw,        gb_demo_points_event        }

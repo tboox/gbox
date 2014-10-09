@@ -1,13 +1,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "cube"
+#define TB_TRACE_MODULE_NAME            "cubic"
 #define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */ 
-#include "cube.h"
+#include "cubic.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * globals
@@ -27,30 +27,30 @@ static tb_long_t        g_ctrl_y1 = 200;
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_demo_cube_init(gb_window_ref_t window)
+tb_void_t gb_demo_cubic_init(gb_window_ref_t window)
 {
     // init path
     g_path = gb_path_init();
 }
-tb_void_t gb_demo_cube_exit(gb_window_ref_t window)
+tb_void_t gb_demo_cubic_exit(gb_window_ref_t window)
 {
     // exit path
     if (g_path) gb_path_exit(g_path);
     g_path = tb_null;
 }
-tb_void_t gb_demo_cube_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
+tb_void_t gb_demo_cubic_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 {
     // make path
     gb_path_clear(g_path);
     gb_path_move2i_to(g_path, -200, 0);
-    gb_path_cube2i_to(g_path, g_ctrl_x0, g_ctrl_y0, g_ctrl_x1, g_ctrl_y1, 200, 0);
+    gb_path_cubic2i_to(g_path, g_ctrl_x0, g_ctrl_y0, g_ctrl_x1, g_ctrl_y1, 200, 0);
 
     // stroke
     gb_canvas_color_set(canvas, GB_COLOR_BLUE);
     gb_canvas_mode_set(canvas, GB_PAINT_MODE_STROKE);
     gb_canvas_draw_path(canvas, g_path);
 }
-tb_void_t gb_demo_cube_event(gb_window_ref_t window, gb_event_ref_t event)
+tb_void_t gb_demo_cubic_event(gb_window_ref_t window, gb_event_ref_t event)
 {
     if (    event->type == GB_EVENT_TYPE_MOUSE
         &&  event->u.mouse.code == GB_MOUSE_MOVE

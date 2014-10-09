@@ -31,9 +31,10 @@
  * includes
  */
 #include "path.h"
+#include "impl/arc.h"
 #include "impl/quad.h"
+#include "impl/cubic.h"
 #include "impl/bounds.h"
-#include "impl/geometry.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -324,7 +325,7 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
     // ok
     return tb_true;
 }
-static tb_void_t gb_path_make_arc_to(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
+static tb_void_t gb_path_make_quad_for_arc_to(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(priv && point);
@@ -332,7 +333,7 @@ static tb_void_t gb_path_make_arc_to(gb_point_ref_t ctrl, gb_point_ref_t point, 
     // append point
     ctrl? gb_path_quad_to((gb_path_ref_t)priv, ctrl, point) : gb_path_line_to((gb_path_ref_t)priv, point);
 }
-static tb_void_t gb_path_make_add_arc(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
+static tb_void_t gb_path_make_quad_for_add_arc(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(priv && point);
@@ -340,7 +341,7 @@ static tb_void_t gb_path_make_add_arc(gb_point_ref_t ctrl, gb_point_ref_t point,
     // append point
     ctrl? gb_path_quad_to((gb_path_ref_t)priv, ctrl, point) : gb_path_move_to((gb_path_ref_t)priv, point);
 }
-static tb_void_t gb_path_make_quad_or_cube_to(gb_point_ref_t point, tb_cpointer_t priv)
+static tb_void_t gb_path_make_line_for_curve_to(gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
     tb_value_t* values = (tb_value_t*)priv;
@@ -411,13 +412,13 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             case GB_PATH_CODE_QUAD:
                 {
                     // make quad points
-                    gb_quad_make_line(item->points, gb_path_make_quad_or_cube_to, values);
+                    gb_quad_make_line(item->points, gb_path_make_line_for_curve_to, values);
                 }
                 break;
             case GB_PATH_CODE_CUBE:
                 {
-                    // make cube points
-                    gb_geometry_make_cube(&item->points[0], &item->points[1], &item->points[2], &item->points[3], gb_path_make_quad_or_cube_to, values);
+                    // make cubic points
+                    gb_cubic_make_line(item->points, gb_path_make_line_for_curve_to, values);
                 }
                 break;
             case GB_PATH_CODE_CLOS:
@@ -952,7 +953,7 @@ tb_void_t gb_path_quad2i_to(gb_path_ref_t path, tb_long_t cx, tb_long_t cy, tb_l
     // quad-to
     gb_path_quad_to(path, &ctrl, &point);
 }
-tb_void_t gb_path_cube_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
+tb_void_t gb_path_cubic_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
@@ -978,7 +979,7 @@ tb_void_t gb_path_cube_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref
     // mark dirty and curve
     impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_HAVE_CURVE;
 }
-tb_void_t gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
+tb_void_t gb_path_cubic2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {
     // make ctrl0
     gb_point_t ctrl0;
@@ -992,10 +993,10 @@ tb_void_t gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, g
     gb_point_t point;
     gb_point_make(&point, x, y);
 
-    // cube-to
-    gb_path_cube_to(path, &ctrl0, &ctrl1, &point);
+    // cubic-to
+    gb_path_cubic_to(path, &ctrl0, &ctrl1, &point);
 }
-tb_void_t gb_path_cube2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
+tb_void_t gb_path_cubic2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
 {
     // make ctrl0
     gb_point_t ctrl0;
@@ -1009,8 +1010,8 @@ tb_void_t gb_path_cube2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb
     gb_point_t point;
     gb_point_imake(&point, x, y);
 
-    // cube-to
-    gb_path_cube_to(path, &ctrl0, &ctrl1, &point);
+    // cubic-to
+    gb_path_cubic_to(path, &ctrl0, &ctrl1, &point);
 }
 tb_void_t gb_path_arc_to(gb_path_ref_t path, gb_arc_ref_t arc)
 {
@@ -1028,7 +1029,7 @@ tb_void_t gb_path_arc_to(gb_path_ref_t path, gb_arc_ref_t arc)
     }
 
     // make quad points for arc
-    gb_geometry_make_arc(arc, gb_path_make_arc_to, path);
+    gb_arc_make_quad(arc, gb_path_make_quad_for_arc_to, path);
 
     // hint have been maked? remove dirty
     if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
@@ -1074,7 +1075,7 @@ tb_void_t gb_path_path_to(gb_path_ref_t path, gb_path_ref_t added)
             gb_path_quad_to(path, &item->points[1], &item->points[2]);
             break;
         case GB_PATH_CODE_CUBE:
-            gb_path_cube_to(path, &item->points[1], &item->points[2], &item->points[3]);
+            gb_path_cubic_to(path, &item->points[1], &item->points[2], &item->points[3]);
             break;
         case GB_PATH_CODE_CLOS:
             gb_path_clos(path);
@@ -1127,7 +1128,7 @@ tb_void_t gb_path_rpath_to(gb_path_ref_t path, gb_path_ref_t added)
             break;
         case GB_PATH_CODE_CUBE:
             {
-                gb_path_cube_to(path, &item->points[2], &item->points[1], &item->points[0]);
+                gb_path_cubic_to(path, &item->points[2], &item->points[1], &item->points[0]);
             }
             break;
         case GB_PATH_CODE_CLOS:
@@ -1165,7 +1166,7 @@ tb_void_t gb_path_add_path(gb_path_ref_t path, gb_path_ref_t added)
                 gb_path_quad_to(path, &item->points[1], &item->points[2]);
                 break;
             case GB_PATH_CODE_CUBE:
-                gb_path_cube_to(path, &item->points[1], &item->points[2], &item->points[3]);
+                gb_path_cubic_to(path, &item->points[1], &item->points[2], &item->points[3]);
                 break;
             case GB_PATH_CODE_CLOS:
                 gb_path_clos(path);
@@ -1219,7 +1220,7 @@ tb_void_t gb_path_add_rpath(gb_path_ref_t path, gb_path_ref_t added)
             break;
         case GB_PATH_CODE_CUBE:
             {
-                gb_path_cube_to(path, &item->points[2], &item->points[1], &item->points[0]);
+                gb_path_cubic_to(path, &item->points[2], &item->points[1], &item->points[0]);
             }
             break;
         case GB_PATH_CODE_CLOS:
@@ -1303,8 +1304,8 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
         hint_maked              = tb_true;
     }
 
-    // make quad points for arc
-    gb_geometry_make_arc(arc, gb_path_make_add_arc, path);
+    // make quad curves for arc
+    gb_arc_make_quad(arc, gb_path_make_quad_for_add_arc, path);
 
     // hint have been maked? remove dirty
     if (hint_maked) impl->flag &= ~GB_PATH_FLAG_DIRTY_HINT;
@@ -1723,7 +1724,7 @@ tb_void_t gb_path_dump(gb_path_ref_t path)
             tb_trace_i("quad_to: %{point}, %{point}", &item->points[1], &item->points[2]);
             break;
         case GB_PATH_CODE_CUBE:
-            tb_trace_i("cube_to: %{point}, %{point}, %{point}", &item->points[1], &item->points[2], &item->points[3]);
+            tb_trace_i("cubic_to: %{point}, %{point}, %{point}", &item->points[1], &item->points[2], &item->points[3]);
             break;
         case GB_PATH_CODE_CLOS:
             tb_trace_i("closed");

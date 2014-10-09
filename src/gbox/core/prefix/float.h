@@ -55,7 +55,6 @@
 #define GB_DEGREE_90            (5898240)
 #define GB_DEGREE_180           (11796480)
 #define GB_DEGREE_360           (23592960)
-#define GB_ARC2CUBE_FACTOR      (36195)             //!< tan(pi/8) * 4 / 3
 
 // conversion
 #ifdef TB_CONFIG_TYPE_FLOAT
@@ -144,7 +143,6 @@
 #define GB_DEGREE_90            (90.0f)
 #define GB_DEGREE_180           (180.0f)
 #define GB_DEGREE_360           (360.0f)
-#define GB_ARC2CUBE_FACTOR      (0.5522847498f)     //!< tan(pi/8) * 4 / 3
 
 // conversion
 #define gb_float_to_tb(x)       (x)

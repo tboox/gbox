@@ -48,7 +48,7 @@ typedef enum __gb_path_code_e
 ,   GB_PATH_CODE_CLOS       = 1 //!< the clos code
 ,   GB_PATH_CODE_LINE       = 2 //!< the line-to code
 ,   GB_PATH_CODE_QUAD       = 3 //!< the quad-to code
-,   GB_PATH_CODE_CUBE       = 4 //!< the cube-to code
+,   GB_PATH_CODE_CUBE       = 4 //!< the cubic-to code
 ,   GB_PATH_CODE_MAXN       = 5 //!< the code max count
 
 }gb_path_code_e;
@@ -232,16 +232,16 @@ tb_void_t           gb_path_quad2_to(gb_path_ref_t path, gb_float_t cx, gb_float
  */
 tb_void_t           gb_path_quad2i_to(gb_path_ref_t path, tb_long_t cx, tb_long_t cy, tb_long_t x, tb_long_t y);
 
-/*! cube to the ctrl0, ctrl1, point
+/*! cubic to the ctrl0, ctrl1, point
  *
  * @param path      the path
  * @param ctrl0     the control0 point
  * @param ctrl1     the control1 point
  * @param point     the point
  */
-tb_void_t           gb_path_cube_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
+tb_void_t           gb_path_cubic_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
 
-/*! cube to the ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
+/*! cubic to the ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
  *
  * @param path      the path
  * @param cx0       the control0 x-coordinate
@@ -251,9 +251,9 @@ tb_void_t           gb_path_cube_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb
  * @param x         the x-coordinate
  * @param y         the y-coordinate
  */
-tb_void_t           gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y);
+tb_void_t           gb_path_cubic2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y);
 
-/*! cube to the integer ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
+/*! cubic to the integer ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
  *
  * @param path      the path
  * @param cx0       the control0 x-coordinate
@@ -263,7 +263,7 @@ tb_void_t           gb_path_cube2_to(gb_path_ref_t path, gb_float_t cx0, gb_floa
  * @param x         the x-coordinate
  * @param y         the y-coordinate
  */
-tb_void_t           gb_path_cube2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y);
+tb_void_t           gb_path_cubic2i_to(gb_path_ref_t path, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y);
 
 /*! arc to the arc
  *

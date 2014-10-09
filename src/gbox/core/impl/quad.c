@@ -191,7 +191,20 @@ gb_float_t gb_quad_near_distance(gb_point_t const points[3])
     // check
     tb_assert_abort(points);
  
-    // compute the delat x and y of the distance(p1, center(p0, p2))
+    /* compute the delat x and y of the distance(p1, center(p0, p2))
+     *
+     *                  p1
+     *                  .
+     *                .  .
+     *              .  .  .
+     *            .   .    .
+     *          .    .      .
+     *        .     .        .
+     *      .      .distance  .
+     *    .       .            .
+     * p0         x            p2
+     *
+     */
     gb_float_t dx = gb_avg(points[0].x, points[2].x) - points[1].x;
     gb_float_t dy = gb_avg(points[0].y, points[2].y) - points[1].y;
     dx = gb_fabs(dx);

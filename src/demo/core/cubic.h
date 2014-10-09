@@ -19,27 +19,27 @@ __tb_extern_c_enter__
  *
  * @param window    the window
  */
-tb_void_t           gb_demo_cube_init(gb_window_ref_t window);
+tb_void_t           gb_demo_cubic_init(gb_window_ref_t window);
 
 /* exit window
  *
  * @param window    the window
  */
-tb_void_t           gb_demo_cube_exit(gb_window_ref_t window);
+tb_void_t           gb_demo_cubic_exit(gb_window_ref_t window);
 
 /* draw window
  *
  * @param window    the window
  * @param canvas    the canvas
  */
-tb_void_t           gb_demo_cube_draw(gb_window_ref_t window, gb_canvas_ref_t canvas);
+tb_void_t           gb_demo_cubic_draw(gb_window_ref_t window, gb_canvas_ref_t canvas);
 
 /*! the window event
  *
  * @param window    the window
  * @param event     the event
  */
-tb_void_t           gb_demo_cube_event(gb_window_ref_t window, gb_event_ref_t event);
+tb_void_t           gb_demo_cubic_event(gb_window_ref_t window, gb_event_ref_t event);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

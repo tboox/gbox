@@ -17,14 +17,14 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        geometry.c
+ * @file        arc.c
  * @ingroup     core
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "geometry.h"
+#include "arc.h"
 #include "quad.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -98,71 +98,7 @@ static gb_point_t g_quad_points_of_unit_circle[] =
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-
-/*
- *
- *          cpb      cp0      cpe
- *          --------------------
- *         /                    \
- *        /    pb0---------pe0   \
- *       /           p0           \
- *  cp1 /                          \ cp2
- *     /                            \
- *    /                              \
- *   /                                \
- *  /                                  \
- * /                                    \
- * pb                                   pe
- *
- * e = min(|(cpb - pb) * 2 + cpb - pe|, |(cpe - pe) * 2 + cpe - pb|) <= 1
- *
- */
-tb_void_t gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv)
-{
-    // check
-    tb_assert_return(func && pb && cpb && cpe && pe && priv);
-
-    // init
-    gb_float_t mxb = gb_lsh(cpb->x - pb->x, 1) + cpb->x - pe->x;
-    gb_float_t myb = gb_lsh(cpb->y - pb->y, 1) + cpb->y - pe->y;
-    gb_float_t mxe = gb_lsh(cpe->x - pe->x, 1) + cpe->x - pb->x;
-    gb_float_t mye = gb_lsh(cpe->y - pe->y, 1) + cpe->y - pb->y;
-
-    // compute error
-    mxb = gb_fabs(mxb);
-    myb = gb_fabs(myb);
-    mxe = gb_fabs(mxe);
-    mye = gb_fabs(mye);
-    if (mxe < mxb) mxb = mxe;
-    if (mye < myb) myb = mye;
-
-    // error <= 1?
-    if (mxb + myb <= GB_ONE) func(pe, priv);
-    else
-    {
-        // compute cube points
-        gb_point_t cp0, cp1, cp2, pb0, pe0, p0;
-        cp0.x   = gb_rsh(cpb->x + cpe->x, 1);
-        cp0.y   = gb_rsh(cpb->y + cpe->y, 1);
-        cp1.x   = gb_rsh(pb->x + cpb->x, 1);
-        cp1.y   = gb_rsh(pb->y + cpb->y, 1);
-        cp2.x   = gb_rsh(cpe->x + pe->x, 1);
-        cp2.y   = gb_rsh(cpe->y + pe->y, 1);
-        pb0.x   = gb_rsh(cp0.x + cp1.x, 1);
-        pb0.y   = gb_rsh(cp0.y + cp1.y, 1);
-        pe0.x   = gb_rsh(cp0.x + cp2.x, 1);
-        pe0.y   = gb_rsh(cp0.y + cp2.y, 1);
-        p0.x    = gb_rsh(pb0.x + pe0.x, 1);
-        p0.y    = gb_rsh(pb0.y + pe0.y, 1);
-
-        // make cube: pb => cp1 => pb0 => p0
-        gb_geometry_make_cube(pb, &cp1, &pb0, &p0, func, priv);
-
-        // make cube: p0 => pe0 => cp2 => pe
-        gb_geometry_make_cube(&p0, &pe0, &cp2, pe, func, priv);
-    }
-}
-tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, tb_cpointer_t priv)
+tb_void_t gb_arc_make_quad(gb_arc_ref_t arc, gb_arc_quad_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_and_check_return(arc && func);
@@ -187,13 +123,13 @@ tb_void_t gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, t
     gb_matrix_init_scale(&matrix, arc->rx, arc->ry);
     gb_matrix_translate_lhs(&matrix, arc->c.x, arc->c.y);
 
-    /* make arc
+    /* make quad curves
      *
      * arc = matrix * unit_arc
      */
-    gb_geometry_make_arc2(&start, &stop, &matrix, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW, func, priv);
+    gb_arc_make_quad2(&start, &stop, &matrix, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW, func, priv);
 }
-tb_void_t gb_geometry_make_arc2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_geometry_quad_func_t func, tb_cpointer_t priv)
+tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_arc_quad_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(start && stop && func);

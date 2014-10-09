@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        geometry.h
+ * @file        arc.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_IMPL_GEOMETRY_H
-#define GB_CORE_IMPL_GEOMETRY_H
+#ifndef GB_CORE_IMPL_ARC_H
+#define GB_CORE_IMPL_ARC_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -35,49 +35,41 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// tan(pi/8) * 4 / 3
+#ifdef GB_CONFIG_FLOAT_FIXED
+#   define GB_ARC_MAKE_CUBIC_FACTOR   (36195)
+#else
+#   define GB_ARC_MAKE_CUBIC_FACTOR   (0.5522847498f)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-/* the geometry line func type
- * 
- * @param point     the point 
- * @param priv      the user private data
- */
-typedef tb_void_t   (*gb_geometry_line_func_t)(gb_point_ref_t point, tb_cpointer_t priv);
-
-/* the geometry quad func type
+/* the arc quad func type
  * 
  * @param ctrl      the ctrl point, the point is first if be null
  * @param point     the point 
  * @param priv      the user private data
  */
-typedef tb_void_t   (*gb_geometry_quad_func_t)(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv);
+typedef tb_void_t   (*gb_arc_quad_func_t)(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
-/* make points for the cube bezier
- *
- * @param pb        the begin point
- * @param cpb       the begin ctrl point
- * @param cpe       the end ctrl point
- * @param pe        the end point
- * @param func      the make func
- * @param priv      the make func private data for user
- *
- */
-tb_void_t           gb_geometry_make_cube(gb_point_ref_t pb, gb_point_ref_t cpb, gb_point_ref_t cpe, gb_point_ref_t pe, gb_geometry_line_func_t func, tb_cpointer_t priv);
-
-/* make the quad points for the arc
+/* make the quad curves for the arc
  *
  * @param arc       the arc
  * @param func      the make func
  * @param priv      the make func private data for user
  */
-tb_void_t           gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func_t func, tb_cpointer_t priv);
+tb_void_t           gb_arc_make_quad(gb_arc_ref_t arc, gb_arc_quad_func_t func, tb_cpointer_t priv);
 
-/* make the quad points for the arc
+/* make the quad curves for the arc
  *
  * @param start     the start unit vector
  * @param stop      the stop unit vector
@@ -85,7 +77,7 @@ tb_void_t           gb_geometry_make_arc(gb_arc_ref_t arc, gb_geometry_quad_func
  * @param func      the make func
  * @param priv      the make func private data for user
  */
-tb_void_t           gb_geometry_make_arc2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_geometry_quad_func_t func, tb_cpointer_t priv);
+tb_void_t           gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_arc_quad_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -16,7 +16,7 @@ tb_int_t gb_demo_core_path_main(tb_int_t argc, tb_char_t** argv)
         gb_path_move2i_to(path, 100, 100);
         gb_path_line2i_to(path, 200, 200);
         gb_path_quad2i_to(path, 300, 300, 400, 400);
-        gb_path_cube2i_to(path, 500, 500, 600, 600, 700, 700);
+        gb_path_cubic2i_to(path, 500, 500, 600, 600, 700, 700);
         gb_path_clos(path);
 
         // make copy
@@ -56,7 +56,7 @@ tb_int_t gb_demo_core_path_main(tb_int_t argc, tb_char_t** argv)
                 tb_trace_i("quad_to: %{point}, %{point}", &item->points[1], &item->points[2]);
                 break;
             case GB_PATH_CODE_CUBE:
-                tb_trace_i("cube_to: %{point}, %{point}, %{point}", &item->points[1], &item->points[2], &item->points[3]);
+                tb_trace_i("cubic_to: %{point}, %{point}, %{point}", &item->points[1], &item->points[2], &item->points[3]);
                 break;
             case GB_PATH_CODE_CLOS:
                 tb_trace_i("closed");

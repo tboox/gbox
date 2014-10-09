@@ -25,8 +25,9 @@
  * includes
  */
 #include "stroker.h"
+#include "arc.h"
 #include "quad.h"
-#include "geometry.h"
+#include "cubic.h"
 #include "../path.h"
 #include "../paint.h"
 
@@ -324,8 +325,8 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
      *    = (x0 - nx - ly, y0 - ny + lx)
      *
      * cap:
-     * cube_to(c1, c2, p2) = cube_to(x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx)
-     * cube_to(c3, c4, p3) = cube_to(x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, x0 - nx, y0 - ny)
+     * cubic_to(c1, c2, p2) = cubic_to(x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx)
+     * cubic_to(c3, c4, p3) = cubic_to(x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, x0 - nx, y0 - ny)
      */
 
     // the factors
@@ -333,12 +334,12 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
     gb_float_t    y0 = center->y;
     gb_float_t    nx = normal->x;
     gb_float_t    ny = normal->y;
-    gb_float_t    lx = gb_mul(nx, GB_ARC2CUBE_FACTOR);
-    gb_float_t    ly = gb_mul(ny, GB_ARC2CUBE_FACTOR);
+    gb_float_t    lx = gb_mul(nx, GB_ARC_MAKE_CUBIC_FACTOR);
+    gb_float_t    ly = gb_mul(ny, GB_ARC_MAKE_CUBIC_FACTOR);
 
     // cap the round
-    gb_path_cube2_to(path, x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx);
-    gb_path_cube2_to(path, x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, end->x, end->y);
+    gb_path_cubic2_to(path, x0 + nx - ly, y0 + ny + lx, x0 - ny + lx, y0 + nx + ly, x0 - ny, y0 + nx);
+    gb_path_cubic2_to(path, x0 - ny - lx, y0 + nx - ly, x0 - nx - ly, y0 - ny + lx, end->x, end->y);
 }
 static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
@@ -699,7 +700,7 @@ static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t oute
     gb_matrix_translate_lhs(&matrix, center->x, center->y);
 
     // join the outer contour
-    gb_geometry_make_arc2(&start, &stop, &matrix, direction, gb_stroker_joiner_outer, outer);
+    gb_arc_make_quad2(&start, &stop, &matrix, direction, gb_stroker_joiner_outer, outer);
 
     // join the inner contour
     gb_vector_scale(&stop, radius);
@@ -1405,7 +1406,7 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     // leave-to
     gb_stroker_leave_to(impl, point, &normal_12, &normal_unit_12);
 }
-tb_void_t gb_stroker_cube_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
+tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
     // TODO
     tb_trace_noimpl();
@@ -1427,7 +1428,7 @@ tb_void_t gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path)
             gb_stroker_quad_to(stroker, &item->points[1], &item->points[2]);
             break;
         case GB_PATH_CODE_CUBE:
-            gb_stroker_cube_to(stroker, &item->points[1], &item->points[2], &item->points[3]);
+            gb_stroker_cubic_to(stroker, &item->points[1], &item->points[2], &item->points[3]);
             break;
         case GB_PATH_CODE_CLOS:
             gb_stroker_clos(stroker);

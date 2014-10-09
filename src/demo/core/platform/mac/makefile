@@ -16,7 +16,7 @@ application_C_FILES 								+= \
 													../../rect \
 													../../path \
 													../../quad \
-													../../cube \
+													../../cubic \
 													../../line \
 													../../lines \
 													../../point \

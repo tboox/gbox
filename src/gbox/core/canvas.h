@@ -622,16 +622,16 @@ tb_void_t           gb_canvas_quad2_to(gb_canvas_ref_t canvas, gb_float_t cx, gb
  */
 tb_void_t           gb_canvas_quad2i_to(gb_canvas_ref_t canvas, tb_long_t cx, tb_long_t cy, tb_long_t x, tb_long_t y);
 
-/*! cube to the ctrl0, ctrl1, point
+/*! cubic to the ctrl0, ctrl1, point
  *
  * @param canvas    the canvas
  * @param ctrl0     the control0 point
  * @param ctrl1     the control1 point
  * @param point     the point
  */
-tb_void_t           gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
+tb_void_t           gb_canvas_cubic_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point);
 
-/*! cube to the ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
+/*! cubic to the ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
  *
  * @param canvas    the canvas
  * @param cx0       the control0 x-coordinate
@@ -641,9 +641,9 @@ tb_void_t           gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctr
  * @param x         the x-coordinate
  * @param y         the y-coordinate
  */
-tb_void_t           gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y);
+tb_void_t           gb_canvas_cubic2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y);
 
-/*! cube to the integer ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
+/*! cubic to the integer ctrl0(cx0, cy0), ctrl1(cx1, cy1), point(x, y)
  *
  * @param canvas    the canvas
  * @param cx0       the control0 x-coordinate
@@ -653,7 +653,7 @@ tb_void_t           gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, g
  * @param x         the x-coordinate
  * @param y         the y-coordinate
  */
-tb_void_t           gb_canvas_cube2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y);
+tb_void_t           gb_canvas_cubic2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y);
 
 /*! arc to the arc
  *

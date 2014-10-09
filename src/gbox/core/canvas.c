@@ -634,11 +634,11 @@ tb_void_t gb_canvas_quad2i_to(gb_canvas_ref_t canvas, tb_long_t cx, tb_long_t cy
     // quad-to
     gb_canvas_quad_to(canvas, &ctrl, &point);
 }
-tb_void_t gb_canvas_cube_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
+tb_void_t gb_canvas_cubic_to(gb_canvas_ref_t canvas, gb_point_ref_t ctrl0, gb_point_ref_t ctrl1, gb_point_ref_t point)
 {
-    gb_path_cube_to(gb_canvas_path(canvas), ctrl0, ctrl1, point);
+    gb_path_cubic_to(gb_canvas_path(canvas), ctrl0, ctrl1, point);
 }
-tb_void_t gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
+tb_void_t gb_canvas_cubic2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {
     // make ctrl0
     gb_point_t ctrl0;
@@ -652,10 +652,10 @@ tb_void_t gb_canvas_cube2_to(gb_canvas_ref_t canvas, gb_float_t cx0, gb_float_t 
     gb_point_t point;
     gb_point_make(&point, x, y);
 
-    // cube-to
-    gb_canvas_cube_to(canvas, &ctrl0, &ctrl1, &point);
+    // cubic-to
+    gb_canvas_cubic_to(canvas, &ctrl0, &ctrl1, &point);
 }
-tb_void_t gb_canvas_cube2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
+tb_void_t gb_canvas_cubic2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t cy0, tb_long_t cx1, tb_long_t cy1, tb_long_t x, tb_long_t y)
 {
     // make ctrl0
     gb_point_t ctrl0;
@@ -669,8 +669,8 @@ tb_void_t gb_canvas_cube2i_to(gb_canvas_ref_t canvas, tb_long_t cx0, tb_long_t c
     gb_point_t point;
     gb_point_imake(&point, x, y);
 
-    // cube-to
-    gb_canvas_cube_to(canvas, &ctrl0, &ctrl1, &point);
+    // cubic-to
+    gb_canvas_cubic_to(canvas, &ctrl0, &ctrl1, &point);
 }
 tb_void_t gb_canvas_arc_to(gb_canvas_ref_t canvas, gb_arc_ref_t arc)
 {
