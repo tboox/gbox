@@ -881,6 +881,17 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_stroker_make_quad_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_12, normal_unit_12, divided_count - 1);
     }
+    // nearly line?
+    else if (!divided_count)
+    {
+        // make line-to 
+        gb_stroker_make_line_to(impl, &points[2], normal_01);
+        
+        // save the normal and unit normal for b => c
+        *normal_12 = *normal_01;
+        *normal_unit_12 = *normal_unit_01;
+        return ;
+    }
     // for flat curve
     else
     {
