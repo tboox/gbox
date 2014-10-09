@@ -75,7 +75,7 @@ typedef tb_void_t   (*gb_quad_line_func_t)(gb_point_ref_t point, tb_cpointer_t p
  *
  * @return          the approximate distance
  */
-gb_float_t          gb_quad_near_distance(gb_point_t points[3]);
+gb_float_t          gb_quad_near_distance(gb_point_t const points[3]);
 
 /* compute the approximate divided count for approaching the line-to
  *
@@ -83,7 +83,7 @@ gb_float_t          gb_quad_near_distance(gb_point_t points[3]);
  *
  * @return          the approximate divided count
  */
-tb_size_t           gb_quad_divide_line_count(gb_point_t points[3]);
+tb_size_t           gb_quad_divide_line_count(gb_point_t const points[3]);
 
 /* chop the quad curve at the given position
  *
@@ -102,7 +102,7 @@ tb_size_t           gb_quad_divide_line_count(gb_point_t points[3]);
  * @param output    the output points
  * @param factor    the length factor of the chopped curve, must be in range: (0, 1)
  */
-tb_void_t           gb_quad_chop_at(gb_point_t points[3], gb_point_t output[5], gb_float_t factor);
+tb_void_t           gb_quad_chop_at(gb_point_t const points[3], gb_point_t output[5], gb_float_t factor);
 
 /* chop the quad curve at the half position
  *
@@ -119,7 +119,27 @@ tb_void_t           gb_quad_chop_at(gb_point_t points[3], gb_point_t output[5], 
  * @param points    the points
  * @param output    the output points
  */
-tb_void_t           gb_quad_chop_at_half(gb_point_t points[3], gb_point_t output[5]);
+tb_void_t           gb_quad_chop_at_half(gb_point_t const points[3], gb_point_t output[5]);
+
+/* chop the quad curve at the max curvature
+ *
+ *               chop
+ *                |
+ *              . . -> max curvature
+ *         .      p1.
+ *      .            . 
+ *   .                .
+ * .                   .
+ * p0                   p2
+ *
+ * quad(p0, p1, p2) => quad(o0, o1, o2) + quad(o2, o3, o4)
+ *
+ * @param points    the points
+ * @param output    the output points
+ *
+ * return           the chopped curve count, 1 or 2
+ */
+tb_size_t           gb_quad_chop_at_max_curvature(gb_point_t const points[3], gb_point_t output[5]);
 
 /* make line-to points for the quadratic curve
  *
@@ -127,7 +147,7 @@ tb_void_t           gb_quad_chop_at_half(gb_point_t points[3], gb_point_t output
  * @param func      the make func
  * @param priv      the make func private data for user
  */
-tb_void_t           gb_quad_make_line(gb_point_t points[3], gb_quad_line_func_t func, tb_cpointer_t priv);
+tb_void_t           gb_quad_make_line(gb_point_t const points[3], gb_quad_line_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

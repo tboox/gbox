@@ -34,6 +34,17 @@
  * types
  */
 
+// cos(179.55): -0.9999691576f
+#ifdef GB_CONFIG_FLOAT_FIXED
+#   define GB_STROKER_TOO_SHARP_LIMIT       (-65534)
+#else
+#   define GB_STROKER_TOO_SHARP_LIMIT       (-0.9999691576f)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
 /* the stroker capper type
  *
  * @param path                  the path
@@ -744,10 +755,10 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
 static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t after, gb_float_t radius, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
 {
     // check
-    tb_assert_abort(before && after && normal && normal_unit);
+    tb_assert_abort(before && after && normal_unit);
 
     // the radius
-    tb_assert_and_check_return_val(gb_bz(radius), tb_false);
+    tb_assert_and_check_return_val(!normal || gb_bz(radius), tb_false);
 
     /* compute the unit normal vector
      *                              
@@ -778,7 +789,7 @@ static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t a
     gb_vector_rotate(normal_unit, GB_ROTATE_DIRECTION_CCW);
 
     // compute the normal vector
-    gb_vector_scale2(normal_unit, normal, radius);
+    if (normal) gb_vector_scale2(normal_unit, normal, radius);
 
     // ok
     return tb_true;
@@ -804,6 +815,29 @@ static __tb_inline__ tb_bool_t gb_stroker_normals_too_curvy(gb_float_t cos_angle
      * curvy: angle(curve) = 180 - angle <= 135 + 9 = 144 degrees
      */
     return (cos_angle <= (GB_SQRT2_OVER2 + GB_ONE / 10));
+}
+static __tb_inline__ tb_bool_t gb_stroker_normals_too_sharp(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
+{
+    // check
+    tb_assert_abort(normal_unit_before && normal_unit_after);
+
+    /*        
+     *    curve
+     *      .  
+     *     . .           
+     *     . .                        
+     *     . .
+     *     . .
+     *     . .
+     *     . .
+     *     . .
+     *
+     * cos(angle) <= -0.9999691576f
+     * angle >= 179.55 degrees
+     *
+     * curvy: angle(curve) = 180 - angle < 0.45 degrees
+     */
+    return gb_vector_dot(normal_unit_before, normal_unit_after) <= GB_STROKER_TOO_SHARP_LIMIT;
 }
 static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal)
 {
@@ -1302,8 +1336,71 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     points[1] = *ctrl;
     points[2] = *point;
 
-    // make more flat quad-to curves for the inner and outer contour
-    gb_stroker_make_quad_to(impl, points, &normal_01, &normal_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
+    // attempt to chop the quadratic curve at the max curvature
+    gb_point_t output[5];
+    if (gb_quad_chop_at_max_curvature(points, output) == 2)
+    {
+        // make the unit normal of (p1, p2)
+        if (gb_stroker_normals_make(&points[1], &points[2], 0, tb_null, &normal_unit_12))
+        {
+            /* too sharp? make the approximate curve using lines 
+             *
+             *      .  
+             *     . .           
+             *     . .                        
+             *     . .
+             *     . .
+             *     . .
+             *     . .
+             *     . .
+             */
+            if (gb_stroker_normals_too_sharp(&normal_unit_01, &normal_unit_12))
+            {
+                // check
+                tb_assert_abort(impl->path_inner && impl->path_outer && impl->path_other && gb_bz(impl->radius));
+
+                // compute the normal of (p1, p2)
+                gb_vector_scale2(&normal_unit_12, &normal_12, impl->radius);
+ 
+                // make the approximate curve for the outer contour using lines directly
+                gb_path_line2_to(impl->path_outer, output[2].x + normal_01.x, output[2].y + normal_01.y);
+                gb_path_line2_to(impl->path_outer, output[2].x + normal_12.x, output[2].y + normal_12.y);
+                gb_path_line2_to(impl->path_outer, output[4].x + normal_12.x, output[4].y + normal_12.y);
+
+                // make the approximate curve for the inner contour using lines directly
+                gb_path_line2_to(impl->path_inner, output[2].x - normal_01.x, output[2].y - normal_01.y);
+                gb_path_line2_to(impl->path_inner, output[2].x - normal_12.x, output[2].y - normal_12.y);
+                gb_path_line2_to(impl->path_inner, output[4].x - normal_12.x, output[4].y - normal_12.y);
+
+                // patch one circle for making the join of two sub-curves more like curve
+                gb_path_add_circle2(impl->path_other, output[2].x, output[2].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+            }
+            else
+            {
+                // make more flat quad-to curves for the first sub-curve
+                gb_stroker_make_quad_to(impl, &output[0], &normal_01, &normal_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
+
+                // make more flat quad-to curves for the second sub-curve
+                gb_vector_t normal2_01 = normal_12;
+                gb_vector_t normal2_unit_01 = normal_unit_12;
+                gb_stroker_make_quad_to(impl, &output[2], &normal2_01, &normal2_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
+            }
+        }
+        else
+        {
+            // trace
+            tb_trace_e("failed to make unit normal for %{point} => %{point}", &points[1], &points[2]);
+
+            // failed
+            tb_assert_abort(0);
+        }
+    }
+    // only one curve? 
+    else
+    {
+        // make more flat quad-to curves for the whole curve
+        gb_stroker_make_quad_to(impl, points, &normal_01, &normal_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
+    }
 
     // leave-to
     gb_stroker_leave_to(impl, point, &normal_12, &normal_unit_12);
