@@ -512,7 +512,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
 
     // compute the cos(a) value of the angle
     tb_size_t   type;
-    gb_float_t  cos_a = gb_stroker_joiner_angle(normal_unit_before, normal_unit_after, &type);
+    gb_float_t  cos_angle = gb_stroker_joiner_angle(normal_unit_before, normal_unit_after, &type);
 
     // the join is nearly line? ignore this join directly
     if (type == GB_STROKER_JOINER_ANGLE_NEAR0) return ;
@@ -563,7 +563,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
          * if (M = L / R >= sqrt(2)) miter
          * if (1 / m <= 1 / sqrt(2)) miter
          */
-        if (gb_ez(cos_a) && miter_invert <= GB_ONEOVER_SQRT2)
+        if (gb_ez(cos_angle) && miter_invert <= GB_ONEOVER_SQRT2)
         {
             gb_vector_make(&miter, gb_mul(before.x + after.x, radius), gb_mul(before.y + after.y, radius));
             break;
@@ -573,7 +573,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
          *
          * cos(a/2) = sqrt((1 + cos(a)) / 2)
          */
-        gb_float_t cos_half_a = gb_sqrt(gb_avg(GB_ONE, cos_a));
+        gb_float_t cos_half_a = gb_sqrt(gb_avg(GB_ONE, cos_angle));
 
         /* limit the miter length
          *
@@ -630,6 +630,10 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
              *              .           .
              *
              * miter = before.rotate(cw) + after.rotate(ccw)
+             *
+             * @note: 
+             * the miter vector will be more accurate for setting length
+             * because miter.length > (before + after).length
              */
             gb_vector_make(&miter, after.y - before.y, before.x - after.x);
             if (!clockwise) gb_vector_negate(&miter);
@@ -876,7 +880,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_stroker_make_quad_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_12, normal_unit_12, divided_count - 1);
     }
-    /* too curvy and short?
+    /* too sharp and short?
      *  . 
      * . .
      */
@@ -891,7 +895,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_stroker_make_line_to(impl, &points[2], normal_12);
 
         // patch one circle at the sharp join
-        gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+//        gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
     }
     // for flat curve
     else
@@ -1009,7 +1013,7 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
         gb_stroker_make_cubic_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_cubic_to(impl, output + 3, &normal, &normal_unit, &normal_dummy, &normal_dummy_unit, divided_count - 1);
     }
-    /* too curvy and short?
+    /* too sharp and short?
      *
      *  . 
      * . . .
