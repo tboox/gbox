@@ -147,17 +147,14 @@ static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
 #ifdef GB_CONFIG_FLOAT_FIXED
     tb_hong_t numer = -((tb_hong_t)ax * bx + (tb_hong_t)ay * by);
     tb_hong_t denom = ((tb_hong_t)bx * bx + (tb_hong_t)by * by);
-    if (denom) factor = (gb_float_t)((numer / denom) << 16);
-#else
-    tb_float_t numer = -(ax * bx + ay * by);
-    tb_float_t denom = (bx * bx + by * by);
-    if (gb_isfinite(numer) && gb_isfinite(denom) && gb_nz(denom)) factor = numer / denom;
-    else
+    if (numer < 0)
     {
-        tb_double_t numer2 = -((tb_double_t)ax * bx + (tb_double_t)ay * by);
-        tb_double_t denom2 = ((tb_double_t)bx * bx + (tb_double_t)by * by);
-        if (denom2 != 0) factor = (tb_float_t)(numer2 / denom2);
+        numer = -numer;
+        denom = -denom;
     }
+    if (denom && numer < denom) factor = (gb_float_t)((numer / denom) << 16);
+#else
+    gb_float_unit_divide(-(ax * bx + ay * by), bx * bx + by * by, &factor);
 #endif
    
     // invalid factor?

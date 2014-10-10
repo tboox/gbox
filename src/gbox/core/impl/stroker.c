@@ -876,6 +876,23 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_stroker_make_quad_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_12, normal_unit_12, divided_count - 1);
     }
+    /* too curvy and short?
+     *  . 
+     * . .
+     */
+    else if (!divided_count && gb_stroker_normals_too_curvy(cos_angle))
+    {
+        // check
+        tb_assert_abort(impl->path_other);
+
+        // FIXME
+        // line-to it
+        gb_stroker_make_line_to(impl, &points[1], normal_01);
+        gb_stroker_make_line_to(impl, &points[2], normal_12);
+
+        // patch one circle at the sharp join
+        gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+    }
     // for flat curve
     else
     {
@@ -918,7 +935,6 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
          *
          * length(p1, p1^) ~= R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
          */
-        // FIXME: cos_angle ~= -0.9999999 for fixed-point
         if (!gb_vector_length_set(&normal_1, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle)))))
         {
             // failed
@@ -985,12 +1001,49 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
          *
          * we already have a valid normal_23 and normal_unit_23, so uses dummy now.
          */
+        // TODO: optimization: repeatly compute dummy
         gb_vector_t normal;
         gb_vector_t normal_unit;
         gb_vector_t normal_dummy;
         gb_vector_t normal_dummy_unit;
         gb_stroker_make_cubic_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_cubic_to(impl, output + 3, &normal, &normal_unit, &normal_dummy, &normal_dummy_unit, divided_count - 1);
+    }
+    /* too curvy and short?
+     *
+     *  . 
+     * . . .
+     *    .
+     */
+    else if (!divided_count && (gb_stroker_normals_too_curvy(cos_angle_012) || gb_stroker_normals_too_curvy(cos_angle_123)))
+    {
+        // check
+        tb_assert_abort(impl->path_other);
+
+        // TODO
+#if 0
+        // the angle(p0, p1, p2) is too curvy?
+        if (gb_stroker_normals_too_curvy(cos_angle_012))
+        {
+            // line-to it
+            gb_stroker_make_line_to(impl, &points[2], &normal_12);
+
+            // patch one circle at the sharp join
+            gb_path_add_circle2(impl->path_other, points[2].x, points[2].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+        }
+
+        // the angle(p1, p2, p3) is too curvy?
+        if (gb_stroker_normals_too_curvy(cos_angle_123))
+        {
+            // line-to it
+            gb_stroker_make_line_to(impl, &points[3], normal_23);
+
+            // patch one circle at the sharp join
+            gb_path_add_circle2(impl->path_other, points[3].x, points[3].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+        }
+#else
+        tb_assert_abort(0);
+#endif
     }
     // for flat curve
     else
