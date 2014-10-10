@@ -780,12 +780,7 @@ static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t a
      *    inner         line        outer
      *
      */
-    if (!gb_vector_make_unit(normal_unit, after->x - before->x, after->y - before->y)) 
-    {
-        // failed
-        tb_assert_abort(0);
-        return tb_false;
-    }
+    if (!gb_vector_make_unit(normal_unit, after->x - before->x, after->y - before->y)) return tb_false;
     gb_vector_rotate(normal_unit, GB_ROTATE_DIRECTION_CCW);
 
     // compute the normal vector
@@ -887,7 +882,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         // make line-to 
         gb_stroker_make_line_to(impl, &points[2], normal_01);
         
-        // save the normal and unit normal for b => c
+        // save the normal and unit normal of the vector(p1, p2)
         *normal_12 = *normal_01;
         *normal_unit_12 = *normal_unit_01;
         return ;
@@ -898,7 +893,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         // check
         tb_assert_abort(impl->path_inner && impl->path_outer);
 
-        /* compute the approximate normal for p1 => p1^
+        /* compute the approximate normal of the vector(p1, p1^)
          *
          *                      normal_1(p1, p1^)
          *                            p1^
@@ -925,11 +920,10 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
          *
          * (O, p1) ~= (O, p1^) if be flat curve
          *
-         * normal_1(p1, p1^) ~= (p0, p2).rotate(90, ccw) if be flat curve
+         * normal_1(p1, p1^) ~= center(normal_01, normal_12)
          */
         gb_vector_t normal_1;
-        gb_vector_make(&normal_1, points[2].x - points[0].x, points[2].y - points[0].y);
-        gb_vector_rotate(&normal_1, GB_ROTATE_DIRECTION_CCW);
+        gb_vector_make(&normal_1, normal_unit_01->x + normal_unit_12->x, normal_unit_01->y + normal_unit_12->y);
 
         /* compute the approximate length of the normal_1 and set it
          *
@@ -951,6 +945,144 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
 {
     // check
     tb_assert_abort(impl && points && normal_01 && normal_unit_01 && normal_23 && normal_unit_23);
+
+    // compute the normal and unit normal vectors of the vector(p1, p2)
+    gb_vector_t normal_12;
+    gb_vector_t normal_unit_12;
+    if (!gb_stroker_normals_make(&points[1], &points[2], impl->radius, &normal_12, &normal_unit_12)) 
+    {
+        // quad-to it 
+        gb_point_t quad_points[3];
+        quad_points[0] = points[0];
+        quad_points[1] = points[1];
+        quad_points[2] = points[3];
+        gb_stroker_make_quad_to(impl, quad_points, normal_01, normal_unit_01, normal_23, normal_unit_23, divided_count);
+        return ;
+    }
+ 
+    // compute the normal and unit normal vectors of the vector(p2, p3)
+    if (!gb_stroker_normals_make(&points[2], &points[3], impl->radius, normal_23, normal_unit_23)) 
+    {
+        // quad-to it 
+        gb_stroker_make_quad_to(impl, points, normal_01, normal_unit_01, normal_23, normal_unit_23, divided_count);
+        return ;
+    }
+
+    // the vector(p0, p1) is degenerate?
+    gb_vector_t vector_01;
+    gb_vector_make_from_two_points(&vector_01, &points[0], &points[1]);
+    if (!gb_vector_can_normalize(&vector_01))
+    {
+        // quad-to it 
+        gb_stroker_make_quad_to(impl, &points[1], &normal_12, &normal_unit_12, normal_23, normal_unit_23, divided_count);
+        return ;
+    }
+
+    // compute the cos(angle) of the normal_01 and normal_12
+    gb_float_t cos_angle_012 = gb_vector_dot(normal_unit_01, &normal_unit_12);
+
+    // compute the cos(angle) of the normal_12 and normal_23
+    gb_float_t cos_angle_123 = gb_vector_dot(&normal_unit_12, normal_unit_23);
+
+    // this curve is too curvy? divide to the more flat curve 
+    if (divided_count && (gb_stroker_normals_too_curvy(cos_angle_012) || gb_stroker_normals_too_curvy(cos_angle_123)))
+    {
+        // chop the cubic at half
+        gb_point_t output[7];
+        gb_cubic_chop_at_half(points, output);
+
+        /* make sub-cubic-to curves for the inner and outer contour
+         *
+         * we already have a valid normal_23 and normal_unit_23, so uses dummy now.
+         */
+        gb_vector_t normal;
+        gb_vector_t normal_unit;
+        gb_vector_t normal_dummy;
+        gb_vector_t normal_dummy_unit;
+        gb_stroker_make_cubic_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
+        gb_stroker_make_cubic_to(impl, output + 3, &normal, &normal_unit, &normal_dummy, &normal_dummy_unit, divided_count - 1);
+    }
+    // nearly line?
+    else if (!divided_count)
+    {
+        // make line-to 
+        gb_stroker_make_line_to(impl, &points[3], normal_01);
+        
+        // save the normal and unit normal of the vector(p2, p3)
+        *normal_23 = *normal_01;
+        *normal_unit_23 = *normal_unit_01;
+        return ;
+    }
+    // for flat curve
+    else
+    {
+        // check
+        tb_assert_abort(impl->path_inner && impl->path_outer);
+
+        /* compute the approximate normal of the vector(p1, p1^) and vector(p2, p2^)
+         *
+         *                      normal_1(p1, p1^)
+         *                            p1^
+         *                            .
+         *                        .   .   .     normal_12
+         *       normal_01    .       .  .   . /
+         *              \ .          .. . R     .       normal_2(p2, p2^)
+         *            .          .    p1   .       .   /
+         *        .          .        .       .    p2^.
+         *       R .     .             .         .   .  .
+         *           .                 .         p2 . .R  .     normal_23
+         *         p0  .               .           .  .     . /
+         *               .             .          .     .     .    
+         *                 .           .         .        .     .
+         *                   .          .       .           . R
+         *                     .        .      .        .   p3
+         *                       .      .     .      .
+         *                         .    .    .    .
+         *                           .   .  .  .
+         *                             . . . .
+         *                               .. O 
+         *                              angle
+         *
+         * angle_012 = angle(p0, O, p2)
+         * angle_123 = angle(p1, O, p3)
+         *
+         * (O, p1) ~= (O, p1^) if be flat curve
+         * (O, p2) ~= (O, p2^) if be flat curve
+         *
+         * normal_1(p1, p1^) ~= center(normal_01, normal_12)
+         * normal_1(p2, p2^) ~= center(normal_12, normal_23)
+         */
+        gb_vector_t normal_1;
+        gb_vector_t normal_2;
+        gb_vector_make(&normal_1, normal_unit_01->x + normal_unit_12.x, normal_unit_01->y + normal_unit_12.y);
+        gb_vector_make(&normal_2, normal_unit_12.x + normal_unit_23->x, normal_unit_12.y + normal_unit_23->y);
+
+         /* compute the approximate length of the normal_1 and set it
+         *
+         * length(p1, p1^) ~= R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
+         */
+        if (!gb_vector_length_set(&normal_1, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle_012)))))
+        {
+            // failed
+            tb_assert_abort(0);
+            return ;
+        }
+ 
+        /* compute the approximate length of the normal_2 and set it
+         *
+         * length(p1, p1^) ~= R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
+         */
+        if (!gb_vector_length_set(&normal_2, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle_123)))))
+        {
+            // failed
+            tb_assert_abort(0);
+            return ;
+        }
+
+        // cubic-to the inner and outer contour
+        gb_path_cubic2_to(impl->path_outer, points[1].x + normal_1.x, points[1].y + normal_1.y, points[2].x + normal_2.x, points[2].y + normal_2.y, points[3].x + normal_23->x, points[3].y + normal_23->y);
+        gb_path_cubic2_to(impl->path_inner, points[1].x - normal_1.x, points[1].y - normal_1.y, points[2].x - normal_2.x, points[2].y - normal_2.y, points[3].x - normal_23->x, points[3].y - normal_23->y);
+    }
 }
 static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
 {
@@ -963,7 +1095,12 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
     tb_assert_and_check_return_val(gb_bz(radius), tb_false);
 
     // compute the normal and unit normal vectors
-    if (!gb_stroker_normals_make(&impl->point_prev, point, radius, normal, normal_unit)) return tb_false;
+    if (!gb_stroker_normals_make(&impl->point_prev, point, radius, normal, normal_unit)) 
+    {
+        // failed
+        tb_assert_abort(0);
+        return tb_false;
+    }
 
     // body?
     if (impl->segment_count > 0)
@@ -1451,6 +1588,7 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
     points[2] = *ctrl1;
     points[3] = *point;
 
+#if 0
     // chop the cubic curve at the max curvature
     gb_point_t  output[13];
     tb_size_t   count = gb_cubic_chop_at_max_curvature(points, output);
@@ -1472,6 +1610,9 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
         normal2_01 = normal_23;
         normal2_unit_01 = normal_unit_23;
     }
+#else
+    gb_stroker_make_cubic_to(impl, points, &normal_01, &normal_unit_01, &normal_23, &normal_unit_23, GB_CUBIC_DIVIDED_MAXN);
+#endif
 
     // leave-to
     gb_stroker_leave_to(impl, point, &normal_23, &normal_unit_23);

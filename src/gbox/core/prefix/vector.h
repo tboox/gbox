@@ -57,10 +57,17 @@ tb_void_t               gb_vector_imake(gb_vector_ref_t vector, tb_long_t x, tb_
 /*! make vector from the given point
  *
  * @param vector        the vector
- * @param x             the x
- * @param y             the y
+ * @param point         the point 
  */
 tb_void_t               gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point);
+
+/*! make vector from the given two points
+ *
+ * @param vector        the vector
+ * @param before        the before point 
+ * @param after         the after point 
+ */
+tb_void_t               gb_vector_make_from_two_points(gb_vector_ref_t vector, gb_point_ref_t before, gb_point_ref_t after);
 
 /*! make the unit vector
  *
@@ -141,6 +148,14 @@ gb_float_t              gb_vector_length(gb_vector_ref_t vector);
  * @return              tb_true or tb_false
  */
 tb_bool_t               gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length);
+
+/*! can normalize the vector?
+ * 
+ * @param vector        the vector
+ * 
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               gb_vector_can_normalize(gb_vector_ref_t vector);
 
 /*! normalize the vector
  * 

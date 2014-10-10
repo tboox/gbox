@@ -57,6 +57,14 @@ tb_void_t gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point
     // make it
     *vector = *((gb_vector_ref_t)point);
 }
+tb_void_t gb_vector_make_from_two_points(gb_vector_ref_t vector, gb_point_ref_t before, gb_point_ref_t after)
+{
+    // check
+    tb_assert_abort(vector && before && after);
+
+    // make it
+    gb_vector_make(vector, after->x - before->x, after->y - before->y);
+}
 tb_bool_t gb_vector_make_unit(gb_vector_ref_t vector, gb_float_t x, gb_float_t y)
 {
     // check
@@ -174,29 +182,13 @@ tb_bool_t gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length)
 {
     // check
     tb_assert_abort(vector);
-
-    // check length
-    if (length <= GB_NEAR0 || !gb_isfinite(length))
-    {
-        // trace
-        tb_trace_e("invalid length: %{float}", &length);
-
-        // failed
-        return tb_false;
-    }
+    tb_assert_abort(length > GB_NEAR0 && gb_isfinite(length));
 
     // the self length
     gb_float_t length_self = gb_vector_length(vector);
 
     // check the self length
-    if (length_self <= GB_NEAR0 || !gb_isfinite(length_self))
-    {
-        // trace
-        tb_trace_e("invalid self length for vector: %{vector}", vector);
-
-        // failed
-        return tb_false;
-    }
+    tb_check_return_val(length_self > GB_NEAR0 && gb_isfinite(length_self), tb_false);
 
     // compute the scale
     gb_float_t scale = gb_div(length, length_self);
@@ -235,6 +227,22 @@ tb_bool_t gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length)
 
     // ok
     return tb_true;
+}
+tb_bool_t gb_vector_can_normalize(gb_vector_ref_t vector)
+{
+    // check
+    tb_assert_abort(vector);
+
+    // the dx and dy
+    gb_float_t dx = vector->x;
+    gb_float_t dy = vector->y;
+
+    // can normalize?
+#ifdef GB_CONFIG_FLOAT_FIXED
+    return (((tb_hong_t)dx * dx + (tb_hong_t)dy * dy) >> 16) > (1 << 8);
+#else
+    return (dx * dx + dy * dy) > (GB_NEAR0 * GB_NEAR0);
+#endif
 }
 tb_bool_t gb_vector_normalize(gb_vector_ref_t vector)
 {
