@@ -144,8 +144,32 @@ static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
      * -(Ax * Bx + Ay * By) / (Bx^2 + By^2)
      */
     gb_float_t factor = 0;
-    gb_float_unit_divide(-(gb_mul(ax, bx) + gb_mul(ay, by)), gb_sqre(bx) + gb_sqre(by), &factor);
-    
+#ifdef GB_CONFIG_FLOAT_FIXED
+    tb_hong_t numer = -((tb_hong_t)ax * bx + (tb_hong_t)ay * by);
+    tb_hong_t denom = ((tb_hong_t)bx * bx + (tb_hong_t)by * by);
+    if (denom) factor = (gb_float_t)((numer / denom) << 16);
+#else
+    tb_float_t numer = -(ax * bx + ay * by);
+    tb_float_t denom = (bx * bx + by * by);
+    if (gb_isfinite(numer) && gb_isfinite(denom) && gb_nz(denom)) factor = numer / denom;
+    else
+    {
+        tb_double_t numer2 = -((tb_double_t)ax * bx + (tb_double_t)ay * by);
+        tb_double_t denom2 = ((tb_double_t)bx * bx + (tb_double_t)by * by);
+        if (denom2 != 0) factor = (tb_float_t)(numer2 / denom2);
+    }
+#endif
+   
+    // invalid factor?
+    if (gb_lz(factor) || factor >= GB_ONE)
+    {
+        // clear it
+        factor = 0;
+
+        // failed
+        tb_assert_abort(0);
+    }
+ 
     // ok
     return factor;
 }

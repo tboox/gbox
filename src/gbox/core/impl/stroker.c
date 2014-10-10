@@ -876,17 +876,6 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_stroker_make_quad_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_quad_to(impl, output + 2, &normal, &normal_unit, normal_12, normal_unit_12, divided_count - 1);
     }
-    // nearly line?
-    else if (!divided_count)
-    {
-        // make line-to 
-        gb_stroker_make_line_to(impl, &points[2], normal_01);
-        
-        // save the normal and unit normal of the vector(p1, p2)
-        *normal_12 = *normal_01;
-        *normal_unit_12 = *normal_unit_01;
-        return ;
-    }
     // for flat curve
     else
     {
@@ -929,6 +918,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
          *
          * length(p1, p1^) ~= R / cos(angle/2) = R / sqrt((1 + cos(angle)) / 2)
          */
+        // FIXME: cos_angle ~= -0.9999999 for fixed-point
         if (!gb_vector_length_set(&normal_1, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle)))))
         {
             // failed
@@ -1001,17 +991,6 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
         gb_vector_t normal_dummy_unit;
         gb_stroker_make_cubic_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
         gb_stroker_make_cubic_to(impl, output + 3, &normal, &normal_unit, &normal_dummy, &normal_dummy_unit, divided_count - 1);
-    }
-    // nearly line?
-    else if (!divided_count)
-    {
-        // make line-to 
-        gb_stroker_make_line_to(impl, &points[3], normal_01);
-        
-        // save the normal and unit normal of the vector(p2, p3)
-        *normal_23 = *normal_01;
-        *normal_unit_23 = *normal_unit_01;
-        return ;
     }
     // for flat curve
     else
