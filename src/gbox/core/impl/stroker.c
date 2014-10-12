@@ -891,16 +891,12 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         // check
         tb_assert_abort(impl->path_other);
 
-#if 1
         // line-to it
         gb_stroker_make_line_to(impl, &points[1], normal_01);
         gb_stroker_make_line_to(impl, &points[2], normal_12);
 
         // patch one circle at the sharp join
         gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
-#else
-        gb_stroker_joiner_round(impl->path_inner, impl->path_outer, &points[1], impl->radius, normal_unit_01, normal_unit_12, 0, tb_false, tb_false);
-#endif
     }
     // for flat curve
     else
@@ -1017,13 +1013,10 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
     }
     /* too sharp and short?
      *
-     * FIXME
-     *
      *  . 
      * . . .
      *    .
      */
-#if 1
     else if (!divided_count && (gb_stroker_normals_too_curvy(cos_angle_012) || gb_stroker_normals_too_curvy(cos_angle_123)))
     {
         // check
@@ -1033,8 +1026,11 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
         gb_stroker_make_line_to(impl, &points[1], normal_01);
         gb_stroker_make_line_to(impl, &points[2], &normal_12);
         gb_stroker_make_line_to(impl, &points[3], normal_23);
+
+        // patch circles at the join is too sharp
+        if (gb_stroker_normals_too_curvy(cos_angle_012)) gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+        if (gb_stroker_normals_too_curvy(cos_angle_123)) gb_path_add_circle2(impl->path_other, points[2].x, points[2].y, impl->radius, GB_ROTATE_DIRECTION_CW);
     }
-#endif
     // for flat curve
     else
     {
