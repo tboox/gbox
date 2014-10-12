@@ -956,7 +956,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         gb_path_quad2_to(impl->path_inner, points[1].x - normal_1.x, points[1].y - normal_1.y, points[2].x - normal_12->x, points[2].y - normal_12->y);
     }
 }
-static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_01, gb_vector_ref_t normal_unit_01, gb_vector_ref_t normal_23, gb_vector_ref_t normal_unit_23, tb_size_t divided_count)
+static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_01, gb_vector_ref_t normal_unit_01, gb_vector_ref_t normal_23, gb_vector_ref_t normal_unit_23, tb_bool_t normal_23_is_valid, tb_size_t divided_count)
 {
     // check
     tb_assert_abort(impl && points && normal_01 && normal_unit_01 && normal_23 && normal_unit_23);
@@ -975,8 +975,8 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
         return ;
     }
  
-    // compute the normal and unit normal vectors of the vector(p2, p3)
-    if (!gb_stroker_normals_make(&points[2], &points[3], impl->radius, normal_23, normal_unit_23)) 
+    // compute the normal and unit normal vectors of the vector(p2, p3) if be not valid
+    if (!normal_23_is_valid && !gb_stroker_normals_make(&points[2], &points[3], impl->radius, normal_23, normal_unit_23)) 
     {
         // quad-to it 
         gb_stroker_make_quad_to(impl, points, normal_01, normal_unit_01, normal_23, normal_unit_23, divided_count);
@@ -1008,17 +1008,16 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
 
         /* make sub-cubic-to curves for the inner and outer contour
          *
-         * we already have a valid normal_23 and normal_unit_23, so uses dummy now.
+         * we already have a valid normal_23 and normal_unit_23, so uses it repeatly now.
          */
-        // TODO: optimization: repeatly compute dummy
         gb_vector_t normal;
         gb_vector_t normal_unit;
-        gb_vector_t normal_dummy;
-        gb_vector_t normal_dummy_unit;
-        gb_stroker_make_cubic_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, divided_count - 1);
-        gb_stroker_make_cubic_to(impl, output + 3, &normal, &normal_unit, &normal_dummy, &normal_dummy_unit, divided_count - 1);
+        gb_stroker_make_cubic_to(impl, output, normal_01, normal_unit_01, &normal, &normal_unit, tb_false, divided_count - 1);
+        gb_stroker_make_cubic_to(impl, output + 3, &normal, &normal_unit, normal_23, normal_unit_23, tb_true, divided_count - 1);
     }
     /* too sharp and short?
+     *
+     * FIXME
      *
      *  . 
      * . . .
@@ -1029,31 +1028,6 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
     {
         // check
         tb_assert_abort(impl->path_other);
-
-#if 0
-        // the angle(p0, p1, p2) is too sharp?
-        if (gb_stroker_normals_too_curvy(cos_angle_012))
-        {
-            // line-to it
-            gb_stroker_make_line_to(impl, &points[1], normal_01);
-            gb_stroker_make_line_to(impl, &points[2], &normal_12);
-
-            // patch one circle at the sharp join
-            gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
-        }
-
-        // the angle(p1, p2, p3) is too sharp?
-        if (gb_stroker_normals_too_curvy(cos_angle_123))
-        {
-            // line-to it
-            gb_stroker_make_line_to(impl, &points[2], &normal_12);
-            gb_stroker_make_line_to(impl, &points[3], normal_23);
-
-            // patch one circle at the sharp join
-            gb_path_add_circle2(impl->path_other, points[2].x, points[2].y, impl->radius, GB_ROTATE_DIRECTION_CW);
-        }
-#else
-#endif
     }
 #endif
     // for flat curve
@@ -1649,7 +1623,7 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
     for (index = 0; index < count; index++)
     {
         // make more flat cubic-to curves for the sub-curve
-        gb_stroker_make_cubic_to(impl, &output[(index << 1) + index], &normal2_01, &normal2_unit_01, &normal_23, &normal_unit_23, GB_CUBIC_DIVIDED_MAXN);
+        gb_stroker_make_cubic_to(impl, &output[(index << 1) + index], &normal2_01, &normal2_unit_01, &normal_23, &normal_unit_23, tb_false, GB_CUBIC_DIVIDED_MAXN);
 
         // end?
         tb_check_break(index != count - 1);
@@ -1660,7 +1634,7 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
     }
 #else
     // make more flat cubic-to curves for the whole curve
-    gb_stroker_make_cubic_to(impl, points, &normal_01, &normal_unit_01, &normal_23, &normal_unit_23, GB_CUBIC_DIVIDED_MAXN);
+    gb_stroker_make_cubic_to(impl, points, &normal_01, &normal_unit_01, &normal_23, &normal_unit_23, tb_false, GB_CUBIC_DIVIDED_MAXN);
 #endif
 
     // leave-to
