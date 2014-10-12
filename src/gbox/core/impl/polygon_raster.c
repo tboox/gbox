@@ -340,7 +340,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
         tb_trace_d("y: %ld, direction: %d, counter: %ld, %d => %d", y, edge_lsh->direction_y, counter, edge_lsh->top_x, edge_rsh->top_x);
 
         // done func
-        if (done) func(y, edge_lsh->top_x, edge_rsh->top_x, tb_abs(counter), priv);
+        if (done) func(y, edge_lsh->top_x, edge_rsh->top_x, priv);
 
         // the left-hand edge index
         index_lsh = index_rsh; 

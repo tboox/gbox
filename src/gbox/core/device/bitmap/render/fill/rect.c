@@ -79,7 +79,7 @@ tb_void_t gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_
             // done filler
             while (h--)
             {
-                gb_bitmap_render_filler_done(filler, x, w, q, 1);
+                gb_bitmap_render_filler_done(filler, x, w, q);
                 q += row_bytes;
             }
 

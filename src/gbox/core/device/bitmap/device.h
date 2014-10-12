@@ -62,7 +62,7 @@ typedef struct __gb_bitmap_filler_t
     tb_void_t                       (*exit)(struct __gb_bitmap_filler_t* filler);
 
     // the done func
-    tb_void_t                       (*done)(struct __gb_bitmap_filler_t* filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels, tb_size_t repeat);
+    tb_void_t                       (*done)(struct __gb_bitmap_filler_t* filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
 
 }gb_bitmap_filler_t, *gb_bitmap_filler_ref_t;
 

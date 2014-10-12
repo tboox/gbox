@@ -36,21 +36,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_bitmap_render_filler_solid_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels, tb_size_t repeat)
+static tb_void_t gb_bitmap_render_filler_solid_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
 {
     // check
-    tb_assert_abort(filler && filler->pixels_fill && repeat);
+    tb_assert_abort(filler && filler->pixels_fill);
 
-    // the alpha
-    tb_byte_t alpha = filler->u.solid.alpha;
-
-    // opaque? only fill once
-    if (alpha > GB_ALPHA_MAXN) filler->pixels_fill(pixels, filler->u.solid.pixel, count, alpha);
-    else
-    {
-        // fill it for alpha repeatly
-        while (repeat--) filler->pixels_fill(pixels, filler->u.solid.pixel, count, alpha);
-    }
+    // done
+    filler->pixels_fill(pixels, filler->u.solid.pixel, count, filler->u.solid.alpha);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

@@ -207,10 +207,9 @@ typedef struct __gb_polygon_raster_t
  * @param y                     the y-coordinate
  * @param xb                    the start x-coordinate
  * @param xe                    the end x-coordinate 
- * @param counter               the scanning counter
  * @param priv                  the private data
  */
-typedef tb_void_t               (*gb_polygon_raster_func_t)(tb_long_t y, tb_long_t xb, tb_long_t xe, tb_size_t counter, tb_cpointer_t priv);
+typedef tb_void_t               (*gb_polygon_raster_func_t)(tb_long_t y, tb_long_t xb, tb_long_t xe, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
