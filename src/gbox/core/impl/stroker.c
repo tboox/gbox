@@ -815,6 +815,7 @@ static __tb_inline__ tb_bool_t gb_stroker_normals_too_curvy(gb_float_t cos_angle
      */
     return (cos_angle <= (GB_SQRT2_OVER2 + GB_ONE / 10));
 }
+#if 0
 static __tb_inline__ tb_bool_t gb_stroker_normals_too_sharp(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
 {
     // check
@@ -838,6 +839,7 @@ static __tb_inline__ tb_bool_t gb_stroker_normals_too_sharp(gb_vector_ref_t norm
      */
     return gb_vector_dot(normal_unit_before, normal_unit_after) <= GB_STROKER_TOO_SHARP_LIMIT;
 }
+#endif
 static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal)
 {
     // check
@@ -889,13 +891,16 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         // check
         tb_assert_abort(impl->path_other);
 
-        // FIXME
+#if 1
         // line-to it
         gb_stroker_make_line_to(impl, &points[1], normal_01);
         gb_stroker_make_line_to(impl, &points[2], normal_12);
 
         // patch one circle at the sharp join
-//        gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+        gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+#else
+        gb_stroker_joiner_round(impl->path_inner, impl->path_outer, &points[1], impl->radius, normal_unit_01, normal_unit_12, 0, tb_false, tb_false);
+#endif
     }
     // for flat curve
     else
@@ -1019,36 +1024,38 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
      * . . .
      *    .
      */
+#if 0
     else if (!divided_count && (gb_stroker_normals_too_curvy(cos_angle_012) || gb_stroker_normals_too_curvy(cos_angle_123)))
     {
         // check
         tb_assert_abort(impl->path_other);
 
-        // TODO
 #if 0
-        // the angle(p0, p1, p2) is too curvy?
+        // the angle(p0, p1, p2) is too sharp?
         if (gb_stroker_normals_too_curvy(cos_angle_012))
         {
             // line-to it
+            gb_stroker_make_line_to(impl, &points[1], normal_01);
             gb_stroker_make_line_to(impl, &points[2], &normal_12);
+
+            // patch one circle at the sharp join
+            gb_path_add_circle2(impl->path_other, points[1].x, points[1].y, impl->radius, GB_ROTATE_DIRECTION_CW);
+        }
+
+        // the angle(p1, p2, p3) is too sharp?
+        if (gb_stroker_normals_too_curvy(cos_angle_123))
+        {
+            // line-to it
+            gb_stroker_make_line_to(impl, &points[2], &normal_12);
+            gb_stroker_make_line_to(impl, &points[3], normal_23);
 
             // patch one circle at the sharp join
             gb_path_add_circle2(impl->path_other, points[2].x, points[2].y, impl->radius, GB_ROTATE_DIRECTION_CW);
         }
-
-        // the angle(p1, p2, p3) is too curvy?
-        if (gb_stroker_normals_too_curvy(cos_angle_123))
-        {
-            // line-to it
-            gb_stroker_make_line_to(impl, &points[3], normal_23);
-
-            // patch one circle at the sharp join
-            gb_path_add_circle2(impl->path_other, points[3].x, points[3].y, impl->radius, GB_ROTATE_DIRECTION_CW);
-        }
 #else
-        tb_assert_abort(0);
 #endif
     }
+#endif
     // for flat curve
     else
     {
@@ -1520,6 +1527,7 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     points[1] = *ctrl;
     points[2] = *point;
 
+#if 0
     // attempt to chop the quadratic curve at the max curvature
     gb_point_t output[5];
     if (gb_quad_chop_at_max_curvature(points, output) == 2)
@@ -1585,6 +1593,10 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
         // make more flat quad-to curves for the whole curve
         gb_stroker_make_quad_to(impl, points, &normal_01, &normal_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
     }
+#else
+    // make more flat quad-to curves for the whole curve
+    gb_stroker_make_quad_to(impl, points, &normal_01, &normal_unit_01, &normal_12, &normal_unit_12, GB_QUAD_DIVIDED_MAXN);
+#endif
 
     // leave-to
     gb_stroker_leave_to(impl, point, &normal_12, &normal_unit_12);
@@ -1647,6 +1659,7 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
         normal2_unit_01 = normal_unit_23;
     }
 #else
+    // make more flat cubic-to curves for the whole curve
     gb_stroker_make_cubic_to(impl, points, &normal_01, &normal_unit_01, &normal_23, &normal_unit_23, GB_CUBIC_DIVIDED_MAXN);
 #endif
 
