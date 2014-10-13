@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        solid.c
+ * @file        shader.c
  * @ingroup     core
  *
  */
@@ -25,42 +25,43 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "bitmap_fill_solid"
+#define TB_TRACE_MODULE_NAME            "bitmap_biltter_shader"
 #define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "solid.h"
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * private implementation
- */
-static tb_void_t gb_bitmap_render_filler_solid_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels)
-{
-    // check
-    tb_assert_abort(filler && filler->pixels_fill);
-
-    // done
-    filler->pixels_fill(pixels, filler->u.solid.pixel, count, filler->u.solid.alpha);
-}
+#include "shader.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_bitmap_filler_ref_t gb_bitmap_render_filler_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds)
+tb_bool_t gb_bitmap_biltter_shader_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_t bitmap, gb_paint_ref_t paint)
 {
     // check
-    tb_assert_abort(device && device->pixmap && device->base.paint);
+    tb_assert_abort(biltter && bitmap && paint);
+ 
+    // init bitmap
+    biltter->bitmap = bitmap;
 
-    // init it
-    device->filler.done             = gb_bitmap_render_filler_solid_done;
-    device->filler.exit             = tb_null;
-    device->filler.u.solid.pixel    = device->pixmap->pixel(gb_paint_color(device->base.paint));
-    device->filler.u.solid.alpha    = gb_paint_alpha(device->base.paint);
-    device->filler.pixels_fill      = device->pixmap->pixels_fill;
+    // init pixmap
+    biltter->pixmap = gb_pixmap(gb_bitmap_pixfmt(bitmap), gb_paint_alpha(paint));
+    tb_check_return_val(biltter->pixmap, tb_false);
+
+    // init btp and row_bytes
+    biltter->btp        = biltter->pixmap->btp;
+    biltter->row_bytes  = gb_bitmap_row_bytes(biltter->bitmap);
+
+    // init shader
+    // TODO
+
+    // init operations
+    // TODO
+
+    // trace
+    tb_trace_noimpl();
 
     // ok
-    return &device->filler;
+    return tb_false;
 }
 

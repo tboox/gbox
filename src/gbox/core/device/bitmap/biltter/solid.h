@@ -21,8 +21,8 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_SOLID_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_SOLID_H
+#ifndef GB_CORE_DEVICE_BITMAP_BILTTER_SOLID_H
+#define GB_CORE_DEVICE_BITMAP_BILTTER_SOLID_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,14 +38,16 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* init the solid filler
+/* init the solid biltter
  *
- * @param device        the device
- * @param bounds        the bounds
+ * @param biltter       the biltter
+ * @param bitmap        the bitmap
+ * @param paint         the paint
  *
- * @return              the filler
+ * @return              tb_true or tb_false
  */
-gb_bitmap_filler_ref_t  gb_bitmap_render_filler_solid_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
+tb_bool_t               gb_bitmap_biltter_solid_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_t bitmap, gb_paint_ref_t paint);
+
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

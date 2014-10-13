@@ -32,6 +32,7 @@
  * includes
  */
 #include "render.h"
+#include "biltter.h"
 #include "render/fill/fill.h"
 #include "render/stroke/stroke.h"
 #include "../../impl/bounds.h"
@@ -215,6 +216,9 @@ tb_bool_t gb_bitmap_render_init(gb_bitmap_device_ref_t device)
         // do not render it for transparent if be null
         tb_check_break(device->pixmap);
 
+        // init biltter
+        if (!gb_bitmap_biltter_init(&device->biltter, device->bitmap, device->base.paint)) break;
+
         // ok
         ok = tb_true;
 
@@ -234,6 +238,9 @@ tb_void_t gb_bitmap_render_exit(gb_bitmap_device_ref_t device)
     // restore pixmap
     device->pixmap = gb_pixmap(gb_bitmap_pixfmt(device->bitmap), 0xff);
     tb_assert_abort(device->pixmap);
+
+    // exit biltter
+    gb_bitmap_biltter_exit(&device->biltter);
 }
 tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_t path)
 {

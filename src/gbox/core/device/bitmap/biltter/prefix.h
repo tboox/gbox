@@ -17,59 +17,22 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        prefix.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_DEVICE_H
-#define GB_CORE_DEVICE_BITMAP_DEVICE_H
+#ifndef GB_CORE_DEVICE_BITMAP_BILTTER_PREFIX_H
+#define GB_CORE_DEVICE_BITMAP_BILTTER_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
-#include "biltter.h"
-#include "../../impl/stroker.h"
-#include "../../impl/polygon_raster.h"
+#include "../prefix.h"
+#include "../device.h"
+#include "../biltter.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * extern
  */
-
-// the bitmap device type
-typedef struct __gb_bitmap_device_t
-{
-    // the base
-    gb_device_impl_t                base;
-
-    // the bitmap
-    gb_bitmap_ref_t                 bitmap;
-
-    // the pixmap
-    gb_pixmap_ref_t                 pixmap;
-
-    // the points 
-    tb_vector_ref_t                 points;
-
-    // the counts
-    tb_vector_ref_t                 counts;
-
-    // the bounds
-    gb_rect_t                       bounds;
-
-    // the shader
-    gb_shader_ref_t                 shader;
-
-    // the raster
-    gb_polygon_raster_t             raster;
-
-    // the biltter
-    gb_bitmap_biltter_t             biltter;
-
-    // the stroker
-    gb_stroker_ref_t                stroker;
-
-}gb_bitmap_device_t, *gb_bitmap_device_ref_t;
-
+__tb_extern_c_leave__
 #endif
-
-

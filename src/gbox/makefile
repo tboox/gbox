@@ -21,12 +21,13 @@ gbox_C_FILES 			+= \
 						core/clipper \
 						core/device/bitmap \
 						core/device/bitmap/render \
+						core/device/bitmap/biltter \
+						core/device/bitmap/biltter/solid \
+						core/device/bitmap/biltter/shader \
 						core/device/bitmap/render/stroke/lines \
 						core/device/bitmap/render/stroke/points \
 						core/device/bitmap/render/stroke/polygon \
-						core/device/bitmap/render/fill/filler \
 						core/device/bitmap/render/fill/rect \
-						core/device/bitmap/render/fill/solid \
 						core/device/bitmap/render/fill/polygon \
 						core/prefix/prefix \
 						core/prefix/arc \

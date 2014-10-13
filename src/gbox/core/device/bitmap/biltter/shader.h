@@ -17,17 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        filler.h
+ * @file        shader.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILLER_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILLER_H
+#ifndef GB_CORE_DEVICE_BITMAP_BILTTER_SHADER_H
+#define GB_CORE_DEVICE_BITMAP_BILTTER_SHADER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "rect.h"
-#include "polygon.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -38,33 +38,19 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* init filler
+/* init the shader biltter
  *
- * @param device        the device
- * @param bounds        the bounds
+ * @param biltter       the biltter
+ * @param bitmap        the bitmap
+ * @param paint         the paint
  *
- * @return              the filler
+ * @return              tb_true or tb_false
  */
-gb_bitmap_filler_ref_t  gb_bitmap_render_filler_init(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds);
+tb_bool_t               gb_bitmap_biltter_shader_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_t bitmap, gb_paint_ref_t paint);
 
-/* exit filler
- *
- * @param filler        the filler
- */
-tb_void_t               gb_bitmap_render_filler_exit(gb_bitmap_filler_ref_t filler);
-
-/* done filler
- *
- * @param filler        the filler
- * @param start         the start x-coordinate
- * @param count         the filled pixel count
- */
-tb_void_t               gb_bitmap_render_filler_done(gb_bitmap_filler_ref_t filler, tb_size_t start, tb_size_t count, tb_byte_t* pixels);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_leave__
 #endif
-
-
