@@ -257,7 +257,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
 
     // done
     tb_long_t                       done = 0;
-    tb_long_t                       counter = 0; 
+    tb_long_t                       winding = 0; 
     tb_uint16_t                     index_lsh = active_edges; 
     tb_uint16_t                     index_rsh = 0; 
     gb_polygon_raster_edge_ref_t    edge_lsh = tb_null; 
@@ -267,7 +267,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
         // the left-hand edge
         edge_lsh = edge_pool + index_lsh; 
 
-        /* compute the counter
+        /* compute the winding
          *   
          *    /\
          *    |            |
@@ -276,7 +276,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
          *    |            |
          *                \/
          */
-        counter += edge_lsh->direction_y; 
+        winding += edge_lsh->direction_y; 
 
         // the right-hand edge index
         index_rsh = edge_lsh->next; 
@@ -305,7 +305,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
                  *   |                 \|/              ||||||||||||||||||||
                  *    ------------------                 ------------------ 
                  */
-                done = counter & 1;
+                done = winding & 1;
             }
             break;
         case GB_POLYGON_RASTER_RULE_NONZERO:
@@ -322,7 +322,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
                  *   |                 \|/              ||||||||||||||||||||
                  *    ------------------                 ------------------
                  */
-                done = counter;
+                done = winding;
             }
             break;
         default:
@@ -337,7 +337,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
         }
 
         // trace
-        tb_trace_d("y: %ld, direction: %d, counter: %ld, %d => %d", y, edge_lsh->direction_y, counter, edge_lsh->top_x, edge_rsh->top_x);
+        tb_trace_d("y: %ld, direction: %d, winding: %ld, %d => %d", y, edge_lsh->direction_y, winding, edge_lsh->top_x, edge_rsh->top_x);
 
         // done func
         if (done) func(y, edge_lsh->top_x, edge_rsh->top_x, priv);
