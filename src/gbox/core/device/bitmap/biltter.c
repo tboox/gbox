@@ -54,6 +54,14 @@ tb_void_t gb_bitmap_biltter_exit(gb_bitmap_biltter_ref_t biltter)
     // exit it
     if (biltter->exit) biltter->exit(biltter);
 }
+tb_void_t gb_bitmap_biltter_done_p(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y)
+{   
+    // check
+    tb_assert_abort(biltter && biltter->done_p);
+
+    // done it
+    biltter->done_p(biltter, x, y);
+}
 tb_void_t gb_bitmap_biltter_done_h(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t w)
 {   
     // check

@@ -36,6 +36,19 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_void_t gb_bitmap_biltter_solid_done_p(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y)
+{
+    // check
+    tb_assert_abort(biltter && biltter->pixmap && biltter->pixmap->pixel_set);
+    tb_assert_abort(x >= 0 && y >= 0);
+
+    // the pixels
+    tb_byte_t* pixels = (tb_byte_t*)gb_bitmap_data(biltter->bitmap);
+    tb_assert_abort(pixels);
+
+    // done
+    biltter->pixmap->pixel_set(pixels + y * biltter->row_bytes + x * biltter->btp, biltter->u.solid.pixel, biltter->u.solid.alpha);
+}
 static tb_void_t gb_bitmap_biltter_solid_done_h(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t w)
 {
     // check
@@ -127,6 +140,7 @@ tb_bool_t gb_bitmap_biltter_solid_init(gb_bitmap_biltter_ref_t biltter, gb_bitma
     biltter->u.solid.alpha = gb_paint_alpha(paint);
 
     // init operations
+    biltter->done_p     = gb_bitmap_biltter_solid_done_p;
     biltter->done_h     = gb_bitmap_biltter_solid_done_h;
     biltter->done_v     = gb_bitmap_biltter_solid_done_v;
     biltter->done_r     = gb_bitmap_biltter_solid_done_r;

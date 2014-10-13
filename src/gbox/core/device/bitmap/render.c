@@ -210,12 +210,6 @@ tb_bool_t gb_bitmap_render_init(gb_bitmap_device_ref_t device)
         // init shader
         device->shader = gb_paint_shader(device->base.paint);
 
-        // init pixmap for alpha
-        device->pixmap = gb_pixmap(gb_bitmap_pixfmt(device->bitmap), gb_paint_alpha(device->base.paint));
-
-        // do not render it for transparent if be null
-        tb_check_break(device->pixmap);
-
         // init biltter
         if (!gb_bitmap_biltter_init(&device->biltter, device->bitmap, device->base.paint)) break;
 
@@ -234,10 +228,6 @@ tb_void_t gb_bitmap_render_exit(gb_bitmap_device_ref_t device)
 {
     // check
     tb_assert_and_check_return(device);
-
-    // restore pixmap
-    device->pixmap = gb_pixmap(gb_bitmap_pixfmt(device->bitmap), 0xff);
-    tb_assert_abort(device->pixmap);
 
     // exit biltter
     gb_bitmap_biltter_exit(&device->biltter);

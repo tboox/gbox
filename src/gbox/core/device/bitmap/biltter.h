@@ -76,6 +76,14 @@ typedef struct __gb_bitmap_biltter_t
      */
     tb_void_t                       (*exit)(struct __gb_bitmap_biltter_t* biltter);
 
+    /* done biltter by pixel
+     *
+     * @param biltter               the biltter
+     * @param x                     the x-coordinate
+     * @param y                     the y-coordinate
+     */
+    tb_void_t                       (*done_p)(struct __gb_bitmap_biltter_t* biltter, tb_long_t x, tb_long_t y);
+
     /* done biltter by horizontal
      *
      * @param biltter               the biltter
@@ -125,6 +133,14 @@ tb_bool_t               gb_bitmap_biltter_init(gb_bitmap_biltter_ref_t biltter, 
  * @param biltter       the biltter
  */
 tb_void_t               gb_bitmap_biltter_exit(gb_bitmap_biltter_ref_t biltter);
+
+/* done biltter by pixel
+ *
+ * @param biltter       the biltter
+ * @param x             the x-coordinate
+ * @param y             the y-coordinate
+ */
+tb_void_t               gb_bitmap_biltter_done_p(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y);
 
 /* done biltter by horizontal
  *

@@ -52,30 +52,24 @@
  *  draw 1/2 line
  */
 #if 1
-static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
+static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_biltter_ref_t biltter, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
 {
-    // the factors
-    tb_byte_t*                  data        = gb_bitmap_data(bitmap);
-    tb_size_t                   btp         = pixmap->btp;
-    tb_size_t                   row_bytes   = gb_bitmap_row_bytes(bitmap);
-    gb_pixmap_func_pixel_set_t  pixel_set   = pixmap->pixel_set;
-
     // the dx and the x-increased bytes
     tb_long_t dx    = xe - xb;
-    tb_long_t xinc  = btp;
+    tb_long_t xinc  = 1;
     if (dx < 0) 
     {
         dx = -dx;
-        xinc = -xinc;
+        xinc = -1;
     }
 
     // the dy and the y-increased bytes
     tb_long_t dy    = ye - yb;
-    tb_long_t yinc  = row_bytes;
+    tb_long_t yinc  = 1;
     if (dy < 0) 
     {
         dy = -dy;
-        yinc = -yinc;
+        yinc = -1;
     }
 
     // dx * 2, dy * 2 for float => fixed
@@ -87,8 +81,6 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     tb_long_t dy12 = (dy + 1) >> 1;
    
     // |slope| < 1?
-    tb_byte_t* qb = data + yb * row_bytes + xb * btp;
-    tb_byte_t* qe = data + ye * row_bytes + xe * btp;
     if (dx > dy)
     {
         // done 
@@ -97,9 +89,9 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         tb_long_t ee = eb;
         for (i = 0; i < dx12; ++i)
         {
-            // set pixel
-            pixel_set(qb, pixel, alpha);
-            pixel_set(qe, pixel, alpha);
+            // done biltter
+            gb_bitmap_biltter_done_p(biltter, xb, yb);
+            gb_bitmap_biltter_done_p(biltter, xe, ye);
 
             /* (x, y)
              * e / 1 = dy / dx
@@ -134,26 +126,26 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
             if (eb > 0)
             {
                 eb -= dx2;
-                qb += yinc;
+                yb += yinc;
             }
             
             if (ee >= 0)
             {
                 ee -= dx2;
-                qe -= yinc;
+                ye -= yinc;
             }
 
             eb += dy2;
             ee += dy2;
-            qb += xinc;
-            qe -= xinc;
+            xb += xinc;
+            xe -= xinc;
         }
 
 
         /* draw pm if line is (qb, ..., pm, ..., qe)
          * e.g. (0, 1, 2)
          */
-        if (!(dx & 0x1)) pixel_set(qb, pixel, alpha);
+        if (!(dx & 0x1)) gb_bitmap_biltter_done_p(biltter, xb, yb);
     }
     else
     {
@@ -163,28 +155,29 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         tb_long_t ee = eb;
         for (i = 0; i < dy12; ++i)
         {
-            pixel_set(qb, pixel, alpha);
-            pixel_set(qe, pixel, alpha);
+            // done biltter
+            gb_bitmap_biltter_done_p(biltter, xb, yb);
+            gb_bitmap_biltter_done_p(biltter, xe, ye);
 
             if (eb > 0)
             {
                 eb -= dy2;
-                qb += xinc;
+                xb += xinc;
             }
 
             if (ee >= 0)
             {
                 ee -= dy2;
-                qe -= xinc;
+                xe -= xinc;
             }
 
             eb += dx2;
             ee += dx2;
-            qb += yinc;
-            qe -= yinc;
+            yb += yinc;
+            ye -= yinc;
         }
 
-        if (!(dy & 0x1)) pixel_set(qb, pixel, alpha);
+        if (!(dy & 0x1)) gb_bitmap_biltter_done_p(biltter, xb, yb);
     }
 }
 #else
@@ -201,17 +194,11 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
  * /  
  *  
  */
-static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
+static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_biltter_ref_t biltter, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
 {
-    // the factors
-    tb_byte_t*                  data        = gb_bitmap_data(bitmap);
-    tb_size_t                   btp         = pixmap->btp;
-    tb_size_t                   row_bytes   = gb_bitmap_row_bytes(bitmap);
-    gb_pixmap_func_pixel_set_t  pixel_set   = pixmap->pixel_set;
-
     // the dx and the x-increased bytes
     tb_long_t dx    = xe - xb;
-    tb_long_t xinc  = btp;
+    tb_long_t xinc  = 1;
     if (dx < 0) 
     {
         dx = -dx;
@@ -220,7 +207,7 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
 
     // the dy and the y-increased bytes
     tb_long_t dy    = ye - yb;
-    tb_long_t yinc  = row_bytes;
+    tb_long_t yinc  = 1;
     if (dy < 0) 
     {
         dy = -dy;
@@ -232,7 +219,6 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
     tb_long_t dy2 = dy << 1;
 
     // |slope| < 1?
-    tb_byte_t* q = data + yb * row_bytes + xb * btp;
     if (dx > dy)
     {
         // done 
@@ -240,8 +226,8 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         tb_long_t e = dy2 - dx;
         for (i = 0; i < dx; ++i)
         {
-            // set pixel
-            pixel_set(q, pixel, alpha);
+            // done biltter
+            gb_bitmap_biltter_done_p(biltter, xb, yb);
 
             /* (x, y)
              * e / 1 = dy / dx
@@ -276,11 +262,11 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
             if (e > 0)
             {
                 e -= dx2;
-                q += yinc;
+                yb += yinc;
             }
 
             e += dy2;
-            q += xinc;
+            xb += xinc;
         }
     }
     else
@@ -290,62 +276,47 @@ static tb_void_t gb_bitmap_render_stroke_line_generic(gb_bitmap_ref_t bitmap, gb
         tb_long_t e = dx2 - dy;
         for (i = 0; i < dy; ++i)
         {
-            pixel_set(q, pixel, alpha);
+            // done biltter
+            gb_bitmap_biltter_done_p(biltter, xb, yb);
 
             if (e > 0)
             {
                 e -= dy2;
-                q += xinc;
+                xb += xinc;
             }
 
             e += dx2;
-            q += yinc;
+            yb += yinc;
         }
     }
 
     // check
-    tb_assert_abort(q == data + ye * row_bytes + xe * btp);
+    tb_assert_abort(xb == xe && yb == ye);
 }
 #endif
-static tb_void_t gb_bitmap_render_stroke_line_vertical(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
+static tb_void_t gb_bitmap_render_stroke_line_vertical(gb_bitmap_biltter_ref_t biltter, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
 {
-    // the factors
-    tb_byte_t*  data        = gb_bitmap_data(bitmap);
-    tb_size_t   btp         = pixmap->btp;
-    tb_size_t   row_bytes   = gb_bitmap_row_bytes(bitmap);
+    // ensure the order
     if (yb > ye) 
     {
-        tb_long_t yt = yb;
-        yb = ye;
-        ye = yt;
+        // swap it
+        tb_swap(tb_long_t, yb, ye);
     }
 
     // done
-    tb_long_t                   h = ye - yb + 1;
-    tb_byte_t*                  q = data + yb * row_bytes + xb * btp;
-    gb_pixmap_func_pixel_set_t  pixel_set = pixmap->pixel_set;
-    while (h--)
-    {
-        pixel_set(q, pixel, alpha);
-        q += row_bytes;
-    }
+    gb_bitmap_biltter_done_v(biltter, xb, yb, ye - yb + 1);
 }
-static tb_void_t gb_bitmap_render_stroke_line_horizontal(gb_bitmap_ref_t bitmap, gb_pixmap_ref_t pixmap, gb_pixel_t pixel, tb_byte_t alpha, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
+static tb_void_t gb_bitmap_render_stroke_line_horizontal(gb_bitmap_biltter_ref_t biltter, tb_long_t xb, tb_long_t yb, tb_long_t xe, tb_long_t ye)
 {
-    // the factors
-    tb_byte_t*  data        = gb_bitmap_data(bitmap);
-    tb_size_t   btp         = pixmap->btp;
-    tb_size_t   row_bytes   = gb_bitmap_row_bytes(bitmap);
+    // ensure the order
     if (xb > xe) 
     {
-        tb_long_t xt = xb;
-        xb = xe;
-        xe = xt;
+        // swap it
+        tb_swap(tb_long_t, xb, xe);
     }
 
     // done
-    if (xb != xe) pixmap->pixels_fill(data + yb * row_bytes + xb * btp, pixel, xe - xb + 1, alpha);
-    else pixmap->pixel_set(data + yb * row_bytes + xb * btp, pixel, alpha);
+    gb_bitmap_biltter_done_h(biltter, xb, yb, xe - xb + 1);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -354,17 +325,12 @@ static tb_void_t gb_bitmap_render_stroke_line_horizontal(gb_bitmap_ref_t bitmap,
 tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->base.paint && device->pixmap && device->bitmap && gb_bitmap_data(device->bitmap));
-    tb_assert_abort(points && count && !(count & 0x1));
+    tb_assert_abort(device && points && count && !(count & 0x1));
 
     // done
     tb_size_t       i       = 0;
     gb_point_ref_t  pb      = tb_null;
     gb_point_ref_t  pe      = tb_null;
-    gb_pixmap_ref_t pixmap  = device->pixmap;
-    gb_pixel_t      pixel   = pixmap->pixel(gb_paint_color(device->base.paint));
-    tb_byte_t       alpha   = gb_paint_alpha(device->base.paint);
-    gb_bitmap_ref_t bitmap  = device->bitmap;
     tb_long_t       xb      = 0;
     tb_long_t       yb      = 0;
     tb_long_t       xe      = 0;
@@ -385,10 +351,10 @@ tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_
         ye = gb_round(pe->y);
 
         // horizontal?
-        if (yb == ye) gb_bitmap_render_stroke_line_horizontal(bitmap, pixmap, pixel, alpha, xb, yb, xe, ye);
+        if (yb == ye) gb_bitmap_render_stroke_line_horizontal(&device->biltter, xb, yb, xe, ye);
         // vertical?
-        else if (xb == xe) gb_bitmap_render_stroke_line_vertical(bitmap, pixmap, pixel, alpha, xb, yb, xe, ye);
+        else if (xb == xe) gb_bitmap_render_stroke_line_vertical(&device->biltter, xb, yb, xe, ye);
         // generic?
-        else gb_bitmap_render_stroke_line_generic(bitmap, pixmap, pixel, alpha, xb, yb, xe, ye);
+        else gb_bitmap_render_stroke_line_generic(&device->biltter, xb, yb, xe, ye);
     }
 }
