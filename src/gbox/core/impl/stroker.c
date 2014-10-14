@@ -551,7 +551,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
             gb_vector_negate(&after);
         }
 
-        /* right angle? done the more faster and accuracy miter
+        /* right angle(90 degrees)? done the more faster and accuracy miter
          *
          * .       .
          * .     .
