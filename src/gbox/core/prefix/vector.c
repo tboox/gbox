@@ -299,11 +299,11 @@ tb_bool_t gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector_ref_t other)
     // is clockwise direction?
     return gb_mul(vector->x, other->y) > gb_mul(vector->y, other->x);
 }
-tb_bool_t gb_vector_equal(gb_vector_ref_t vector, gb_vector_ref_t other)
+tb_bool_t gb_vector_equal_nearly(gb_vector_ref_t vector, gb_vector_ref_t other)
 {
     // check
     tb_assert_abort(vector && other);
 
     // equal?
-    return (vector->x == other->x && vector->y == other->y)? tb_true : tb_false;
+    return (gb_fabs(vector->x - other->x) <= GB_NEAR0) && (gb_fabs(vector->y - other->y) <= GB_NEAR0);
 }

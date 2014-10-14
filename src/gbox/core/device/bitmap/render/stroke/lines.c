@@ -96,7 +96,7 @@ static tb_size_t gb_bitmap_render_stroke_line_generic(gb_bitmap_biltter_ref_t bi
             // update the y-coordinate
             start_y += slope;
            
-        } while (ixb++ < ixe);
+        } while (++ixb < ixe);
     }
     /* more vertical?
      *
@@ -143,7 +143,7 @@ static tb_size_t gb_bitmap_render_stroke_line_generic(gb_bitmap_biltter_ref_t bi
             // update the x-coordinate
             start_x += slope;
            
-        } while (iyb++ < iye);
+        } while (++iyb < iye);
     }
 
     // ok

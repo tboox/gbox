@@ -83,7 +83,7 @@ gb_float_t          gb_point_distance(gb_point_ref_t point, gb_point_ref_t other
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           gb_point_equal(gb_point_ref_t point, gb_point_ref_t other);
+tb_bool_t           gb_point_equal_nearly(gb_point_ref_t point, gb_point_ref_t other);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -221,7 +221,7 @@ tb_bool_t               gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector
  * 
  * @return              tb_true or tb_false
  */
-tb_bool_t               gb_vector_equal(gb_vector_ref_t vector, gb_vector_ref_t other);
+tb_bool_t               gb_vector_equal_nearly(gb_vector_ref_t vector, gb_vector_ref_t other);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
