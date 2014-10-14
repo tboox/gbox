@@ -277,14 +277,6 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
         // stroke lines
         gb_bitmap_render_stroke_lines(device, stroked_points, stroked_count);
     }
-    // need blend?
-    else if (gb_paint_alpha(device->base.paint) <= GB_ALPHA_MAXN)
-    {
-        // fill the stroked lines
-        tb_size_t i;
-        for (i = 0; i < count; i += 2)
-            gb_bitmap_render_stroke_fill(device, gb_stroker_done_lines(device->stroker, device->base.paint, points + i, 2));
-    }
     // fill the stroked lines
     else gb_bitmap_render_stroke_fill(device, gb_stroker_done_lines(device->stroker, device->base.paint, points, count));
 }
@@ -306,14 +298,6 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
 
         // stroke points
         gb_bitmap_render_stroke_points(device, stroked_points, stroked_count);
-    }
-    // need blend?
-    else if (gb_paint_alpha(device->base.paint) <= GB_ALPHA_MAXN)
-    {
-        // fill the stroked points
-        tb_size_t i;
-        for (i = 0; i < count; i++)
-            gb_bitmap_render_stroke_fill(device, gb_stroker_done_points(device->stroker, device->base.paint, points + i, 1));
     }
     // fill the stroked points
     else gb_bitmap_render_stroke_fill(device, gb_stroker_done_points(device->stroker, device->base.paint, points, count));

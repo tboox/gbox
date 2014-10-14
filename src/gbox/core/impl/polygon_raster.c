@@ -398,6 +398,9 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
                  * and re-insert to the edge table using the new top-y coordinate next
                  */
                 else edge_max->rewinding = 1;
+
+                // trace
+                tb_trace_i("rewinding");
             }
 
             // done func
@@ -456,8 +459,6 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
             // re-insert to the edge table using the new top-y coordinate
             if (edge->rewinding)
             {
-                tb_trace_i("rewinding");
-
                 // check
                 tb_assert_abort(edge->top_y >= top && edge->top_y - top < GB_POLYGON_RASTER_EDGE_TABLE_MAXN);
 
@@ -523,8 +524,8 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
     raster->top     = gb_round(bounds->y);
     raster->bottom  = gb_round(bounds->y + bounds->h);
 
-    // init convex
-    raster->convex  = polygon->convex;
+    // init convex for only one convex contour
+    raster->convex  = polygon->convex && !polygon->counts[1];
 
     // init the edge table
     gb_point_t                      pb;
@@ -645,6 +646,8 @@ tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, tb_size_t rule,
 {
     // check
     tb_assert_abort(raster && func);
+
+    tb_trace_i("convex: %d", raster->convex);
 
     // done scanning
     tb_long_t                       y;
