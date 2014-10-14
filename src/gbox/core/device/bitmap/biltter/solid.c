@@ -112,7 +112,12 @@ static tb_void_t gb_bitmap_biltter_solid_done_r(gb_bitmap_biltter_ref_t biltter,
     if (!x && (w * btp == row_bytes)) pixels_fill(pixels, pixel, h * w, alpha);
     else
     {
-        while (h--) pixels_fill(pixels + y++ * row_bytes + x * btp, pixel, w, alpha);
+        pixels += y * row_bytes + x * btp;
+        while (h--) 
+        {
+            pixels_fill(pixels, pixel, w, alpha);
+            pixels += row_bytes;
+        }
     }
 }
 

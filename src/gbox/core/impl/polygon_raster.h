@@ -41,6 +41,9 @@
 #   define GB_POLYGON_RASTER_EDGES_MAXN     (4096 << 1)
 #endif
 
+// the polygon edge table maxn
+#define GB_POLYGON_RASTER_EDGE_TABLE_MAXN   (GB_HEIGHT_MAXN)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
@@ -76,8 +79,16 @@ typedef struct __gb_polygon_raster_edge_t
      */
     tb_int8_t       winding : 2;
 
+    /* removing the max edge from the active edge
+     * and re-insert to the edge table using the new top-y coordinate next
+     */
+    tb_int8_t       rewinding : 1;
+
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
+
+    // the y value at the top of edge
+    tb_int16_t      top_y;
 
     // the y value at the bottom of edge
     tb_int16_t      bottom_y;
@@ -171,7 +182,7 @@ typedef struct __gb_polygon_raster_t
     gb_polygon_raster_edge_t    edge_pool[1 + GB_POLYGON_RASTER_EDGES_MAXN];
 
     // the edge table
-    tb_uint16_t                 edge_table[GB_HEIGHT_MAXN];
+    tb_uint16_t                 edge_table[GB_POLYGON_RASTER_EDGE_TABLE_MAXN];
 
     // the top of the polygon bounds
     tb_long_t                   top;
@@ -189,12 +200,13 @@ typedef struct __gb_polygon_raster_t
 
 /* the polygon raster func type
  *
- * @param y                     the y-coordinate
  * @param xb                    the start x-coordinate
  * @param xe                    the end x-coordinate 
+ * @param yb                    the start y-coordinate
+ * @param ye                    the end y-coordinate 
  * @param priv                  the private data
  */
-typedef tb_void_t               (*gb_polygon_raster_func_t)(tb_long_t y, tb_long_t xb, tb_long_t xe, tb_cpointer_t priv);
+typedef tb_void_t               (*gb_polygon_raster_func_t)(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

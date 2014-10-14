@@ -36,13 +36,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_bitmap_render_fill_polygon_raster(tb_long_t y, tb_long_t xb, tb_long_t xe, tb_cpointer_t priv)
+static tb_void_t gb_bitmap_render_fill_polygon_raster(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(priv && xe >= xb);
+    tb_assert_abort(priv && xe >= xb && ye > yb);
 
     // done biltter
-    gb_bitmap_biltter_done_h((gb_bitmap_biltter_ref_t)priv, xb, y, xe - xb);
+    gb_bitmap_biltter_done_r((gb_bitmap_biltter_ref_t)priv, xb, yb, xe - xb, ye - yb);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

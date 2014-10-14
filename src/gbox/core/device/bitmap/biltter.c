@@ -83,8 +83,28 @@ tb_void_t gb_bitmap_biltter_done_r(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
     // check
     tb_assert_abort(biltter);
 
-    // done it
-    if (biltter->done_r) biltter->done_r(biltter, x, y, w, h);
+    // horizaontal?
+    if (h == 1) 
+    {
+        // check
+        tb_assert_abort(biltter->done_h);
+
+        // done it
+        biltter->done_h(biltter, x, y, w);
+        return ;
+    }
+    // vertical?
+    else if (w == 1)
+    {
+        // check
+        tb_assert_abort(biltter->done_v);
+
+        // done it
+        biltter->done_v(biltter, x, y, h);
+        return ;
+    }
+    // rect?
+    else if (biltter->done_r) biltter->done_r(biltter, x, y, w, h);
     else
     {
         // check
