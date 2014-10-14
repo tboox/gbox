@@ -168,10 +168,11 @@ tb_void_t                   gb_stroker_add_polygon(gb_stroker_ref_t stroker, gb_
 /* done stroker and get the stroked path 
  * 
  * @param stroker           the stroker
+ * @param convex            is convex?
  *
  * @return                  the stroked path
  */
-gb_path_ref_t               gb_stroker_done(gb_stroker_ref_t stroker);
+gb_path_ref_t               gb_stroker_done(gb_stroker_ref_t stroker, tb_bool_t convex);
 
 /* done path to stroker and get the stroked path 
  * 

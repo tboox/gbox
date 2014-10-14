@@ -60,10 +60,11 @@ typedef enum __gb_path_flag_e
     GB_PATH_FLAG_DIRTY_HINT             = 1
 ,   GB_PATH_FLAG_DIRTY_BOUNDS           = 2
 ,   GB_PATH_FLAG_DIRTY_POLYGON          = 4
-,   GB_PATH_FLAG_DIRTY_ALL              = GB_PATH_FLAG_DIRTY_HINT | GB_PATH_FLAG_DIRTY_BOUNDS | GB_PATH_FLAG_DIRTY_POLYGON
-,   GB_PATH_FLAG_HAVE_CURVE             = 8
-,   GB_PATH_FLAG_CONVEX_POLYGON         = 16
-,   GB_PATH_FLAG_CLOSED                 = 32
+,   GB_PATH_FLAG_DIRTY_CONVEX           = 8
+,   GB_PATH_FLAG_DIRTY_ALL              = GB_PATH_FLAG_DIRTY_HINT | GB_PATH_FLAG_DIRTY_BOUNDS | GB_PATH_FLAG_DIRTY_POLYGON | GB_PATH_FLAG_DIRTY_CONVEX
+,   GB_PATH_FLAG_HAVE_CURVE             = 16
+,   GB_PATH_FLAG_CONVEX                 = 32
+,   GB_PATH_FLAG_CLOSED                 = 64
 
 }gb_path_flag_e;
 
@@ -222,31 +223,6 @@ static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor
     // data
     return &impl->item;
 }
-static tb_bool_t gb_path_python_is_convex(gb_path_impl_t* impl)
-{
-    // check
-    tb_assert_and_check_return_val(impl, tb_false);
-
-    // analyze convex from the hint shape first
-    if (!(impl->flag & GB_PATH_FLAG_DIRTY_HINT) && impl->hint.type)
-    {
-        // done
-        switch (impl->hint.type)
-        {
-        case GB_SHAPE_TYPE_RECT:
-        case GB_SHAPE_TYPE_CIRCLE:
-        case GB_SHAPE_TYPE_ELLIPSE:
-        case GB_SHAPE_TYPE_TRIANGLE:
-            return tb_true;
-        }
-
-        // not convex
-        return tb_false;
-    }
-
-    // TODO
-    return tb_false;
-}
 static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
 { 
     // check
@@ -322,6 +298,38 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
         }
     }
     
+    // ok
+    return tb_true;
+}
+static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
+{
+    // check
+    tb_assert_and_check_return_val(impl, tb_false);
+
+    // clear convex first
+    impl->flag &= ~GB_PATH_FLAG_CONVEX;
+
+    // attempt to analyze convex from the hint shape first
+    gb_shape_ref_t hint = gb_path_hint((gb_path_ref_t)impl);
+    if (hint && hint->type)
+    {
+        // done
+        switch (hint->type)
+        {
+        case GB_SHAPE_TYPE_RECT:
+        case GB_SHAPE_TYPE_CIRCLE:
+        case GB_SHAPE_TYPE_ELLIPSE:
+        case GB_SHAPE_TYPE_TRIANGLE:
+            impl->flag |= GB_PATH_FLAG_CONVEX;
+            break;
+        default:
+            break;
+        }
+    }
+
+    // TODO
+    // ...
+
     // ok
     return tb_true;
 }
@@ -482,7 +490,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
     tb_assert_and_check_return_val(impl->polygon.points && impl->polygon.counts, tb_false);
 
     // is convex polygon?
-    impl->polygon.convex = (impl->flag & GB_PATH_FLAG_CONVEX_POLYGON)? tb_true : gb_path_python_is_convex(impl);
+    impl->polygon.convex = gb_path_convex((gb_path_ref_t)impl);
 
     // ok
     return tb_true;
@@ -706,15 +714,40 @@ gb_rect_ref_t gb_path_bounds(gb_path_ref_t path)
     // the bounds
     return &impl->bounds;
 }
-tb_void_t gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex)
+tb_bool_t gb_path_convex(gb_path_ref_t path)
+{
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return_val(impl, tb_false);
+
+    // null?
+    if (gb_path_null(path)) return tb_true;
+
+    // convex dirty? remake it
+    if (impl->flag & GB_PATH_FLAG_DIRTY_CONVEX)
+    {
+        // make convex
+        if (!gb_path_make_convex(impl)) return tb_false;
+
+        // remove dirty
+        impl->flag &= ~GB_PATH_FLAG_DIRTY_CONVEX;
+    }
+
+    // convex?
+    return impl->flag & GB_PATH_FLAG_CONVEX;
+}
+tb_void_t gb_path_convex_set(gb_path_ref_t path, tb_bool_t convex)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
     tb_assert_and_check_return(impl);
 
     // mark convex
-    if (convex) impl->flag |= GB_PATH_FLAG_CONVEX_POLYGON;
-    else impl->flag &= ~GB_PATH_FLAG_CONVEX_POLYGON;
+    if (convex) impl->flag |= GB_PATH_FLAG_CONVEX;
+    else impl->flag &= ~GB_PATH_FLAG_CONVEX;
+
+    // clear dirty
+    impl->flag &= ~GB_PATH_FLAG_DIRTY_CONVEX;
 }
 tb_bool_t gb_path_last(gb_path_ref_t path, gb_point_ref_t point)
 {

@@ -148,7 +148,7 @@ typedef struct __gb_stroker_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hint)
+static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hint, tb_bool_t* convex)
 {
     // check
     tb_check_return_val(hint, tb_false);
@@ -159,34 +159,55 @@ static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hi
     {
     case GB_SHAPE_TYPE_RECT:
         {
+            // add rect
             gb_stroker_add_rect(stroker, &hint->u.rect);
+
+            // ok
             ok = tb_true;
         }
         break;
     case GB_SHAPE_TYPE_LINE:
         {
+            // add lines
             gb_point_t points[2];
             points[0] = hint->u.line.p0;
             points[1] = hint->u.line.p1;
             gb_stroker_add_lines(stroker, points, tb_arrayn(points));
+
+            // set convex
+            if (convex) *convex = tb_true;
+
+            // ok
             ok = tb_true;
         }
         break;
     case GB_SHAPE_TYPE_CIRCLE:
         {
+            // add circle
             gb_stroker_add_circle(stroker, &hint->u.circle);
+
+            // ok
             ok = tb_true;
         }
         break;
     case GB_SHAPE_TYPE_ELLIPSE:
         {
+            // add ellipse
             gb_stroker_add_ellipse(stroker, &hint->u.ellipse);
+
+            // ok
             ok = tb_true;
         }
         break;
     case GB_SHAPE_TYPE_POINT:
         {
-            gb_stroker_add_lines(stroker, &hint->u.point, 1);
+            // add point
+            gb_stroker_add_points(stroker, &hint->u.point, 1);
+
+            // set convex
+            if (convex) *convex = tb_true;
+
+            // ok
             ok = tb_true;
         }
         break;
@@ -1918,7 +1939,7 @@ tb_void_t gb_stroker_add_polygon(gb_stroker_ref_t stroker, gb_polygon_ref_t poly
         }
     }
 }
-gb_path_ref_t gb_stroker_done(gb_stroker_ref_t stroker)
+gb_path_ref_t gb_stroker_done(gb_stroker_ref_t stroker, tb_bool_t convex)
 {
     // check
     gb_stroker_impl_t* impl = (gb_stroker_impl_t*)stroker;
@@ -1937,6 +1958,9 @@ gb_path_ref_t gb_stroker_done(gb_stroker_ref_t stroker)
         gb_path_clear(impl->path_other);
     }
 
+    // update convex and disable to analyze convex in the path automatically
+    gb_path_convex_set(impl->path_outer, convex);
+
     // the stroked path
     return impl->path_outer;
 }
@@ -1949,14 +1973,15 @@ gb_path_ref_t gb_stroker_done_path(gb_stroker_ref_t stroker, gb_paint_ref_t pain
     gb_stroker_apply_paint(stroker, paint);
 
     // attempt to add hint first
-    if (!gb_stroker_add_hint(stroker, gb_path_hint(path)))
+    tb_bool_t convex = tb_false;
+    if (!gb_stroker_add_hint(stroker, gb_path_hint(path), &convex))
     {
         // add path to the stroker
         gb_stroker_add_path(stroker, path);
     }
 
     // done the stroker
-    return gb_stroker_done(stroker);
+    return gb_stroker_done(stroker, convex);
 }
 gb_path_ref_t gb_stroker_done_lines(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
@@ -1970,7 +1995,7 @@ gb_path_ref_t gb_stroker_done_lines(gb_stroker_ref_t stroker, gb_paint_ref_t pai
     gb_stroker_add_lines(stroker, points, count);
 
     // done the stroker
-    return gb_stroker_done(stroker);
+    return gb_stroker_done(stroker, tb_true);
 }
 gb_path_ref_t gb_stroker_done_points(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_point_ref_t points, tb_size_t count)
 {
@@ -1984,7 +2009,7 @@ gb_path_ref_t gb_stroker_done_points(gb_stroker_ref_t stroker, gb_paint_ref_t pa
     gb_stroker_add_points(stroker, points, count);
 
     // done the stroker
-    return gb_stroker_done(stroker);
+    return gb_stroker_done(stroker, tb_true);
 }
 gb_path_ref_t gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t paint, gb_polygon_ref_t polygon, gb_shape_ref_t hint)
 {
@@ -1995,12 +2020,13 @@ gb_path_ref_t gb_stroker_done_polygon(gb_stroker_ref_t stroker, gb_paint_ref_t p
     gb_stroker_apply_paint(stroker, paint);
 
     // attempt to add hint first
-    if (!gb_stroker_add_hint(stroker, hint))
+    tb_bool_t convex = tb_false;
+    if (!gb_stroker_add_hint(stroker, hint, &convex))
     {
         // add polygon to the stroker
         gb_stroker_add_polygon(stroker, polygon);
     }
 
     // done the stroker
-    return gb_stroker_done(stroker);
+    return gb_stroker_done(stroker, convex);
 }

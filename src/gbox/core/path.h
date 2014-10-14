@@ -109,13 +109,21 @@ tb_bool_t           gb_path_null(gb_path_ref_t path);
  */
 gb_rect_ref_t       gb_path_bounds(gb_path_ref_t path);
 
+/*! the path convex?
+ *
+ * @param path      the path
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_path_convex(gb_path_ref_t path);
+
 /*! set to be convex path, convex path may draw faster
  *
  * @param path      the path
  * @param convex    is convex?
  *
  */
-tb_void_t           gb_path_set_convex(gb_path_ref_t path, tb_bool_t convex);
+tb_void_t           gb_path_convex_set(gb_path_ref_t path, tb_bool_t convex);
 
 /*! get the last point
  *
