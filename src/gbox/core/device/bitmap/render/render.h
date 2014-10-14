@@ -17,15 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        stroke.h
+ * @file        render.h
  * @ingroup     core
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STROKE_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STROKE_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_RENDER_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_RENDER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
+#include "prefix.h"
+#include "rect.h"
 #include "lines.h"
 #include "points.h"
 #include "polygon.h"

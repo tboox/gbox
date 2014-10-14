@@ -17,30 +17,44 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        rect.c
+ * @file        polygon.h
  * @ingroup     core
  *
  */
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * trace
- */
-#define TB_TRACE_MODULE_NAME            "bitmap_fill_rect"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_POLYGON_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_POLYGON_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "rect.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * extern
  */
-tb_void_t gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_t rect)
-{
-    // check
-    tb_assert_abort(device && rect);
+__tb_extern_c_enter__
 
-    // done biltter
-    gb_bitmap_biltter_done_r(&device->biltter, gb_float_to_long(rect->x), gb_float_to_long(rect->y), gb_float_to_long(rect->w), gb_float_to_long(rect->h));
-}
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
+ */
+
+/* fill polygon
+ *
+ * @param device    the device
+ * @param polygon   the polygon
+ * @param bounds    the bounds
+ */
+tb_void_t           gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds);
+
+/* stroke polygon
+ *
+ * @param device    the device
+ * @param polygon   the polygon
+ */
+tb_void_t           gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
+#endif

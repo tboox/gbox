@@ -17,37 +17,22 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon.h
+ * @file        raster.c
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_POLYGON_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_POLYGON_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "gl_raster"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * extern
+ * implementation
  */
-__tb_extern_c_enter__
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interface
- */
-
-/* fill polygon
- *
- * @param device    the device
- * @param polygon   the polygon
- * @param bounds    the bounds
- */
-tb_void_t           gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
-#endif

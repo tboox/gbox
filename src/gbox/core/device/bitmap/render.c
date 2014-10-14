@@ -33,8 +33,7 @@
  */
 #include "render.h"
 #include "biltter.h"
-#include "render/fill/fill.h"
-#include "render/stroke/stroke.h"
+#include "render/render.h"
 #include "../../impl/bounds.h"
 #include "../../impl/stroker.h"
 

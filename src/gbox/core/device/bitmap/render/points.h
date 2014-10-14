@@ -21,8 +21,8 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_STROKE_POINTS_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_STROKE_POINTS_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_POINTS_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_POINTS_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

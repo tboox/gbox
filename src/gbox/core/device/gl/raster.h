@@ -17,17 +17,48 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        prefix.h
+ * @file        raster.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_PREFIX_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_PREFIX_H
+#ifndef GB_CORE_DEVICE_GL_RASTER_H
+#define GB_CORE_DEVICE_GL_RASTER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "../prefix.h"
+#include "prefix.h"
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+// the gl raster for the concave polygon
+typedef struct{}*   gb_gl_raster_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interface
+ */
+
+/* init raster
+ *
+ * @return          the raster
+ */
+gb_gl_raster_ref_t  gb_gl_raster_init(tb_noarg_t);
+
+/* exit raster
+ *
+ * @param raster    the raster
+ */
+tb_void_t           gb_gl_raster_exit(gb_gl_raster_ref_t raster);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 #endif
-
-

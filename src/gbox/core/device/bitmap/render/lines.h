@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        rect.h
+ * @file        lines.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_BITMAP_RENDER_FILL_RECT_H
-#define GB_CORE_DEVICE_BITMAP_RENDER_FILL_RECT_H
+#ifndef GB_CORE_DEVICE_BITMAP_RENDER_LINES_H
+#define GB_CORE_DEVICE_BITMAP_RENDER_LINES_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,12 +38,13 @@ __tb_extern_c_enter__
  * interface
  */
 
-/* fill rect
+/* stroke lines
  *
  * @param device    the device
- * @param rect      the rect
+ * @param points    the points 
+ * @param count     the points count
  */
-tb_void_t           gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_t rect);
+tb_void_t           gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -24,11 +24,11 @@ gbox_C_FILES 			+= \
 						core/device/bitmap/biltter \
 						core/device/bitmap/biltter/solid \
 						core/device/bitmap/biltter/shader \
-						core/device/bitmap/render/stroke/lines \
-						core/device/bitmap/render/stroke/points \
-						core/device/bitmap/render/stroke/polygon \
-						core/device/bitmap/render/fill/rect \
-						core/device/bitmap/render/fill/polygon \
+						core/device/bitmap/render/rect \
+						core/device/bitmap/render/lines \
+						core/device/bitmap/render/points \
+						core/device/bitmap/render/polygon \
+						core/device/bitmap/render/polygon \
 						core/prefix/prefix \
 						core/prefix/arc \
 						core/prefix/line \
@@ -60,6 +60,7 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
 						core/device/gl \
 						core/device/gl/render \
 						core/device/gl/shader \
+						core/device/gl/raster \
 						core/device/gl/interface \
 						core/device/gl/program \
 						core/device/gl/program/color \
