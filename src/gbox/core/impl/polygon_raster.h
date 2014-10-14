@@ -61,19 +61,7 @@ typedef enum __gb_polygon_raster_rule_e
 // the polygon raster edge type
 typedef struct __gb_polygon_raster_edge_t
 {
-    /* the x direction for the bresenham 
-     *
-     *             .
-     *           .   .
-     *         .       . 
-     *       .           .
-     *     .               .
-     *    -                 -
-     *    -1                1
-     */
-    tb_int8_t       direction_x : 2;
-
-    /* the y direction for rule
+    /* the winding for rule
      *
      *   . <= -1
      *     .
@@ -86,25 +74,19 @@ typedef struct __gb_polygon_raster_edge_t
      * 1:  top => bottom
      * -1: bottom => top
      */
-    tb_int8_t       direction_y : 2;
+    tb_int8_t       winding : 2;
 
-    // the x value at the top of edge
-    tb_int16_t      top_x;
+    // the index of next edge at the edge pool 
+    tb_uint16_t     next;
 
     // the y value at the bottom of edge
     tb_int16_t      bottom_y;
 
-    // the dx*2 for computing slope: dy/dx
-    tb_int16_t      dx2;
+    // the x value of the active edge
+    tb_fixed_t      x;
 
-    // the dy*2 for computing slope: dy/dx
-    tb_int16_t      dy2;
-
-    // the slope error for the bresenham 
-    tb_int16_t      error;
-
-    // the index of next edge at the edge pool 
-    tb_uint16_t     next;
+    // the slope of the edge: dx / dy 
+    tb_fixed_t      slope;
 
 }gb_polygon_raster_edge_t, *gb_polygon_raster_edge_ref_t;
 

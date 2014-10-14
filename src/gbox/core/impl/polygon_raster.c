@@ -86,7 +86,7 @@ static tb_void_t gb_polygon_raster_edges_sort(gb_polygon_raster_edge_ref_t edge_
             edge_rsh = edge_pool + index_rsh;
 
             // need sort? swap them
-            if (edge_lsh->top_x > edge_rsh->top_x)
+            if (edge_lsh->x > edge_rsh->x)
             {
                 // save the left-hand edge
                 edge_tmp = *edge_lsh;
@@ -144,16 +144,16 @@ static tb_uint16_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_edge_
 
                 /* is this?
                  *
-                 * top_x: 1 2 3     5 6
+                 * x: 1 2 3     5 6
                  *               |
                  *             4 or 5
                  */
-                if (edge->top_x <= edge_active->top_x) 
+                if (edge->x <= edge_active->x) 
                 {
                     /* same vertex?
                      *
                      *
-                     * top_x: 1 2 3     5 6
+                     * x: 1 2 3     5 6
                      *               |   .
                      *               5    .
                      *             .       .
@@ -162,7 +162,7 @@ static tb_uint16_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_edge_
                      *       .
                      *     edge
                      *
-                     * top_x: 1 2 3   5         6
+                     * x: 1 2 3   5         6
                      *                 .    |
                      *                  .   5
                      *                   .    .
@@ -173,7 +173,7 @@ static tb_uint16_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_edge_
                      *                                  .
                      *                                   edge
                      *
-                     *  top_x: 1 2 3   5         6
+                     *  x: 1 2 3   5         6
                      *                 .    |
                      *                .     5
                      *              .    .
@@ -185,7 +185,7 @@ static tb_uint16_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_edge_
                      *             edge
                      *
                      *
-                     * top_x: 1 2 3     5 6
+                     * x: 1 2 3     5 6
                      *               |   .
                      *               5      .
                      *                 .       .
@@ -199,11 +199,11 @@ static tb_uint16_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_edge_
                      *                                 .
                      *                                 edge
                      */
-                    if (edge->top_x == edge_active->top_x)
+                    if (edge->x == edge_active->x)
                     {
                         /* the edge is at the left-hand of the active edge?
                          * 
-                         * top_x: 1 2 3     5 6    <- active_edges
+                         * x: 1 2 3     5 6    <- active_edges
                          *               |   .
                          *               5    .
                          *             .       .
@@ -214,9 +214,7 @@ static tb_uint16_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_edge_
                          *
                          * if (edge->dx / edge->dy < active->dx / active->dy)?
                          */
-                        tb_long_t k0 = (tb_long_t)edge->dx2 * edge_active->dy2 * edge->direction_x;
-                        tb_long_t k1 = (tb_long_t)edge_active->dx2 * edge->dy2 * edge_active->direction_x;
-                        if (k0 < k1) break;
+                        if (edge->slope < edge_active->slope) break;
                     }
                     else break;
                 }
@@ -276,7 +274,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
          *    |            |
          *                \/
          */
-        winding += edge_lsh->direction_y; 
+        winding += edge_lsh->winding; 
 
         // the right-hand edge index
         index_rsh = edge_lsh->next; 
@@ -286,7 +284,7 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
         edge_rsh = edge_pool + index_rsh; 
 
         // check
-        tb_assert_abort(edge_lsh->top_x <= edge_rsh->top_x);
+        tb_assert_abort(edge_lsh->x <= edge_rsh->x);
 
         // compute the rule
         switch (rule)
@@ -337,10 +335,10 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
         }
 
         // trace
-        tb_trace_d("y: %ld, direction: %d, winding: %ld, %d => %d", y, edge_lsh->direction_y, winding, edge_lsh->top_x, edge_rsh->top_x);
+        tb_trace_d("y: %ld, winding: %ld, %{fixed} => %{fixed}", y, winding, edge_lsh->x, edge_rsh->x);
 
         // done func
-        if (done) func(y, edge_lsh->top_x, edge_rsh->top_x, priv);
+        if (done) func(y, tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), priv);
 
         // the left-hand edge index
         index_lsh = index_rsh; 
@@ -352,12 +350,9 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
     tb_assert_abort(edge_pool && porder && y <= bottom);
 
     // done
-    tb_int16_t                      dx2;
-    tb_int16_t                      dy2;
-    tb_int16_t                      step_x;
     tb_size_t                       first = 1;
     tb_size_t                       order = 1;
-    tb_uint16_t                     prev_x = 0;
+    tb_fixed_t                      prev_x = 0;
     tb_uint16_t                     index_prev = 0;
     tb_uint16_t                     index = active_edges;
     gb_polygon_raster_edge_ref_t    edge_prev = tb_null; 
@@ -367,18 +362,18 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
         // the edge
         edge = edge_pool + index;
 
-        /* remove edge from the active edges if (y >= edge->bottom_y - 1)
+        /* remove edge from the active edges if (y >= edge->bottom_y)
          *            
          *             .
          *           .  .
          *         .     .
-         *       .        .  <- bottom_y - 1: end and no next y for this edge, so remove it
-         *     .           . <- bottom_y and the start y of the next edge
+         *       .        .  <- bottom_y: end and no next y for this edge, so remove it
+         *     .           . <- the start y of the next edge
          *       .        .
          *          .   .   
          *            .      <- bottom
          */
-        if (y != bottom - 1 && edge->bottom_y < y + 2)
+        if (y != bottom - 1 && edge->bottom_y < y + 1)
         {
             // the next edge index
             index = edge->next;
@@ -396,47 +391,15 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
             continue;
         }
 
-        // compute the x step size: -1 or 1
-        step_x = edge->direction_x;
-
-        // the dx2 and dy2
-        dx2 = edge->dx2;
-        dy2 = edge->dy2;
-
-        /* update the x coordinate using the bresenham algorithm
-         *
-         * |slope| < 0.5?
-         */
-        if (dx2 > dy2) 
-        {
-            // increase x until y++
-            while (1)
-            {
-                if (edge->error > 0)
-                {
-                    edge->error -= dx2;
-                    break;
-                }
-                edge->error += dy2;
-                edge->top_x += step_x;
-            }
-        }
-        else 
-        {
-            if (edge->error > 0)
-            {
-                edge->error -= dy2;
-                edge->top_x += step_x;
-            }
-            edge->error += dx2;
-        }
+        // update the x-coordinate
+        edge->x += edge->slope;
 
         // is order?
         if (first) first = 0;
-        else if (order && edge->top_x < prev_x) order = 0;
+        else if (order && edge->x < prev_x) order = 0;
 
         // update the previous x coordinate
-        prev_x = edge->top_x;
+        prev_x = edge->x;
 
         // update the previous edge index
         index_prev = index;
@@ -486,19 +449,22 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
         // exists edge?
         if (index)
         {
-            // FIXME: 45 degree and (0.5, 1) => (1, 1.5)?
-            // ...
-
-            // the yb => ye
-            tb_long_t yb = gb_round(pb.y);
-            tb_long_t ye = gb_round(pe.y);
+            // get the integer y-coordinates
+            tb_long_t iyb = gb_round(pb.y);
+            tb_long_t iye = gb_round(pe.y);
 
             // not horizaontal edge?
-            if (yb != ye) 
+            if (iyb != iye) 
             {
-                // the xb => xe
-                tb_long_t xb = gb_round(pb.x);
-                tb_long_t xe = gb_round(pe.x);
+                // get the fixed-point coordinates
+                tb_fixed6_t xb = gb_float_to_fixed6(pb.x);
+                tb_fixed6_t yb = gb_float_to_fixed6(pb.y);
+                tb_fixed6_t xe = gb_float_to_fixed6(pe.x);
+                tb_fixed6_t ye = gb_float_to_fixed6(pe.y);
+
+                // compute the delta coordinates
+                tb_fixed6_t dx = xe - xb;
+                tb_fixed6_t dy = ye - yb;
 
                 // update the edge index
                 edge_index++;
@@ -509,59 +475,40 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
                 // make a new edge from the edge pool
                 gb_polygon_raster_edge_ref_t edge = &raster->edge_pool[edge_index];
 
-                // init the edge direction
-                edge->direction_x = 1;
-                edge->direction_y = 1;
+                // init the winding
+                edge->winding = 1;
 
-                // sort the points of the edge
-                if (ye < yb)
+                // sort the points of the edge by the y-coordinate
+                if (yb > ye)
                 {
                     // reverse the edge points
-                    tb_swap(tb_long_t, xb, xe);
-                    tb_swap(tb_long_t, yb, ye);
+                    tb_swap(tb_fixed6_t, xb, xe);
+                    tb_swap(tb_fixed6_t, yb, ye);
+                    tb_swap(tb_long_t, iyb, iye);
 
-                    // reverse the y direction
-                    edge->direction_y = -1;
+                    // reverse the winding
+                    edge->winding = -1;
                 }
 
-                // the top and bottom coordinates
-                tb_long_t top_x     = xb;
-                tb_long_t top_y     = yb;
-                tb_long_t bottom_x  = xe;
-                tb_long_t bottom_y  = ye;
-                tb_assert_abort(top_x < TB_MAXS16 && bottom_x < TB_MAXS16 && bottom_y < TB_MAXS16);
-                tb_assert_abort(bottom_y >= top_y && top_y >= raster->top && top_y - raster->top < tb_arrayn(raster->edge_table));
+                // check
+                tb_assert_abort(iyb < iye);
 
-                // compute dx*2, dy*2 for the edge slope
-                edge->dx2           = (tb_int16_t)((bottom_x - top_x) << 1);
-                edge->dy2           = (tb_int16_t)((bottom_y - top_y) << 1);
-                if (edge->dx2 < 0)
-                {
-                    // |dx2|
-                    edge->dx2 = -edge->dx2;
-                    
-                    // reverse the x direction
-                    edge->direction_x = -1;
-                }
-                tb_assert_abort(edge->dy2);
+                // compute the slope 
+                edge->slope = tb_fixed6_div(dx, dy);
 
-                // init the top x coordinate for the edge
-                edge->top_x = (tb_int16_t)top_x;
+                /* compute the more accurate start x-coordinate
+                 *
+                 * xb + (iyb - yb + 0.5) * dx / dy
+                 * => xb + ((0.5 - yb) % 1) * dx / dy
+                 */
+                edge->x = tb_fixed6_to_fixed(xb) + ((edge->slope * ((TB_FIXED6_HALF - yb) & 63)) >> 6);
 
                 // init the bottom y coordinate for the edge
-                edge->bottom_y = (tb_int16_t)bottom_y;
+                edge->bottom_y = iye - 1;
 
-                /* compute the slope error for the bresenham algorithm
-                 *
-                 * |slope| > 0.5
-                 * e / 1 = dy / dx
-                 * => y++ if e = dy / dx > 0.5 
-                 * => y++ if e = dy * 2 - dx > 0
-                 *
-                 * |slope| < 0.5
-                 * => y++ if e = dx * 2 - dy > 0
-                 */
-                edge->error = (edge->dx2 > edge->dy2)? (edge->dy2 - (edge->dx2 >> 1)) : (edge->dx2 - (edge->dy2 >> 1));
+                // the top y-coordinate
+                tb_long_t top_y = iyb;
+                tb_assert_abort(top_y >= raster->top && top_y - raster->top < tb_arrayn(raster->edge_table));
 
                 /* insert edge to the head of the edge table
                  *
@@ -608,7 +555,7 @@ tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, tb_size_t rule,
     tb_long_t                       bottom          = raster->bottom; 
     gb_polygon_raster_edge_ref_t    edge_pool       = raster->edge_pool;
     tb_uint16_t*                    edge_table      = raster->edge_table;
-    for (y = top; y <= bottom; y++)
+    for (y = top; y < bottom; y++)
     {
         // order? append edges to the sorted active edges by x in ascending
         if (order) active_edges = gb_polygon_raster_edges_sorted_append(edge_pool, active_edges, edge_table[y - top]); 
