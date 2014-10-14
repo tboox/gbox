@@ -556,6 +556,10 @@ tb_bool_t gb_canvas_multiply_lhs(gb_canvas_ref_t canvas, gb_matrix_ref_t factor)
 {
     return gb_matrix_multiply_lhs(gb_canvas_matrix(canvas), factor);
 }
+tb_void_t gb_canvas_convex_set(gb_canvas_ref_t canvas, tb_bool_t convex)
+{
+    gb_path_convex_set(gb_canvas_path(canvas), convex);
+}
 tb_void_t gb_canvas_clos(gb_canvas_ref_t canvas)
 {
     gb_path_clos(gb_canvas_path(canvas));

@@ -271,6 +271,30 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
             // trace
             tb_trace_d("make: hint: %{rect}", &impl->hint.u.rect);
         }
+        // triangle?
+        else if (   count == 4
+                &&  points[0].x == points[3].x
+                &&  points[0].y == points[3].y
+                &&  codes[0] == GB_PATH_CODE_MOVE
+                &&  codes[1] == GB_PATH_CODE_LINE
+                &&  codes[2] == GB_PATH_CODE_LINE
+                &&  codes[3] == GB_PATH_CODE_LINE
+                &&  points[0].x != points[1].x
+                &&  points[0].y != points[1].y
+                &&  points[0].x != points[2].x
+                &&  points[0].y != points[2].y
+                &&  points[1].x != points[2].x
+                &&  points[1].y != points[2].y)
+        {
+            // make hint
+            impl->hint.type             = GB_SHAPE_TYPE_TRIANGLE;
+            impl->hint.u.triangle.p0    = points[0];
+            impl->hint.u.triangle.p1    = points[1];
+            impl->hint.u.triangle.p2    = points[2];
+
+            // trace
+            tb_trace_d("make: hint: %{triangle}", &impl->hint.u.triangle);
+        }
         // line?
         else if (   count == 2
                 &&  codes[0] == GB_PATH_CODE_MOVE
@@ -320,6 +344,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
         case GB_SHAPE_TYPE_CIRCLE:
         case GB_SHAPE_TYPE_ELLIPSE:
         case GB_SHAPE_TYPE_TRIANGLE:
+        case GB_SHAPE_TYPE_ROUND_RECT:
             impl->flag |= GB_PATH_FLAG_CONVEX;
             break;
         default:
@@ -829,17 +854,17 @@ tb_void_t gb_path_clos(gb_path_ref_t path)
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
     tb_assert_and_check_return(impl && impl->codes && impl->points);
 
-	// close it for avoiding be double closed
-	if (!tb_vector_size(impl->codes) || tb_vector_last(impl->codes) != (tb_cpointer_t)GB_PATH_CODE_CLOS) 
-	{
+    // close it for avoiding be double closed
+    if (!tb_vector_size(impl->codes) || tb_vector_last(impl->codes) != (tb_cpointer_t)GB_PATH_CODE_CLOS) 
+    {
         // patch a line segment if the current point is not equal to the first point of the contour
         gb_point_t last = {0};
         if (gb_path_last(path, &last) && (last.x != impl->head.x || last.y != impl->head.y))
             gb_path_line_to(path, &impl->head);
 
-		// append code
-		tb_vector_insert_tail(impl->codes, (tb_cpointer_t)GB_PATH_CODE_CLOS);
-	}
+        // append code
+        tb_vector_insert_tail(impl->codes, (tb_cpointer_t)GB_PATH_CODE_CLOS);
+    }
 
     // mark closed
     impl->flag |= GB_PATH_FLAG_CLOSED;
@@ -850,8 +875,8 @@ tb_void_t gb_path_move_to(gb_path_ref_t path, gb_point_ref_t point)
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
     tb_assert_and_check_return(impl && impl->codes && impl->points && point);
 
-	// replace the last point for avoiding one lone move-to point
-	if (tb_vector_size(impl->codes) && tb_vector_last(impl->codes) == (tb_cpointer_t)GB_PATH_CODE_MOVE) 
+    // replace the last point for avoiding one lone move-to point
+    if (tb_vector_size(impl->codes) && tb_vector_last(impl->codes) == (tb_cpointer_t)GB_PATH_CODE_MOVE) 
     {
         // replace point
         tb_vector_replace_last(impl->points, point);
@@ -1363,9 +1388,9 @@ tb_void_t gb_path_add_arc2i(gb_path_ref_t path, tb_long_t x0, tb_long_t y0, tb_s
 }
 tb_void_t gb_path_add_triangle(gb_path_ref_t path, gb_triangle_ref_t triangle)
 {
-	// check
+    // check
     gb_path_impl_t* impl = (gb_path_impl_t*)path;
-	tb_assert_and_check_return(impl && triangle);
+    tb_assert_and_check_return(impl && triangle);
 
     // null and dirty? make hint
     tb_bool_t hint_maked = tb_false;

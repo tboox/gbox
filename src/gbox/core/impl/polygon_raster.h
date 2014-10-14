@@ -182,6 +182,9 @@ typedef struct __gb_polygon_raster_t
     // the raster rule
     tb_size_t                   rule;
 
+    // is convex?
+    tb_bool_t                   convex;
+
 }gb_polygon_raster_t, *gb_polygon_raster_ref_t;
 
 /* the polygon raster func type

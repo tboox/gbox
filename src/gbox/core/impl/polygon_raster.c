@@ -340,8 +340,43 @@ static tb_void_t gb_polygon_raster_scanning_line(gb_polygon_raster_edge_ref_t ed
         // done func
         if (done) func(y, tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), priv);
 
-        // the left-hand edge index
+        // the next left-hand edge index
         index_lsh = index_rsh; 
+    }
+}
+static tb_void_t gb_polygon_raster_scanning_line_for_convex(gb_polygon_raster_edge_ref_t edge_pool, tb_uint16_t active_edges, tb_uint16_t y, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(edge_pool && func);
+
+    // done
+    tb_uint16_t                     index_lsh = active_edges; 
+    tb_uint16_t                     index_rsh = 0; 
+    gb_polygon_raster_edge_ref_t    edge_lsh = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_rsh = tb_null; 
+    while (index_lsh) 
+    { 
+        // the left-hand edge
+        edge_lsh = edge_pool + index_lsh; 
+
+        // the right-hand edge index
+        index_rsh = edge_lsh->next; 
+        tb_check_break(index_rsh);
+
+        // the right-hand edge
+        edge_rsh = edge_pool + index_rsh; 
+
+        // check
+        tb_assert_abort(edge_lsh->x <= edge_rsh->x);
+
+        // trace
+        tb_trace_d("convex: y: %ld, %{fixed} => %{fixed}", y, edge_lsh->x, edge_rsh->x);
+
+        // done func
+        func(y, tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), priv);
+
+        // the next left-hand edge index
+        index_lsh = edge_rsh->next; 
     }
 }
 static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t edge_pool, tb_uint16_t active_edges, tb_long_t y, tb_long_t bottom, tb_size_t* porder)
@@ -414,6 +449,39 @@ static tb_int16_t gb_polygon_raster_scanning_next(gb_polygon_raster_edge_ref_t e
     // update the active edges 
     return active_edges;
 }
+static tb_void_t gb_polygon_raster_done_for_convex(gb_polygon_raster_ref_t raster, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(raster && func);
+
+    // done scanning
+    tb_long_t                       y;
+    tb_size_t                       order           = 1; 
+    tb_uint16_t                     active_edges    = 0; 
+    tb_long_t                       top             = raster->top; 
+    tb_long_t                       bottom          = raster->bottom; 
+    gb_polygon_raster_edge_ref_t    edge_pool       = raster->edge_pool;
+    tb_uint16_t*                    edge_table      = raster->edge_table;
+    for (y = top; y < bottom; y++)
+    {
+        // order? append edges to the sorted active edges by x in ascending
+        if (order) active_edges = gb_polygon_raster_edges_sorted_append(edge_pool, active_edges, edge_table[y - top]); 
+        else
+        {
+            // append edges to the active edges from the edge table
+            active_edges = gb_polygon_raster_edges_append(edge_pool, active_edges, edge_table[y - top]); 
+
+            // sort by x in ascending at the active edges
+            gb_polygon_raster_edges_sort(edge_pool, active_edges); 
+        }
+
+        // scanning line from the active edges
+        gb_polygon_raster_scanning_line_for_convex(edge_pool, active_edges, y, func, priv); 
+
+        // scanning the next line from the active edges
+        active_edges = gb_polygon_raster_scanning_next(edge_pool, active_edges, y, bottom, &order); 
+    }
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -432,6 +500,9 @@ tb_bool_t gb_polygon_raster_init(gb_polygon_raster_ref_t raster, gb_polygon_ref_
     // init top and bottom of the polygon
     raster->top     = gb_round(bounds->y);
     raster->bottom  = gb_round(bounds->y + bounds->h);
+
+    // init convex
+    raster->convex  = polygon->convex;
 
     // init the edge table
     gb_point_t      pb;
@@ -546,6 +617,14 @@ tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, tb_size_t rule,
 {
     // check
     tb_assert_abort(raster && func);
+
+    // is convex polygon?
+    if (raster->convex) 
+    {
+        // done raster fastly for the convex polygon
+        gb_polygon_raster_done_for_convex(raster, func, priv);
+        return ;
+    }
 
     // done scanning
     tb_long_t                       y;

@@ -542,6 +542,13 @@ tb_bool_t           gb_canvas_multiply(gb_canvas_ref_t canvas, gb_matrix_ref_t f
  */
 tb_bool_t           gb_canvas_multiply_lhs(gb_canvas_ref_t canvas, gb_matrix_ref_t factor);
 
+/*! set the convex path manually for drawing faster
+ *
+ * @param canvas    the canvas
+ * @param convex    is convex?
+ */
+tb_void_t           gb_canvas_convex_set(gb_canvas_ref_t canvas, tb_bool_t convex);
+
 /*! close path
  *
  * @param canvas    the canvas
