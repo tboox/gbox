@@ -37,10 +37,15 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_bitmap_render_fill_raster(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
+static tb_void_t gb_bitmap_render_fill_raster(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(priv && xe >= xb && ye > yb);
+    tb_assert_abort(priv && edge_lsh && edge_rsh && ye > yb);
+
+    // the x-coordinates
+    tb_long_t xb = tb_fixed_round(edge_lsh->x);
+    tb_long_t xe = tb_fixed_round(edge_rsh->x);
+    tb_assert_abort(xe >= xb);
 
     // done biltter
     gb_bitmap_biltter_done_r((gb_bitmap_biltter_ref_t)priv, xb, yb, xe - xb, ye - yb);

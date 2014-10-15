@@ -47,38 +47,6 @@
  * types
  */
 
-// the polygon raster edge type
-typedef struct __gb_polygon_raster_edge_t
-{
-    /* the winding for rule
-     *
-     *   . <= -1
-     *     .
-     *       . 
-     *         .
-     *            .  
-     *              .
-     *            => 1
-     *
-     * 1:  top => bottom
-     * -1: bottom => top
-     */
-    tb_int8_t       winding : 2;
-
-    // the index of next edge at the edge pool 
-    tb_uint16_t     next;
-
-    // the y value at the bottom of edge
-    tb_int16_t      bottom_y;
-
-    // the x value of the active edge
-    tb_fixed_t      x;
-
-    // the slope of the edge: dx / dy 
-    tb_fixed_t      slope;
-
-}gb_polygon_raster_edge_t, *gb_polygon_raster_edge_ref_t;
-
 /* the polygon raster type
  *
  * 1. make the edge table    
@@ -403,6 +371,51 @@ static tb_void_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_impl_t*
     // update the active edges 
     impl->active_edges = active_edges;
 }
+static tb_bool_t gb_polygon_raster_edges_init_table(gb_polygon_raster_impl_t* impl, tb_size_t table_size)
+{
+    // check
+    tb_assert_abort(impl && table_size);
+
+    // init the edge table
+    if (!impl->edge_table)
+    {
+        impl->edge_table_maxn = table_size;
+        impl->edge_table = tb_nalloc_type(impl->edge_table_maxn, tb_uint16_t);
+    }
+    else if (table_size > impl->edge_table_maxn)
+    {
+        impl->edge_table_maxn = table_size;
+        impl->edge_table = tb_ralloc_type(impl->edge_table, impl->edge_table_maxn, tb_uint16_t);
+    }
+    tb_assert_and_check_return_val(impl->edge_table && table_size <= TB_MAXU16, tb_false);
+
+    // clear the edge table
+    tb_memset_u16(impl->edge_table, 0, table_size);
+
+    // ok
+    return tb_true;
+}
+static gb_polygon_raster_edge_ref_t gb_polygon_raster_edges_init(gb_polygon_raster_impl_t* impl, tb_uint16_t index)
+{
+    // check
+    tb_assert_abort(impl && index <= TB_MAXU16);
+
+    // init the edge pool
+    if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_POLYGON_RASTER_EDGES_GROW, gb_polygon_raster_edge_t);
+    tb_assert_and_check_return_val(impl->edge_pool, tb_null);
+
+    // grow the edge pool
+    if (index >= impl->edge_pool_maxn)
+    {
+        impl->edge_pool_maxn = index + GB_POLYGON_RASTER_EDGES_GROW;
+        impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_polygon_raster_edge_t);
+        tb_assert_abort(impl->edge_pool);
+    }
+    tb_assert_abort(impl->edge_pool_maxn <= TB_MAXU16);
+
+    // make a new edge from the edge pool
+    return &impl->edge_pool[index];
+}
 static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
@@ -419,37 +432,18 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
     impl->bottom  = gb_round(bounds->y + bounds->h);
 
     // init the edge table
-    tb_size_t edge_table_size = impl->bottom - impl->top + 1;
-    if (!impl->edge_table)
-    {
-        impl->edge_table_maxn = edge_table_size;
-        impl->edge_table = tb_nalloc_type(impl->edge_table_maxn, tb_uint16_t);
-    }
-    else if (edge_table_size > impl->edge_table_maxn)
-    {
-        impl->edge_table_maxn = edge_table_size;
-        impl->edge_table = tb_ralloc_type(impl->edge_table, impl->edge_table_maxn, tb_uint16_t);
-    }
-    tb_assert_and_check_return_val(impl->edge_table, tb_false);
-
-    // clear the edge table
-    tb_memset_u16(impl->edge_table, 0, edge_table_size);
-
-    // init the edge pool
-    if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_POLYGON_RASTER_EDGES_GROW, gb_polygon_raster_edge_t);
-    tb_assert_and_check_return_val(impl->edge_pool, tb_false);
-
+    if (!gb_polygon_raster_edges_init_table(impl, impl->bottom - impl->top + 1)) return tb_false;
+ 
     // make the edge table
-    gb_point_t              pb;
-    gb_point_t              pe;
-    tb_uint16_t             index       = 0;
-    tb_uint16_t             edge_index  = 0;
-    tb_long_t               top         = impl->top;
-    gb_point_ref_t          points      = polygon->points;
-    tb_uint16_t*            counts      = polygon->counts;
-    tb_uint16_t             count       = *counts++;
-    gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
-    tb_uint16_t*            edge_table  = impl->edge_table;
+    gb_point_t          pb;
+    gb_point_t          pe;
+    tb_uint16_t         index       = 0;
+    tb_uint16_t         edge_index  = 0;
+    tb_long_t           top         = impl->top;
+    gb_point_ref_t      points      = polygon->points;
+    tb_uint16_t*        counts      = polygon->counts;
+    tb_uint16_t         count       = *counts++;
+    tb_uint16_t*        edge_table  = impl->edge_table;
     while (index < count)
     {
         // the point
@@ -478,16 +472,8 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
                 // update the edge index
                 edge_index++;
 
-                // grow the edge pool
-                if (edge_index >= impl->edge_pool_maxn)
-                {
-                    impl->edge_pool_maxn = edge_index + GB_POLYGON_RASTER_EDGES_GROW;
-                    impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_polygon_raster_edge_t);
-                    tb_assert_abort(impl->edge_pool);
-                }
-
                 // make a new edge from the edge pool
-                gb_polygon_raster_edge_ref_t edge = &edge_pool[edge_index];
+                gb_polygon_raster_edge_ref_t edge = gb_polygon_raster_edges_init(impl, edge_index);
 
                 // init the winding
                 edge->winding = 1;
@@ -701,7 +687,7 @@ static tb_void_t gb_polygon_raster_scanning_convex_line(gb_polygon_raster_impl_t
     }
 
     // done it
-    func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, ye, priv);
+    func(y, ye, edge_lsh, edge_rsh, priv);
 }
 static tb_void_t gb_polygon_raster_scanning_complex_line(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
@@ -794,7 +780,7 @@ static tb_void_t gb_polygon_raster_scanning_complex_line(gb_polygon_raster_impl_
         tb_trace_d("y: %ld, winding: %ld, %{fixed} => %{fixed}", y, winding, edge_lsh->x, edge_rsh->x);
 
         // done it for winding?
-        if (done) func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, y + 1, priv);
+        if (done) func(y, y + 1, edge_lsh, edge_rsh, priv);
 
         // the next left-hand edge index
         index_lsh = index_rsh; 

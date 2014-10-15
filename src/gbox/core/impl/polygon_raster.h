@@ -47,18 +47,50 @@ typedef enum __gb_polygon_raster_rule_e
 
 }gb_polygon_raster_rule_e;
 
+// the polygon raster edge type
+typedef struct __gb_polygon_raster_edge_t
+{
+    /* the winding for rule
+     *
+     *   . <= -1
+     *     .
+     *       . 
+     *         .
+     *            .  
+     *              .
+     *            => 1
+     *
+     * 1:  top => bottom
+     * -1: bottom => top
+     */
+    tb_int8_t       winding : 2;
+
+    // the index of next edge at the edge pool 
+    tb_uint16_t     next;
+
+    // the y value at the bottom of edge
+    tb_int16_t      bottom_y;
+
+    // the x value of the active edge
+    tb_fixed_t      x;
+
+    // the slope of the edge: dx / dy 
+    tb_fixed_t      slope;
+
+}gb_polygon_raster_edge_t, *gb_polygon_raster_edge_ref_t;
+
 // the polygon raster ref type
 typedef struct{}*       gb_polygon_raster_ref_t;
 
 /* the polygon raster func type
  *
- * @param xb            the start x-coordinate
- * @param xe            the end x-coordinate 
  * @param yb            the start y-coordinate
  * @param ye            the end y-coordinate 
+ * @param edge_lsh      the left-hand edge
+ * @param edge_rsh      the right-hand edge
  * @param priv          the private data
  */
-typedef tb_void_t       (*gb_polygon_raster_func_t)(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_polygon_raster_func_t)(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

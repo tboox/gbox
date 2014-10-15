@@ -35,34 +35,90 @@
 #include "polygon_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// the polygon contours grow
+#ifdef __gb_small__
+#   define GB_POLYGON_CUTTER_CONTOURS_GROW     (8)
+#else
+#   define GB_POLYGON_CUTTER_CONTOURS_GROW     (16)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-// the gl cutter impl type
+// the polygon contour type
+typedef struct __gb_polygon_cutter_contour_t
+{
+    // the last start x-coordinate
+    tb_fixed_t                      last_xb;
+
+    // the last end x-coordinate
+    tb_fixed_t                      last_xe;
+
+    // the last start slope: dx / dy
+    tb_fixed_t                      last_sb;
+
+    // the last end slope: dx / dy
+    tb_fixed_t                      last_se;
+
+    // the points
+    gb_point_ref_t                  points;
+
+    // the points maxn
+    tb_uint16_t                     points_maxn;
+
+    // the points count
+    tb_uint16_t                     points_count;
+
+    // the next contour
+    tb_uint16_t                     next;
+
+}gb_polygon_cutter_contour_t, *gb_polygon_cutter_contour_ref_t;
+
+// the polygon cutter impl type
 typedef struct __gb_polygon_cutter_impl_t
 {
     // the raster
-    gb_polygon_raster_ref_t     raster;
+    gb_polygon_raster_ref_t         raster;
+
+    // the contours
+    gb_polygon_cutter_contour_ref_t contours;
+
+    // the contours maxn
+    tb_size_t                       contours_maxn;
 
     // the user cutter func
-    gb_polygon_cutter_func_t    func;
+    gb_polygon_cutter_func_t        func;
 
     // the user private data
-    tb_cpointer_t               priv;
+    tb_cpointer_t                   priv;
 
 }gb_polygon_cutter_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_polygon_cutter_reduce_to_convex(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
+static tb_void_t gb_polygon_cutter_make_convex(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv)
 {
     // check
     gb_polygon_cutter_impl_t* impl = (gb_polygon_cutter_impl_t*)priv;
-    tb_assert_abort(impl);
+    tb_assert_abort(impl && edge_lsh && edge_rsh);
 
-    // trace
-    tb_trace_d("xb: %ld, xe: %ld, yb: %ld, ye: %ld", xb, yb, xe, ye);
+    // only one line
+    tb_assert_abort(yb + 1 == ye);
+
+    // the x-coordinates
+    tb_fixed_t xb = edge_lsh->x;
+    tb_fixed_t xe = edge_rsh->x;
+    tb_assert_abort(xe >= xb);
+
+    // the slopes
+//    tb_fixed_t sb = edge_lsh->slope;
+//    tb_fixed_t se = edge_rsh->slope;
+
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -71,11 +127,11 @@ static tb_void_t gb_polygon_cutter_reduce_to_convex(tb_long_t xb, tb_long_t xe, 
 gb_polygon_cutter_ref_t gb_polygon_cutter_init()
 {
     // done
-    tb_bool_t               ok = tb_false;
-    gb_polygon_cutter_impl_t*    impl = tb_null;
+    tb_bool_t                   ok = tb_false;
+    gb_polygon_cutter_impl_t*   impl = tb_null;
     do
     {
-        // make gl cutter
+        // make cutter
         impl = tb_malloc0_type(gb_polygon_cutter_impl_t);
         tb_assert_and_check_break(impl);
 
@@ -141,10 +197,7 @@ tb_void_t gb_polygon_cutter_done(gb_polygon_cutter_ref_t cutter, gb_polygon_ref_
         impl->func = func;
         impl->priv = priv;
 
-        // trace
-        tb_trace_d("bounds: %{rect}", bounds);
-
         // done raster and reduce the complex polygon to the some convex polygons
-        gb_polygon_raster_done(impl->raster, polygon, bounds, rule, gb_polygon_cutter_reduce_to_convex, (tb_cpointer_t)impl);
+        gb_polygon_raster_done(impl->raster, polygon, bounds, rule, gb_polygon_cutter_make_convex, (tb_cpointer_t)impl);
     }
 }
