@@ -409,9 +409,8 @@ static gb_polygon_raster_edge_ref_t gb_polygon_raster_edges_init(gb_polygon_rast
     {
         impl->edge_pool_maxn = index + GB_POLYGON_RASTER_EDGES_GROW;
         impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_polygon_raster_edge_t);
-        tb_assert_abort(impl->edge_pool);
+        tb_assert_and_check_return_val(impl->edge_pool, tb_null);
     }
-    tb_assert_abort(impl->edge_pool_maxn <= TB_MAXU16);
 
     // make a new edge from the edge pool
     return &impl->edge_pool[index];
