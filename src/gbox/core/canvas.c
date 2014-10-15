@@ -154,7 +154,7 @@ gb_canvas_ref_t gb_canvas_init_from_window(gb_window_ref_t window)
     // ok?
     return canvas;
 }
-#ifdef GB_CONFIG_THIRD_HAVE_SKIA
+#ifdef GB_CONFIG_DEVICE_HAVE_SKIA
 gb_canvas_ref_t gb_canvas_init_from_skia(gb_bitmap_ref_t bitmap)
 {
     // done
@@ -183,6 +183,7 @@ gb_canvas_ref_t gb_canvas_init_from_skia(gb_bitmap_ref_t bitmap)
     return canvas;
 }
 #endif
+#ifdef GB_CONFIG_DEVICE_HAVE_BITMAP
 gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
 {
     // check
@@ -213,6 +214,7 @@ gb_canvas_ref_t gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap)
     // ok?
     return canvas;
 }
+#endif
 tb_void_t gb_canvas_exit(gb_canvas_ref_t canvas)
 {
     // check

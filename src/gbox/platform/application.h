@@ -34,7 +34,7 @@
  */
 
 // force using sdl window for application
-#ifdef GB_CONFIG_APP_WINDOW_SDL
+#ifdef GB_CONFIG_APPLICATION_WINDOW_SDL
 #   undef main
 #   define main SDL_main
 #endif

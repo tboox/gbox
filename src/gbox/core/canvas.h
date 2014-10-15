@@ -54,7 +54,7 @@ gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
  */
 gb_canvas_ref_t     gb_canvas_init_from_window(gb_window_ref_t window);
 
-#ifdef GB_CONFIG_THIRD_HAVE_SKIA
+#ifdef GB_CONFIG_DEVICE_HAVE_SKIA
 /*! init canvas from skia
  *
  * @param bitmap    the bitmap
@@ -64,6 +64,7 @@ gb_canvas_ref_t     gb_canvas_init_from_window(gb_window_ref_t window);
 gb_canvas_ref_t     gb_canvas_init_from_skia(gb_bitmap_ref_t bitmap);
 #endif
 
+#ifdef GB_CONFIG_DEVICE_HAVE_BITMAP
 /*! init canvas from the given bitmap
  *
  * @param bitmap    the bitmap
@@ -71,6 +72,7 @@ gb_canvas_ref_t     gb_canvas_init_from_skia(gb_bitmap_ref_t bitmap);
  * @return          the canvas
  */
 gb_canvas_ref_t     gb_canvas_init_from_bitmap(gb_bitmap_ref_t bitmap);
+#endif
 
 /*! exit canvas
  *

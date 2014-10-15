@@ -32,9 +32,9 @@ application_LIBS-y 									+= $(GB_CONFIG_DEMO_LIBS)
 application_LIBS-$(GB_CONFIG_THIRD_HAVE_PNG)  		+= png 
 application_LIBS-$(GB_CONFIG_THIRD_HAVE_JPG)  		+= jpeg 
 application_LIBS-$(GB_CONFIG_THIRD_HAVE_FREETYPE)  	+= freetype bz2
-application_LIBS-$(GB_CONFIG_THIRD_HAVE_SKIA)  		+= skia 
-application_LIBS-$(GB_CONFIG_THIRD_HAVE_SDL)  		+= SDL 
-application_LIBS-$(GB_CONFIG_APP_WINDOW_SDL)  		+= SDLmain
+application_LIBS-$(GB_CONFIG_DEVICE_HAVE_SKIA)  	+= skia 
+application_LIBS-$(GB_CONFIG_WINDOW_HAVE_SDL)  		+= SDL 
+application_LIBS-$(GB_CONFIG_APPLICATION_WINDOW_SDL)+= SDLmain
 
 # path
 application_INC_DIR 								+= ../../../../

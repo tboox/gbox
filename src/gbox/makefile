@@ -19,16 +19,6 @@ gbox_C_FILES 			+= \
 						core/canvas \
 						core/device \
 						core/clipper \
-						core/device/bitmap \
-						core/device/bitmap/render \
-						core/device/bitmap/biltter \
-						core/device/bitmap/biltter/solid \
-						core/device/bitmap/biltter/shader \
-						core/device/bitmap/render/rect \
-						core/device/bitmap/render/lines \
-						core/device/bitmap/render/points \
-						core/device/bitmap/render/polygon \
-						core/device/bitmap/render/polygon \
 						core/prefix/prefix \
 						core/prefix/arc \
 						core/prefix/line \
@@ -47,16 +37,29 @@ gbox_C_FILES 			+= \
 						core/impl/path_cache \
 						core/impl/cache_stack \
 						core/impl/cache_stack \
-						core/impl/stroker \
 						core/impl/arc \
 						core/impl/quad \
 						core/impl/cubic \
 						core/impl/float \
-						core/impl/raster 
+						core/impl/raster \
+						core/impl/stroker 
 
 
-# gl core files
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
+# bitmap device files
+gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_BITMAP) += \
+						core/device/bitmap \
+						core/device/bitmap/render \
+						core/device/bitmap/biltter \
+						core/device/bitmap/biltter/solid \
+						core/device/bitmap/biltter/shader \
+						core/device/bitmap/render/rect \
+						core/device/bitmap/render/lines \
+						core/device/bitmap/render/points \
+						core/device/bitmap/render/polygon 
+
+
+# gl device files
+gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_GL) += \
 						core/device/gl \
 						core/device/gl/render \
 						core/device/gl/shader \
@@ -66,8 +69,8 @@ gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GL) += \
 						core/device/gl/program/color \
 						core/device/gl/program/bitmap 
 
-# skia core files
-gbox_CPP_FILES-$(GB_CONFIG_THIRD_HAVE_SKIA) += \
+# skia device files
+gbox_CPP_FILES-$(GB_CONFIG_DEVICE_HAVE_SKIA) += \
 						core/device/skia
 
 # platform files
@@ -78,20 +81,20 @@ gbox_C_FILES 			+= \
 						platform/application \
 						platform/impl/window 
 
-# glut files
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_GLUT) += \
+# glut window files
+gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_GLUT) += \
 						platform/glut/window
 
-# sdl files
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_SDL) += \
+# sdl window files
+gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_SDL) += \
  						platform/sdl/window
 
-# x11 files
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_X11) += \
+# x11 window files
+gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_X11) += \
  						platform/x11/window
 
-# framebuffer files
-gbox_C_FILES-$(GB_CONFIG_THIRD_HAVE_FRAMEBUFFER) += \
+# framebuffer window files
+gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_FRAMEBUFFER) += \
  						platform/framebuffer/window
 
 # ios files

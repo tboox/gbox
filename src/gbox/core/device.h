@@ -61,7 +61,7 @@ typedef enum __gb_device_type_e
  */
 gb_device_ref_t     gb_device_init(gb_window_ref_t window);
 
-#ifdef GB_CONFIG_THIRD_HAVE_SKIA
+#ifdef GB_CONFIG_DEVICE_HAVE_SKIA
 /*! init skia device
  *
  * @param bitmap    the bitmap
@@ -71,6 +71,7 @@ gb_device_ref_t     gb_device_init(gb_window_ref_t window);
 gb_device_ref_t     gb_device_init_skia(gb_bitmap_ref_t bitmap);
 #endif
 
+#ifdef GB_CONFIG_DEVICE_HAVE_BITMAP
 /*! init bitmap device
  *
  * @param bitmap    the bitmap
@@ -78,6 +79,7 @@ gb_device_ref_t     gb_device_init_skia(gb_bitmap_ref_t bitmap);
  * @return          the device
  */
 gb_device_ref_t     gb_device_init_bitmap(gb_bitmap_ref_t bitmap);
+#endif
 
 /*! exit device 
  *

@@ -44,7 +44,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
  */
-#ifdef GB_CONFIG_THIRD_HAVE_GL
+#ifdef GB_CONFIG_DEVICE_HAVE_GL
 __tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
 #endif
 

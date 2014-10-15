@@ -174,7 +174,7 @@ typedef struct __gb_window_info_t
  */
 gb_window_ref_t         gb_window_init(gb_window_info_ref_t info);
 
-#ifdef GB_CONFIG_THIRD_HAVE_GLUT
+#ifdef GB_CONFIG_WINDOW_HAVE_GLUT
 /*! init glut window 
  *
  * @param info          the window info
@@ -184,7 +184,7 @@ gb_window_ref_t         gb_window_init(gb_window_info_ref_t info);
 gb_window_ref_t         gb_window_init_glut(gb_window_info_ref_t info);
 #endif
 
-#ifdef GB_CONFIG_THIRD_HAVE_SDL
+#ifdef GB_CONFIG_WINDOW_HAVE_SDL
 /*! init sdl window 
  *
  * @param info          the window info
@@ -194,7 +194,7 @@ gb_window_ref_t         gb_window_init_glut(gb_window_info_ref_t info);
 gb_window_ref_t         gb_window_init_sdl(gb_window_info_ref_t info);
 #endif
 
-#ifdef GB_CONFIG_THIRD_HAVE_X11
+#ifdef GB_CONFIG_WINDOW_HAVE_X11
 /*! init x11 window 
  *
  * @param info          the window info
@@ -204,7 +204,7 @@ gb_window_ref_t         gb_window_init_sdl(gb_window_info_ref_t info);
 gb_window_ref_t         gb_window_init_x11(gb_window_info_ref_t info);
 #endif
 
-#ifdef GB_CONFIG_THIRD_HAVE_FRAMEBUFFER
+#ifdef GB_CONFIG_WINDOW_HAVE_FRAMEBUFFER
 /*! init framebuffer window 
  *
  * @param info          the window info
