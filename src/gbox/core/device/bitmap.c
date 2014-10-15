@@ -187,6 +187,10 @@ static tb_void_t gb_device_bitmap_exit(gb_device_impl_t* device)
     if (impl->stroker) gb_stroker_exit(impl->stroker);
     impl->stroker = tb_null;
 
+    // exit raster
+    if (impl->raster) gb_raster_exit(impl->raster);
+    impl->raster = tb_null;
+
     // exit it
     tb_free(impl);
 }
@@ -232,6 +236,10 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         // init pixmap
         impl->pixmap = gb_pixmap(gb_bitmap_pixfmt(bitmap), 0xff);
         tb_assert_and_check_break(impl->pixmap);
+
+        // init raster
+        impl->raster = gb_raster_init();
+        tb_assert_and_check_break(impl->raster);
 
         // init stroker
         impl->stroker = gb_stroker_init();

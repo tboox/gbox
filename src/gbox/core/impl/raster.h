@@ -21,13 +21,14 @@
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_DEVICE_GL_RASTER_H
-#define GB_CORE_DEVICE_GL_RASTER_H
+#ifndef GB_CORE_IMPL_RASTER_H
+#define GB_CORE_IMPL_RASTER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
+#include "../paint.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -38,43 +39,59 @@ __tb_extern_c_enter__
  * types
  */
 
-// the gl raster for the concave polygon
-typedef struct{}*   gb_gl_raster_ref_t;
+// the raster rule enum
+typedef enum __gb_raster_rule_e
+{
+    GB_RASTER_RULE_ODD      = GB_PAINT_FILL_RULE_ODD     //< odd 
+,   GB_RASTER_RULE_NONZERO  = GB_PAINT_FILL_RULE_NONZERO //< non-zero 
 
-/* the gl raster func type
- * 
- * @param points    the points convex contour
- * @param count     the point count
- * @param priv      the user private data
+}gb_raster_rule_e;
+
+// the raster ref type
+typedef struct{}*       gb_raster_ref_t;
+
+/* the raster func type
+ *
+ * @param xb            the start x-coordinate
+ * @param xe            the end x-coordinate 
+ * @param yb            the start y-coordinate
+ * @param ye            the end y-coordinate 
+ * @param priv          the private data
  */
-typedef tb_void_t   (*gb_gl_raster_func_t)(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_raster_func_t)(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interface
+ * interfaces
  */
 
 /* init raster
  *
- * @return          the raster
+ * @return              the raster
  */
-gb_gl_raster_ref_t  gb_gl_raster_init(tb_noarg_t);
+gb_raster_ref_t         gb_raster_init(tb_noarg_t);
 
 /* exit raster
  *
- * @param raster    the raster
+ * @param raster        the raster
  */
-tb_void_t           gb_gl_raster_exit(gb_gl_raster_ref_t raster);
+tb_void_t               gb_raster_exit(gb_raster_ref_t raster);
 
 /* done raster
  *
- * @param raster    the raster
- * @param func      the raster func
- * @param priv      the user private data
+ * @param raster        the raster
+ * @param polygon       the polygon
+ * @param bounds        the bounds
+ * @param rule          the raster rule
+ * @param func          the raster func
+ * @param priv          the private data
  */
-tb_void_t           gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_gl_raster_func_t func, tb_cpointer_t priv);
+tb_void_t               gb_raster_done(gb_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_raster_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
 __tb_extern_c_leave__
+
 #endif
+
+

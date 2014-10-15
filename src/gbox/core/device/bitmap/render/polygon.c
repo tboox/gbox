@@ -37,28 +37,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_bitmap_render_fill_polygon_raster(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
+static tb_void_t gb_bitmap_render_fill_raster(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(priv && xe >= xb && ye > yb);
 
     // done biltter
     gb_bitmap_biltter_done_r((gb_bitmap_biltter_ref_t)priv, xb, yb, xe - xb, ye - yb);
-}
-static tb_void_t gb_bitmap_render_fill_polygon_done(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
-{
-    // check
-    tb_assert_abort(device && polygon && bounds);
-
-    // init raster
-    if (gb_polygon_raster_init(&device->raster, polygon, bounds)) 
-    {
-        // done raster
-        gb_polygon_raster_done(&device->raster, gb_paint_fill_rule(device->base.paint), gb_bitmap_render_fill_polygon_raster, &device->biltter);
-
-        // exit raster
-        gb_polygon_raster_exit(&device->raster);
-    }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -67,31 +52,10 @@ static tb_void_t gb_bitmap_render_fill_polygon_done(gb_bitmap_device_ref_t devic
 tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && polygon && bounds);
+    tb_assert_abort(device && device->base.paint);
 
-    // convex? fill the each convex contour
-    if (polygon->convex)
-    {
-        // done
-        tb_size_t       index               = 0;
-        gb_point_ref_t  points              = polygon->points;
-        tb_uint16_t*    counts              = polygon->counts;
-        tb_uint16_t     contour_counts[2]   = {0, 0};
-        gb_polygon_t    contour             = {tb_null, contour_counts, tb_true};
-        while ((contour_counts[0] = *counts++))
-        {
-            // init the polygon for this contour
-            contour.points = points + index;
-
-            // fill this convex contour
-            gb_bitmap_render_fill_polygon_done(device, &contour, bounds);
-
-            // update the contour index
-            index += contour_counts[0];
-        }
-    }
-    // fill this polygon directly
-    else gb_bitmap_render_fill_polygon_done(device, polygon, bounds);
+    // done raster
+    gb_raster_done(device->raster, polygon, bounds, gb_paint_fill_rule(device->base.paint), gb_bitmap_render_fill_raster, &device->biltter);
 }
 tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon)
 {

@@ -34,5 +34,25 @@
 #include "raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+// the gl raster impl type
+typedef struct __gb_gl_raster_impl_t
+{
+
+}gb_gl_raster_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
+gb_gl_raster_ref_t gb_gl_raster_init()
+{
+    return tb_null;
+}
+tb_void_t gb_gl_raster_exit(gb_gl_raster_ref_t raster)
+{
+}
+tb_void_t gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_gl_raster_func_t func, tb_cpointer_t priv)
+{
+}

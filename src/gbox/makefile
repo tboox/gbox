@@ -52,7 +52,7 @@ gbox_C_FILES 			+= \
 						core/impl/quad \
 						core/impl/cubic \
 						core/impl/float \
-						core/impl/polygon_raster 
+						core/impl/raster 
 
 
 # gl core files
