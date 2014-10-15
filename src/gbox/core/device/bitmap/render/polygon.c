@@ -55,7 +55,7 @@ tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygo
     tb_assert_abort(device && device->base.paint);
 
     // done raster
-    gb_raster_done(device->raster, polygon, bounds, gb_paint_fill_rule(device->base.paint), gb_bitmap_render_fill_raster, &device->biltter);
+    gb_polygon_raster_done(device->raster, polygon, bounds, gb_paint_fill_rule(device->base.paint), gb_bitmap_render_fill_raster, &device->biltter);
 }
 tb_void_t gb_bitmap_render_stroke_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon)
 {

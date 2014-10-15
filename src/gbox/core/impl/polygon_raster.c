@@ -17,20 +17,20 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        raster.c
+ * @file        polygon_raster.c
  * @ingroup     core
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "raster"
+#define TB_TRACE_MODULE_NAME            "polygon_raster"
 #define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "raster.h"
+#include "polygon_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -38,9 +38,9 @@
 
 // the polygon edges grow
 #ifdef __gb_small__
-#   define GB_RASTER_EDGES_GROW     (1024)
+#   define GB_POLYGON_RASTER_EDGES_GROW     (1024)
 #else
-#   define GB_RASTER_EDGES_GROW     (2048)
+#   define GB_POLYGON_RASTER_EDGES_GROW     (2048)
 #endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@
  */
 
 // the polygon raster edge type
-typedef struct __gb_raster_edge_t
+typedef struct __gb_polygon_raster_edge_t
 {
     /* the winding for rule
      *
@@ -77,7 +77,7 @@ typedef struct __gb_raster_edge_t
     // the slope of the edge: dx / dy 
     tb_fixed_t      slope;
 
-}gb_raster_edge_t, *gb_raster_edge_ref_t;
+}gb_polygon_raster_edge_t, *gb_polygon_raster_edge_ref_t;
 
 /* the polygon raster type
  *
@@ -154,44 +154,44 @@ typedef struct __gb_raster_edge_t
  * active_edges: be sorted by x in ascending
  *
  */
-typedef struct __gb_raster_impl_t
+typedef struct __gb_polygon_raster_impl_t
 {
     // the edge pool, tail: 0, index: > 0
-    gb_raster_edge_ref_t        edge_pool;
+    gb_polygon_raster_edge_ref_t    edge_pool;
 
     // the edge pool maxn
-    tb_size_t                   edge_pool_maxn;
+    tb_size_t                       edge_pool_maxn;
     
     // the edge table
-    tb_uint16_t*                edge_table;
+    tb_uint16_t*                    edge_table;
 
     // the edge table maxn
-    tb_size_t                   edge_table_maxn;
+    tb_size_t                       edge_table_maxn;
 
     // the active edges
-    tb_uint16_t                 active_edges;
+    tb_uint16_t                     active_edges;
 
     // the top of the polygon bounds
-    tb_long_t                   top;
+    tb_long_t                       top;
 
     // the bottom of the polygon bounds
-    tb_long_t                   bottom;
+    tb_long_t                       bottom;
 
-}gb_raster_impl_t;
+}gb_polygon_raster_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_raster_edges_append(gb_raster_impl_t* impl, tb_uint16_t index)
+static tb_void_t gb_polygon_raster_edges_append(gb_polygon_raster_impl_t* impl, tb_uint16_t index)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool);
 
     // done
-    tb_uint16_t             next = 0;
-    gb_raster_edge_ref_t    edge = tb_null;
-    gb_raster_edge_ref_t    edge_pool = impl->edge_pool;
-    tb_uint16_t             active_edges = impl->active_edges;
+    tb_uint16_t                     next = 0;
+    gb_polygon_raster_edge_ref_t    edge = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    tb_uint16_t                     active_edges = impl->active_edges;
     while (index)
     {
         // the edge
@@ -211,18 +211,18 @@ static tb_void_t gb_raster_edges_append(gb_raster_impl_t* impl, tb_uint16_t inde
     // update the active edges 
     impl->active_edges = active_edges;
 }
-static tb_void_t gb_raster_edges_sort(gb_raster_impl_t* impl)
+static tb_void_t gb_polygon_raster_edges_sort(gb_polygon_raster_impl_t* impl)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool);
 
     // done
-    tb_uint16_t             index_lsh   = impl->active_edges;
-    tb_uint16_t             index_rsh   = 0;
-    gb_raster_edge_ref_t    edge_lsh    = tb_null;
-    gb_raster_edge_ref_t    edge_rsh    = tb_null;
-    gb_raster_edge_t        edge_tmp;
-    gb_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    tb_uint16_t                     index_lsh   = impl->active_edges;
+    tb_uint16_t                     index_rsh   = 0;
+    gb_polygon_raster_edge_ref_t    edge_lsh    = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_rsh    = tb_null;
+    gb_polygon_raster_edge_t        edge_tmp;
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
     while (index_lsh)
     {
         // the left-hand edge
@@ -260,19 +260,19 @@ static tb_void_t gb_raster_edges_sort(gb_raster_impl_t* impl)
         index_lsh = edge_lsh->next;
     }
 }
-static tb_void_t gb_raster_edges_sorted_append(gb_raster_impl_t* impl, tb_uint16_t edge_index)
+static tb_void_t gb_polygon_raster_edges_sorted_append(gb_polygon_raster_impl_t* impl, tb_uint16_t edge_index)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool);
 
     // done
-    tb_uint16_t             index_next = 0;
-    tb_uint16_t             index_active = 0;
-    gb_raster_edge_ref_t    edge = tb_null;
-    gb_raster_edge_ref_t    edge_prev = tb_null;
-    gb_raster_edge_ref_t    edge_active = tb_null;
-    gb_raster_edge_ref_t    edge_pool = impl->edge_pool;
-    tb_uint16_t             active_edges = impl->active_edges;
+    tb_uint16_t                     index_next = 0;
+    tb_uint16_t                     index_active = 0;
+    gb_polygon_raster_edge_ref_t    edge = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_prev = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_active = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    tb_uint16_t                     active_edges = impl->active_edges;
     while (edge_index)
     {
         // the edge
@@ -403,7 +403,7 @@ static tb_void_t gb_raster_edges_sorted_append(gb_raster_impl_t* impl, tb_uint16
     // update the active edges 
     impl->active_edges = active_edges;
 }
-static tb_bool_t gb_raster_edges_make(gb_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
+static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(impl && polygon && polygon->points && polygon->counts && bounds);
@@ -436,7 +436,7 @@ static tb_bool_t gb_raster_edges_make(gb_raster_impl_t* impl, gb_polygon_ref_t p
     tb_memset_u16(impl->edge_table, 0, edge_table_size);
 
     // init the edge pool
-    if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_RASTER_EDGES_GROW, gb_raster_edge_t);
+    if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_POLYGON_RASTER_EDGES_GROW, gb_polygon_raster_edge_t);
     tb_assert_and_check_return_val(impl->edge_pool, tb_false);
 
     // make the edge table
@@ -448,7 +448,7 @@ static tb_bool_t gb_raster_edges_make(gb_raster_impl_t* impl, gb_polygon_ref_t p
     gb_point_ref_t          points      = polygon->points;
     tb_uint16_t*            counts      = polygon->counts;
     tb_uint16_t             count       = *counts++;
-    gb_raster_edge_ref_t    edge_pool   = impl->edge_pool;
+    gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
     tb_uint16_t*            edge_table  = impl->edge_table;
     while (index < count)
     {
@@ -481,13 +481,13 @@ static tb_bool_t gb_raster_edges_make(gb_raster_impl_t* impl, gb_polygon_ref_t p
                 // grow the edge pool
                 if (edge_index >= impl->edge_pool_maxn)
                 {
-                    impl->edge_pool_maxn = edge_index + GB_RASTER_EDGES_GROW;
-                    impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_raster_edge_t);
+                    impl->edge_pool_maxn = edge_index + GB_POLYGON_RASTER_EDGES_GROW;
+                    impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_polygon_raster_edge_t);
                     tb_assert_abort(impl->edge_pool);
                 }
 
                 // make a new edge from the edge pool
-                gb_raster_edge_ref_t edge = &edge_pool[edge_index];
+                gb_polygon_raster_edge_ref_t edge = &edge_pool[edge_index];
 
                 // init the winding
                 edge->winding = 1;
@@ -552,22 +552,22 @@ static tb_bool_t gb_raster_edges_make(gb_raster_impl_t* impl, gb_polygon_ref_t p
     // ok
     return tb_true;
 }
-static tb_void_t gb_raster_scanning_next(gb_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
+static tb_void_t gb_polygon_raster_scanning_next(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && impl->edge_table && y <= impl->bottom);
 
     // done
-    tb_size_t               first = 1;
-    tb_size_t               order = 1;
-    tb_fixed_t              prev_x = 0;
-    tb_uint16_t             index_prev = 0;
-    tb_uint16_t             index = impl->active_edges;
-    tb_long_t               bottom = impl->bottom;
-    gb_raster_edge_ref_t    edge = tb_null; 
-    gb_raster_edge_ref_t    edge_prev = tb_null; 
-    gb_raster_edge_ref_t    edge_pool = impl->edge_pool;
-    tb_uint16_t             active_edges = impl->active_edges;
+    tb_size_t                       first = 1;
+    tb_size_t                       order = 1;
+    tb_fixed_t                      prev_x = 0;
+    tb_uint16_t                     index_prev = 0;
+    tb_uint16_t                     index = impl->active_edges;
+    tb_long_t                       bottom = impl->bottom;
+    gb_polygon_raster_edge_ref_t    edge = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_prev = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    tb_uint16_t                     active_edges = impl->active_edges;
     while (index)
     {
         // the edge
@@ -630,7 +630,7 @@ static tb_void_t gb_raster_scanning_next(gb_raster_impl_t* impl, tb_long_t y, tb
     // update the active edges 
     impl->active_edges = active_edges;
 }
-static tb_void_t gb_raster_scanning_convex_line(gb_raster_impl_t* impl, tb_long_t y, gb_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_scanning_convex_line(gb_polygon_raster_impl_t* impl, tb_long_t y, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
@@ -640,14 +640,14 @@ static tb_void_t gb_raster_scanning_convex_line(gb_raster_impl_t* impl, tb_long_
     tb_check_return(index_lsh);
 
     // the left-hand edge
-    gb_raster_edge_ref_t edge_lsh = impl->edge_pool + index_lsh; 
+    gb_polygon_raster_edge_ref_t edge_lsh = impl->edge_pool + index_lsh; 
 
     // the right-hand edge index
     tb_uint16_t index_rsh = edge_lsh->next; 
     tb_check_return(index_rsh);
 
     // the right-hand edge
-    gb_raster_edge_ref_t edge_rsh = impl->edge_pool + index_rsh; 
+    gb_polygon_raster_edge_ref_t edge_rsh = impl->edge_pool + index_rsh; 
 
     // check
     tb_assert_abort(edge_lsh->x <= edge_rsh->x);
@@ -667,9 +667,9 @@ static tb_void_t gb_raster_scanning_convex_line(gb_raster_impl_t* impl, tb_long_
     if (tb_fixed_abs(edge_lsh->slope) <= TB_FIXED_NEAR0 && tb_fixed_abs(edge_rsh->slope) <= TB_FIXED_NEAR0)        
     {
         // get the min and max edge for the y-bottom
-        gb_raster_edge_ref_t    edge_min    = edge_lsh; 
-        gb_raster_edge_ref_t    edge_max    = edge_rsh; 
-        tb_uint16_t             index_max   = index_rsh;
+        gb_polygon_raster_edge_ref_t    edge_min    = edge_lsh; 
+        gb_polygon_raster_edge_ref_t    edge_max    = edge_rsh; 
+        tb_uint16_t                     index_max   = index_rsh;
         if (edge_min->bottom_y > edge_max->bottom_y)
         {
             edge_min    = edge_rsh; 
@@ -703,19 +703,19 @@ static tb_void_t gb_raster_scanning_convex_line(gb_raster_impl_t* impl, tb_long_
     // done it
     func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, ye, priv);
 }
-static tb_void_t gb_raster_scanning_complex_line(gb_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_scanning_complex_line(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
 
     // done
-    tb_long_t               done = 0;
-    tb_long_t               winding = 0; 
-    tb_uint16_t             index_lsh = impl->active_edges; 
-    tb_uint16_t             index_rsh = 0; 
-    gb_raster_edge_ref_t    edge_lsh = tb_null; 
-    gb_raster_edge_ref_t    edge_rsh = tb_null; 
-    gb_raster_edge_ref_t    edge_pool   = impl->edge_pool;
+    tb_long_t                       done = 0;
+    tb_long_t                       winding = 0; 
+    tb_uint16_t                     index_lsh = impl->active_edges; 
+    tb_uint16_t                     index_rsh = 0; 
+    gb_polygon_raster_edge_ref_t    edge_lsh = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_rsh = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
     while (index_lsh) 
     { 
         // the left-hand edge
@@ -745,7 +745,7 @@ static tb_void_t gb_raster_scanning_complex_line(gb_raster_impl_t* impl, tb_long
         // compute the rule
         switch (rule)
         {
-        case GB_RASTER_RULE_ODD:
+        case GB_POLYGON_RASTER_RULE_ODD:
             {
                 /* the odd rule 
                  *
@@ -762,7 +762,7 @@ static tb_void_t gb_raster_scanning_complex_line(gb_raster_impl_t* impl, tb_long
                 done = winding & 1;
             }
             break;
-        case GB_RASTER_RULE_NONZERO:
+        case GB_POLYGON_RASTER_RULE_NONZERO:
             {
                 /* the non-zero rule 
                  *
@@ -800,13 +800,13 @@ static tb_void_t gb_raster_scanning_complex_line(gb_raster_impl_t* impl, tb_long
         index_lsh = index_rsh; 
     }
 }
-static tb_void_t gb_raster_done_convex(gb_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, gb_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && func);
 
     // make edges
-    if (!gb_raster_edges_make(impl, polygon, bounds)) return ;
+    if (!gb_polygon_raster_edges_make(impl, polygon, bounds)) return ;
 
     // done scanning
     tb_long_t       y;
@@ -816,22 +816,22 @@ static tb_void_t gb_raster_done_convex(gb_raster_impl_t* impl, gb_polygon_ref_t 
     for (y = top; y < bottom; y++)
     {
         // append edges to the sorted active edges by x in ascending
-        gb_raster_edges_sorted_append(impl, edge_table[y - top]); 
+        gb_polygon_raster_edges_sorted_append(impl, edge_table[y - top]); 
 
         // scanning line from the active edges
-        gb_raster_scanning_convex_line(impl, y, func, priv); 
+        gb_polygon_raster_scanning_convex_line(impl, y, func, priv); 
 
         // scanning the next line from the active edges
-        gb_raster_scanning_next(impl, y, tb_null); 
+        gb_polygon_raster_scanning_next(impl, y, tb_null); 
     }
 }
-static tb_void_t gb_raster_done_complex(gb_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_done_complex(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && func);
 
     // make edges
-    if (!gb_raster_edges_make(impl, polygon, bounds)) return ;
+    if (!gb_polygon_raster_edges_make(impl, polygon, bounds)) return ;
 
     // done scanning
     tb_long_t       y;
@@ -842,36 +842,36 @@ static tb_void_t gb_raster_done_complex(gb_raster_impl_t* impl, gb_polygon_ref_t
     for (y = top; y < bottom; y++)
     {
         // order? append edges to the sorted active edges by x in ascending
-        if (order) gb_raster_edges_sorted_append(impl, edge_table[y - top]); 
+        if (order) gb_polygon_raster_edges_sorted_append(impl, edge_table[y - top]); 
         else
         {
             // append edges to the active edges from the edge table
-            gb_raster_edges_append(impl, edge_table[y - top]); 
+            gb_polygon_raster_edges_append(impl, edge_table[y - top]); 
 
             // sort by x in ascending at the active edges
-            gb_raster_edges_sort(impl); 
+            gb_polygon_raster_edges_sort(impl); 
         }
 
         // scanning line from the active edges
-        gb_raster_scanning_complex_line(impl, y, rule, func, priv); 
+        gb_polygon_raster_scanning_complex_line(impl, y, rule, func, priv); 
 
         // scanning the next line from the active edges
-        gb_raster_scanning_next(impl, y, &order); 
+        gb_polygon_raster_scanning_next(impl, y, &order); 
     }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_raster_ref_t gb_raster_init()
+gb_polygon_raster_ref_t gb_polygon_raster_init()
 {
     // init it
-    return (gb_raster_ref_t)tb_malloc0_type(gb_raster_impl_t);
+    return (gb_polygon_raster_ref_t)tb_malloc0_type(gb_polygon_raster_impl_t);
 }
-tb_void_t gb_raster_exit(gb_raster_ref_t raster)
+tb_void_t gb_polygon_raster_exit(gb_polygon_raster_ref_t raster)
 {
     // check
-    gb_raster_impl_t* impl = (gb_raster_impl_t*)raster;
+    gb_polygon_raster_impl_t* impl = (gb_polygon_raster_impl_t*)raster;
     tb_assert_and_check_return(impl);
 
     // exit the edge pool
@@ -885,10 +885,10 @@ tb_void_t gb_raster_exit(gb_raster_ref_t raster)
     // exit it
     tb_free(impl);
 }
-tb_void_t gb_raster_done(gb_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_raster_func_t func, tb_cpointer_t priv)
+tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
-    gb_raster_impl_t* impl = (gb_raster_impl_t*)raster;
+    gb_polygon_raster_impl_t* impl = (gb_polygon_raster_impl_t*)raster;
     tb_assert_abort(impl && polygon && func);
 
     // is convex polygon for each contour?
@@ -906,7 +906,7 @@ tb_void_t gb_raster_done(gb_raster_ref_t raster, gb_polygon_ref_t polygon, gb_re
             contour.points = points + index;
 
             // done raster for the convex contour, will be faster
-            gb_raster_done_convex(impl, &contour, bounds, func, priv);
+            gb_polygon_raster_done_convex(impl, &contour, bounds, func, priv);
 
             // update the contour index
             index += contour_counts[0];
@@ -915,7 +915,7 @@ tb_void_t gb_raster_done(gb_raster_ref_t raster, gb_polygon_ref_t polygon, gb_re
     else
     {
         // done raster for the complex polygon
-        gb_raster_done_complex(impl, polygon, bounds, rule, func, priv);
+        gb_polygon_raster_done_complex(impl, polygon, bounds, rule, func, priv);
     }
 }
 

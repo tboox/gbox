@@ -28,8 +28,8 @@
  */
 #include "prefix.h"
 #include "biltter.h"
-#include "../../impl/raster.h"
 #include "../../impl/stroker.h"
+#include "../../impl/polygon_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -60,7 +60,7 @@ typedef struct __gb_bitmap_device_t
     gb_shader_ref_t                 shader;
 
     // the raster
-    gb_raster_ref_t                 raster;
+    gb_polygon_raster_ref_t         raster;
 
     // the biltter
     gb_bitmap_biltter_t             biltter;

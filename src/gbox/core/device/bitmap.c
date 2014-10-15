@@ -188,7 +188,7 @@ static tb_void_t gb_device_bitmap_exit(gb_device_impl_t* device)
     impl->stroker = tb_null;
 
     // exit raster
-    if (impl->raster) gb_raster_exit(impl->raster);
+    if (impl->raster) gb_polygon_raster_exit(impl->raster);
     impl->raster = tb_null;
 
     // exit it
@@ -238,7 +238,7 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         tb_assert_and_check_break(impl->pixmap);
 
         // init raster
-        impl->raster = gb_raster_init();
+        impl->raster = gb_polygon_raster_init();
         tb_assert_and_check_break(impl->raster);
 
         // init stroker

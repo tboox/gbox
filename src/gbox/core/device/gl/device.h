@@ -29,8 +29,8 @@
 #include "interface.h"
 #include "program.h"
 #include "matrix.h"
-#include "raster.h"
 #include "../../impl/stroker.h"
+#include "../../impl/polygon_cutter.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -63,8 +63,8 @@ typedef struct __gb_gl_device_t
     // the stroker
     gb_stroker_ref_t            stroker;
 
-    // the raster
-    gb_gl_raster_ref_t          raster;
+    // the cutter
+    gb_polygon_cutter_ref_t     cutter;
 
     // the program
     gb_gl_program_ref_t         program;

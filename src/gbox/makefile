@@ -41,8 +41,9 @@ gbox_C_FILES 			+= \
 						core/impl/quad \
 						core/impl/cubic \
 						core/impl/float \
-						core/impl/raster \
-						core/impl/stroker 
+						core/impl/stroker \
+						core/impl/polygon_raster \
+						core/impl/polygon_cutter
 
 
 # bitmap device files
@@ -63,7 +64,6 @@ gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_GL) += \
 						core/device/gl \
 						core/device/gl/render \
 						core/device/gl/shader \
-						core/device/gl/raster \
 						core/device/gl/interface \
 						core/device/gl/program \
 						core/device/gl/program/color \
