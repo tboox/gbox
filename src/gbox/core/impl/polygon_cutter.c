@@ -40,9 +40,9 @@
 
 // the polygon points grow
 #ifdef __gb_small__
-#   define GB_POLYGON_CUTTER_POINTS_GROW        (32)
+#   define GB_POLYGON_CUTTER_POINTS_GROW        (16)
 #else
-#   define GB_POLYGON_CUTTER_POINTS_GROW        (64)
+#   define GB_POLYGON_CUTTER_POINTS_GROW        (32)
 #endif
 
 // the polygon contours grow
@@ -59,6 +59,9 @@
 // the polygon contour type
 typedef struct __gb_polygon_cutter_contour_t
 {
+    // the current y-coordinate
+    tb_long_t                       y;
+
     // the current start x-coordinate
     tb_fixed_t                      xb;
 
@@ -71,8 +74,23 @@ typedef struct __gb_polygon_cutter_contour_t
     // the current end slope: dx / dy
     tb_fixed_t                      se;
 
-    // the points
-    tb_vector_ref_t                 points;
+    // the start points
+    gb_point_ref_t                  pb;
+
+    // the start points maxn
+    tb_uint16_t                     pb_maxn;
+
+    // the start points count
+    tb_uint16_t                     pb_count;
+
+    // the end points
+    gb_point_ref_t                  pe;
+
+    // the end points maxn
+    tb_uint16_t                     pe_maxn;
+
+    // the end points count
+    tb_uint16_t                     pe_count;
 
     // the single list entry
     tb_single_list_entry_t          entry;
@@ -123,15 +141,22 @@ static tb_void_t gb_polygon_cutter_contour_exit(tb_pointer_t data, tb_cpointer_t
     gb_polygon_cutter_contour_ref_t contour = (gb_polygon_cutter_contour_ref_t)data;
     tb_assert_abort(contour);
 
-    // exit points
-    if (contour->points) tb_vector_exit(contour->points);
-    contour->points = tb_null;
+    // exit the start points
+    if (contour->pb) tb_free(contour->pb);
+    contour->pb = tb_null;
+
+    // exit the end points
+    if (contour->pe) tb_free(contour->pe);
+    contour->pe = tb_null;
 }
 static tb_void_t gb_polygon_cutter_contour_active_exit(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && contour);
 
+    // trace
+    tb_trace_d("exit contour: xb: %{fixed}, xe: %{fixed}, sb: %{fixed}, se: %{fixed}", contour->xb, contour->xe, contour->sb, contour->se);
+            
     // put the contour to the free contours
     tb_single_list_entry_insert_head(&impl->contours_free, &contour->entry);
 }
@@ -166,9 +191,24 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_active_init(gb_
         contour->sb = 0;
         contour->se = 0;
 
-        // init points
-        if (!contour->points) contour->points = tb_vector_init(GB_POLYGON_CUTTER_POINTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
-        tb_assert_and_check_break(contour->points);
+        // init the start points
+        contour->pb_count = 0;
+        if (!contour->pb) 
+        {
+            contour->pb_maxn    = GB_POLYGON_CUTTER_POINTS_GROW;
+            contour->pb         = tb_nalloc_type(contour->pb_maxn, gb_point_t);
+        }
+        tb_assert_and_check_break(contour->pb);
+
+        // init the end points
+        contour->pe_count = 0;
+        if (!contour->pe) 
+        {
+            // ensure the enough space for making complete contour: pe = pe + reverse(pb)
+            contour->pe_maxn    = GB_POLYGON_CUTTER_POINTS_GROW << 1;
+            contour->pe         = tb_nalloc_type(contour->pb_maxn, gb_point_t);
+        }
+        tb_assert_and_check_break(contour->pe);
 
         // ok
         ok = tb_true;
@@ -186,7 +226,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_active_init(gb_
     // ok?
     return contour;
 }
-static tb_bool_t gb_polygon_cutter_is_newline(gb_polygon_cutter_impl_t* impl, tb_long_t y)
+static tb_bool_t gb_polygon_cutter_builder_is_newline(gb_polygon_cutter_impl_t* impl, tb_long_t y)
 {
     // check
     tb_assert_abort(impl);
@@ -213,6 +253,93 @@ static tb_bool_t gb_polygon_cutter_is_newline(gb_polygon_cutter_impl_t* impl, tb
 
     // is new line?
     return is_newline;
+}
+static tb_void_t gb_polygon_cutter_builder_append_points(gb_polygon_cutter_contour_ref_t contour, tb_long_t y, tb_fixed_t xb, tb_fixed_t xe)
+{
+    // check
+    tb_assert_abort(contour && contour->pb_count < TB_MAXU16 && contour->pe_count < TB_MAXU16);
+
+    // grow the start points if not enough 
+    if (contour->pb_count >= contour->pb_maxn)
+    {
+        contour->pb_maxn    = contour->pb_count + GB_POLYGON_CUTTER_POINTS_GROW;
+        contour->pb         = tb_ralloc_type(contour->pb, contour->pb_maxn, gb_point_t);
+        tb_assert_abort(contour->pb);
+    }
+
+    // grow the end points if not enough 
+    if (contour->pe_count >= contour->pe_maxn)
+    {
+        contour->pe_maxn    = contour->pe_count + (GB_POLYGON_CUTTER_POINTS_GROW << 1);
+        contour->pe         = tb_ralloc_type(contour->pe, contour->pe_maxn, gb_point_t);
+        tb_assert_abort(contour->pe);
+    }
+
+    // append points
+    gb_point_make(&contour->pb[contour->pb_count++], gb_fixed_to_float(xb), gb_long_to_float(y));
+    gb_point_make(&contour->pe[contour->pe_count++], gb_fixed_to_float(xe), gb_long_to_float(y));
+}
+static tb_void_t gb_polygon_cutter_builder_done_finished(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
+{
+    // check
+    tb_assert_abort(impl && impl->func && contour && contour->pb && contour->pe);
+    tb_assert_abort((tb_size_t)contour->pe_count + contour->pb_count <= TB_MAXU16);
+
+    // TODO: optimization
+    // reverse to append the start points to the end points
+    gb_point_ref_t  pe = contour->pe;
+    gb_point_ref_t  pb = contour->pb;
+    tb_uint16_t     pe_count = contour->pe_count;
+    tb_uint16_t     pb_count = contour->pb_count;
+    while (pb_count--)
+    {
+        pe[pe_count++] = pb[pb_count];
+    }
+
+    // done func
+    impl->func(contour->pe, pe_count, impl->priv);
+}
+static tb_void_t gb_polygon_cutter_builder_remove_finished(gb_polygon_cutter_impl_t* impl, tb_fixed_t xe)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // done
+    tb_size_t                       itor = impl->active_itor;
+    tb_iterator_ref_t               actives = tb_single_list_entry_itor(&impl->contours_active);
+    gb_polygon_cutter_contour_ref_t contour_prev = impl->active_prev != tb_iterator_tail(actives)? (gb_polygon_cutter_contour_ref_t)tb_iterator_item(actives, impl->active_prev) : tb_null;
+    while (itor != tb_iterator_tail(actives))
+    {
+        // the contour
+        gb_polygon_cutter_contour_ref_t contour = (gb_polygon_cutter_contour_ref_t)tb_iterator_item(actives, itor);
+        tb_assert_abort(contour);
+
+        // the contour is finished?
+        tb_check_break(xe > contour->xb);
+
+        // save next
+        tb_size_t next = tb_iterator_next(actives, itor);
+
+        // add points to the contour
+        gb_polygon_cutter_builder_append_points(contour, contour->y + 1, contour->xb + contour->sb, contour->xe + contour->se);
+
+        // done the finished contour
+        gb_polygon_cutter_builder_done_finished(impl, contour);
+
+        // remove contour
+        if (contour_prev) tb_single_list_entry_remove_next(&impl->contours_active, &contour_prev->entry);
+        else tb_single_list_entry_remove_head(&impl->contours_active);
+
+        // exit contour
+        gb_polygon_cutter_contour_active_exit(impl, contour);
+
+        // next
+        itor = next;
+    }
+
+    // update the active contour index
+    impl->active_itor = itor;
+    if (tb_single_list_entry_is_null(&impl->contours_active)) impl->active_prev = tb_iterator_tail(actives);
 }
 static tb_void_t gb_polygon_cutter_builder_init(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_func_t func, tb_cpointer_t priv)
 {
@@ -254,7 +381,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         tb_fixed_t se = edge_rsh->slope;
 
         // is new line?
-        tb_bool_t is_newline = gb_polygon_cutter_is_newline(impl, yb);
+        tb_bool_t is_newline = gb_polygon_cutter_builder_is_newline(impl, yb);
         if (is_newline)
         {
             // init the active contour index
@@ -264,6 +391,9 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
 
         // trace
         tb_trace_d("newline: %d, actives: %lu, y: %ld, xb: %{fixed}, xe: %{fixed}, sb: %{fixed}, se: %{fixed}", is_newline, tb_single_list_entry_size(&impl->contours_active), yb, xb, xe, sb, se);
+
+        // remove some finished active contours
+        gb_polygon_cutter_builder_remove_finished(impl, xe);
 
         // no active contour now?
         if (impl->active_itor == tb_iterator_tail(actives))
@@ -276,10 +406,14 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
             tb_assert_and_check_break(contour);
 
             // init the new contour 
+            contour->y  = yb;
             contour->xb = xb;
             contour->xe = xe;
             contour->sb = sb;
             contour->se = se;
+
+            // add points to the new contour
+            gb_polygon_cutter_builder_append_points(contour, yb, xb, xe);
 
             // append the new contour to the active contours
             tb_single_list_entry_insert_tail(&impl->contours_active, &contour->entry);
@@ -293,6 +427,9 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
             contour = (gb_polygon_cutter_contour_ref_t)tb_iterator_item(actives, impl->active_itor);
             tb_assert_and_check_break(contour);
 
+            // trace
+            tb_trace_d("contour: xb: %{fixed}, xe: %{fixed}, sb: %{fixed}, se: %{fixed}", contour->xb, contour->xe, contour->sb, contour->se);
+            
             // the two edges are belong to this active contour?
             if ((xb == contour->xb + sb) && (xe == contour->xe + se))
             {
@@ -300,6 +437,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
                 tb_trace_d("update contour");
 
                 // update the contour
+                contour->y  = yb;
                 contour->xb = xb;
                 contour->xe = xe;
                 contour->sb = sb;
@@ -316,11 +454,15 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
                 tb_assert_and_check_break(contour);
 
                 // init the new contour 
+                contour->y  = yb;
                 contour->xb = xb;
                 contour->xe = xe;
                 contour->sb = sb;
                 contour->se = se;
- 
+     
+                // add points to the new contour
+                gb_polygon_cutter_builder_append_points(contour, yb, xb, xe);
+
                 // insert the new contour before this active contour
                 if (impl->active_prev != tb_iterator_tail(actives))
                 {
@@ -389,8 +531,11 @@ static tb_void_t gb_polygon_cutter_builder_exit(gb_polygon_cutter_impl_t* impl)
             // save next
             tb_size_t next = tb_iterator_next(actives, itor);
 
-            // done contour
-            // TODO
+            // add points to the contour
+            gb_polygon_cutter_builder_append_points(contour, contour->y + 1, contour->xb + contour->sb, contour->xe + contour->se);
+
+            // done the finished contour
+            gb_polygon_cutter_builder_done_finished(impl, contour);
 
             // exit contour
             gb_polygon_cutter_contour_active_exit(impl, contour);
