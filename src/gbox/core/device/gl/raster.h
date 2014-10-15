@@ -68,10 +68,13 @@ tb_void_t           gb_gl_raster_exit(gb_gl_raster_ref_t raster);
 /* done raster
  *
  * @param raster    the raster
+ * @param polygon   the polygon 
+ * @param bounds    the bounds of the polygon
+ * @param rule      the raster rule
  * @param func      the raster func
  * @param priv      the user private data
  */
-tb_void_t           gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_gl_raster_func_t func, tb_cpointer_t priv);
+tb_void_t           gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_gl_raster_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -444,7 +444,7 @@ static tb_bool_t gb_raster_edges_make(gb_raster_impl_t* impl, gb_polygon_ref_t p
     gb_point_t              pe;
     tb_uint16_t             index       = 0;
     tb_uint16_t             edge_index  = 0;
-    tb_uint16_t             top         = impl->top;
+    tb_long_t               top         = impl->top;
     gb_point_ref_t          points      = polygon->points;
     tb_uint16_t*            counts      = polygon->counts;
     tb_uint16_t             count       = *counts++;

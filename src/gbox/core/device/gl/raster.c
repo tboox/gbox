@@ -42,9 +42,28 @@
 typedef struct __gb_gl_raster_impl_t
 {
     // the raster
-    gb_raster_ref_t     raster;
+    gb_raster_ref_t         raster;
+
+    // the user raster func
+    gb_gl_raster_func_t     func;
+
+    // the user private data
+    tb_cpointer_t           priv;
 
 }gb_gl_raster_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_void_t gb_gl_raster_reduce_to_convex(tb_long_t xb, tb_long_t xe, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
+{
+    // check
+    gb_gl_raster_impl_t* impl = (gb_gl_raster_impl_t*)priv;
+    tb_assert_abort(impl);
+
+    // trace
+    tb_trace_d("xb: %ld, xe: %ld, yb: %ld, ye: %ld", xb, yb, xe, ye);
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -93,11 +112,11 @@ tb_void_t gb_gl_raster_exit(gb_gl_raster_ref_t raster)
     // exit it
     tb_free(impl);
 }
-tb_void_t gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_gl_raster_func_t func, tb_cpointer_t priv)
+tb_void_t gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_gl_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     gb_gl_raster_impl_t* impl = (gb_gl_raster_impl_t*)raster;
-    tb_assert_and_check_return(impl && polygon && func);
+    tb_assert_and_check_return(impl && impl->raster && polygon && func);
 
     // is convex polygon for each contour?
     if (polygon->convex)
@@ -118,5 +137,14 @@ tb_void_t gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon,
     }
     else
     {
+        // save the user func and private data
+        impl->func = func;
+        impl->priv = priv;
+
+        // trace
+        tb_trace_d("bounds: %{rect}", bounds);
+
+        // done raster and reduce the complex polygon to the some convex polygons
+        gb_raster_done(impl->raster, polygon, bounds, rule, gb_gl_raster_reduce_to_convex, (tb_cpointer_t)impl);
     }
 }
