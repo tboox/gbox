@@ -32,6 +32,7 @@
  * includes
  */
 #include "raster.h"
+#include "../../impl/raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -40,6 +41,8 @@
 // the gl raster impl type
 typedef struct __gb_gl_raster_impl_t
 {
+    // the raster
+    gb_raster_ref_t     raster;
 
 }gb_gl_raster_impl_t;
 
@@ -48,11 +51,72 @@ typedef struct __gb_gl_raster_impl_t
  */
 gb_gl_raster_ref_t gb_gl_raster_init()
 {
-    return tb_null;
+    // done
+    tb_bool_t               ok = tb_false;
+    gb_gl_raster_impl_t*    impl = tb_null;
+    do
+    {
+        // make gl raster
+        impl = tb_malloc0_type(gb_gl_raster_impl_t);
+        tb_assert_and_check_break(impl);
+
+        // init raster
+        impl->raster = gb_raster_init();
+        tb_assert_and_check_break(impl->raster);
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed?
+    if (!ok)
+    {
+        // exit it
+        if (impl) gb_gl_raster_exit((gb_gl_raster_ref_t)impl);
+        impl = tb_null;
+    }
+
+    // ok?
+    return (gb_gl_raster_ref_t)impl;
 }
 tb_void_t gb_gl_raster_exit(gb_gl_raster_ref_t raster)
 {
+    // check
+    gb_gl_raster_impl_t* impl = (gb_gl_raster_impl_t*)raster;
+    tb_assert_and_check_return(impl);
+
+    // exit raster
+    if (impl->raster) gb_raster_exit(impl->raster);
+    impl->raster = tb_null;
+
+    // exit it
+    tb_free(impl);
 }
 tb_void_t gb_gl_raster_done(gb_gl_raster_ref_t raster, gb_polygon_ref_t polygon, gb_gl_raster_func_t func, tb_cpointer_t priv)
 {
+    // check
+    gb_gl_raster_impl_t* impl = (gb_gl_raster_impl_t*)raster;
+    tb_assert_and_check_return(impl && polygon && func);
+
+    // is convex polygon for each contour?
+    if (polygon->convex)
+    {
+        // done
+        tb_size_t       index   = 0;
+        gb_point_ref_t  points  = polygon->points;
+        tb_uint16_t*    counts  = polygon->counts;
+        tb_uint16_t     count   = 0;
+        while ((count = *counts++))
+        {
+            // done it
+            func(points + index, count, priv);
+
+            // update the contour index
+            index += count;
+        }
+    }
+    else
+    {
+    }
 }

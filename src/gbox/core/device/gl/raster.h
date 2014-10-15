@@ -43,7 +43,7 @@ typedef struct{}*   gb_gl_raster_ref_t;
 
 /* the gl raster func type
  * 
- * @param points    the points convex contour
+ * @param points    the points of the convex contour
  * @param count     the point count
  * @param priv      the user private data
  */

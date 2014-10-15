@@ -211,6 +211,10 @@ static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
     // exit stroker
     if (impl->stroker) gb_stroker_exit(impl->stroker);
     impl->stroker = tb_null;
+ 
+    // exit raster
+    if (impl->raster) gb_gl_raster_exit(impl->raster);
+    impl->raster = tb_null;
 
     // exit programs 
     tb_size_t i = 0;
@@ -261,6 +265,10 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
         // init window
         impl->window                = window;
+
+        // init raster
+        impl->raster = gb_gl_raster_init();
+        tb_assert_and_check_break(impl->raster);
 
         // init stroker
         impl->stroker = gb_stroker_init();

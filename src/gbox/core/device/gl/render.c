@@ -165,22 +165,24 @@ static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
     // leave solid
     else gb_gl_render_leave_solid(device);
 }
-static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_point_ref_t points, tb_uint16_t const* counts)
+static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(device && points && counts);
+    tb_assert_abort(priv && points && count);
 
-    // apply vertices
-    gb_gl_render_apply_vertices(device, points);
+    // apply it
+    gb_gl_render_apply_vertices((gb_gl_device_ref_t)priv, points);
 
-    // done
-    tb_uint16_t count;
-    tb_size_t   index = 0;
-    while ((count = *counts++))
-    {
-        gb_glDrawArrays(GB_GL_TRIANGLE_FAN, (gb_GLint_t)index, (gb_GLint_t)count);
-        index += count;
-    }
+    // draw it
+    gb_glDrawArrays(GB_GL_TRIANGLE_FAN, 0, (gb_GLint_t)count);
+}
+static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon)
+{
+    // check
+    tb_assert_abort(device);
+
+    // done raster and fill each convex contour
+    gb_gl_raster_done(device->raster, polygon, gb_gl_render_fill_convex, (tb_cpointer_t)device);
 }
 static tb_void_t gb_gl_render_stroke_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
@@ -462,7 +464,7 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
     if (mode & GB_PAINT_MODE_FILL)
     {
         // fill polygon
-        gb_gl_render_fill_polygon(device, polygon->points, polygon->counts);
+        gb_gl_render_fill_polygon(device, polygon);
     }
 
     // stroke it
