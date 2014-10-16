@@ -173,12 +173,14 @@ static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t cou
     // apply it
     gb_gl_render_apply_vertices((gb_gl_device_ref_t)priv, points);
 
-#if 1
+#if 0
     // draw it
     gb_glDrawArrays(GB_GL_TRIANGLE_FAN, 0, (gb_GLint_t)count);
 #else
     // check it
-    gb_glDrawArrays(GB_GL_LINES, 0, (gb_GLint_t)count);
+    gb_glLineWidth(3);
+    gb_glDrawArrays(GB_GL_LINE_STRIP, 0, (gb_GLint_t)count);
+    gb_glLineWidth(1);
 #endif
 }
 static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule)

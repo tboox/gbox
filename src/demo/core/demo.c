@@ -86,6 +86,9 @@ static gb_float_t       g_width = GB_ONE;
 // the alpha
 static tb_byte_t        g_alpha = 255;
 
+// transform it?
+static tb_bool_t        g_transform = tb_false;
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
@@ -245,6 +248,9 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
         case 'a':
             g_alpha -= 15;
             break;
+        case 't':
+            g_transform = !g_transform;
+            break;
         case 'i':
             tb_timer_task_post(gb_window_timer(window), 1000, tb_true, gb_demo_info, (tb_cpointer_t)window);
             break;
@@ -255,52 +261,49 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
     // mouse
     else if (event->type == GB_EVENT_TYPE_MOUSE)
     {
-        // transform?
-        gb_float_t  x;
-        gb_float_t  y;
-        tb_bool_t   transform = tb_false;
-        if (event->u.mouse.code == GB_MOUSE_MOVE && event->u.mouse.button == GB_MOUSE_BUTTON_LEFT)
+        // move?
+        if (event->u.mouse.code == GB_MOUSE_MOVE)
         {
-            x = event->u.mouse.cursor.x;
-            y = event->u.mouse.cursor.y;
-            transform = tb_true;
-        }
+            // the cursor coordinates
+            gb_float_t x = event->u.mouse.cursor.x;
+            gb_float_t y = event->u.mouse.cursor.y;
 
-        // transform matrix
-        if (transform)
-        {
-            // the dw and dh
-            gb_float_t dw = gb_long_to_float(gb_window_width(window));
-            gb_float_t dh = gb_long_to_float(gb_window_height(window));
+            // transform it
+            if (g_transform)
+            {
+                // the dw and dh
+                gb_float_t dw = gb_long_to_float(gb_window_width(window));
+                gb_float_t dh = gb_long_to_float(gb_window_height(window));
 
-            // the x0 and y0
-            gb_float_t x0 = gb_half(dw);
-            gb_float_t y0 = gb_half(dh);
+                // the x0 and y0
+                gb_float_t x0 = gb_half(dw);
+                gb_float_t y0 = gb_half(dh);
 
-            // the dx and dy
-            gb_float_t dx = x > x0? (x - x0) : (x0 - x);
-            gb_float_t dy = y > y0? (y - y0) : (y0 - y);
-            dx = gb_lsh(dx, 1);
-            dy = gb_lsh(dy, 1);
+                // the dx and dy
+                gb_float_t dx = x > x0? (x - x0) : (x0 - x);
+                gb_float_t dy = y > y0? (y - y0) : (y0 - y);
+                dx = gb_lsh(dx, 1);
+                dy = gb_lsh(dy, 1);
 
-            // the an
-            gb_float_t an = 0;
-            if (y == y0) an = 0;
-            else if (x == x0) an = gb_long_to_float(90);
-            else an = gb_div(gb_atan(gb_div(dy, dx)) * 180, GB_PI);
-            if (y < y0 && x < x0) an = gb_long_to_float(180) - an;
-            if (y > y0 && x < x0) an += gb_long_to_float(180);
-            if (y > y0 && x > x0) an = gb_long_to_float(360) - an;
-            an = -an;
+                // the an
+                gb_float_t an = 0;
+                if (y == y0) an = 0;
+                else if (x == x0) an = gb_long_to_float(90);
+                else an = gb_div(gb_atan(gb_div(dy, dx)) * 180, GB_PI);
+                if (y < y0 && x < x0) an = gb_long_to_float(180) - an;
+                if (y > y0 && x < x0) an += gb_long_to_float(180);
+                if (y > y0 && x > x0) an = gb_long_to_float(360) - an;
+                an = -an;
 
-            // scale dx and dy
-            dx = gb_lsh(dx, 2);
-            dy = gb_lsh(dy, 2);
+                // scale dx and dy
+                dx = gb_lsh(dx, 2);
+                dy = gb_lsh(dy, 2);
 
-            // update matrix
-            gb_matrix_init_translate(&g_matrix, x0, y0);
-            gb_matrix_scale(&g_matrix, gb_div(dx, dw), -gb_div(dy, dh));
-            gb_matrix_rotate(&g_matrix, an);
+                // update matrix
+                gb_matrix_init_translate(&g_matrix, x0, y0);
+                gb_matrix_scale(&g_matrix, gb_div(dx, dw), -gb_div(dy, dh));
+                gb_matrix_rotate(&g_matrix, an);
+            }
         }
     }
 

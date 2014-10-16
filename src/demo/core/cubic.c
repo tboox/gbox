@@ -60,7 +60,7 @@ tb_void_t gb_demo_cubic_event(gb_window_ref_t window, gb_event_ref_t event)
 {
     if (    event->type == GB_EVENT_TYPE_MOUSE
         &&  event->u.mouse.code == GB_MOUSE_MOVE
-       )//        &&  event->u.mouse.button == GB_MOUSE_BUTTON_RIGHT)
+        &&  event->u.mouse.button == GB_MOUSE_BUTTON_LEFT)
     {
         // the x0 and y0
         tb_long_t x0 = gb_window_width(window) >> 1;

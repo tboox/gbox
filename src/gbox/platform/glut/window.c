@@ -376,9 +376,6 @@ static tb_void_t gb_window_glut_close()
     // trace
     tb_trace_d("clos");
 
-    // done exit
-    if (impl->base.info.exit) impl->base.info.exit((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
-
     // stop it
     tb_atomic_set(&impl->stop, 1);
 }
@@ -451,6 +448,9 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
         glutCheckLoop();
     }
 #endif
+
+    // done exit
+    if (impl->base.info.exit) impl->base.info.exit((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);
 }
 static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t fullscreen)
 {
