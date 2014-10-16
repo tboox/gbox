@@ -245,10 +245,10 @@ static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_tail(tb_sin
 static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_null(tb_single_list_entry_head_ref_t list)
 { 
     // check
-    tb_assert_abort(list && (list->size || !list->next));
+    tb_assert_abort(list);
 
     // done
-    return list->size? tb_false : tb_true;
+    return !list->size;
 }
 /*! is the single list head entry?
  *
@@ -263,7 +263,7 @@ static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_head(tb_
     tb_assert_abort(list);
 
     // done
-    return list->next == entry? tb_true : tb_false;
+    return list->next == entry;
 }
 
 /*! is the single list last entry?
@@ -279,7 +279,7 @@ static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_last(tb_
     tb_assert_abort(list);
 
     // done
-    return list->last == entry? tb_true : tb_false;
+    return list->last == entry;
 }
 
 /*! insert entry to the next
