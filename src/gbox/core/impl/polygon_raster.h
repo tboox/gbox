@@ -65,6 +65,12 @@ typedef struct __gb_polygon_raster_edge_t
      */
     tb_int8_t       winding : 2;
 
+    /* is the first scanning line for the edge?
+     *
+     * the polygon cutter need it
+     */
+    tb_int8_t       is_first : 1;
+
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
 
