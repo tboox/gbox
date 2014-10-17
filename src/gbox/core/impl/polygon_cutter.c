@@ -541,7 +541,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
     tb_assert_abort(rx >= lx);
 
     // trace
-    tb_trace_d("line: lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, lf: %d, rf: %d", lx, rx, ls, rs, lf, rf);
+    tb_trace_d("line: lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}", lx, rx, ls, rs);
 
     // find the contour of this two edges
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb, lx, rx);
