@@ -477,9 +477,6 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
                 // init the winding
                 edge->winding = 1;
 
-                // init the state
-                edge->is_first = 1;
-
                 // sort the points of the edge by the y-coordinate
                 if (yb > ye)
                 {
@@ -594,9 +591,6 @@ static tb_void_t gb_polygon_raster_scanning_next(gb_polygon_raster_impl_t* impl,
 
         // update the x-coordinate
         edge->x += edge->slope;
-
-        // update the state
-        if (edge->is_first) edge->is_first = 0;
 
         // is order?
         if (porder)
