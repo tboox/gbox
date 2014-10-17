@@ -706,6 +706,8 @@ static tb_void_t gb_polygon_raster_scanning_complex_line(gb_polygon_raster_impl_
     tb_uint16_t                     index_rsh = 0; 
     gb_polygon_raster_edge_ref_t    edge_lsh = tb_null; 
     gb_polygon_raster_edge_ref_t    edge_rsh = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_cache_lsh = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_cache_rsh = tb_null; 
     gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
     while (index_lsh) 
     { 
@@ -784,12 +786,47 @@ static tb_void_t gb_polygon_raster_scanning_complex_line(gb_polygon_raster_impl_
         // trace
         tb_trace_d("y: %ld, winding: %ld, %{fixed} => %{fixed}", y, winding, edge_lsh->x, edge_rsh->x);
 
+#if 0
         // done it for winding?
         if (done) func(y, y + 1, edge_lsh, edge_rsh, priv);
+#else
+        // cache the conjoint edges and done them together
+        if (done)
+        {
+            // no edge cache?
+            if (!edge_cache_lsh && !edge_cache_rsh) 
+            {
+                // init edge cache
+                edge_cache_lsh = edge_lsh;
+                edge_cache_rsh = edge_rsh;
+            }
+            // is conjoint? merge it
+            else if (edge_cache_rsh && edge_cache_rsh->x == edge_lsh->x)
+            {
+                // merge the edges to the edge cache
+                edge_cache_rsh = edge_rsh;
+            }
+            else
+            {
+                // check
+                tb_assert_abort(edge_cache_lsh && edge_cache_rsh);
+
+                // done edge cache
+                func(y, y + 1, edge_cache_lsh, edge_cache_rsh, priv);
+
+                // update edge cache
+                edge_cache_lsh = edge_lsh;
+                edge_cache_rsh = edge_rsh;
+            }
+        }
+#endif
 
         // the next left-hand edge index
         index_lsh = index_rsh; 
     }
+
+    // done the left edge cache
+    if (edge_cache_lsh && edge_cache_rsh) func(y, y + 1, edge_cache_lsh, edge_cache_rsh, priv);
 }
 static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {

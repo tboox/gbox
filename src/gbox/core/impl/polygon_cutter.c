@@ -26,7 +26,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "polygon_cutter"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -75,7 +75,7 @@ typedef struct __gb_polygon_cutter_contour_t
     tb_fixed_t                      rs;
 
     // the left-hand points
-    gb_point_ref_t                  pb;
+    gb_point_ref_t                  lp;
 
     // the left-hand points maxn
     tb_uint16_t                     lp_maxn;
@@ -84,7 +84,7 @@ typedef struct __gb_polygon_cutter_contour_t
     tb_uint16_t                     lp_count;
 
     // the right-hand points
-    gb_point_ref_t                  pe;
+    gb_point_ref_t                  rp;
 
     // the right-hand points maxn
     tb_uint16_t                     rp_maxn;
@@ -151,12 +151,12 @@ static tb_void_t gb_polygon_cutter_contour_free(tb_pointer_t data, tb_cpointer_t
     tb_assert_abort(contour);
 
     // exit the left-hand points
-    if (contour->pb) tb_free(contour->pb);
-    contour->pb = tb_null;
+    if (contour->lp) tb_free(contour->lp);
+    contour->lp = tb_null;
 
     // exit the right-hand points
-    if (contour->pe) tb_free(contour->pe);
-    contour->pe = tb_null;
+    if (contour->rp) tb_free(contour->rp);
+    contour->rp = tb_null;
 }
 static tb_void_t gb_polygon_cutter_contour_exit(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
 {
@@ -204,22 +204,22 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
 
         // init the left-hand points
         contour->lp_count = 0;
-        if (!contour->pb) 
+        if (!contour->lp) 
         {
             contour->lp_maxn    = GB_POLYGON_CUTTER_POINTS_GROW;
-            contour->pb         = tb_nalloc_type(contour->lp_maxn, gb_point_t);
+            contour->lp         = tb_nalloc_type(contour->lp_maxn, gb_point_t);
         }
-        tb_assert_and_check_break(contour->pb);
+        tb_assert_and_check_break(contour->lp);
 
         // init the right-hand points
         contour->rp_count = 0;
-        if (!contour->pe) 
+        if (!contour->rp) 
         {
-            // ensure the enough space for making complete contour: pe = pe + reverse(pb)
+            // ensure the enough space for making complete contour: rp = rp + reverse(lp)
             contour->rp_maxn    = GB_POLYGON_CUTTER_POINTS_GROW << 1;
-            contour->pe         = tb_nalloc_type(contour->lp_maxn, gb_point_t);
+            contour->rp         = tb_nalloc_type(contour->rp_maxn, gb_point_t);
         }
-        tb_assert_and_check_break(contour->pe);
+        tb_assert_and_check_break(contour->rp);
 
         // ok
         ok = tb_true;
@@ -242,8 +242,12 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
     // check
     tb_assert_abort(impl && impl->contours_active);
 
+    // the integer x-coordinates
+    tb_long_t ilx = tb_fixed_round(lx);
+    tb_long_t irx = tb_fixed_round(rx);
+
     // compute the active contours index
-    tb_long_t index = tb_fixed_round(lx) - impl->left_x;
+    tb_long_t index = ilx - impl->left_x;
     tb_assert_abort(index >= 0 && index < impl->contours_active_maxn);
 
     // the active contours 
@@ -257,7 +261,9 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
     tb_for_all_if (gb_polygon_cutter_contour_ref_t, item, tb_list_entry_itor(contours), item)
     {
         // found it?
-        if (item->y == y && item->lx == lx && item->rx == rx)
+        if (    item->y == y
+            &&  tb_fixed_round(item->lx) == ilx
+            &&  tb_fixed_round(item->rx) == irx)
         {
             // save it
             contour = item;
@@ -282,8 +288,8 @@ static tb_void_t gb_polygon_cutter_contour_grow_l(gb_polygon_cutter_contour_ref_
     if (count > contour->lp_maxn)
     {
         contour->lp_maxn    = count + GB_POLYGON_CUTTER_POINTS_GROW;
-        contour->pb         = tb_ralloc_type(contour->pb, contour->lp_maxn, gb_point_t);
-        tb_assert_abort(contour->pb);
+        contour->lp         = tb_ralloc_type(contour->lp, contour->lp_maxn, gb_point_t);
+        tb_assert_abort(contour->lp);
     }
 }
 static tb_void_t gb_polygon_cutter_contour_grow_r(gb_polygon_cutter_contour_ref_t contour, tb_size_t count)
@@ -295,8 +301,8 @@ static tb_void_t gb_polygon_cutter_contour_grow_r(gb_polygon_cutter_contour_ref_
     if (count > contour->rp_maxn)
     {
         contour->rp_maxn    = count + (GB_POLYGON_CUTTER_POINTS_GROW << 1);
-        contour->pe         = tb_ralloc_type(contour->pe, contour->rp_maxn, gb_point_t);
-        tb_assert_abort(contour->pe);
+        contour->rp         = tb_ralloc_type(contour->rp, contour->rp_maxn, gb_point_t);
+        tb_assert_abort(contour->rp);
     }
 }
 static tb_void_t gb_polygon_cutter_contour_append_l(gb_polygon_cutter_contour_ref_t contour, tb_long_t y, tb_fixed_t lx)
@@ -308,7 +314,7 @@ static tb_void_t gb_polygon_cutter_contour_append_l(gb_polygon_cutter_contour_re
     gb_polygon_cutter_contour_grow_l(contour, contour->lp_count + 1);
 
     // append the left-hand point
-    gb_point_make(&contour->pb[contour->lp_count++], gb_fixed_to_float(lx), gb_long_to_float(y));
+    gb_point_make(&contour->lp[contour->lp_count++], gb_fixed_to_float(lx), gb_long_to_float(y));
 }
 static tb_void_t gb_polygon_cutter_contour_append_r(gb_polygon_cutter_contour_ref_t contour, tb_long_t y, tb_fixed_t rx)
 {
@@ -319,7 +325,7 @@ static tb_void_t gb_polygon_cutter_contour_append_r(gb_polygon_cutter_contour_re
     gb_polygon_cutter_contour_grow_r(contour, contour->rp_count + 1);
 
     // append the right-hand point
-    gb_point_make(&contour->pe[contour->rp_count++], gb_fixed_to_float(rx), gb_long_to_float(y));
+    gb_point_make(&contour->rp[contour->rp_count++], gb_fixed_to_float(rx), gb_long_to_float(y));
 }
 static tb_void_t gb_polygon_cutter_contour_append(gb_polygon_cutter_contour_ref_t contour, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
 {
@@ -339,7 +345,7 @@ static tb_void_t gb_polygon_cutter_contour_append(gb_polygon_cutter_contour_ref_
 static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
 {
     // check
-    tb_assert_abort(impl && impl->func && contour && contour->pb && contour->pe);
+    tb_assert_abort(impl && impl->func && contour && contour->lp && contour->rp);
 
     // the x-coordinates and slopes
     tb_fixed_t lx = contour->lx;
@@ -356,17 +362,17 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
 
     // TODO: optimization
     // reverse to append the left-hand-hand points to the right-hand points
-    gb_point_ref_t  pe = contour->pe;
-    gb_point_ref_t  pb = contour->pb;
+    gb_point_ref_t  rp = contour->rp;
+    gb_point_ref_t  lp = contour->lp;
     tb_uint16_t     rp_count = contour->rp_count;
     tb_uint16_t     lp_count = contour->lp_count;
     while (lp_count--)
     {
-        pe[rp_count++] = pb[lp_count];
+        rp[rp_count++] = lp[lp_count];
     }
 
     // close it
-    pe[rp_count++] = pe[0];
+    rp[rp_count++] = rp[0];
 
     // check
     tb_assert_abort(rp_count == contour->rp_count + contour->lp_count + 1);
@@ -375,7 +381,7 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     tb_trace_d("done contour(y: %ld, lx: %{fixed}, rx: %{fixed})", contour->y, contour->lx, contour->rx);
 
     // done func
-    impl->func(contour->pe, rp_count, impl->priv);
+    impl->func(contour->rp, rp_count, impl->priv);
 
     // clear points
     contour->lp_count = 0;
@@ -445,7 +451,7 @@ static tb_void_t gb_polygon_cutter_builder_init(gb_polygon_cutter_impl_t* impl, 
     impl->left_x = gb_round(bounds->x);
 
     // the active contours size
-    tb_size_t contours_active_size = gb_ceil(bounds->w);
+    tb_size_t contours_active_size = gb_ceil(bounds->w) + 1;
     tb_assert_abort(contours_active_size && contours_active_size <= TB_MAXU16);
 
     // init the active contours
