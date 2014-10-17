@@ -801,7 +801,7 @@ static tb_void_t gb_polygon_raster_scanning_complex_line(gb_polygon_raster_impl_
                 edge_cache_rsh = edge_rsh;
             }
             // is conjoint? merge it
-            else if (edge_cache_rsh && edge_cache_rsh->x == edge_lsh->x)
+            else if (edge_cache_rsh && tb_fixed_round(edge_cache_rsh->x) == tb_fixed_round(edge_lsh->x))
             {
                 // merge the edges to the edge cache
                 edge_cache_rsh = edge_rsh;

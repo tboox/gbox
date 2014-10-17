@@ -52,6 +52,9 @@
 #   define GB_POLYGON_CUTTER_CONTOURS_GROW      (16)
 #endif
 
+// test the polygon edge
+//#define GB_POLYGON_CUTTER_TEST_EDGE
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
@@ -372,7 +375,8 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     }
 
     // close it
-    rp[rp_count++] = rp[0];
+    if (rp[rp_count - 1].x != rp[0].x || rp[rp_count - 1].y != rp[0].y)
+        rp[rp_count++] = rp[0];
 
     // check
     tb_assert_abort(rp_count == contour->rp_count + contour->lp_count + 1);
@@ -408,13 +412,10 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     // trace
     tb_trace_d("insert contour(y: %ld, lx: %{fixed}, rx: %{fixed})", contour->y, contour->lx, contour->rx);
 }
-static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour, tb_bool_t is_finished)
+static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
-
-    // the contour is finished? done it and clear points for inserting a new contour
-    if (is_finished) gb_polygon_cutter_contour_done(impl, contour);
 
     // compute the new active contours index
     tb_long_t index = tb_fixed_round(contour->lx) - impl->left_x;
@@ -537,12 +538,8 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb - 1, lx_prev, rx_prev);
     if (contour)
     {
-        // update the contour
-        contour->y  = yb;
-        contour->lx = lx;
-        contour->rx = rx;
-        contour->ls = ls;
-        contour->rs = rs;
+        // the x-coordinates is same?
+        tb_bool_t is_same_x = lx == rx;
 
         /* is intersecting join?
          * 
@@ -553,52 +550,78 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
          * .       .
          *
          */
-        tb_bool_t is_inter = tb_false;
-        tb_bool_t is_finished = tb_false;
-        if (lx == rx || lx_prev > rx_prev)
-        {           
+        tb_bool_t is_inter = is_same_x || lx_prev > rx_prev;
+
+        // the left-hand point is join?
+        tb_bool_t is_join_left = (contour->ls != ls) && !is_inter;
+        
+        // the right-hand point is join?
+        tb_bool_t is_join_right = (contour->rs != rs) && !is_inter;
+
+#ifdef GB_POLYGON_CUTTER_TEST_EDGE
+        // only append all edge points
+        is_inter        = tb_false;
+        is_join_left    = tb_false;
+        is_join_right   = tb_false;       
+        gb_polygon_cutter_contour_append(contour, yb, lx, rx);
+#else
+        // is the first line?
+        tb_bool_t is_first = !contour->lp_count && !contour->rp_count;
+
+        // the contour is finished? 
+        if (!is_first && (is_inter || is_join_left || is_join_right))
+        {
+            // done it and clear points for inserting a new contour
+            gb_polygon_cutter_contour_done(impl, contour);
+
+            // patch the joins if be not inserting point after doing cutter
+            if (!is_inter)
+            {
+                is_join_left = tb_true;
+                is_join_right = tb_true;
+            }
+        }
+#endif
+ 
+        // is intersecting point?
+        if (is_inter)
+        {
             // trace
             tb_trace_d("join: intersecting");
 
-            // is intersecting
-            is_inter = tb_true;
-
-            // append points to the contour
-            if (lx == rx) gb_polygon_cutter_contour_append_r(contour, yb, rx);
-            else gb_polygon_cutter_contour_append(contour, yb, rx_prev, lx_prev);
-
-            // the contour is finished
-            is_finished = tb_true;
+            // append points to the new contour
+            if (is_same_x) gb_polygon_cutter_contour_append_r(contour, yb, rx);
+            else gb_polygon_cutter_contour_append(contour, yb, lx, rx);
         }
 
         // the left-hand point is join?
-        if (lf && !is_inter)
+        if (is_join_left)
         {
             // trace
             tb_trace_d("join: left");
 
-            // append the left-hand point to the contour
+            // append the left-hand point to the new contour
             gb_polygon_cutter_contour_append_l(contour, yb, lx);
 
-            // the contour is finished
-            is_finished = tb_true;
         }
-        
+
         // the right-hand point is join?
-        if (rf && !is_inter)
+        if (is_join_right)
         {
             // trace
             tb_trace_d("join: right");
 
-            // append the left-hand point to the contour
+            // append the right-hand point to the new contour
             gb_polygon_cutter_contour_append_r(contour, yb, rx);
-
-            // the contour is finished
-            is_finished = tb_true;
         }
 
-        // update the contour
-        gb_polygon_cutter_contour_update(impl, contour, tb_false);        
+        // update the new contour
+        contour->y  = yb;
+        contour->lx = lx;
+        contour->rx = rx;
+        contour->ls = ls;
+        contour->rs = rs;
+        gb_polygon_cutter_contour_update(impl, contour);        
     }
     // not found? add a new contour
     else
