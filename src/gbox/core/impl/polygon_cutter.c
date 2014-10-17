@@ -53,7 +53,7 @@
 #endif
 
 // test the polygon edge
-//#define GB_POLYGON_CUTTER_TEST_EDGE
+#define GB_POLYGON_CUTTER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -602,7 +602,6 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
 
             // append the left-hand point to the new contour
             gb_polygon_cutter_contour_append_l(contour, yb, lx);
-
         }
 
         // the right-hand point is join?
