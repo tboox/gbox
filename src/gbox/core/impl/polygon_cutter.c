@@ -80,6 +80,10 @@ typedef struct __gb_polygon_cutter_contour_t
     // the left-hand points
     gb_point_ref_t                  lp;
 
+    // TODO: remove
+    // the bottom left-hand y-coordinate
+    tb_int16_t                      ye;
+
     // the left-hand points maxn
     tb_uint16_t                     lp_maxn;
 
@@ -203,6 +207,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         contour->rx     = 0;
         contour->ls     = 0;
         contour->rs     = 0;
+        contour->ye     = 0;
         contour->index  = 0;
 
         // init the left-hand points
@@ -254,17 +259,11 @@ static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_
     // ok
     return index;
 }
-static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon_cutter_impl_t* impl, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
+static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_polygon_cutter_impl_t* impl, tb_long_t index, tb_long_t y)
 {
     // check
     tb_assert_abort(impl && impl->contours_active);
-
-    // the integer x-coordinates
-    tb_long_t ilx = tb_fixed_round(lx);
-    tb_long_t irx = tb_fixed_round(rx);
-
-    // compute the active contours index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, ilx);
+    tb_assert_abort(index >= 0 && index < impl->contours_active_size);
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -276,10 +275,8 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
         // find it
         tb_for_all_if (gb_polygon_cutter_contour_ref_t, item, tb_list_entry_itor(contours), item)
         {
-            // found it?
-            if (    item->y + 1 == y
-                &&  tb_fixed_round(item->lx + item->ls) == ilx
-                &&  tb_fixed_round(item->rx + item->rs) == irx)
+            // only one contour at this index for the same line
+            if (item->y + 1 == y)
             {
                 // save it
                 contour = item;
@@ -295,6 +292,38 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
 
     // ok?
     return contour;
+}
+static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon_cutter_impl_t* impl, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
+{
+    // check
+    tb_assert_abort(impl && impl->contours_active);
+
+    // compute the active contours index
+    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+
+#if 0
+    // find it
+    return gb_polygon_cutter_contour_find_at(impl, index, y);
+#else
+    gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find_at(impl, index, y);
+    if (!contour)
+    {
+#if 1
+        if (index > 1) contour = gb_polygon_cutter_contour_find_at(impl, index - 1, y);
+        if (!contour && index < impl->contours_active_size - 1)
+            contour = gb_polygon_cutter_contour_find_at(impl, index + 1, y);
+#endif
+
+#if 0
+        if (!contour && index > 2) contour = gb_polygon_cutter_contour_find_at(impl, index - 2, y);
+        if (!contour && index < impl->contours_active_size - 2)
+            contour = gb_polygon_cutter_contour_find_at(impl, index + 2, y);
+#endif
+
+    }
+
+    return contour;
+#endif
 }
 static tb_void_t gb_polygon_cutter_contour_grow_l(gb_polygon_cutter_contour_ref_t contour, tb_size_t count)
 {
@@ -411,7 +440,7 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     tb_assert_abort(impl && impl->contours_active && contour);
 
     // compute the active contours index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(contour->lx + contour->ls));
+    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx + contour->ls, contour->rx + contour->rs)));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -431,7 +460,7 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
     tb_assert_abort(impl && impl->contours_active && contour);
 
     // compute the new active contours index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(contour->lx + contour->ls));
+    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx + contour->ls, contour->rx + contour->rs)));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
@@ -541,7 +570,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
     tb_assert_abort(rx >= lx);
 
     // trace
-    tb_trace_d("line: lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}", lx, rx, ls, rs);
+    tb_trace_d("line: yb: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, bottom_y: %d %d", yb, lx, rx, ls, rs, edge_lsh->bottom_y, edge_rsh->bottom_y);
 
     // find the contour of this two edges
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb, lx, rx);
@@ -624,11 +653,12 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         }
 
         // update the new contour
-        contour->y  = yb;
-        contour->lx = lx;
-        contour->rx = rx;
-        contour->ls = ls;
-        contour->rs = rs;
+        contour->y      = yb;
+        contour->lx     = lx;
+        contour->rx     = rx;
+        contour->ls     = ls;
+        contour->rs     = rs;
+        contour->ye     = edge_lsh->bottom_y;
         gb_polygon_cutter_contour_update(impl, contour);        
     }
     // not found? add a new contour
@@ -639,11 +669,12 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         tb_assert_abort(contour);
 
         // init the new contour
-        contour->y  = yb;
-        contour->lx = lx;
-        contour->rx = rx;
-        contour->ls = ls;
-        contour->rs = rs;
+        contour->y      = yb;
+        contour->lx     = lx;
+        contour->rx     = rx;
+        contour->ls     = ls;
+        contour->rs     = rs;
+        contour->ye     = edge_lsh->bottom_y;
 
         // append points to the contour
         gb_polygon_cutter_contour_append(contour, yb, lx, rx);
