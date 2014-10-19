@@ -308,7 +308,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find_at(impl, index, y);
     if (!contour)
     {
-#if 1
+#if 0
         if (index > 1) contour = gb_polygon_cutter_contour_find_at(impl, index - 1, y);
         if (!contour && index < impl->contours_active_size - 1)
             contour = gb_polygon_cutter_contour_find_at(impl, index + 1, y);
@@ -441,6 +441,8 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
 
     // compute the active contours index
     tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx + contour->ls, contour->rx + contour->rs)));
+//    if (contour->y == contour->ye)
+//        index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx, contour->rx)));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -461,6 +463,8 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
 
     // compute the new active contours index
     tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx + contour->ls, contour->rx + contour->rs)));
+//    if (contour->y == contour->ye)
+//        index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx, contour->rx)));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
@@ -658,7 +662,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->rx     = rx;
         contour->ls     = ls;
         contour->rs     = rs;
-        contour->ye     = edge_lsh->bottom_y;
+        contour->ye     = tb_min(edge_lsh->bottom_y, edge_rsh->bottom_y);
         gb_polygon_cutter_contour_update(impl, contour);        
     }
     // not found? add a new contour
@@ -674,7 +678,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->rx     = rx;
         contour->ls     = ls;
         contour->rs     = rs;
-        contour->ye     = edge_lsh->bottom_y;
+        contour->ye     = tb_min(edge_lsh->bottom_y, edge_rsh->bottom_y);
 
         // append points to the contour
         gb_polygon_cutter_contour_append(contour, yb, lx, rx);
