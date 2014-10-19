@@ -68,10 +68,19 @@ typedef struct __gb_polygon_raster_edge_t
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
 
-    // the y value at the bottom of edge
-    tb_int16_t      bottom_y;
+    /* the top y-coordinate only for the high-precision mode
+     *
+     * @note only uses the integer value if be not the high-precision mode
+     */
+    tb_fixed_t      y_top;
 
-    // the x value of the active edge
+    /* the bottom y-coordinate
+     *
+     * @note only uses the integer value if be not the high-precision mode
+     */
+    tb_fixed_t      y_bottom;
+
+    // the x-coordinate of the active edge
     tb_fixed_t      x;
 
     // the slope of the edge: dx / dy 
@@ -91,6 +100,15 @@ typedef struct{}*       gb_polygon_raster_ref_t;
  * @param priv          the private data
  */
 typedef tb_void_t       (*gb_polygon_raster_func_t)(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv);
+
+/* the polygon high-precision raster func type
+ *
+ * @param y             the y-coordinate
+ * @param edge_lsh      the left-hand edge
+ * @param edge_rsh      the right-hand edge
+ * @param priv          the private data
+ */
+typedef tb_void_t       (*gb_polygon_raster_high_func_t)(tb_fixed_t y, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -118,6 +136,17 @@ tb_void_t               gb_polygon_raster_exit(gb_polygon_raster_ref_t raster);
  * @param priv          the private data
  */
 tb_void_t               gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv);
+
+/* done high-precision raster for the concave polygon
+ *
+ * @param raster        the raster
+ * @param polygon       the polygon
+ * @param bounds        the bounds
+ * @param rule          the raster rule
+ * @param func          the raster func
+ * @param priv          the private data
+ */
+tb_void_t               gb_polygon_raster_done_high(gb_polygon_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_high_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

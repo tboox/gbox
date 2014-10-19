@@ -574,7 +574,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
     tb_assert_abort(rx >= lx);
 
     // trace
-    tb_trace_d("line: yb: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, bottom_y: %d %d", yb, lx, rx, ls, rs, edge_lsh->bottom_y, edge_rsh->bottom_y);
+    tb_trace_d("line: yb: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, y_bottom: %d %d", yb, lx, rx, ls, rs, edge_lsh->y_bottom, edge_rsh->y_bottom);
 
     // find the contour of this two edges
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb, lx, rx);
@@ -662,7 +662,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->rx     = rx;
         contour->ls     = ls;
         contour->rs     = rs;
-        contour->ye     = tb_min(edge_lsh->bottom_y, edge_rsh->bottom_y);
+        contour->ye     = tb_min(edge_lsh->y_bottom, edge_rsh->y_bottom);
         gb_polygon_cutter_contour_update(impl, contour);        
     }
     // not found? add a new contour
@@ -678,7 +678,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->rx     = rx;
         contour->ls     = ls;
         contour->rs     = rs;
-        contour->ye     = tb_min(edge_lsh->bottom_y, edge_rsh->bottom_y);
+        contour->ye     = tb_min(edge_lsh->y_bottom, edge_rsh->y_bottom);
 
         // append points to the contour
         gb_polygon_cutter_contour_append(contour, yb, lx, rx);
