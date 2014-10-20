@@ -77,20 +77,20 @@ typedef struct __gb_polygon_cutter_contour_t
     // the current right-hand slope: dx / dy
     tb_fixed_t                      rs;
 
+    // the bottom left-hand dy value: (y_top - round(y_top)), range: [-0.5-0.5]
     tb_fixed_t                      ldy;
+    
+    // the bottom right-hand dy value: (y_top - round(y_top)), range: [-0.5-0.5]
     tb_fixed_t                      rdy;
-    tb_int16_t                      ye;
 
-    tb_fixed_t                      lxe;
-    tb_fixed_t                      rxe;
+    // the bottom left-hand y-coordinate
+    tb_int16_t                      lye;
+
+    // the bottom right-hand y-coordinate
+    tb_int16_t                      rye;
 
     // the left-hand points
     gb_point_ref_t                  lp;
-
-    // TODO: remove
-    // the bottom left-hand y-coordinate
-    tb_int16_t                      lye;
-    tb_int16_t                      rye;
 
     // the left-hand points maxn
     tb_uint16_t                     lp_maxn;
@@ -215,8 +215,8 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         contour->rx     = 0;
         contour->ls     = 0;
         contour->rs     = 0;
-        contour->lxe    = 0;
-        contour->rxe    = 0;
+        contour->ldy    = 0;
+        contour->rdy    = 0;
         contour->lye    = 0;
         contour->rye    = 0;
         contour->index  = 0;
@@ -270,6 +270,66 @@ static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_
     // ok
     return index;
 }
+static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx_curt(gb_polygon_cutter_impl_t* impl, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh)
+{
+    // check
+    tb_assert_abort(impl && edge_lsh && edge_rsh);
+
+    tb_fixed_t lx;
+    tb_fixed_t rx;
+    if (edge_lsh->is_top && edge_rsh->is_top) 
+    {
+        lx = edge_lsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope));
+        rx = edge_rsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope));
+    }
+    else if (edge_lsh->is_top) 
+    {
+        lx = edge_lsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope));
+        rx = edge_rsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_rsh->slope));
+    }
+    else if (edge_rsh->is_top) 
+    { 
+        lx = edge_lsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_lsh->slope));
+        rx = edge_rsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope));
+    }
+    else
+    {
+        lx = edge_lsh->x;
+        rx = edge_rsh->x;
+    }
+
+    return gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+}
+static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx_next(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
+{
+    // check
+    tb_assert_abort(impl && contour);
+
+    tb_fixed_t lx;
+    tb_fixed_t rx;
+    if (contour->y == contour->lye && contour->y == contour->rye) 
+    {
+        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
+        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
+    }
+    else if (contour->y == contour->lye) 
+    {
+        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
+        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->ldy, contour->rs));
+    }
+    else if (contour->y == contour->rye) 
+    { 
+        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->rdy, contour->ls));
+        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
+    }
+    else
+    {
+        lx = contour->lx + contour->ls;
+        rx = contour->rx + contour->rs;
+    }
+
+    return gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+}
 static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_polygon_cutter_impl_t* impl, tb_long_t index, tb_long_t y)
 {
     // check
@@ -309,64 +369,22 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
     // check
     tb_assert_abort(impl && impl->contours_active && edge_lsh && edge_rsh);
 
-#if 0
-    tb_fixed_t lx = edge_lsh->is_top? edge_lsh->x_top : edge_lsh->x;
-    tb_fixed_t rx = edge_rsh->is_top? edge_rsh->x_top : edge_rsh->x;
-#endif
+    // compute the current contour index
+    tb_long_t index = gb_polygon_cutter_contour_indx_curt(impl, edge_lsh, edge_rsh);
 
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    if (edge_lsh->is_top && edge_rsh->is_top) 
-    {
-        lx = edge_lsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope));
-        rx = edge_rsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope));
-        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(edge_lsh->x_top));
-        tb_assert_abort(tb_fixed_round(rx) == tb_fixed_round(edge_rsh->x_top));
-    }
-    else if (edge_lsh->is_top) 
-    {
-        lx = edge_lsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope));
-        rx = edge_rsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_rsh->slope));
-        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(edge_lsh->x_top));
-    }
-    else if (edge_rsh->is_top) 
-    { 
-        lx = edge_lsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_lsh->slope));
-        rx = edge_rsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope));
-        tb_assert_abort(tb_fixed_round(rx) == tb_fixed_round(edge_rsh->x_top));
-    }
-    else
-    {
-        lx = edge_lsh->x;
-        rx = edge_rsh->x;
-    }
-
-    // compute the active contours index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
-
-#if 0
-    // find it
-    return gb_polygon_cutter_contour_find_at(impl, index, y);
-#else
+    // find the contour in the current index
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find_at(impl, index, y);
     if (!contour)
     {
 #if 1
+        // find the contour in the range: [index - 1, index + 1]
         if (index > 1) contour = gb_polygon_cutter_contour_find_at(impl, index - 1, y);
         if (!contour && index < impl->contours_active_size - 1)
             contour = gb_polygon_cutter_contour_find_at(impl, index + 1, y);
 #endif
-
-#if 0
-        if (!contour && index > 2) contour = gb_polygon_cutter_contour_find_at(impl, index - 2, y);
-        if (!contour && index < impl->contours_active_size - 2)
-            contour = gb_polygon_cutter_contour_find_at(impl, index + 2, y);
-#endif
-
     }
 
     return contour;
-#endif
 }
 static tb_void_t gb_polygon_cutter_contour_grow_l(gb_polygon_cutter_contour_ref_t contour, tb_size_t count)
 {
@@ -482,49 +500,8 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
 
-#if 0
-    tb_fixed_t lx = contour->y == contour->lye? contour->lxe : contour->lx + contour->ls;
-    tb_fixed_t rx = contour->y == contour->rye? contour->rxe : contour->rx + contour->rs;
-#endif
-
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    if (contour->y == contour->lye && contour->y == contour->rye) 
-    {
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-//        lx = contour->lxe;
-//        rx = contour->rxe;
-
-//        tb_assert_abort(lx == contour->lye);
-//        tb_assert_abort(rx == contour->rye);
-    }
-    else if (contour->y == contour->lye) 
-    {
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->ldy, contour->rs));
-//        lx = contour->lxe;
-//        tb_assert_abort(lx == contour->lye);
-    }
-    else if (contour->y == contour->rye) 
-    { 
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->rdy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-//        rx = contour->rxe;
-//        tb_assert_abort(rx == contour->rye);
-    }
-    else
-    {
-        lx = contour->lx + contour->ls;
-        rx = contour->rx + contour->rs;
-    }
-
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
-
-    // compute the active contours index
-//    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx + contour->ls, contour->rx + contour->rs)));
-//    if (contour->y == contour->ye)
-//        index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx, contour->rx)));
+    // compute the contour next index
+    tb_long_t index = gb_polygon_cutter_contour_indx_next(impl, contour);
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -543,49 +520,8 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
 
-#if 0
-    tb_fixed_t lx = contour->y == contour->lye? contour->lxe : contour->lx + contour->ls;
-    tb_fixed_t rx = contour->y == contour->rye? contour->rxe : contour->rx + contour->rs;
-#endif
-
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    if (contour->y == contour->lye && contour->y == contour->rye) 
-    {
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-//        lx = contour->lxe;
-//        rx = contour->rxe;
-//        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(contour->lxe));
-//        tb_assert_abort(tb_fixed_round(rx) == tb_fixed_round(contour->rxe));
-    }
-    else if (contour->y == contour->lye) 
-    {
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->ldy, contour->rs));
-//        lx = contour->lxe;
-
-//        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(contour->lxe));
-    }
-    else if (contour->y == contour->rye) 
-    { 
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->rdy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-//        rx = contour->rxe;
-//        tb_assert_abort(tb_fixed_round(rx) == tb_fixed_round(contour->rxe));
-    }
-    else
-    {
-        lx = contour->lx + contour->ls;
-        rx = contour->rx + contour->rs;
-    }
-
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
-
-    // compute the new active contours index
-//    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx + contour->ls, contour->rx + contour->rs)));
-//    if (contour->y == contour->ye)
-//        index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->lx, contour->rx)));
+    // compute the contour next index
+    tb_long_t index = gb_polygon_cutter_contour_indx_next(impl, contour);
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
@@ -785,9 +721,6 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->rs     = rs;
         contour->ldy    = edge_lsh->dy_bottom;
         contour->rdy    = edge_rsh->dy_bottom;
-        contour->ye     = tb_min(edge_lsh->y_bottom, edge_rsh->y_bottom);
-        contour->lxe    = edge_lsh->x_bottom;
-        contour->rxe    = edge_rsh->x_bottom;
         contour->lye    = edge_lsh->y_bottom;
         contour->rye    = edge_rsh->y_bottom;
         gb_polygon_cutter_contour_update(impl, contour);        
@@ -807,9 +740,6 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->rs     = rs; 
         contour->ldy    = edge_lsh->dy_bottom;
         contour->rdy    = edge_rsh->dy_bottom;
-        contour->ye     = tb_min(edge_lsh->y_bottom, edge_rsh->y_bottom);
-        contour->lxe    = edge_lsh->x_bottom;
-        contour->rxe    = edge_rsh->x_bottom;
         contour->lye    = edge_lsh->y_bottom;
         contour->rye    = edge_rsh->y_bottom;
 
