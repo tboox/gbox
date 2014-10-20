@@ -584,14 +584,14 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
             if (iyb != iye) 
             {
                 // get the fixed-point coordinates
-                tb_fixed6_t xb = gb_float_to_fixed6(pb.x);
-                tb_fixed6_t yb = gb_float_to_fixed6(pb.y);
-                tb_fixed6_t xe = gb_float_to_fixed6(pe.x);
-                tb_fixed6_t ye = gb_float_to_fixed6(pe.y);
+                tb_fixed_t xb = gb_float_to_fixed(pb.x);
+                tb_fixed_t yb = gb_float_to_fixed(pb.y);
+                tb_fixed_t xe = gb_float_to_fixed(pe.x);
+                tb_fixed_t ye = gb_float_to_fixed(pe.y);
 
                 // compute the delta coordinates
-                tb_fixed6_t dx = xe - xb;
-                tb_fixed6_t dy = ye - yb;
+                tb_fixed_t dx = xe - xb;
+                tb_fixed_t dy = ye - yb;
 
                 // update the edge index
                 edge_index++;
@@ -606,8 +606,8 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
                 if (yb > ye)
                 {
                     // reverse the edge points
-                    tb_swap(tb_fixed6_t, xb, xe);
-                    tb_swap(tb_fixed6_t, yb, ye);
+                    tb_swap(tb_fixed_t, xb, xe);
+                    tb_swap(tb_fixed_t, yb, ye);
                     tb_swap(tb_long_t, iyb, iye);
 
                     // reverse the winding
@@ -631,18 +631,34 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
                 tb_assert_abort(iyb < iye);
 
                 // compute the slope 
-                edge->slope = tb_fixed6_div(dx, dy);
+                edge->slope = tb_fixed_div(dx, dy);
+
+                // compute the top and bottom dy values
+                edge->dy_top    = yb - tb_long_to_fixed(iyb);
+                edge->dy_bottom = ye - tb_long_to_fixed(iye);
+                tb_assert_abort(tb_fixed_abs(yb - tb_long_to_fixed(iyb)) <= TB_FIXED_HALF);
+                tb_assert_abort(tb_fixed_abs(ye - tb_long_to_fixed(iye)) <= TB_FIXED_HALF);
 
                 /* compute the more accurate start x-coordinate
                  *
                  * xb + (iyb - yb + 0.5) * dx / dy
                  * => xb + ((0.5 - yb) % 1) * dx / dy
                  */
-                edge->x = tb_fixed6_to_fixed(xb) + ((edge->slope * ((TB_FIXED6_HALF - yb) & 63)) >> 6);
+//                edge->x = tb_fixed6_to_fixed(xb) + ((edge->slope * ((TB_FIXED6_HALF - yb) & 63)) >> 6);
+//                edge->x = tb_fixed6_to_fixed(xb + tb_fixed_mul(-edge->dy_top, edge->slope));
+                edge->x = xb - tb_fixed_mul(edge->dy_top, edge->slope);
 
-                // init the top and bottom y-coordinate
+                tb_fixed_t x2 = edge->x + tb_fixed_mul(edge->dy_top, edge->slope);
+                tb_fixed_t x3 = xb;
+                tb_assert_abort(tb_fixed_round(x2) == tb_fixed_round(x3));
+                tb_assert_abort(x2 == x3);
+
+                // init the top and bottom coordinates
+                edge->x_top     = xb;
+                edge->x_bottom  = xe;
                 edge->y_top     = iyb;
                 edge->y_bottom  = iye - 1;
+                edge->is_top    = 1;
 
                 // insert edge to the edge table
                 gb_polygon_raster_table_insert(impl, edge_index);
@@ -844,6 +860,9 @@ static tb_void_t gb_polygon_raster_scanning_next(gb_polygon_raster_impl_t* impl,
 
         // update the x-coordinate
         edge->x += edge->slope;
+
+        // update the top state?
+        edge->is_top = 0;
 
         // is order?
         if (porder)

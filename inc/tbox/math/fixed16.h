@@ -78,7 +78,7 @@ __tb_extern_c_enter__
 #endif
 
 // round
-#define tb_fixed16_round(x)                 (((x) + TB_FIXED16_HALF) >> 16)
+#define tb_fixed16_round(x)                 ((tb_long_t)(((x) > 0? ((x) + TB_FIXED16_HALF) : ((x) - TB_FIXED16_HALF)) / 65536))
 
 // ceil
 #define tb_fixed16_ceil(x)                  (((x) + TB_FIXED16_ONE - 1) >> 16)

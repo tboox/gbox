@@ -78,7 +78,7 @@ __tb_extern_c_enter__
 #define tb_fixed16_to_fixed6(x)     ((x) >> 10)
 
 // round
-#define tb_fixed6_round(x)          (((x) + TB_FIXED6_HALF) >> 6)
+#define tb_fixed6_round(x)          (tb_long_t)((((x) > 0? ((x) + TB_FIXED6_HALF) : ((x) - TB_FIXED6_HALF)) / 64))
 #define tb_fixed6_ceil(x)           (((x) + TB_FIXED6_ONE - 1) >> 6)
 #define tb_fixed6_floor(x)          ((x) >> 6)
 

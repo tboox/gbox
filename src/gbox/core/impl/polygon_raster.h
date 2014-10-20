@@ -63,10 +63,16 @@ typedef struct __gb_polygon_raster_edge_t
      * 1:  top => bottom
      * -1: bottom => top
      */
-    tb_int8_t       winding : 2;
+    tb_int8_t       winding     : 2;
 
     // is top line?
-    tb_int8_t       is_top : 1;
+    tb_int8_t       is_top      : 1;
+
+    // the fixed6 top dy value: (y_top - round(y_top)), range: [-0.5-0.5]
+    tb_int16_t      dy_top;
+
+    // the fixed6 bottom dy value: (y_top - round(y_top)), range: [-0.5-0.5]
+    tb_int16_t      dy_bottom;
 
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
