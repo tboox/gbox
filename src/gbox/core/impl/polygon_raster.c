@@ -648,10 +648,8 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
 //                edge->x = tb_fixed6_to_fixed(xb + tb_fixed_mul(-edge->dy_top, edge->slope));
                 edge->x = xb - tb_fixed_mul(edge->dy_top, edge->slope);
 
-                tb_fixed_t x2 = edge->x + tb_fixed_mul(edge->dy_top, edge->slope);
-                tb_fixed_t x3 = xb;
-                tb_assert_abort(tb_fixed_round(x2) == tb_fixed_round(x3));
-                tb_assert_abort(x2 == x3);
+                // check
+                tb_assert_abort(edge->x + tb_fixed_mul(edge->dy_top, edge->slope) == xb);
 
                 // init the top and bottom coordinates
                 edge->x_top     = xb;

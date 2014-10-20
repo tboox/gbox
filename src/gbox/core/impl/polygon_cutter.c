@@ -299,7 +299,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_poly
     }
 
     // trace
-    tb_trace_d("find contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}): %s", index, tb_list_entry_size(contours), y, lx, rx, contour? "ok" : "no");
+    tb_trace_d("find contour(at: (%ld, %lu), y: %ld: %s", index, tb_list_entry_size(contours), y, contour? "ok" : "no");
 
     // ok?
     return contour;
@@ -351,7 +351,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find_at(impl, index, y);
     if (!contour)
     {
-#if 0
+#if 1
         if (index > 1) contour = gb_polygon_cutter_contour_find_at(impl, index - 1, y);
         if (!contour && index < impl->contours_active_size - 1)
             contour = gb_polygon_cutter_contour_find_at(impl, index + 1, y);
@@ -465,7 +465,7 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
         rp[rp_count++] = rp[0];
 
     // check
-    tb_assert_abort(rp_count == contour->rp_count + contour->lp_count + 1);
+    tb_assert_abort(rp_count <= contour->rp_count + contour->lp_count + 1);
 
     // trace
     tb_trace_d("done contour(at: (%ld), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", contour->index, contour->y, contour->lx, contour->rx, contour->ls, contour->rs);
@@ -489,28 +489,28 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
 
     tb_fixed_t lx;
     tb_fixed_t rx;
-    if (contour->y == contour->lye && contour->y == contour->rdy) 
+    if (contour->y == contour->lye && contour->y == contour->rye) 
     {
-        lx = contour->lx + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + (tb_fixed_mul(contour->rdy, contour->rs));
-        lx = contour->lxe;
-        rx = contour->rxe;
+        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
+        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
+//        lx = contour->lxe;
+//        rx = contour->rxe;
 
 //        tb_assert_abort(lx == contour->lye);
 //        tb_assert_abort(rx == contour->rye);
     }
     else if (contour->y == contour->lye) 
     {
-        lx = contour->lx + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + (tb_fixed_mul(contour->ldy, contour->rs));
-        lx = contour->lxe;
+        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
+        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->ldy, contour->rs));
+//        lx = contour->lxe;
 //        tb_assert_abort(lx == contour->lye);
     }
     else if (contour->y == contour->rye) 
     { 
-        lx = contour->lx + (tb_fixed_mul(contour->rdy, contour->ls));
-        rx = contour->rx + (tb_fixed_mul(contour->rdy, contour->rs));
-        rx = contour->rxe;
+        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->rdy, contour->ls));
+        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
+//        rx = contour->rxe;
 //        tb_assert_abort(rx == contour->rye);
     }
     else
@@ -550,20 +550,20 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
 
     tb_fixed_t lx;
     tb_fixed_t rx;
-    if (contour->y == contour->lye && contour->y == contour->rdy) 
+    if (contour->y == contour->lye && contour->y == contour->rye) 
     {
         lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
         rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-        lx = contour->lxe;
-        rx = contour->rxe;
-        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(contour->lxe));
+//        lx = contour->lxe;
+//        rx = contour->rxe;
+//        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(contour->lxe));
 //        tb_assert_abort(tb_fixed_round(rx) == tb_fixed_round(contour->rxe));
     }
     else if (contour->y == contour->lye) 
     {
         lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
         rx = contour->rx + contour->rs + (tb_fixed_mul(contour->ldy, contour->rs));
-        lx = contour->lxe;
+//        lx = contour->lxe;
 
 //        tb_assert_abort(tb_fixed_round(lx) == tb_fixed_round(contour->lxe));
     }
@@ -571,7 +571,7 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
     { 
         lx = contour->lx + contour->ls + (tb_fixed_mul(contour->rdy, contour->ls));
         rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-        rx = contour->rxe;
+//        rx = contour->rxe;
 //        tb_assert_abort(tb_fixed_round(rx) == tb_fixed_round(contour->rxe));
     }
     else
