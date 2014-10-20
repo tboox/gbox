@@ -256,6 +256,79 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
     // ok?
     return contour;
 }
+static tb_void_t gb_polygon_cutter_contour_curt(gb_polygon_cutter_impl_t* impl, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_fixed_t* plx, tb_fixed_t* prx)
+{
+    // check
+    tb_assert_abort(impl && edge_lsh && edge_rsh && plx && prx);
+
+    // is top line for edges?
+    tb_bool_t lt = edge_lsh->is_top;
+    tb_bool_t rt = edge_rsh->is_top;
+
+    // the next x-coordinates
+    tb_fixed_t lx = edge_lsh->x;
+    tb_fixed_t rx = edge_rsh->x;
+
+    // patch to the real x-coordinates for the top line
+    if (lt && rt) 
+    {
+        lx += tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope);
+        rx += tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope);
+    }
+    else if (lt) 
+    {
+        lx += tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope);
+        rx += tb_fixed_mul(edge_lsh->dy_top, edge_rsh->slope);
+    }
+    else if (rt) 
+    { 
+        lx += tb_fixed_mul(edge_rsh->dy_top, edge_lsh->slope);
+        rx += tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope);
+    }
+
+    // save the x-coordinates
+    *plx = lx;
+    *prx = rx;
+}
+static tb_void_t gb_polygon_cutter_contour_next(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour, tb_fixed_t* plx, tb_fixed_t* prx)
+{
+    // check
+    tb_assert_abort(impl && contour && plx && prx);
+
+    // the slopes
+    tb_fixed_t ls = contour->ls;
+    tb_fixed_t rs = contour->rs;
+
+    // the y-coordinates
+    tb_int16_t y    = contour->y;
+    tb_int16_t lye  = contour->lye;
+    tb_int16_t rye  = contour->rye;
+
+    // the next x-coordinates
+    tb_fixed_t lx = contour->lx + ls;
+    tb_fixed_t rx = contour->rx + rs;
+
+    // patch to the real x-coordinates for joins
+    if (y == lye && y == rye) 
+    {
+        lx += tb_fixed_mul(contour->ldy, ls);
+        rx += tb_fixed_mul(contour->rdy, rs);
+    }
+    else if (y == lye) 
+    {
+        lx += tb_fixed_mul(contour->ldy, ls);
+        rx += tb_fixed_mul(contour->ldy, rs);
+    }
+    else if (y == rye) 
+    { 
+        lx += tb_fixed_mul(contour->rdy, ls);
+        rx += tb_fixed_mul(contour->rdy, rs);
+    }
+
+    // save the x-coordinates
+    *plx = lx;
+    *prx = rx;
+}
 static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_impl_t* impl, tb_long_t xb)
 {
     // check
@@ -269,66 +342,6 @@ static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_
 
     // ok
     return index;
-}
-static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx_curt(gb_polygon_cutter_impl_t* impl, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh)
-{
-    // check
-    tb_assert_abort(impl && edge_lsh && edge_rsh);
-
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    if (edge_lsh->is_top && edge_rsh->is_top) 
-    {
-        lx = edge_lsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope));
-        rx = edge_rsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope));
-    }
-    else if (edge_lsh->is_top) 
-    {
-        lx = edge_lsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_lsh->slope));
-        rx = edge_rsh->x + (tb_fixed_mul(edge_lsh->dy_top, edge_rsh->slope));
-    }
-    else if (edge_rsh->is_top) 
-    { 
-        lx = edge_lsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_lsh->slope));
-        rx = edge_rsh->x + (tb_fixed_mul(edge_rsh->dy_top, edge_rsh->slope));
-    }
-    else
-    {
-        lx = edge_lsh->x;
-        rx = edge_rsh->x;
-    }
-
-    return gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
-}
-static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx_next(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
-{
-    // check
-    tb_assert_abort(impl && contour);
-
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    if (contour->y == contour->lye && contour->y == contour->rye) 
-    {
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-    }
-    else if (contour->y == contour->lye) 
-    {
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->ldy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->ldy, contour->rs));
-    }
-    else if (contour->y == contour->rye) 
-    { 
-        lx = contour->lx + contour->ls + (tb_fixed_mul(contour->rdy, contour->ls));
-        rx = contour->rx + contour->rs + (tb_fixed_mul(contour->rdy, contour->rs));
-    }
-    else
-    {
-        lx = contour->lx + contour->ls;
-        rx = contour->rx + contour->rs;
-    }
-
-    return gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 }
 static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_polygon_cutter_impl_t* impl, tb_long_t index, tb_long_t y)
 {
@@ -369,21 +382,28 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon
     // check
     tb_assert_abort(impl && impl->contours_active && edge_lsh && edge_rsh);
 
+    // compute the current x-coordinates
+    tb_fixed_t lx;
+    tb_fixed_t rx;
+    gb_polygon_cutter_contour_curt(impl, edge_lsh, edge_rsh, &lx, &rx);
+
     // compute the current contour index
-    tb_long_t index = gb_polygon_cutter_contour_indx_curt(impl, edge_lsh, edge_rsh);
+    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // find the contour in the current index
     gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find_at(impl, index, y);
     if (!contour)
     {
-#if 1
-        // find the contour in the range: [index - 1, index + 1]
+        /* find the contour in the range: [index - 1, index + 1]
+         *
+         * because the fixed_round() exists some error 
+         */
         if (index > 1) contour = gb_polygon_cutter_contour_find_at(impl, index - 1, y);
         if (!contour && index < impl->contours_active_size - 1)
             contour = gb_polygon_cutter_contour_find_at(impl, index + 1, y);
-#endif
     }
 
+    // ok?
     return contour;
 }
 static tb_void_t gb_polygon_cutter_contour_grow_l(gb_polygon_cutter_contour_ref_t contour, tb_size_t count)
@@ -454,15 +474,14 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     // check
     tb_assert_abort(impl && impl->func && contour && contour->lp && contour->rp);
 
-    // the x-coordinates and slopes
-    tb_fixed_t lx = contour->lx;
-    tb_fixed_t rx = contour->rx;
-    tb_fixed_t ls = contour->ls;
-    tb_fixed_t rs = contour->rs;
+    // compute the next x-coordinates
+    tb_fixed_t lx;
+    tb_fixed_t rx;
+    gb_polygon_cutter_contour_next(impl, contour, &lx, &rx);
 
     // add points to the contour
-    if (lx + ls > rx + rs) gb_polygon_cutter_contour_append(contour, contour->y, lx, rx);
-    else gb_polygon_cutter_contour_append(contour, contour->y + 1, lx + ls, rx + rs);
+    if (lx > rx) gb_polygon_cutter_contour_append(contour, contour->y, contour->lx, contour->rx);
+    else gb_polygon_cutter_contour_append(contour, contour->y + 1, lx, rx);
 
     // grow the right-hand points if not enough 
     gb_polygon_cutter_contour_grow_r(contour, (tb_size_t)contour->rp_count + contour->lp_count + 1);
@@ -500,8 +519,13 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
 
+    // compute the next x-coordinates
+    tb_fixed_t lx;
+    tb_fixed_t rx;
+    gb_polygon_cutter_contour_next(impl, contour, &lx, &rx);
+
     // compute the contour next index
-    tb_long_t index = gb_polygon_cutter_contour_indx_next(impl, contour);
+    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -520,8 +544,13 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
 
+    // compute the next x-coordinates
+    tb_fixed_t lx;
+    tb_fixed_t rx;
+    gb_polygon_cutter_contour_next(impl, contour, &lx, &rx);
+
     // compute the contour next index
-    tb_long_t index = gb_polygon_cutter_contour_indx_next(impl, contour);
+    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;

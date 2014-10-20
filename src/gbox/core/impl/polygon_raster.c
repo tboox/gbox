@@ -467,7 +467,7 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
             tb_long_t iye = gb_round(pe.y);
 
             // not horizaontal edge?
-            if (iyb != iye) 
+            if (iyb != iye)
             {
                 // get the fixed-point coordinates
                 tb_fixed_t xb = gb_float_to_fixed(pb.x);
@@ -519,9 +519,10 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
                 // compute the slope 
                 edge->slope = tb_fixed_div(dx, dy);
 
+                // TODO: patch half, why?
                 // compute the top and bottom dy values
-                edge->dy_top    = yb - tb_long_to_fixed(iyb);
-                edge->dy_bottom = ye - tb_long_to_fixed(iye);
+                edge->dy_top    = yb - tb_long_to_fixed(iyb) - TB_FIXED_HALF;
+                edge->dy_bottom = ye - tb_long_to_fixed(iye) - TB_FIXED_HALF;
                 tb_assert_abort(tb_fixed_abs(yb - tb_long_to_fixed(iyb)) <= TB_FIXED_HALF);
                 tb_assert_abort(tb_fixed_abs(ye - tb_long_to_fixed(iye)) <= TB_FIXED_HALF);
 
@@ -549,7 +550,6 @@ static tb_bool_t gb_polygon_raster_edges_make(gb_polygon_raster_impl_t* impl, gb
                  */
                 edge->next = edge_table[table_index];
                 edge_table[table_index] = edge_index;
-
             }
         }
 
@@ -679,7 +679,7 @@ static tb_void_t gb_polygon_raster_scanning_convex_line(gb_polygon_raster_impl_t
     tb_assert_abort(edge_lsh->x <= edge_rsh->x);
 
     // trace
-    tb_trace_d("y: %ld, winding: %ld, %{fixed} => %{fixed}", y, winding, edge_lsh->x, edge_rsh->x);
+    tb_trace_d("y: %ld, %{fixed} => %{fixed}", y, edge_lsh->x, edge_rsh->x);
 
     // init the end y-coordinate for the only one line
     tb_long_t ye = y + 1;

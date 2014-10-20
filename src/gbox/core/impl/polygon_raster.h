@@ -68,12 +68,6 @@ typedef struct __gb_polygon_raster_edge_t
     // is top line?
     tb_int8_t       is_top      : 1;
 
-    // the fixed top dy value: (y_top - round(y_top)), range: [-0.5-0.5]
-    tb_int16_t      dy_top;
-
-    // the fixed bottom dy value: (y_top - round(y_top)), range: [-0.5-0.5]
-    tb_int16_t      dy_bottom;
-
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
 
@@ -85,6 +79,14 @@ typedef struct __gb_polygon_raster_edge_t
 
     // the slope of the edge: dx / dy 
     tb_fixed_t      slope;
+
+    // TODO optimization
+    // the fixed top dy value: (y_top - round(y_top)), range: [-0.5-0.5]
+    tb_fixed_t      dy_top;
+
+    // TODO optimization
+    // the fixed bottom dy value: (y_top - round(y_top)), range: [-0.5-0.5]
+    tb_fixed_t      dy_bottom;
 
 }gb_polygon_raster_edge_t, *gb_polygon_raster_edge_ref_t;
 
