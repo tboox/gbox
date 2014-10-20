@@ -299,6 +299,38 @@ static tb_void_t gb_polygon_raster_edges_append(gb_polygon_raster_impl_t* impl, 
     // update the active edges 
     impl->active_edges = active_edges;
 }
+static tb_void_t gb_polygon_raster_edges_append_high(gb_polygon_raster_impl_t* impl, tb_uint16_t index, tb_fixed_t y)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool);
+
+    // done
+    tb_uint16_t                     next = 0;
+    gb_polygon_raster_edge_ref_t    edge = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    tb_uint16_t                     active_edges = impl->active_edges;
+    while (index)
+    {
+        // the edge
+        edge = edge_pool + index;
+
+        // only append the edges: <= y
+        tb_check_break(edge->y_top <= y);
+
+        // save the next edge index
+        next = edge->next;
+
+        // insert the edge to the head of the active edges
+        edge->next = active_edges;
+        active_edges = index;
+
+        // the next edge index
+        index = next;
+    }
+
+    // update the active edges 
+    impl->active_edges = active_edges;
+}
 static tb_void_t gb_polygon_raster_edges_sort(gb_polygon_raster_impl_t* impl)
 {
     // check
@@ -1106,9 +1138,43 @@ static tb_void_t gb_polygon_raster_done_concave(gb_polygon_raster_impl_t* impl, 
 }
 static tb_void_t gb_polygon_raster_done_concave_high(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_high_func_t func, tb_cpointer_t priv)
 {
+    // check
+    tb_assert_abort(impl && func);
+
     // make edges
     if (!gb_polygon_raster_edges_make_high(impl, polygon, bounds)) return ;
 
+    // done scanning
+    tb_fixed_t      y;
+//    tb_size_t       order       = 1; 
+    tb_fixed_t      top         = impl->top; 
+    tb_fixed_t      bottom      = impl->bottom; 
+    tb_long_t       base        = impl->edge_table_base; 
+    tb_uint16_t*    edge_table  = impl->edge_table;
+    tb_long_t       table_index = 0;
+    for (y = top; y < bottom; y++)
+    {
+        // the table index
+        table_index = tb_fixed_floor(y) - base;
+        tb_assert_abort(table_index >= 0 && table_index > impl->edge_table_maxn);
+
+        // order? append edges to the sorted active edges by x in ascending
+//        if (order) gb_polygon_raster_edges_sorted_append(impl, edge_table[table_index]); 
+//        else
+        {
+            // append edges to the active edges from the edge table
+            gb_polygon_raster_edges_append_high(impl, edge_table[table_index], y); 
+
+            // sort by x in ascending at the active edges
+            gb_polygon_raster_edges_sort(impl); 
+        }
+
+        // scanning line from the active edges
+//        gb_polygon_raster_scanning_concave_line(impl, y, rule, func, priv); 
+
+        // scanning the next line from the active edges
+//        gb_polygon_raster_scanning_next(impl, y, &order); 
+    }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

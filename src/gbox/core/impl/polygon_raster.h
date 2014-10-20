@@ -65,6 +65,9 @@ typedef struct __gb_polygon_raster_edge_t
      */
     tb_int8_t       winding : 2;
 
+    // is top line?
+    tb_int8_t       is_top : 1;
+
     // the index of next edge at the edge pool 
     tb_uint16_t     next;
 
@@ -79,6 +82,12 @@ typedef struct __gb_polygon_raster_edge_t
      * @note only uses the integer value if be not the high-precision mode
      */
     tb_fixed_t      y_bottom;
+
+    // the top x-coordinate 
+    tb_fixed_t      x_top;
+
+    // the bottom x-coordinate
+    tb_fixed_t      x_bottom;
 
     // the x-coordinate of the active edge
     tb_fixed_t      x;
