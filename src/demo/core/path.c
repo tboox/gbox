@@ -162,6 +162,10 @@ tb_void_t gb_demo_path_exit(gb_window_ref_t window)
         if (g_pathes[i]) gb_path_exit(g_pathes[i]);
         g_pathes[i] = tb_null;
     }
+
+    // exit maker
+    if (g_maker) gb_path_exit(g_maker);
+    g_maker = tb_null;
 }
 tb_void_t gb_demo_path_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 {
