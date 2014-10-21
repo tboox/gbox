@@ -68,6 +68,9 @@ typedef struct __gb_polygon_cutter_contour_edge_t
     // the current slope: dx / dy
     tb_fixed_t                          slope;
 
+    // the last cross for analyzing convex contour
+    tb_fixed_t                          cross;
+
     // the bottom dy value: (y_top - round(y_top)), range: [-0.5-0.5]
     tb_fixed_t                          dy;
     
@@ -212,6 +215,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         contour->le.dy              = 0;
         contour->le.xe              = 0;
         contour->le.ye              = 0;
+        contour->le.cross           = TB_FIXED_ONE;
         contour->le.points_count    = 0;
         if (!contour->le.points) 
         {
@@ -226,6 +230,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         contour->re.dy              = 0;
         contour->re.xe              = 0;
         contour->re.ye              = 0;
+        contour->re.cross           = -TB_FIXED_ONE;
         contour->re.points_count    = 0;
         if (!contour->re.points) 
         {
@@ -251,7 +256,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
     // ok?
     return contour;
 }
-static tb_void_t gb_polygon_cutter_contour_curt(gb_polygon_cutter_impl_t* impl, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_fixed_t* plx, tb_fixed_t* prx)
+static tb_void_t gb_polygon_cutter_contour_real(gb_polygon_cutter_impl_t* impl, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_fixed_t* plx, tb_fixed_t* prx)
 {
     // check
     tb_assert_abort(impl && edge_lsh && edge_rsh && plx && prx);
@@ -372,15 +377,10 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_poly
     // ok?
     return contour;
 }
-static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon_cutter_impl_t* impl, tb_long_t y, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh)
+static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon_cutter_impl_t* impl, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
 {
     // check
-    tb_assert_abort(impl && impl->contours_active && edge_lsh && edge_rsh);
-
-    // compute the current x-coordinates
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    gb_polygon_cutter_contour_curt(impl, edge_lsh, edge_rsh, &lx, &rx);
+    tb_assert_abort(impl && impl->contours_active);
 
     // compute the current contour index
     tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
@@ -473,6 +473,7 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     tb_fixed_t lx = contour->le.xe;
     tb_fixed_t rx = contour->re.xe;
 
+    // TODO split it?
     // add points to the contour
     if (lx > rx) gb_polygon_cutter_contour_append(contour, contour->y, contour->le.x, contour->re.x);
     else gb_polygon_cutter_contour_append(contour, contour->y + 1, lx, rx);
@@ -507,6 +508,10 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     // clear points
     contour->le.points_count = 0;
     contour->re.points_count = 0;
+
+    // reset the cross
+    contour->le.cross = TB_FIXED_ONE;
+    contour->re.cross = -TB_FIXED_ONE;
 }
 static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
 {
@@ -660,22 +665,33 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
     tb_fixed_t  ls = edge_lsh->slope;
     tb_fixed_t  rs = edge_rsh->slope;
     tb_assert_abort(rx >= lx);
+        
+    // compute the more accurate coordinates for joins
+    tb_fixed_t lx_real;
+    tb_fixed_t rx_real;
+    gb_polygon_cutter_contour_real(impl, edge_lsh, edge_rsh, &lx_real, &rx_real);
 
     // trace
     tb_trace_d("line: yb: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, y_bottom: %d %d", yb, lx, rx, ls, rs, edge_lsh->y_bottom, edge_rsh->y_bottom);
 
     // find the contour of this two edges
-    gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb, edge_lsh, edge_rsh);
+    gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb, lx_real, rx_real);
     if (contour)
     {
-        // the x-coordinates is same?
-        tb_bool_t is_same_x = lx == rx;
+        // cannot be the first line
+        tb_assert_abort(contour->le.points_count || contour->re.points_count);
 
-        // is the first line?
-        tb_bool_t is_first = !contour->le.points_count && !contour->re.points_count;
+        // the x-coordinates is same?
+        tb_bool_t is_same_x = lx_real == rx_real;
 
         // the contour is finished?
         tb_bool_t is_finished = tb_false;
+
+        // is join?
+        tb_bool_t is_join = (tb_fixed_abs(lx_real - contour->le.xe) < TB_FIXED_ONE) && (tb_fixed_abs(rx_real - contour->re.xe) < TB_FIXED_ONE);
+
+        // not join? force to finish it for fixing the contour index error 
+        if (!is_join) is_finished = tb_true;
 
         /* is intersecting join?
          * 
@@ -686,44 +702,54 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
          * .       .
          *
          */
-        tb_bool_t is_inter = is_same_x || (contour->le.x + contour->le.slope) > (contour->re.x + contour->re.slope);
+        tb_bool_t is_inter = is_join && (is_same_x || (contour->le.xe) > (contour->re.xe));
         if (is_inter)
         { 
             // trace
             tb_trace_d("join: intersecting");
 
-            // is finished 
-            if (!is_first) is_finished = tb_true;
+            // finish it 
+            is_finished = tb_true;
         }
 
         // the left-hand point is join?
-        tb_bool_t is_join_left = (contour->le.slope != ls) && !is_inter;
+        tb_bool_t is_join_left = is_join && (contour->le.slope != ls) && !is_inter;
         if (is_join_left)
         {
             // trace
             tb_trace_d("join: left");
 
-            // analyze the contour
-            if (!is_first)
-            {
-                // is finished 
-                if (ls < 0) is_finished = tb_true;
-            }
+            /* compute the vector cross in the counter-clockwise direction
+             *
+             * cross = tb_fixed_mul(-contour->le.slope, TB_FIXED_ONE) - tb_fixed_mul(-TB_FIXED_ONE, ls);
+             */
+            tb_fixed_t cross = ls - contour->le.slope;
+
+            // is concave? finish it
+            if (tb_fixed_mul(cross, contour->le.cross) < 0) is_finished = tb_true;
+
+            // save this cross
+            contour->le.cross = cross;
         }
         
         // the right-hand point is join?
-        tb_bool_t is_join_right = (contour->re.slope != rs) && !is_inter;
+        tb_bool_t is_join_right = is_join && (contour->re.slope != rs) && !is_inter;
         if (is_join_right)
         {
             // trace
             tb_trace_d("join: right");
 
-            // analyze the contour
-            if (!is_first)
-            {
-                // is finished 
-                if (rs > 0) is_finished = tb_true;
-            }
+            /* compute the vector cross in the clockwise direction
+             *
+             * cross = tb_fixed_mul(-contour->re.slope, TB_FIXED_ONE) - tb_fixed_mul(-TB_FIXED_ONE, rs);
+             */
+            tb_fixed_t cross = rs - contour->re.slope;
+
+            // is concave? finish it
+            if (tb_fixed_mul(cross, contour->re.cross) < 0) is_finished = tb_true;
+
+            // save this cross
+            contour->re.cross = cross;
         }
 
 #ifdef GB_POLYGON_CUTTER_TEST_EDGE
@@ -799,7 +825,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->re.dy      = edge_rsh->dy_bottom;
         contour->le.ye      = edge_lsh->y_bottom;
         contour->re.ye      = edge_rsh->y_bottom;
-
+ 
         // append points to the contour
         gb_polygon_cutter_contour_append(contour, yb, lx, rx);
 
