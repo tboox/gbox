@@ -262,6 +262,9 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
     // check
     tb_assert_abort(device && device->base.paint && device->base.matrix && points && count && !(count & 0x1));
 
+    // check mode
+    tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
+
     // only stroke?
     if (gb_bitmap_render_stroke_only(device))
     {
@@ -283,6 +286,9 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
 {
     // check
     tb_assert_abort(device && device->base.paint && device->base.matrix && points && count);
+
+    // check mode
+    tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // only stroke?
     if (gb_bitmap_render_stroke_only(device))

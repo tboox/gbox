@@ -22,6 +22,9 @@ static tb_size_t        g_count = 0;
 // the pathes
 static gb_path_ref_t    g_pathes[16] = {tb_null};
 
+// the path maker
+static gb_path_ref_t    g_maker = tb_null;
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
@@ -175,7 +178,57 @@ tb_void_t gb_demo_path_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
 tb_void_t gb_demo_path_event(gb_window_ref_t window, gb_event_ref_t event)
 {
     // switch path
-    if (event->type == GB_EVENT_TYPE_KEYBOARD && event->u.keyboard.pressed && event->u.keyboard.code == 'p')
-        g_index = (g_index + 1) % g_count;
+    if (event->type == GB_EVENT_TYPE_KEYBOARD && event->u.keyboard.pressed)
+    {
+        if (event->u.keyboard.code == 'p')
+            g_index = (g_index + 1) % g_count;
+        else if (event->u.keyboard.code == 'c')
+        {
+            // finished
+            if (g_maker)
+            {
+                // close it
+                gb_path_clos(g_maker);
+
+                // save the path
+                g_pathes[g_count++] = g_maker;
+                g_maker = tb_null;
+
+                // switch the new path
+                g_index = g_count - 1;
+            }
+        }
+    }
+    // make path
+    else if (event->type == GB_EVENT_TYPE_MOUSE)
+    {
+        if (    event->u.mouse.code == GB_MOUSE_DOWN
+            &&  event->u.mouse.button == GB_MOUSE_BUTTON_LEFT)
+        {
+            // the x0 and y0
+            tb_long_t x0 = gb_window_width(window) >> 1;
+            tb_long_t y0 = gb_window_height(window) >> 1;
+
+            // the cursor x and y
+            tb_long_t cx = gb_float_to_long(event->u.mouse.cursor.x);
+            tb_long_t cy = gb_float_to_long(event->u.mouse.cursor.y);
+
+            // append points to the maker
+            if (!g_maker)
+            {
+                // make it
+                g_maker = gb_path_init();
+                tb_assert_abort(g_maker);
+
+                // move-to
+                gb_path_move2i_to(g_maker, cx - x0, y0 - cy);
+            }
+            else
+            {
+                // line-to
+                gb_path_line2i_to(g_maker, cx - x0, y0 - cy);
+            }
+        }
+    }
 }
 

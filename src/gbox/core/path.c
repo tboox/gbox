@@ -855,7 +855,7 @@ tb_void_t gb_path_clos(gb_path_ref_t path)
     tb_assert_and_check_return(impl && impl->codes && impl->points);
 
     // close it for avoiding be double closed
-    if (!tb_vector_size(impl->codes) || tb_vector_last(impl->codes) != (tb_cpointer_t)GB_PATH_CODE_CLOS) 
+    if (tb_vector_size(impl->points) > 2 && tb_vector_size(impl->codes) && tb_vector_last(impl->codes) != (tb_cpointer_t)GB_PATH_CODE_CLOS) 
     {
         // patch a line segment if the current point is not equal to the first point of the contour
         gb_point_t last = {0};

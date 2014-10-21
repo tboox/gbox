@@ -422,7 +422,9 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
-    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
+
+    // check mode
+    tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // enter paint
     gb_gl_render_enter_paint(device);
@@ -439,7 +441,9 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
 {
     // check
     tb_assert_abort(device && device->base.paint && points && count);
-    tb_assert_abort(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
+
+    // check mode
+    tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // enter paint
     gb_gl_render_enter_paint(device);
