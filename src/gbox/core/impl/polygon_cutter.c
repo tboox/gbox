@@ -53,7 +53,7 @@
 #endif
 
 // test the polygon edge
-#define GB_POLYGON_CUTTER_TEST_EDGE
+//#define GB_POLYGON_CUTTER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -82,6 +82,12 @@ typedef struct __gb_polygon_cutter_contour_t
     
     // the bottom right-hand dy value: (y_top - round(y_top)), range: [-0.5-0.5]
     tb_fixed_t                      rdy;
+
+    // the bottom left-hand x-coordinate
+    tb_fixed_t                      lxe;
+
+    // the bottom right-hand x-coordinate
+    tb_fixed_t                      rxe;
 
     // the bottom left-hand y-coordinate
     tb_int16_t                      lye;
@@ -217,6 +223,8 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         contour->rs     = 0;
         contour->ldy    = 0;
         contour->rdy    = 0;
+        contour->lxe    = 0;
+        contour->rxe    = 0;
         contour->lye    = 0;
         contour->rye    = 0;
         contour->index  = 0;
@@ -475,9 +483,8 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     tb_assert_abort(impl && impl->func && contour && contour->lp && contour->rp);
 
     // compute the next x-coordinates
-    tb_fixed_t lx;
-    tb_fixed_t rx;
-    gb_polygon_cutter_contour_next(impl, contour, &lx, &rx);
+    tb_fixed_t lx = contour->lxe;
+    tb_fixed_t rx = contour->rxe;
 
     // add points to the contour
     if (lx > rx) gb_polygon_cutter_contour_append(contour, contour->y, contour->lx, contour->rx);
@@ -536,6 +543,10 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     // save the active contours index
     contour->index = (tb_uint16_t)index;
 
+    // save the bottom x-coordinates
+    contour->lxe = lx;
+    contour->rxe = rx;
+
     // trace
     tb_trace_d("insert contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", index, tb_list_entry_size(contours), contour->y, contour->lx, contour->rx, contour->ls, contour->rs);
 }
@@ -566,6 +577,10 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
 
     // update the active contours index
     contour->index = (tb_uint16_t)index;
+
+    // save the bottom x-coordinates
+    contour->lxe = lx;
+    contour->rxe = rx;
 
     // trace
     tb_trace_d("update contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", index, tb_list_entry_size(contours_new), contour->y, contour->lx, contour->rx, contour->ls, contour->rs);
@@ -669,6 +684,12 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         // the x-coordinates is same?
         tb_bool_t is_same_x = lx == rx;
 
+        // is the first line?
+        tb_bool_t is_first = !contour->lp_count && !contour->rp_count;
+
+        // the contour is finished?
+        tb_bool_t is_finished = tb_false;
+
         /* is intersecting join?
          * 
          * .       .
@@ -679,12 +700,44 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
          *
          */
         tb_bool_t is_inter = is_same_x || (contour->lx + contour->ls) > (contour->rx + contour->rs);
+        if (is_inter)
+        { 
+            // trace
+            tb_trace_d("join: intersecting");
+
+            // is finished 
+            if (!is_first) is_finished = tb_true;
+        }
 
         // the left-hand point is join?
         tb_bool_t is_join_left = (contour->ls != ls) && !is_inter;
+        if (is_join_left)
+        {
+            // trace
+            tb_trace_d("join: left");
+
+            // analyze the contour
+            if (!is_first)
+            {
+                // is finished 
+                if (ls < 0) is_finished = tb_true;
+            }
+        }
         
         // the right-hand point is join?
         tb_bool_t is_join_right = (contour->rs != rs) && !is_inter;
+        if (is_join_right)
+        {
+            // trace
+            tb_trace_d("join: right");
+
+            // analyze the contour
+            if (!is_first)
+            {
+                // is finished 
+                if (rs > 0) is_finished = tb_true;
+            }
+        }
 
 #ifdef GB_POLYGON_CUTTER_TEST_EDGE
         // only append all edge points
@@ -693,11 +746,8 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         is_join_right   = tb_false;       
         gb_polygon_cutter_contour_append(contour, yb, lx, rx);
 #else
-        // is the first line?
-        tb_bool_t is_first = !contour->lp_count && !contour->rp_count;
-
         // the contour is finished? 
-        if (!is_first && (is_inter || is_join_left || is_join_right))
+        if (is_finished)
         {
             // done it and clear points for inserting a new contour
             gb_polygon_cutter_contour_done(impl, contour);
@@ -714,9 +764,6 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         // is intersecting point?
         if (is_inter)
         {
-            // trace
-            tb_trace_d("join: intersecting");
-
             // append points to the new contour
             if (is_same_x) gb_polygon_cutter_contour_append_r(contour, yb, rx);
             else gb_polygon_cutter_contour_append(contour, yb, lx, rx);
@@ -725,9 +772,6 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         // the left-hand point is join?
         if (is_join_left)
         {
-            // trace
-            tb_trace_d("join: left");
-
             // append the left-hand point to the new contour
             gb_polygon_cutter_contour_append_l(contour, yb, lx);
         }
@@ -735,9 +779,6 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         // the right-hand point is join?
         if (is_join_right)
         {
-            // trace
-            tb_trace_d("join: right");
-
             // append the right-hand point to the new contour
             gb_polygon_cutter_contour_append_r(contour, yb, rx);
         }
