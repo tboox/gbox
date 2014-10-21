@@ -182,7 +182,7 @@ tb_void_t gb_demo_path_event(gb_window_ref_t window, gb_event_ref_t event)
     {
         if (event->u.keyboard.code == 'p')
             g_index = (g_index + 1) % g_count;
-        else if (event->u.keyboard.code == 'c')
+        else if (event->u.keyboard.code == 'q')
         {
             // finished
             if (g_maker)
