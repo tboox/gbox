@@ -144,8 +144,17 @@ typedef struct __gb_polygon_cutter_impl_t
     // the active contours size
     tb_size_t                           contours_active_size;
 
+    // the real top y-coordinate 
+    tb_fixed_t                          y_top;
+
+    // the real next y-coordinate
+    tb_fixed_t                          y_next;
+
+    // the last y-coordinate
+    tb_int16_t                          y_last;
+
     // the left-hand x-coordinate of the polygon
-    tb_long_t                           left_x;
+    tb_long_t                           x_left;
 
     // the user cutter func
     gb_polygon_cutter_func_t            func;
@@ -304,6 +313,14 @@ static tb_void_t gb_polygon_cutter_contour_real(gb_polygon_cutter_impl_t* impl, 
         ly += rdy;
         ry += rdy;
     }
+    else
+    {
+        tb_fixed_t dy = impl->y_top - ly;
+        lx += tb_fixed_mul(dy, edge_lsh->slope);
+        rx += tb_fixed_mul(dy, edge_rsh->slope);
+        ly += dy;
+        ry += dy;
+    }
 
     // save the coordinates
     *plx = lx;
@@ -360,6 +377,10 @@ static tb_void_t gb_polygon_cutter_contour_next(gb_polygon_cutter_impl_t* impl, 
         ry += rdy;
     }
 
+    // update the real next y-coordinates
+    if (ly > impl->y_next) impl->y_next = ly;
+    if (ry > impl->y_next) impl->y_next = ry;
+
     // save the coordinates
     *plx = lx;
     *ply = ly;
@@ -372,7 +393,7 @@ static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_
     tb_assert_abort(impl);
 
     // compute the active contours index
-    tb_long_t index = xb - impl->left_x;
+    tb_long_t index = xb - impl->x_left;
     if (index < 0) index = 0;
     if (index >= impl->contours_active_size) index = impl->contours_active_size - 1;
     tb_assert_abort(index >= 0 && index < impl->contours_active_size);
@@ -629,7 +650,12 @@ static tb_void_t gb_polygon_cutter_builder_init(gb_polygon_cutter_impl_t* impl, 
     impl->priv = priv;
 
     // init the left-hand-hand x-coordinate
-    impl->left_x = gb_round(bounds->x);
+    impl->x_left = gb_round(bounds->x);
+
+    // init the y-coordinates
+    impl->y_top     = bounds->y;
+    impl->y_next    = bounds->y;
+    impl->y_last    = gb_round(bounds->y) - 1;
 
     // the active contours size
     tb_size_t contours_active_size = gb_ceil(bounds->w) + 1;
@@ -700,6 +726,17 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
 
     // only one line
     tb_assert_abort(yb < TB_MAXS16 && yb + 1 == ye);
+
+    // is new line?
+    if (yb != impl->y_last)
+    {
+        // update the real top y-coordinate
+        impl->y_top = tb_long_to_fixed(yb);
+        if (impl->y_next < impl->y_top) impl->y_top = impl->y_next;
+
+        // update the last y-coordinate
+        impl->y_last = yb;
+    }
 
     // the edge factors
     tb_fixed_t  lx = edge_lsh->x;
@@ -817,7 +854,7 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
             }
         }
 #endif
- 
+
         // is intersecting point?
         if (is_inter)
         {
@@ -869,9 +906,10 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->re.dy      = edge_rsh->dy_bottom;
         contour->le.ye      = edge_lsh->y_bottom;
         contour->re.ye      = edge_rsh->y_bottom;
- 
+  
         // append points to the contour
-        gb_polygon_cutter_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+        if (lx_real <= rx_real) gb_polygon_cutter_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+        else gb_polygon_cutter_contour_append(contour, lx, tb_long_to_fixed(yb), rx, tb_long_to_fixed(yb));
 
         // insert the new contour
         gb_polygon_cutter_contour_insert(impl, contour);
