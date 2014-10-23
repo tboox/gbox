@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon_cutter.h
+ * @file        convex_maker.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_IMPL_POLYGON_CUTTER_H
-#define GB_CORE_IMPL_POLYGON_CUTTER_H
+#ifndef GB_CORE_IMPL_CONVEX_MAKER_H
+#define GB_CORE_IMPL_CONVEX_MAKER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -38,43 +38,43 @@ __tb_extern_c_enter__
  * types
  */
 
-// the cutter for the concave polygon
-typedef struct{}*       gb_polygon_cutter_ref_t;
+// the maker for the concave polygon
+typedef struct{}*       gb_convex_maker_ref_t;
 
-/* the polygon cutter func type
+/* the polygon maker func type
  * 
  * @param points        the points of the convex contour
  * @param count         the point count
  * @param priv          the user private data
  */
-typedef tb_void_t       (*gb_polygon_cutter_func_t)(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_convex_maker_func_t)(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interface
  */
 
-/* init cutter
+/* init maker
  *
- * @return                  the cutter
+ * @return                  the maker
  */
-gb_polygon_cutter_ref_t     gb_polygon_cutter_init(tb_noarg_t);
+gb_convex_maker_ref_t     gb_convex_maker_init(tb_noarg_t);
 
-/* exit cutter
+/* exit maker
  *
- * @param cutter            the cutter
+ * @param maker            the maker
  */
-tb_void_t                   gb_polygon_cutter_exit(gb_polygon_cutter_ref_t cutter);
+tb_void_t                   gb_convex_maker_exit(gb_convex_maker_ref_t maker);
 
-/* done cutter
+/* done maker
  *
- * @param cutter            the cutter
+ * @param maker            the maker
  * @param polygon           the polygon 
  * @param bounds            the bounds of the polygon
- * @param rule              the cutter rule
- * @param func              the cutter func
+ * @param rule              the maker rule
+ * @param func              the maker func
  * @param priv              the user private data
  */
-tb_void_t                   gb_polygon_cutter_done(gb_polygon_cutter_ref_t cutter, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_cutter_func_t func, tb_cpointer_t priv);
+tb_void_t                   gb_convex_maker_done(gb_convex_maker_ref_t maker, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_convex_maker_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

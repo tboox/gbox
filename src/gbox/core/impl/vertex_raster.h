@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon_raster.h
+ * @file        vertex_raster.h
  * @ingroup     core
  *
  */
-#ifndef GB_CORE_IMPL_POLYGON_RASTER_H
-#define GB_CORE_IMPL_POLYGON_RASTER_H
+#ifndef GB_CORE_IMPL_VERTEX_RASTER_H
+#define GB_CORE_IMPL_VERTEX_RASTER_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -39,26 +39,25 @@ __tb_extern_c_enter__
  * types
  */
 
-// the polygon raster rule enum
-typedef enum __gb_polygon_raster_rule_e
+// the vertex raster rule enum
+typedef enum __gb_vertex_raster_rule_e
 {
-    GB_POLYGON_RASTER_RULE_ODD      = GB_PAINT_FILL_RULE_ODD     //< odd 
-,   GB_POLYGON_RASTER_RULE_NONZERO  = GB_PAINT_FILL_RULE_NONZERO //< non-zero 
+    GB_VERTEX_RASTER_RULE_ODD      = GB_PAINT_FILL_RULE_ODD     //< odd 
+,   GB_VERTEX_RASTER_RULE_NONZERO  = GB_PAINT_FILL_RULE_NONZERO //< non-zero 
 
-}gb_polygon_raster_rule_e;
+}gb_vertex_raster_rule_e;
 
-// the polygon raster ref type
-typedef struct{}*       gb_polygon_raster_ref_t;
+// the polygon vertex raster ref type
+typedef struct{}*       gb_vertex_raster_ref_t;
 
-/* the polygon raster func type
+/* the vertex raster func type
  *
+ * @param y             the y-coordinate
  * @param lx            the left x-coordinate
- * @param rx            the right x-coordinate 
- * @param yb            the top y-coordinate
- * @param ye            the bottom y-coordinate 
+ * @param rx            the right x-coordinate
  * @param priv          the private data
  */
-typedef tb_void_t       (*gb_polygon_raster_func_t)(tb_long_t lx, tb_long_t rx, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_vertex_raster_func_t)(tb_fixed_t y, tb_fixed_t lx, tb_fixed_t rx, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -68,13 +67,13 @@ typedef tb_void_t       (*gb_polygon_raster_func_t)(tb_long_t lx, tb_long_t rx, 
  *
  * @return              the raster
  */
-gb_polygon_raster_ref_t gb_polygon_raster_init(tb_noarg_t);
+gb_vertex_raster_ref_t  gb_vertex_raster_init(tb_noarg_t);
 
 /* exit raster
  *
  * @param raster        the raster
  */
-tb_void_t               gb_polygon_raster_exit(gb_polygon_raster_ref_t raster);
+tb_void_t               gb_vertex_raster_exit(gb_vertex_raster_ref_t raster);
 
 /* done raster
  *
@@ -85,7 +84,7 @@ tb_void_t               gb_polygon_raster_exit(gb_polygon_raster_ref_t raster);
  * @param func          the raster func
  * @param priv          the private data
  */
-tb_void_t               gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv);
+tb_void_t               gb_vertex_raster_done(gb_vertex_raster_ref_t raster, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_vertex_raster_func_t func, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

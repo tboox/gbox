@@ -200,8 +200,8 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon
     // check
     tb_assert_abort(device);
 
-    // done cutter and fill each convex contour
-    gb_polygon_cutter_done(device->cutter, polygon, bounds, rule, gb_gl_render_fill_convex, (tb_cpointer_t)device);
+    // done maker and fill each convex contour
+    gb_convex_maker_done(device->maker, polygon, bounds, rule, gb_gl_render_fill_convex, (tb_cpointer_t)device);
 }
 static tb_void_t gb_gl_render_stroke_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {

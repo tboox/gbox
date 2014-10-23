@@ -17,7 +17,7 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon_cutter.c
+ * @file        convex_maker.c
  * @ingroup     core
  *
  */
@@ -25,13 +25,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "polygon_cutter"
+#define TB_TRACE_MODULE_NAME            "convex_maker"
 #define TB_TRACE_MODULE_DEBUG           (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "polygon_cutter.h"
+#include "convex_maker.h"
 #include "polygon_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -40,27 +40,27 @@
 
 // the polygon points grow
 #ifdef __gb_small__
-#   define GB_POLYGON_CUTTER_POINTS_GROW        (16)
+#   define GB_CONVEX_MAKER_POINTS_GROW        (16)
 #else
-#   define GB_POLYGON_CUTTER_POINTS_GROW        (32)
+#   define GB_CONVEX_MAKER_POINTS_GROW        (32)
 #endif
 
 // the polygon contours grow
 #ifdef __gb_small__
-#   define GB_POLYGON_CUTTER_CONTOURS_GROW      (8)
+#   define GB_CONVEX_MAKER_CONTOURS_GROW      (8)
 #else
-#   define GB_POLYGON_CUTTER_CONTOURS_GROW      (16)
+#   define GB_CONVEX_MAKER_CONTOURS_GROW      (16)
 #endif
 
 // test the polygon edge
-//#define GB_POLYGON_CUTTER_TEST_EDGE
+//#define GB_CONVEX_MAKER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
 // the polygon contour edge type
-typedef struct __gb_polygon_cutter_contour_edge_t
+typedef struct __gb_convex_maker_contour_edge_t
 {
     // the current x-coordinate
     tb_fixed_t                          x;
@@ -92,19 +92,19 @@ typedef struct __gb_polygon_cutter_contour_edge_t
     // the bottom y-coordinate
     tb_int16_t                          ye;
 
-}gb_polygon_cutter_contour_edge_t;
+}gb_convex_maker_contour_edge_t;
 
 // the polygon contour type
-typedef struct __gb_polygon_cutter_contour_t
+typedef struct __gb_convex_maker_contour_t
 {
     // the current y-coordinate
     tb_long_t                           y;
 
     // the left-hand edge
-    gb_polygon_cutter_contour_edge_t    le;
+    gb_convex_maker_contour_edge_t    le;
 
     // the right-hand edge
-    gb_polygon_cutter_contour_edge_t    re;
+    gb_convex_maker_contour_edge_t    re;
 
     // the active contour index
     tb_uint16_t                         index;
@@ -112,10 +112,10 @@ typedef struct __gb_polygon_cutter_contour_t
     // the list entry
     tb_list_entry_t                     entry;
 
-}gb_polygon_cutter_contour_t, *gb_polygon_cutter_contour_ref_t;
+}gb_convex_maker_contour_t, *gb_convex_maker_contour_ref_t;
 
-// the polygon cutter impl type
-typedef struct __gb_polygon_cutter_impl_t
+// the polygon maker impl type
+typedef struct __gb_convex_maker_impl_t
 {
     // the raster
     gb_polygon_raster_ref_t             raster;
@@ -156,21 +156,22 @@ typedef struct __gb_polygon_cutter_impl_t
     // the left-hand x-coordinate of the polygon
     tb_long_t                           x_left;
 
-    // the user cutter func
-    gb_polygon_cutter_func_t            func;
+    // the user maker func
+    gb_convex_maker_func_t            func;
 
     // the user private data
     tb_cpointer_t                       priv;
 
-}gb_polygon_cutter_impl_t;
+}gb_convex_maker_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_polygon_cutter_contour_free(tb_pointer_t data, tb_cpointer_t priv)
+#if 0
+static tb_void_t gb_convex_maker_contour_free(tb_pointer_t data, tb_cpointer_t priv)
 {
     // check
-    gb_polygon_cutter_contour_ref_t contour = (gb_polygon_cutter_contour_ref_t)data;
+    gb_convex_maker_contour_ref_t contour = (gb_convex_maker_contour_ref_t)data;
     tb_assert_abort(contour);
 
     // exit the left-hand points
@@ -181,7 +182,7 @@ static tb_void_t gb_polygon_cutter_contour_free(tb_pointer_t data, tb_cpointer_t
     if (contour->re.points) tb_free(contour->re.points);
     contour->re.points = tb_null;
 }
-static tb_void_t gb_polygon_cutter_contour_exit(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
+static tb_void_t gb_convex_maker_contour_exit(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && contour);
@@ -192,14 +193,14 @@ static tb_void_t gb_polygon_cutter_contour_exit(gb_polygon_cutter_impl_t* impl, 
     // put the contour to the free contours
     tb_list_entry_insert_head(&impl->contours_free, &contour->entry);
 }
-static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon_cutter_impl_t* impl)
+static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_maker_impl_t* impl)
 {
     // check
     tb_assert_abort(impl && impl->contours);
 
     // done
     tb_bool_t                       ok  = tb_false;
-    gb_polygon_cutter_contour_ref_t contour = tb_null;
+    gb_convex_maker_contour_ref_t contour = tb_null;
     do
     {
         // attempt to get contour from the free contours
@@ -208,7 +209,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
             tb_list_entry_ref_t entry = tb_list_entry_head(&impl->contours_free);
             if (entry)
             {
-                contour = (gb_polygon_cutter_contour_ref_t)tb_list_entry(&impl->contours_free, entry);
+                contour = (gb_convex_maker_contour_ref_t)tb_list_entry(&impl->contours_free, entry);
                 tb_list_entry_remove_head(&impl->contours_free);
             }
         }
@@ -232,7 +233,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         contour->le.points_count    = 0;
         if (!contour->le.points) 
         {
-            contour->le.points_maxn    = GB_POLYGON_CUTTER_POINTS_GROW;
+            contour->le.points_maxn    = GB_CONVEX_MAKER_POINTS_GROW;
             contour->le.points         = tb_nalloc_type(contour->le.points_maxn, gb_point_t);
         }
         tb_assert_and_check_break(contour->le.points);
@@ -249,7 +250,7 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
         if (!contour->re.points) 
         {
             // ensure the enough space for making complete contour: re.points = re.points + reverse(le.points)
-            contour->re.points_maxn    = GB_POLYGON_CUTTER_POINTS_GROW << 1;
+            contour->re.points_maxn    = GB_CONVEX_MAKER_POINTS_GROW << 1;
             contour->re.points         = tb_nalloc_type(contour->re.points_maxn, gb_point_t);
         }
         tb_assert_and_check_break(contour->re.points);
@@ -263,14 +264,14 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_init(gb_polygon
     if (!ok)
     {
         // exit it
-        if (contour) gb_polygon_cutter_contour_exit(impl, contour);
+        if (contour) gb_convex_maker_contour_exit(impl, contour);
         contour = tb_null;
     }
 
     // ok?
     return contour;
 }
-static tb_void_t gb_polygon_cutter_contour_real(gb_polygon_cutter_impl_t* impl, tb_long_t y, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_fixed_t* plx, tb_fixed_t* ply, tb_fixed_t* prx, tb_fixed_t* pry)
+static tb_void_t gb_convex_maker_contour_real(gb_convex_maker_impl_t* impl, tb_long_t y, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_fixed_t* plx, tb_fixed_t* ply, tb_fixed_t* prx, tb_fixed_t* pry)
 {
     // check
     tb_assert_abort(impl && edge_lsh && edge_rsh && plx && ply && prx && pry);
@@ -328,7 +329,7 @@ static tb_void_t gb_polygon_cutter_contour_real(gb_polygon_cutter_impl_t* impl, 
     *prx = rx;
     *pry = ry;
 }
-static tb_void_t gb_polygon_cutter_contour_next(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour, tb_fixed_t* plx, tb_fixed_t* ply, tb_fixed_t* prx, tb_fixed_t* pry)
+static tb_void_t gb_convex_maker_contour_next(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour, tb_fixed_t* plx, tb_fixed_t* ply, tb_fixed_t* prx, tb_fixed_t* pry)
 {
     // check
     tb_assert_abort(impl && contour && plx && prx);
@@ -387,7 +388,7 @@ static tb_void_t gb_polygon_cutter_contour_next(gb_polygon_cutter_impl_t* impl, 
     *prx = rx;
     *pry = ry;
 }
-static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_impl_t* impl, tb_long_t xb)
+static __tb_inline__ tb_long_t gb_convex_maker_contour_indx(gb_convex_maker_impl_t* impl, tb_long_t xb)
 {
     // check
     tb_assert_abort(impl);
@@ -401,7 +402,7 @@ static __tb_inline__ tb_long_t gb_polygon_cutter_contour_indx(gb_polygon_cutter_
     // ok
     return index;
 }
-static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_polygon_cutter_impl_t* impl, tb_long_t index, tb_long_t y)
+static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find_at(gb_convex_maker_impl_t* impl, tb_long_t index, tb_long_t y)
 {
     // check
     tb_assert_abort(impl && impl->contours_active);
@@ -411,11 +412,11 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_poly
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
 
     // empty? 
-    gb_polygon_cutter_contour_ref_t contour = tb_null;
+    gb_convex_maker_contour_ref_t contour = tb_null;
     if (tb_list_entry_size(contours))
     {
         // find it
-        tb_for_all_if (gb_polygon_cutter_contour_ref_t, item, tb_list_entry_itor(contours), item)
+        tb_for_all_if (gb_convex_maker_contour_ref_t, item, tb_list_entry_itor(contours), item)
         {
             // only one contour at this index for the same line
             if (item->y + 1 == y)
@@ -435,31 +436,31 @@ static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find_at(gb_poly
     // ok?
     return contour;
 }
-static gb_polygon_cutter_contour_ref_t gb_polygon_cutter_contour_find(gb_polygon_cutter_impl_t* impl, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
+static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find(gb_convex_maker_impl_t* impl, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
 {
     // check
     tb_assert_abort(impl && impl->contours_active);
 
     // compute the current contour index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // find the contour in the current index
-    gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find_at(impl, index, y);
+    gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find_at(impl, index, y);
     if (!contour)
     {
         /* find the contour in the range: [index - 1, index + 1]
          *
          * because the fixed_round() exists some error 
          */
-        if (index > 1) contour = gb_polygon_cutter_contour_find_at(impl, index - 1, y);
+        if (index > 1) contour = gb_convex_maker_contour_find_at(impl, index - 1, y);
         if (!contour && index < impl->contours_active_size - 1)
-            contour = gb_polygon_cutter_contour_find_at(impl, index + 1, y);
+            contour = gb_convex_maker_contour_find_at(impl, index + 1, y);
     }
 
     // ok?
     return contour;
 }
-static tb_void_t gb_polygon_cutter_contour_grow_l(gb_polygon_cutter_contour_ref_t contour, tb_size_t count)
+static tb_void_t gb_convex_maker_contour_grow_l(gb_convex_maker_contour_ref_t contour, tb_size_t count)
 {
     // check
     tb_assert_abort(contour && count <= TB_MAXU16);
@@ -467,12 +468,12 @@ static tb_void_t gb_polygon_cutter_contour_grow_l(gb_polygon_cutter_contour_ref_
     // grow the left-hand points if not enough 
     if (count > contour->le.points_maxn)
     {
-        contour->le.points_maxn    = count + GB_POLYGON_CUTTER_POINTS_GROW;
+        contour->le.points_maxn    = count + GB_CONVEX_MAKER_POINTS_GROW;
         contour->le.points         = tb_ralloc_type(contour->le.points, contour->le.points_maxn, gb_point_t);
         tb_assert_abort(contour->le.points);
     }
 }
-static tb_void_t gb_polygon_cutter_contour_grow_r(gb_polygon_cutter_contour_ref_t contour, tb_size_t count)
+static tb_void_t gb_convex_maker_contour_grow_r(gb_convex_maker_contour_ref_t contour, tb_size_t count)
 {
     // check
     tb_assert_abort(contour && count <= TB_MAXU16);
@@ -480,34 +481,34 @@ static tb_void_t gb_polygon_cutter_contour_grow_r(gb_polygon_cutter_contour_ref_
     // grow the right-hand points if not enough 
     if (count > contour->re.points_maxn)
     {
-        contour->re.points_maxn    = count + (GB_POLYGON_CUTTER_POINTS_GROW << 1);
+        contour->re.points_maxn    = count + (GB_CONVEX_MAKER_POINTS_GROW << 1);
         contour->re.points         = tb_ralloc_type(contour->re.points, contour->re.points_maxn, gb_point_t);
         tb_assert_abort(contour->re.points);
     }
 }
-static tb_void_t gb_polygon_cutter_contour_append_l(gb_polygon_cutter_contour_ref_t contour, tb_fixed_t x, tb_fixed_t y)
+static tb_void_t gb_convex_maker_contour_append_l(gb_convex_maker_contour_ref_t contour, tb_fixed_t x, tb_fixed_t y)
 {
     // check
     tb_assert_abort(contour && contour->le.points_count < TB_MAXU16);
 
     // grow the left-hand points if not enough 
-    gb_polygon_cutter_contour_grow_l(contour, contour->le.points_count + 1);
+    gb_convex_maker_contour_grow_l(contour, contour->le.points_count + 1);
 
     // append the left-hand point
     gb_point_make(&contour->le.points[contour->le.points_count++], gb_fixed_to_float(x), gb_fixed_to_float(y));
 }
-static tb_void_t gb_polygon_cutter_contour_append_r(gb_polygon_cutter_contour_ref_t contour, tb_fixed_t x, tb_fixed_t y)
+static tb_void_t gb_convex_maker_contour_append_r(gb_convex_maker_contour_ref_t contour, tb_fixed_t x, tb_fixed_t y)
 {
     // check
     tb_assert_abort(contour && contour->re.points_count < TB_MAXU16);
 
     // grow the right-hand points if not enough 
-    gb_polygon_cutter_contour_grow_r(contour, contour->re.points_count + 1);
+    gb_convex_maker_contour_grow_r(contour, contour->re.points_count + 1);
 
     // append the right-hand point
     gb_point_make(&contour->re.points[contour->re.points_count++], gb_fixed_to_float(x), gb_fixed_to_float(y));
 }
-static tb_void_t gb_polygon_cutter_contour_append(gb_polygon_cutter_contour_ref_t contour, tb_fixed_t lx, tb_fixed_t ly, tb_fixed_t rx, tb_fixed_t ry)
+static tb_void_t gb_convex_maker_contour_append(gb_convex_maker_contour_ref_t contour, tb_fixed_t lx, tb_fixed_t ly, tb_fixed_t rx, tb_fixed_t ry)
 {
     // check
     tb_assert_abort(contour && lx <= rx);
@@ -516,13 +517,13 @@ static tb_void_t gb_polygon_cutter_contour_append(gb_polygon_cutter_contour_ref_
     if (lx != rx || ly != ry) 
     {
         // append the left-hand point
-        gb_polygon_cutter_contour_append_l(contour, lx, ly);
+        gb_convex_maker_contour_append_l(contour, lx, ly);
     }
 
     // append the right-hand point
-    gb_polygon_cutter_contour_append_r(contour, rx, ry);
+    gb_convex_maker_contour_append_r(contour, rx, ry);
 }
-static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
+static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && impl->func && contour && contour->le.points && contour->re.points);
@@ -530,11 +531,11 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     // TODO split it?
     // add points to the contour
     if (contour->le.x_next > contour->re.x_next)
-        gb_polygon_cutter_contour_append(contour, contour->le.x, tb_long_to_fixed(contour->y), contour->re.x, tb_long_to_fixed(contour->y));
-    else gb_polygon_cutter_contour_append(contour, contour->le.x_next, contour->le.y_next, contour->re.x_next, contour->re.y_next);
+        gb_convex_maker_contour_append(contour, contour->le.x, tb_long_to_fixed(contour->y), contour->re.x, tb_long_to_fixed(contour->y));
+    else gb_convex_maker_contour_append(contour, contour->le.x_next, contour->le.y_next, contour->re.x_next, contour->re.y_next);
 
     // grow the right-hand points if not enough 
-    gb_polygon_cutter_contour_grow_r(contour, (tb_size_t)contour->re.points_count + contour->le.points_count + 1);
+    gb_convex_maker_contour_grow_r(contour, (tb_size_t)contour->re.points_count + contour->le.points_count + 1);
 
     // TODO: optimization
     // reverse to append the left-hand-hand points to the right-hand points
@@ -568,7 +569,7 @@ static tb_void_t gb_polygon_cutter_contour_done(gb_polygon_cutter_impl_t* impl, 
     contour->le.cross = TB_FIXED_ONE;
     contour->re.cross = -TB_FIXED_ONE;
 }
-static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
+static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
@@ -578,10 +579,10 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     tb_fixed_t ly;
     tb_fixed_t rx;
     tb_fixed_t ry;
-    gb_polygon_cutter_contour_next(impl, contour, &lx, &ly, &rx, &ry);
+    gb_convex_maker_contour_next(impl, contour, &lx, &ly, &rx, &ry);
 
     // compute the contour next index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -601,7 +602,7 @@ static tb_void_t gb_polygon_cutter_contour_insert(gb_polygon_cutter_impl_t* impl
     // trace
     tb_trace_d("insert contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", index, tb_list_entry_size(contours), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
 }
-static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl, gb_polygon_cutter_contour_ref_t contour)
+static tb_void_t gb_convex_maker_contour_update(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
@@ -611,10 +612,10 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
     tb_fixed_t ly;
     tb_fixed_t rx;
     tb_fixed_t ry;
-    gb_polygon_cutter_contour_next(impl, contour, &lx, &ly, &rx, &ry);
+    gb_convex_maker_contour_next(impl, contour, &lx, &ly, &rx, &ry);
 
     // compute the contour next index
-    tb_long_t index = gb_polygon_cutter_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
@@ -640,7 +641,7 @@ static tb_void_t gb_polygon_cutter_contour_update(gb_polygon_cutter_impl_t* impl
     // trace
     tb_trace_d("update contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", index, tb_list_entry_size(contours_new), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
 }
-static tb_void_t gb_polygon_cutter_builder_init(gb_polygon_cutter_impl_t* impl, gb_rect_ref_t bounds, gb_polygon_cutter_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_convex_maker_builder_init(gb_convex_maker_impl_t* impl, gb_rect_ref_t bounds, gb_convex_maker_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && bounds && func);
@@ -696,7 +697,7 @@ static tb_void_t gb_polygon_cutter_builder_init(gb_polygon_cutter_impl_t* impl, 
         for (index = 0; index < contours_active_size; index++)
         {
             // init it
-            tb_list_entry_init(impl->contours_active + index, gb_polygon_cutter_contour_t, entry, tb_null);
+            tb_list_entry_init(impl->contours_active + index, gb_convex_maker_contour_t, entry, tb_null);
         }
     }
 
@@ -718,10 +719,10 @@ static tb_void_t gb_polygon_cutter_builder_init(gb_polygon_cutter_impl_t* impl, 
     // save the active contours size
     impl->contours_active_size = contours_active_size;
 }
-static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv)
+static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv)
 {
     // check
-    gb_polygon_cutter_impl_t* impl = (gb_polygon_cutter_impl_t*)priv;
+    gb_convex_maker_impl_t* impl = (gb_convex_maker_impl_t*)priv;
     tb_assert_abort(impl && edge_lsh && edge_rsh);
 
     // only one line
@@ -750,13 +751,13 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
     tb_fixed_t ly_real;
     tb_fixed_t rx_real;
     tb_fixed_t ry_real;
-    gb_polygon_cutter_contour_real(impl, yb, edge_lsh, edge_rsh, &lx_real, &ly_real, &rx_real, &ry_real);
+    gb_convex_maker_contour_real(impl, yb, edge_lsh, edge_rsh, &lx_real, &ly_real, &rx_real, &ry_real);
 
     // trace
     tb_trace_d("line: yb: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, y_bottom: %d %d", yb, lx, rx, ls, rs, edge_lsh->y_bottom, edge_rsh->y_bottom);
 
     // find the contour of this two edges
-    gb_polygon_cutter_contour_ref_t contour = gb_polygon_cutter_contour_find(impl, yb, lx_real, rx_real);
+    gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find(impl, yb, lx_real, rx_real);
     if (contour)
     {
         // cannot be the first line
@@ -833,20 +834,20 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
             contour->re.cross = cross;
         }
 
-#ifdef GB_POLYGON_CUTTER_TEST_EDGE
+#ifdef GB_CONVEX_MAKER_TEST_EDGE
         // only append all edge points
         is_inter        = tb_false;
         is_join_left    = tb_false;
         is_join_right   = tb_false;       
-        gb_polygon_cutter_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+        gb_convex_maker_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
 #else
         // the contour is finished? 
         if (is_finished)
         {
             // done it and clear points for inserting a new contour
-            gb_polygon_cutter_contour_done(impl, contour);
+            gb_convex_maker_contour_done(impl, contour);
 
-            // patch the joins if be not inserting point after doing cutter
+            // patch the joins if be not inserting point after doing maker
             if (!is_inter)
             {
                 is_join_left = tb_true;
@@ -859,22 +860,22 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         if (is_inter)
         {
             // append points to the new contour
-            if (is_same_x) gb_polygon_cutter_contour_append_r(contour, rx_real, ry_real);
-            else gb_polygon_cutter_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+            if (is_same_x) gb_convex_maker_contour_append_r(contour, rx_real, ry_real);
+            else gb_convex_maker_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
         }
 
         // the left-hand point is join?
         if (is_join_left)
         {
             // append the left-hand point to the new contour
-            gb_polygon_cutter_contour_append_l(contour, lx_real, ly_real);
+            gb_convex_maker_contour_append_l(contour, lx_real, ly_real);
         }
 
         // the right-hand point is join?
         if (is_join_right)
         {
             // append the right-hand point to the new contour
-            gb_polygon_cutter_contour_append_r(contour, rx_real, ry_real);
+            gb_convex_maker_contour_append_r(contour, rx_real, ry_real);
         }
 
         // update the new contour
@@ -887,13 +888,13 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->re.dy      = edge_rsh->dy_bottom;
         contour->le.ye      = edge_lsh->y_bottom;
         contour->re.ye      = edge_rsh->y_bottom;
-        gb_polygon_cutter_contour_update(impl, contour);        
+        gb_convex_maker_contour_update(impl, contour);        
     }
     // not found? add a new contour
     else
     {
         // make a new contour
-        contour = gb_polygon_cutter_contour_init(impl);
+        contour = gb_convex_maker_contour_init(impl);
         tb_assert_abort(contour);
 
         // init the new contour
@@ -908,14 +909,14 @@ static tb_void_t gb_polygon_cutter_builder_done(tb_long_t yb, tb_long_t ye, gb_p
         contour->re.ye      = edge_rsh->y_bottom;
   
         // append points to the contour
-        if (lx_real <= rx_real) gb_polygon_cutter_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
-        else gb_polygon_cutter_contour_append(contour, lx, tb_long_to_fixed(yb), rx, tb_long_to_fixed(yb));
+        if (lx_real <= rx_real) gb_convex_maker_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+        else gb_convex_maker_contour_append(contour, lx, tb_long_to_fixed(yb), rx, tb_long_to_fixed(yb));
 
         // insert the new contour
-        gb_polygon_cutter_contour_insert(impl, contour);
+        gb_convex_maker_contour_insert(impl, contour);
     }
 }
-static tb_void_t gb_polygon_cutter_builder_exit(gb_polygon_cutter_impl_t* impl)
+static tb_void_t gb_convex_maker_builder_exit(gb_convex_maker_impl_t* impl)
 {
     // check
     tb_assert_abort(impl);
@@ -944,20 +945,20 @@ static tb_void_t gb_polygon_cutter_builder_exit(gb_polygon_cutter_impl_t* impl)
         while (itor != tb_iterator_tail(iterator))
         {
             // the contour
-            gb_polygon_cutter_contour_ref_t contour = (gb_polygon_cutter_contour_ref_t)tb_iterator_item(iterator, itor);
+            gb_convex_maker_contour_ref_t contour = (gb_convex_maker_contour_ref_t)tb_iterator_item(iterator, itor);
             tb_assert_abort(contour && contour->re.x >= contour->le.x);
 
             // save next
             tb_size_t next = tb_iterator_next(iterator, itor);
 
             // done contour
-            gb_polygon_cutter_contour_done(impl, contour);
+            gb_convex_maker_contour_done(impl, contour);
 
             // remove contour
             tb_list_entry_remove(contours, &contour->entry);
 
             // exit contour
-            gb_polygon_cutter_contour_exit(impl, contour);
+            gb_convex_maker_contour_exit(impl, contour);
 
             // next
             itor = next;
@@ -975,15 +976,15 @@ static tb_void_t gb_polygon_cutter_builder_exit(gb_polygon_cutter_impl_t* impl)
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_polygon_cutter_ref_t gb_polygon_cutter_init()
+gb_convex_maker_ref_t gb_convex_maker_init()
 {
     // done
     tb_bool_t                   ok = tb_false;
-    gb_polygon_cutter_impl_t*   impl = tb_null;
+    gb_convex_maker_impl_t*   impl = tb_null;
     do
     {
-        // make cutter
-        impl = tb_malloc0_type(gb_polygon_cutter_impl_t);
+        // make maker
+        impl = tb_malloc0_type(gb_convex_maker_impl_t);
         tb_assert_and_check_break(impl);
 
         // init raster
@@ -991,11 +992,11 @@ gb_polygon_cutter_ref_t gb_polygon_cutter_init()
         tb_assert_and_check_break(impl->raster);
 
         // init the contours
-        impl->contours = tb_fixed_pool_init(tb_null, GB_POLYGON_CUTTER_CONTOURS_GROW, sizeof(gb_polygon_cutter_contour_t), tb_null, gb_polygon_cutter_contour_free, (tb_cpointer_t)impl);
+        impl->contours = tb_fixed_pool_init(tb_null, GB_CONVEX_MAKER_CONTOURS_GROW, sizeof(gb_convex_maker_contour_t), tb_null, gb_convex_maker_contour_free, (tb_cpointer_t)impl);
         tb_assert_and_check_break(impl->contours);
 
         // init the free contours
-        tb_list_entry_init(&impl->contours_free, gb_polygon_cutter_contour_t, entry, tb_null);
+        tb_list_entry_init(&impl->contours_free, gb_convex_maker_contour_t, entry, tb_null);
 
         // ok
         ok = tb_true;
@@ -1006,17 +1007,17 @@ gb_polygon_cutter_ref_t gb_polygon_cutter_init()
     if (!ok)
     {
         // exit it
-        if (impl) gb_polygon_cutter_exit((gb_polygon_cutter_ref_t)impl);
+        if (impl) gb_convex_maker_exit((gb_convex_maker_ref_t)impl);
         impl = tb_null;
     }
 
     // ok?
-    return (gb_polygon_cutter_ref_t)impl;
+    return (gb_convex_maker_ref_t)impl;
 }
-tb_void_t gb_polygon_cutter_exit(gb_polygon_cutter_ref_t cutter)
+tb_void_t gb_convex_maker_exit(gb_convex_maker_ref_t maker)
 {
     // check
-    gb_polygon_cutter_impl_t* impl = (gb_polygon_cutter_impl_t*)cutter;
+    gb_convex_maker_impl_t* impl = (gb_convex_maker_impl_t*)maker;
     tb_assert_and_check_return(impl);
 
     // exit active contours
@@ -1037,10 +1038,10 @@ tb_void_t gb_polygon_cutter_exit(gb_polygon_cutter_ref_t cutter)
     // exit it
     tb_free(impl);
 }
-tb_void_t gb_polygon_cutter_done(gb_polygon_cutter_ref_t cutter, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_cutter_func_t func, tb_cpointer_t priv)
+tb_void_t gb_convex_maker_done(gb_convex_maker_ref_t maker, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_convex_maker_func_t func, tb_cpointer_t priv)
 {
     // check
-    gb_polygon_cutter_impl_t* impl = (gb_polygon_cutter_impl_t*)cutter;
+    gb_convex_maker_impl_t* impl = (gb_convex_maker_impl_t*)maker;
     tb_assert_and_check_return(impl && impl->raster && polygon && func);
 
     // is convex polygon for each contour?
@@ -1063,12 +1064,24 @@ tb_void_t gb_polygon_cutter_done(gb_polygon_cutter_ref_t cutter, gb_polygon_ref_
     else
     {
         // init builder
-        gb_polygon_cutter_builder_init(impl, bounds, func, priv);
+        gb_convex_maker_builder_init(impl, bounds, func, priv);
 
         // done raster and reduce the complex polygon to the some convex polygons
-        gb_polygon_raster_done(impl->raster, polygon, bounds, rule, gb_polygon_cutter_builder_done, (tb_cpointer_t)impl);
+        gb_polygon_raster_done(impl->raster, polygon, bounds, rule, gb_convex_maker_builder_done, (tb_cpointer_t)impl);
 
         // exit builder
-        gb_polygon_cutter_builder_exit(impl);
+        gb_convex_maker_builder_exit(impl);
     }
 }
+#else
+gb_convex_maker_ref_t gb_convex_maker_init()
+{
+    return tb_null;
+}
+tb_void_t gb_convex_maker_exit(gb_convex_maker_ref_t maker)
+{
+}
+tb_void_t gb_convex_maker_done(gb_convex_maker_ref_t maker, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_convex_maker_func_t func, tb_cpointer_t priv)
+{
+}
+#endif

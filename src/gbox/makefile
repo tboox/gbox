@@ -42,8 +42,9 @@ gbox_C_FILES 			+= \
 						core/impl/cubic \
 						core/impl/float \
 						core/impl/stroker \
-						core/impl/polygon_raster \
-						core/impl/polygon_cutter
+						core/impl/convex_maker \
+						core/impl/vertex_raster \
+						core/impl/polygon_raster 
 
 
 # bitmap device files

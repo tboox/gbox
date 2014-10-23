@@ -30,7 +30,7 @@
 #include "program.h"
 #include "matrix.h"
 #include "../../impl/stroker.h"
-#include "../../impl/polygon_cutter.h"
+#include "../../impl/convex_maker.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -57,14 +57,14 @@ typedef struct __gb_gl_device_t
 	// the vertex matrix 
 	gb_gl_matrix_t              matrix_vertex;
 
+    // the maker
+    gb_convex_maker_ref_t       maker;
+
     // the shader
     gb_shader_ref_t             shader;
 
     // the stroker
     gb_stroker_ref_t            stroker;
-
-    // the cutter
-    gb_polygon_cutter_ref_t     cutter;
 
     // the program
     gb_gl_program_ref_t         program;
