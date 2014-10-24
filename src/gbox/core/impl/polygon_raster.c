@@ -368,7 +368,7 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
     // ok
     return tb_true;
 }
-static tb_void_t gb_polygon_raster_scan_line_convex(gb_polygon_raster_impl_t* impl, tb_long_t y, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_active_scan_line_convex(gb_polygon_raster_impl_t* impl, tb_long_t y, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
@@ -441,7 +441,7 @@ static tb_void_t gb_polygon_raster_scan_line_convex(gb_polygon_raster_impl_t* im
     // done it
     func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, ye, priv);
 }
-static tb_void_t gb_polygon_raster_scan_line_concave(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
@@ -575,7 +575,7 @@ static tb_void_t gb_polygon_raster_scan_line_concave(gb_polygon_raster_impl_t* i
     // done the left edge cache
     if (edge_cache_lsh && edge_cache_rsh) func(tb_fixed_round(edge_cache_lsh->x), tb_fixed_round(edge_cache_rsh->x), y, y + 1, priv);
 }
-static tb_void_t gb_polygon_raster_scan_next(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
+static tb_void_t gb_polygon_raster_active_scan_next(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && impl->edge_table && y <= impl->bottom);
@@ -904,13 +904,13 @@ static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, g
         gb_polygon_raster_active_sorted_append(impl, edge_table[y - base]); 
 
         // scan line from the active edges
-        gb_polygon_raster_scan_line_convex(impl, y, func, priv); 
+        gb_polygon_raster_active_scan_line_convex(impl, y, func, priv); 
 
         // end?
         tb_check_break(y < bottom - 1);
 
         // scan the next line from the active edges
-        gb_polygon_raster_scan_next(impl, y, tb_null); 
+        gb_polygon_raster_active_scan_next(impl, y, tb_null); 
     }
 }
 static tb_void_t gb_polygon_raster_done_concave(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
@@ -945,13 +945,13 @@ static tb_void_t gb_polygon_raster_done_concave(gb_polygon_raster_impl_t* impl, 
         }
 
         // scan line from the active edges
-        gb_polygon_raster_scan_line_concave(impl, y, rule, func, priv); 
+        gb_polygon_raster_active_scan_line_concave(impl, y, rule, func, priv); 
 
         // end?
         tb_check_break(y < bottom - 1);
 
         // scan the next line from the active edges
-        gb_polygon_raster_scan_next(impl, y, &order); 
+        gb_polygon_raster_active_scan_next(impl, y, &order); 
     }
 }
 
