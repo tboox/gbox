@@ -47,17 +47,52 @@ typedef enum __gb_vertex_raster_rule_e
 
 }gb_vertex_raster_rule_e;
 
+// the vertex raster edge type
+typedef struct __gb_vertex_raster_edge_t
+{
+    /* the winding for rule
+     *
+     *   . <= -1
+     *     .
+     *       . 
+     *         .
+     *            .  
+     *              .
+     *            => 1
+     *
+     * 1:  top => bottom
+     * -1: bottom => top
+     */
+    tb_int8_t           winding     : 2;
+
+    // the index of next edge at the edge pool 
+    tb_uint16_t         next;
+
+    // the top y-coordinate
+    tb_fixed_t          y_top;
+
+    // the bottom y-coordinate
+    tb_fixed_t          y_bottom;
+
+    // the x-coordinate of the active edge
+    tb_fixed_t          x;
+
+    // the slope of the edge: dx / dy 
+    tb_fixed_t          slope;
+
+}gb_vertex_raster_edge_t, *gb_vertex_raster_edge_ref_t;
+
 // the polygon vertex raster ref type
 typedef struct{}*       gb_vertex_raster_ref_t;
 
 /* the vertex raster func type
  *
  * @param y             the y-coordinate
- * @param lx            the left x-coordinate
- * @param rx            the right x-coordinate
+ * @param le            the left edge
+ * @param re            the right edge
  * @param priv          the private data
  */
-typedef tb_void_t       (*gb_vertex_raster_func_t)(tb_fixed_t y, tb_fixed_t lx, tb_fixed_t rx, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_vertex_raster_func_t)(tb_fixed_t y, gb_vertex_raster_edge_ref_t le, gb_vertex_raster_edge_ref_t re, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
