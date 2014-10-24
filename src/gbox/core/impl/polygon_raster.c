@@ -368,85 +368,7 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
     // ok
     return tb_true;
 }
-static tb_void_t gb_polygon_raster_scan_next(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
-{
-    // check
-    tb_assert_abort(impl && impl->edge_pool && impl->edge_table && y <= impl->bottom);
-
-    // done
-    tb_size_t                       first = 1;
-    tb_size_t                       order = 1;
-    tb_fixed_t                      prev_x = 0;
-    tb_uint16_t                     index_prev = 0;
-    tb_uint16_t                     index = impl->active_edges;
-    tb_long_t                       bottom = impl->bottom;
-    gb_polygon_raster_edge_ref_t    edge = tb_null; 
-    gb_polygon_raster_edge_ref_t    edge_prev = tb_null; 
-    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
-    tb_uint16_t                     active_edges = impl->active_edges;
-    while (index)
-    {
-        // the edge
-        edge = edge_pool + index;
-
-        /* remove edge from the active edges if (y >= edge->y_bottom)
-         *            
-         *             .
-         *           .  .
-         *         .     .
-         *       .        .  <- y_bottom: end and no next y for this edge, so remove it
-         *     .           . <- the start y of the next edge
-         *       .        .
-         *          .   .   
-         *            .      <- bottom
-         */
-        if (y != bottom - 1 && edge->y_bottom < y + 1)
-        {
-            // the next edge index
-            index = edge->next;
-
-            // remove this edge from head
-            if (!index_prev) active_edges = index;
-            else 
-            {
-                // the previous edge 
-                edge_prev = edge_pool + index_prev;
-
-                // remove this edge from the body
-                edge_prev->next = index;
-            }
-
-            // continue 
-            continue;
-        }
-
-        // update the x-coordinate
-        edge->x += edge->slope;
-
-        // is order?
-        if (porder)
-        {
-            if (first) first = 0;
-            else if (order && edge->x < prev_x) order = 0;
-        }
-
-        // update the previous x coordinate
-        prev_x = edge->x;
-
-        // update the previous edge index
-        index_prev = index;
-
-        // update the edge index
-        index = edge->next;
-    }
-
-    // save order
-    if (porder) *porder = order; 
-
-    // update the active edges 
-    impl->active_edges = active_edges;
-}
-static tb_void_t gb_polygon_raster_scan_convex_line(gb_polygon_raster_impl_t* impl, tb_long_t y, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_scan_line_convex(gb_polygon_raster_impl_t* impl, tb_long_t y, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
@@ -519,7 +441,7 @@ static tb_void_t gb_polygon_raster_scan_convex_line(gb_polygon_raster_impl_t* im
     // done it
     func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, ye, priv);
 }
-static tb_void_t gb_polygon_raster_scan_concave_line(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
+static tb_void_t gb_polygon_raster_scan_line_concave(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
@@ -613,7 +535,7 @@ static tb_void_t gb_polygon_raster_scan_concave_line(gb_polygon_raster_impl_t* i
 
 #if 0
         // done it for winding?
-        if (done) func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, ye, priv);
+        if (done) func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, y + 1, priv);
 #else
         // cache the conjoint edges and done them together
         if (done)
@@ -653,6 +575,83 @@ static tb_void_t gb_polygon_raster_scan_concave_line(gb_polygon_raster_impl_t* i
     // done the left edge cache
     if (edge_cache_lsh && edge_cache_rsh) func(tb_fixed_round(edge_cache_lsh->x), tb_fixed_round(edge_cache_rsh->x), y, y + 1, priv);
 }
+static tb_void_t gb_polygon_raster_scan_next(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && impl->edge_table && y <= impl->bottom);
+
+    // done
+    tb_size_t                       first = 1;
+    tb_size_t                       order = 1;
+    tb_fixed_t                      prev_x = 0;
+    tb_uint16_t                     index_prev = 0;
+    tb_uint16_t                     index = impl->active_edges;
+    gb_polygon_raster_edge_ref_t    edge = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_prev = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    tb_uint16_t                     active_edges = impl->active_edges;
+    while (index)
+    {
+        // the edge
+        edge = edge_pool + index;
+
+        /* remove edge from the active edges if (y >= edge->y_bottom)
+         *            
+         *             .
+         *           .  .
+         *         .     .
+         *       .        .  <- y_bottom: end and no next y for this edge, so remove it
+         *     .           . <- the start y of the next edge
+         *       .        .
+         *          .   .   
+         *            .      <- bottom
+         */
+        if (edge->y_bottom < y + 1)
+        {
+            // the next edge index
+            index = edge->next;
+
+            // remove this edge from head
+            if (!index_prev) active_edges = index;
+            else 
+            {
+                // the previous edge 
+                edge_prev = edge_pool + index_prev;
+
+                // remove this edge from the body
+                edge_prev->next = index;
+            }
+
+            // continue 
+            continue;
+        }
+
+        // update the x-coordinate
+        edge->x += edge->slope;
+
+        // is order?
+        if (porder)
+        {
+            if (first) first = 0;
+            else if (order && edge->x < prev_x) order = 0;
+        }
+
+        // update the previous x coordinate
+        prev_x = edge->x;
+
+        // update the previous edge index
+        index_prev = index;
+
+        // update the edge index
+        index = edge->next;
+    }
+
+    // save order
+    if (porder) *porder = order; 
+
+    // update the active edges 
+    impl->active_edges = active_edges;
+}
 static tb_void_t gb_polygon_raster_active_append(gb_polygon_raster_impl_t* impl, tb_uint16_t index)
 {
     // check
@@ -682,6 +681,157 @@ static tb_void_t gb_polygon_raster_active_append(gb_polygon_raster_impl_t* impl,
     // update the active edges 
     impl->active_edges = active_edges;
 }
+static tb_void_t gb_polygon_raster_active_sorted_insert(gb_polygon_raster_impl_t* impl, tb_uint16_t edge_index)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && edge_index);
+
+    // the edge pool
+    gb_polygon_raster_edge_ref_t edge_pool = impl->edge_pool;
+
+    // the edge
+    gb_polygon_raster_edge_ref_t edge = edge_pool + edge_index;
+
+    // insert edge to the active edges by x in ascending
+    edge->next = 0;
+    if (!impl->active_edges) impl->active_edges = edge_index;
+    else 
+    {
+        // find an inserted position
+        gb_polygon_raster_edge_ref_t    edge_prev       = tb_null;
+        gb_polygon_raster_edge_ref_t    edge_active     = tb_null;
+        tb_uint16_t                     index_active    = impl->active_edges;
+        while (index_active)
+        {
+            // the active edge
+            edge_active = edge_pool + index_active;
+
+            // check
+            tb_assert_abort(edge_index != index_active);
+
+            /* is this?
+             *
+             * x: 1 2 3     5 6
+             *               |
+             *             4 or 5
+             */
+            if (edge->x <= edge_active->x) 
+            {
+                /* same vertex?
+                 *
+                 *
+                 * x: 1 2 3     5 6
+                 *               |   .
+                 *               5    .
+                 *             .       .
+                 *           .          .
+                 *         .          active_edge
+                 *       .
+                 *     edge
+                 *
+                 * x: 1 2 3   5         6
+                 *                 .    |
+                 *                  .   5
+                 *                   .    .
+                 *                    .     .
+                 *          active_edge       .
+                 *                              . 
+                 *                                .  
+                 *                                  .
+                 *                                   edge
+                 *
+                 *  x: 1 2 3   5         6
+                 *                 .    |
+                 *                .     5
+                 *              .    .
+                 *            .     .
+                 *  active_edge    .
+                 *                . 
+                 *               .  
+                 *              .
+                 *             edge
+                 *
+                 *
+                 * x: 1 2 3     5 6
+                 *               |   .
+                 *               5      .
+                 *                 .       .
+                 *                   .       active_edge 
+                 *                     .           
+                 *                       .
+                 *                         .
+                 *                           .
+                 *                             .
+                 *                               .
+                 *                                 .
+                 *                                 edge
+                 */
+                if (edge->x == edge_active->x)
+                {
+                    /* the edge is at the left-hand of the active edge?
+                     * 
+                     * x: 1 2 3     5 6    <- active_edges
+                     *               |   .
+                     *               5    .
+                     *             .       .
+                     *           .          .
+                     *         .        active_edge
+                     *       .
+                     *     edge
+                     *
+                     * if (edge->dx / edge->dy < active->dx / active->dy)?
+                     */
+                    if (edge->slope < edge_active->slope) break;
+                }
+                else break;
+            }
+            
+            // the previous active edge
+            edge_prev = edge_active;
+
+            // the next active edge index
+            index_active = edge_prev->next;
+        }
+
+        // insert edge to the active edges: edge_prev -> edge -> edge_active
+        if (!edge_prev)
+        {
+            // insert to the head
+            edge->next          = impl->active_edges;
+            impl->active_edges  = edge_index;
+        }
+        else
+        {
+            // insert to the body
+            edge->next      = index_active;
+            edge_prev->next = edge_index;
+        }
+    }
+}
+static tb_void_t gb_polygon_raster_active_sorted_append(gb_polygon_raster_impl_t* impl, tb_uint16_t edge_index)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool);
+
+    // done
+    tb_uint16_t                     index_next = 0;
+    gb_polygon_raster_edge_ref_t    edge = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    while (edge_index)
+    {
+        // the edge
+        edge = edge_pool + edge_index;
+
+        // save the next edge index
+        index_next = edge->next;
+
+        // insert the edge to the active edges
+        gb_polygon_raster_active_sorted_insert(impl, edge_index);
+
+        // the next edge index
+        edge_index = index_next;
+    }
+}
 static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
 {
     // check
@@ -693,7 +843,7 @@ static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
     gb_polygon_raster_edge_ref_t    edge_lsh    = tb_null;
     gb_polygon_raster_edge_ref_t    edge_rsh    = tb_null;
     gb_polygon_raster_edge_t        edge_tmp;
-    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
+    gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
     while (index_lsh)
     {
         // the left-hand edge
@@ -731,149 +881,6 @@ static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
         index_lsh = edge_lsh->next;
     }
 }
-static tb_void_t gb_polygon_raster_active_sorted_append(gb_polygon_raster_impl_t* impl, tb_uint16_t edge_index)
-{
-    // check
-    tb_assert_abort(impl && impl->edge_pool);
-
-    // done
-    tb_uint16_t                     index_next = 0;
-    tb_uint16_t                     index_active = 0;
-    gb_polygon_raster_edge_ref_t    edge = tb_null;
-    gb_polygon_raster_edge_ref_t    edge_prev = tb_null;
-    gb_polygon_raster_edge_ref_t    edge_active = tb_null;
-    gb_polygon_raster_edge_ref_t    edge_pool = impl->edge_pool;
-    tb_uint16_t                     active_edges = impl->active_edges;
-    while (edge_index)
-    {
-        // the edge
-        edge = edge_pool + edge_index;
-
-        // save the next edge index
-        index_next = edge->next;
-
-        // insert edge to the active edges by x in ascending
-        edge->next = 0;
-        if (!active_edges) active_edges = edge_index;
-        else 
-        {
-            // find an inserted position
-            edge_prev       = tb_null;
-            index_active    = active_edges;
-            while (index_active)
-            {
-                // the active edge
-                edge_active = edge_pool + index_active;
-
-                // check
-                tb_assert_abort(edge_index != index_active);
-
-                /* is this?
-                 *
-                 * x: 1 2 3     5 6
-                 *               |
-                 *             4 or 5
-                 */
-                if (edge->x <= edge_active->x) 
-                {
-                    /* same vertex?
-                     *
-                     *
-                     * x: 1 2 3     5 6
-                     *               |   .
-                     *               5    .
-                     *             .       .
-                     *           .          .
-                     *         .          active_edge
-                     *       .
-                     *     edge
-                     *
-                     * x: 1 2 3   5         6
-                     *                 .    |
-                     *                  .   5
-                     *                   .    .
-                     *                    .     .
-                     *          active_edge       .
-                     *                              . 
-                     *                                .  
-                     *                                  .
-                     *                                   edge
-                     *
-                     *  x: 1 2 3   5         6
-                     *                 .    |
-                     *                .     5
-                     *              .    .
-                     *            .     .
-                     *  active_edge    .
-                     *                . 
-                     *               .  
-                     *              .
-                     *             edge
-                     *
-                     *
-                     * x: 1 2 3     5 6
-                     *               |   .
-                     *               5      .
-                     *                 .       .
-                     *                   .       active_edge 
-                     *                     .           
-                     *                       .
-                     *                         .
-                     *                           .
-                     *                             .
-                     *                               .
-                     *                                 .
-                     *                                 edge
-                     */
-                    if (edge->x == edge_active->x)
-                    {
-                        /* the edge is at the left-hand of the active edge?
-                         * 
-                         * x: 1 2 3     5 6    <- active_edges
-                         *               |   .
-                         *               5    .
-                         *             .       .
-                         *           .          .
-                         *         .        active_edge
-                         *       .
-                         *     edge
-                         *
-                         * if (edge->dx / edge->dy < active->dx / active->dy)?
-                         */
-                        if (edge->slope < edge_active->slope) break;
-                    }
-                    else break;
-                }
-                
-                // the previous active edge
-                edge_prev = edge_active;
-
-                // the next active edge index
-                index_active = edge_prev->next;
-            }
-
-            // insert edge to the active edges: edge_prev -> edge -> edge_active
-            if (!edge_prev)
-            {
-                // insert to the head
-                edge->next      = active_edges;
-                active_edges    = edge_index;
-            }
-            else
-            {
-                // insert to the body
-                edge->next      = index_active;
-                edge_prev->next = edge_index;
-            }
-        }
-
-        // the next edge index
-        edge_index = index_next;
-    }
-
-    // update the active edges 
-    impl->active_edges = active_edges;
-}
 static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
@@ -897,7 +904,10 @@ static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, g
         gb_polygon_raster_active_sorted_append(impl, edge_table[y - base]); 
 
         // scan line from the active edges
-        gb_polygon_raster_scan_convex_line(impl, y, func, priv); 
+        gb_polygon_raster_scan_line_convex(impl, y, func, priv); 
+
+        // end?
+        tb_check_break(y < bottom - 1);
 
         // scan the next line from the active edges
         gb_polygon_raster_scan_next(impl, y, tb_null); 
@@ -935,7 +945,10 @@ static tb_void_t gb_polygon_raster_done_concave(gb_polygon_raster_impl_t* impl, 
         }
 
         // scan line from the active edges
-        gb_polygon_raster_scan_concave_line(impl, y, rule, func, priv); 
+        gb_polygon_raster_scan_line_concave(impl, y, rule, func, priv); 
+
+        // end?
+        tb_check_break(y < bottom - 1);
 
         // scan the next line from the active edges
         gb_polygon_raster_scan_next(impl, y, &order); 

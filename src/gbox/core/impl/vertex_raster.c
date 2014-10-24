@@ -182,18 +182,18 @@ static tb_void_t gb_vertex_raster_edge_table_insert(gb_vertex_raster_impl_t* imp
     tb_long_t table_index = tb_fixed_to_long(edge->y_top) - impl->edge_table_base;
     tb_assert_abort(table_index >= 0 && table_index < impl->edge_table_maxn);
 
-    // the head index
-    tb_uint16_t head_index = impl->edge_table[table_index];
+    // the table head
+    tb_uint16_t table_head = impl->edge_table[table_index];
 
     // insert edge to the active edges by the top y-coordinate in ascending
     edge->next = 0;
-    if (!head_index) head_index = edge_index;
+    if (!table_head) table_head = edge_index;
     else 
     {
         // find an inserted position
         gb_vertex_raster_edge_ref_t     edge_prev   = tb_null;
         gb_vertex_raster_edge_ref_t     edge_find   = tb_null;
-        tb_uint16_t                     find_index  = head_index;
+        tb_uint16_t                     find_index  = table_head;
         while (find_index)
         {
             // the edge
@@ -216,8 +216,8 @@ static tb_void_t gb_vertex_raster_edge_table_insert(gb_vertex_raster_impl_t* imp
         if (!edge_prev)
         {
             // insert to the head
-            edge->next  = head_index;
-            head_index  = edge_index;
+            edge->next  = table_head;
+            table_head  = edge_index;
         }
         else
         {
@@ -228,7 +228,7 @@ static tb_void_t gb_vertex_raster_edge_table_insert(gb_vertex_raster_impl_t* imp
     }
 
     // update the head index
-    impl->edge_table[table_index] = head_index;
+    impl->edge_table[table_index] = table_head;
 }
 static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
@@ -239,7 +239,7 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
     tb_check_return_val(gb_nz(bounds->w) && gb_nz(bounds->h), tb_false);
 
     // init the edge table
-    if (!gb_vertex_raster_edge_table_init(impl, gb_round(bounds->y), gb_round(bounds->h) + 1)) return tb_false;
+    if (!gb_vertex_raster_edge_table_init(impl, gb_floor(bounds->y), gb_ceil(bounds->h) + 1)) return tb_false;
 
     // make the edge table
     gb_point_t          pb;
@@ -348,6 +348,510 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
     // ok
     return tb_true;
 }
+static tb_void_t gb_vertex_raster_scan_line(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_size_t rule, gb_vertex_raster_func_t func, tb_cpointer_t priv)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && func);
+
+    // done
+    tb_long_t                       done = 0;
+    tb_long_t                       winding = 0; 
+    tb_uint16_t                     index_lsh = impl->active_edges; 
+    tb_uint16_t                     index_rsh = 0; 
+    gb_vertex_raster_edge_ref_t     edge_lsh = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_rsh = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_cache_lsh = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_cache_rsh = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_pool   = impl->edge_pool;
+    while (index_lsh) 
+    { 
+        // the left-hand edge
+        edge_lsh = edge_pool + index_lsh; 
+
+        /* compute the winding
+         *   
+         *    /\
+         *    |            |
+         *    |-1          | +1
+         *    |            |
+         *    |            |
+         *                \/
+         */
+        winding += edge_lsh->winding; 
+
+        // the right-hand edge index
+        index_rsh = edge_lsh->next; 
+        tb_check_break(index_rsh);
+
+        // the right-hand edge
+        edge_rsh = edge_pool + index_rsh; 
+
+        // check
+        tb_assert_abort(edge_lsh->x <= edge_rsh->x);
+
+        // compute the rule
+        switch (rule)
+        {
+        case GB_VERTEX_RASTER_RULE_ODD:
+            {
+                /* the odd rule 
+                 *
+                 *    ------------------                 ------------------ 
+                 *  /|\                 |               ||||||||||||||||||||
+                 *   |     --------     |               ||||||||||||||||||||
+                 *   |   /|\       |    |               ||||||        ||||||
+                 * 0 | -1 |   0    | -1 | 0     =>      ||||||        ||||||
+                 *   |    |       \|/   |               ||||||        ||||||
+                 *   |     --------     |               ||||||||||||||||||||
+                 *   |                 \|/              ||||||||||||||||||||
+                 *    ------------------                 ------------------ 
+                 */
+                done = winding & 1;
+            }
+            break;
+        case GB_VERTEX_RASTER_RULE_NONZERO:
+            {
+                /* the non-zero rule 
+                 *
+                 *    ------------------                 ------------------
+                 *  /|\                 |               ||||||||||||||||||||
+                 *   |     --------     |               ||||||||||||||||||||
+                 *   |   /|\       |    |               ||||||||||||||||||||
+                 * 0 | -1 |   -2   | -1 | 0             ||||||||||||||||||||
+                 *   |    |       \|/   |               ||||||||||||||||||||
+                 *   |     --------     |               ||||||||||||||||||||
+                 *   |                 \|/              ||||||||||||||||||||
+                 *    ------------------                 ------------------
+                 */
+                done = winding;
+            }
+            break;
+        default:
+            {
+                // clear it
+                done = 0;
+
+                // trace
+                tb_trace_e("unknown rule: %lu", rule);
+            }
+            break;
+        }
+
+        // trace
+        tb_trace_d("y: %{fixed}, winding: %ld, %{fixed} => %{fixed}", y, winding, edge_lsh->x, edge_rsh->x);
+
+#if 0
+        // done it for winding?
+        if (done) func(y, edge_lsh, edge_rsh, priv);
+#else
+        // cache the conjoint edges and done them together
+        if (done)
+        {
+            // no edge cache?
+            if (!edge_cache_lsh && !edge_cache_rsh) 
+            {
+                // init edge cache
+                edge_cache_lsh = edge_lsh;
+                edge_cache_rsh = edge_rsh;
+            }
+            // is conjoint? merge it
+            else if (edge_cache_rsh && tb_fixed_round(edge_cache_rsh->x) == tb_fixed_round(edge_lsh->x))
+            {
+                // merge the edges to the edge cache
+                edge_cache_rsh = edge_rsh;
+            }
+            else
+            {
+                // check
+                tb_assert_abort(edge_cache_lsh && edge_cache_rsh);
+
+                // done edge cache
+                func(y, edge_cache_lsh, edge_cache_rsh, priv);
+
+                // update edge cache
+                edge_cache_lsh = edge_lsh;
+                edge_cache_rsh = edge_rsh;
+            }
+        }
+#endif
+
+        // the next left-hand edge index
+        index_lsh = index_rsh; 
+    }
+
+    // done the left edge cache
+    if (edge_cache_lsh && edge_cache_rsh) func(y, edge_cache_lsh, edge_cache_rsh, priv);
+}
+static tb_fixed_t gb_vertex_raster_scan_next(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t y_next, tb_size_t* porder)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && impl->edge_table);
+    tb_assert_abort(y < y_next && y <= impl->bottom);
+
+    // done
+    tb_size_t                       first = 1;
+    tb_size_t                       order = 1;
+    tb_fixed_t                      prev_x = 0;
+    tb_uint16_t                     index_prev = 0;
+    tb_uint16_t                     index = impl->active_edges;
+    gb_vertex_raster_edge_ref_t     edge = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_prev = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_pool = impl->edge_pool;
+    tb_uint16_t                     active_edges = impl->active_edges;
+    while (index)
+    {
+        // the edge
+        edge = edge_pool + index;
+
+        /* remove edge from the active edges if (y >= edge->y_bottom)
+         *            
+         *             .
+         *           .  .
+         *         .     .
+         *       .        .  
+         *     .           . <- y_bottom and the start y of the next edge
+         *       .        .
+         *          .   .   
+         *            .      <- bottom
+         */
+        if (y >= edge->y_bottom)
+        {
+            // the next edge index
+            index = edge->next;
+
+            // remove this edge from head
+            if (!index_prev) active_edges = index;
+            else 
+            {
+                // the previous edge 
+                edge_prev = edge_pool + index_prev;
+
+                // remove this edge from the body
+                edge_prev->next = index;
+            }
+
+            // continue 
+            continue;
+        }
+
+        // update the x-coordinate
+        edge->x += tb_fixed_mul(y_next - y, edge->slope);
+
+        // is order?
+        if (porder)
+        {
+            if (first) first = 0;
+            else if (order && edge->x < prev_x) order = 0;
+        }
+
+        // update the previous x coordinate
+        prev_x = edge->x;
+
+        // update the previous edge index
+        index_prev = index;
+
+        // update the edge index
+        index = edge->next;
+    }
+
+    // save order
+    if (porder) *porder = order; 
+
+    // update the active edges 
+    impl->active_edges = active_edges;
+
+    // update the next y-coordinate
+    return y_next;
+}
+static tb_bool_t gb_vertex_raster_active_append(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t* y_next)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && impl->edge_table && y_next);
+
+    // the table index
+    tb_long_t iy            = gb_floor(y);
+    tb_long_t table_index   = iy - impl->edge_table_base;
+    tb_assert_abort(table_index >= 0 && table_index < impl->edge_table_maxn);
+
+    // no edges?
+    if (!impl->edge_table[table_index]) 
+    {
+        // update the next y-coordinate for the table index
+        *y_next = tb_long_to_fixed(iy + 1);
+
+        // no edges are appended
+        return tb_false;
+    }
+
+    // append the some edges, which the top y-coordinate are same
+    tb_uint16_t                     table_next = 0;
+    tb_uint16_t                     table_head = impl->edge_table[table_index];
+    tb_uint16_t                     active_edges = impl->active_edges;
+    gb_vertex_raster_edge_ref_t     edge_pool = impl->edge_pool;
+    gb_vertex_raster_edge_ref_t     edge = edge_pool + table_head;
+    tb_fixed_t                      y_top = edge->y_top;
+    do
+    {
+        // check
+        tb_assert_abort(edge->y_top >= y);
+
+        // save the next edge index
+        table_next = edge->next;
+
+        // insert the edge to the head of the active edges
+        edge->next = active_edges;
+        active_edges = table_head;
+
+        // the next edge index
+        table_head = table_next;
+
+        // the next edge
+        edge = edge_pool + table_head;
+
+    } while (table_head && edge->y_top == y_top);
+
+    // update the active edges 
+    impl->active_edges = active_edges;
+
+    // update the edge table
+    impl->edge_table[table_index] = table_head;
+
+    // update the next y-coordinate for the table index
+    *y_next = table_head? edge->y_top : tb_long_to_fixed(iy + 1);
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_vertex_raster_active_sorted_insert(gb_vertex_raster_impl_t* impl, tb_uint16_t edge_index)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && edge_index);
+
+    // the edge pool
+    gb_vertex_raster_edge_ref_t edge_pool = impl->edge_pool;
+
+    // the edge
+    gb_vertex_raster_edge_ref_t edge = edge_pool + edge_index;
+
+    // insert edge to the active edges by x in ascending
+    edge->next = 0;
+    if (!impl->active_edges) impl->active_edges = edge_index;
+    else 
+    {
+        // find an inserted position
+        gb_vertex_raster_edge_ref_t edge_prev       = tb_null;
+        gb_vertex_raster_edge_ref_t edge_active     = tb_null;
+        tb_uint16_t                 index_active    = impl->active_edges;
+        while (index_active)
+        {
+            // the active edge
+            edge_active = edge_pool + index_active;
+
+            // check
+            tb_assert_abort(edge_index != index_active);
+
+            /* is this?
+             *
+             * x: 1 2 3     5 6
+             *               |
+             *             4 or 5
+             */
+            if (edge->x <= edge_active->x) 
+            {
+                /* same vertex?
+                 *
+                 *
+                 * x: 1 2 3     5 6
+                 *               |   .
+                 *               5    .
+                 *             .       .
+                 *           .          .
+                 *         .          active_edge
+                 *       .
+                 *     edge
+                 *
+                 * x: 1 2 3   5         6
+                 *                 .    |
+                 *                  .   5
+                 *                   .    .
+                 *                    .     .
+                 *          active_edge       .
+                 *                              . 
+                 *                                .  
+                 *                                  .
+                 *                                   edge
+                 *
+                 *  x: 1 2 3   5         6
+                 *                 .    |
+                 *                .     5
+                 *              .    .
+                 *            .     .
+                 *  active_edge    .
+                 *                . 
+                 *               .  
+                 *              .
+                 *             edge
+                 *
+                 *
+                 * x: 1 2 3     5 6
+                 *               |   .
+                 *               5      .
+                 *                 .       .
+                 *                   .       active_edge 
+                 *                     .           
+                 *                       .
+                 *                         .
+                 *                           .
+                 *                             .
+                 *                               .
+                 *                                 .
+                 *                                 edge
+                 */
+                if (edge->x == edge_active->x)
+                {
+                    /* the edge is at the left-hand of the active edge?
+                     * 
+                     * x: 1 2 3     5 6    <- active_edges
+                     *               |   .
+                     *               5    .
+                     *             .       .
+                     *           .          .
+                     *         .        active_edge
+                     *       .
+                     *     edge
+                     *
+                     * if (edge->dx / edge->dy < active->dx / active->dy)?
+                     */
+                    if (edge->slope < edge_active->slope) break;
+                }
+                else break;
+            }
+            
+            // the previous active edge
+            edge_prev = edge_active;
+
+            // the next active edge index
+            index_active = edge_prev->next;
+        }
+
+        // insert edge to the active edges: edge_prev -> edge -> edge_active
+        if (!edge_prev)
+        {
+            // insert to the head
+            edge->next          = impl->active_edges;
+            impl->active_edges  = edge_index;
+        }
+        else
+        {
+            // insert to the body
+            edge->next      = index_active;
+            edge_prev->next = edge_index;
+        }
+    }
+}
+static tb_bool_t gb_vertex_raster_active_sorted_append(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t* y_next)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && impl->edge_table && y_next);
+
+    // the table index
+    tb_long_t iy            = gb_floor(y);
+    tb_long_t table_index   = iy - impl->edge_table_base;
+    tb_assert_abort(table_index >= 0 && table_index < impl->edge_table_maxn);
+
+    // no edges?
+    if (!impl->edge_table[table_index]) 
+    {
+        // update the next y-coordinate for the table index
+        *y_next = tb_long_to_fixed(iy + 1);
+
+        // no edges are appended
+        return tb_false;
+    }
+
+    // append the some edges, which the top y-coordinate are same
+    tb_uint16_t                     table_next = 0;
+    tb_uint16_t                     table_head = impl->edge_table[table_index];
+    gb_vertex_raster_edge_ref_t     edge_pool = impl->edge_pool;
+    gb_vertex_raster_edge_ref_t     edge = edge_pool + table_head;
+    tb_fixed_t                      y_top = edge->y_top;
+    do
+    {
+        // check
+        tb_assert_abort(edge->y_top >= y);
+
+        // save the next edge index
+        table_next = edge->next;
+
+        // insert the edge to the active edges
+        gb_vertex_raster_active_sorted_insert(impl, table_head);
+
+        // the next edge index
+        table_head = table_next;
+
+        // the next edge
+        edge = edge_pool + table_head;
+
+    } while (table_head && edge->y_top == y_top);
+
+    // update the edge table
+    impl->edge_table[table_index] = table_head;
+
+    // update the next y-coordinate for the table index
+    *y_next = table_head? edge->y_top : tb_long_to_fixed(iy + 1);
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_vertex_raster_active_sort(gb_vertex_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool);
+
+    // done
+    tb_uint16_t                     index_lsh   = impl->active_edges;
+    tb_uint16_t                     index_rsh   = 0;
+    gb_vertex_raster_edge_ref_t     edge_lsh    = tb_null;
+    gb_vertex_raster_edge_ref_t     edge_rsh    = tb_null;
+    gb_vertex_raster_edge_t         edge_tmp;
+    gb_vertex_raster_edge_ref_t     edge_pool   = impl->edge_pool;
+    while (index_lsh)
+    {
+        // the left-hand edge
+        edge_lsh = edge_pool + index_lsh;
+
+        // the right-hand edge index
+        index_rsh = edge_lsh->next;
+        while (index_rsh)
+        {
+            // the right-hand edge
+            edge_rsh = edge_pool + index_rsh;
+
+            // need sort? swap them
+            if (edge_lsh->x > edge_rsh->x)
+            {
+                // save the left-hand edge
+                edge_tmp = *edge_lsh;
+
+                // swap the left-hand edge
+                *edge_lsh = *edge_rsh;
+
+                // restore the next index
+                edge_lsh->next = edge_tmp.next;
+                edge_tmp.next = edge_rsh->next;
+
+                // swap the right-hand edge
+                *edge_rsh = edge_tmp;
+            }
+        
+            // the next right-hand edge index
+            index_rsh = edge_rsh->next;
+        }
+
+        // the next left-hand edge index
+        index_lsh = edge_lsh->next;
+    }
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -389,5 +893,51 @@ tb_void_t gb_vertex_raster_done(gb_vertex_raster_ref_t raster, gb_polygon_ref_t 
     // make the edge table
     if (!gb_vertex_raster_edge_table_make(impl, polygon, bounds)) return ;
 
+    // done scan
+    tb_size_t       order       = 1; 
+    tb_fixed_t      top         = impl->top; 
+    tb_fixed_t      bottom      = impl->bottom; 
+    tb_fixed_t      y           = top;
+    tb_fixed_t      y_next      = 0;
+    while (y <= bottom)
+    {
+        // order now?
+        if (order)
+        {
+            // append edges to the sorted active edges by x in ascending
+            if (!gb_vertex_raster_active_sorted_append(impl, y, &y_next))
+            {
+                // update the next y-coordinate
+                y = y_next;
+
+                // continue 
+                continue;
+            }
+        }
+        else
+        {
+            // append edges to the active edges from the edge table
+            if (!gb_vertex_raster_active_append(impl, y, &y_next))
+            {
+                // update the next y-coordinate
+                y = y_next;
+
+                // continue 
+                continue;
+            }
+        
+            // sort by x in ascending at the active edges
+            gb_vertex_raster_active_sort(impl); 
+        }
+
+        // scan line from the active edges
+        gb_vertex_raster_scan_line(impl, y, rule, func, priv); 
+
+        // end?
+        tb_check_break(y < bottom);
+
+        // scan the next line from the active edges
+        y = gb_vertex_raster_scan_next(impl, y, y_next, &order); 
+    }
 }
 
