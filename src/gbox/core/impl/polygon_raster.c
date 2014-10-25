@@ -159,6 +159,9 @@ typedef struct __gb_polygon_raster_impl_t
     // the edge pool, tail: 0, index: > 0
     gb_polygon_raster_edge_ref_t    edge_pool;
 
+    // the edge pool size
+    tb_size_t                       edge_pool_size;
+   
     // the edge pool maxn
     tb_size_t                       edge_pool_maxn;
     
@@ -185,25 +188,50 @@ typedef struct __gb_polygon_raster_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static gb_polygon_raster_edge_ref_t gb_polygon_raster_edge_init(gb_polygon_raster_impl_t* impl, tb_uint16_t index)
+static tb_bool_t gb_polygon_raster_edge_pool_init(gb_polygon_raster_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && index <= TB_MAXU16);
+    tb_assert_abort(impl);
 
     // init the edge pool
     if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_POLYGON_RASTER_EDGES_GROW, gb_polygon_raster_edge_t);
-    tb_assert_and_check_return_val(impl->edge_pool, tb_null);
+    tb_assert_and_check_return_val(impl->edge_pool, tb_false);
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_polygon_raster_edge_pool_exit(gb_polygon_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // exit the edge pool
+    if (impl->edge_pool) tb_free(impl->edge_pool);
+    impl->edge_pool = tb_null;
+}
+static tb_uint16_t gb_polygon_raster_edge_pool_aloc(gb_polygon_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // init the edge pool
+    if (!impl->edge_pool && !gb_polygon_raster_edge_pool_init(impl)) return 0; 
+    tb_assert_abort(impl->edge_pool);
+
+    // the new index
+    tb_size_t index = ++impl->edge_pool_size;
+    tb_assert_abort(index < TB_MAXU16);
 
     // grow the edge pool
     if (index >= impl->edge_pool_maxn)
     {
         impl->edge_pool_maxn = index + GB_POLYGON_RASTER_EDGES_GROW;
         impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_polygon_raster_edge_t);
-        tb_assert_and_check_return_val(impl->edge_pool, tb_null);
+        tb_assert_and_check_return_val(impl->edge_pool, 0);
     }
 
     // make a new edge from the edge pool
-    return &impl->edge_pool[index];
+    return (tb_uint16_t)index;
 }
 static tb_bool_t gb_polygon_raster_edge_table_init(gb_polygon_raster_impl_t* impl, tb_long_t table_base, tb_size_t table_size)
 {
@@ -232,6 +260,15 @@ static tb_bool_t gb_polygon_raster_edge_table_init(gb_polygon_raster_impl_t* imp
     // ok
     return tb_true;
 }
+static tb_void_t gb_polygon_raster_edge_table_exit(gb_polygon_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // exit the edge table
+    if (impl->edge_table) tb_free(impl->edge_table);
+    impl->edge_table = tb_null;
+}
 static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
@@ -250,7 +287,6 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
     tb_long_t           top         = 0;
     tb_long_t           bottom      = 0;
     tb_uint16_t         index       = 0;
-    tb_uint16_t         edge_index  = 0;
     tb_long_t           table_index = 0;
     gb_point_ref_t      points      = polygon->points;
     tb_uint16_t*        counts      = polygon->counts;
@@ -281,11 +317,12 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
                 tb_fixed6_t dx = xe - xb;
                 tb_fixed6_t dy = ye - yb;
 
-                // update the edge index
-                edge_index++;
-
                 // make a new edge from the edge pool
-                gb_polygon_raster_edge_ref_t edge = gb_polygon_raster_edge_init(impl, edge_index);
+                tb_uint16_t edge_index = gb_polygon_raster_edge_pool_aloc(impl);
+                tb_assert_abort(edge_index);
+
+                // the edge
+                gb_polygon_raster_edge_ref_t edge = impl->edge_pool + edge_index;
 
                 // init the winding
                 edge->winding = 1;
@@ -969,13 +1006,11 @@ tb_void_t gb_polygon_raster_exit(gb_polygon_raster_ref_t raster)
     gb_polygon_raster_impl_t* impl = (gb_polygon_raster_impl_t*)raster;
     tb_assert_and_check_return(impl);
 
-    // exit the edge pool
-    if (impl->edge_pool) tb_free(impl->edge_pool);
-    impl->edge_pool = tb_null;
-
     // exit the edge table
-    if (impl->edge_table) tb_free(impl->edge_table);
-    impl->edge_table = tb_null;
+    gb_polygon_raster_edge_table_exit(impl);
+
+    // exit the edge pool
+    gb_polygon_raster_edge_pool_exit(impl);
 
     // exit it
     tb_free(impl);

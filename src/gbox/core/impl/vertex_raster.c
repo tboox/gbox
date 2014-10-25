@@ -25,7 +25,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "vertex_raster"
-#define TB_TRACE_MODULE_DEBUG           (0)
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -94,6 +94,9 @@ typedef struct __gb_vertex_raster_impl_t
     // the edge pool, tail: 0, index: > 0
     gb_vertex_raster_edge_ref_t     edge_pool;
 
+    // the edge pool size
+    tb_size_t                       edge_pool_size;
+    
     // the edge pool maxn
     tb_size_t                       edge_pool_maxn;
     
@@ -120,25 +123,53 @@ typedef struct __gb_vertex_raster_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static gb_vertex_raster_edge_ref_t gb_vertex_raster_edge_init(gb_vertex_raster_impl_t* impl, tb_uint16_t index)
+static tb_bool_t gb_vertex_raster_edge_pool_init(gb_vertex_raster_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && index <= TB_MAXU16);
+    tb_assert_abort(impl && !impl->edge_pool);
 
     // init the edge pool
-    if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_VERTEX_RASTER_EDGES_GROW, gb_vertex_raster_edge_t);
-    tb_assert_and_check_return_val(impl->edge_pool, tb_null);
+    impl->edge_pool = tb_nalloc_type(GB_VERTEX_RASTER_EDGES_GROW, gb_vertex_raster_edge_t);
+    tb_assert_and_check_return_val(impl->edge_pool, tb_false);
+
+    // init the edge pool size
+    impl->edge_pool_size = 0;
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_vertex_raster_edge_pool_exit(gb_vertex_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // exit the edge pool
+    if (impl->edge_pool) tb_free(impl->edge_pool);
+    impl->edge_pool = tb_null;
+}
+static tb_uint16_t gb_vertex_raster_edge_pool_aloc(gb_vertex_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // init the edge pool
+    if (!impl->edge_pool && !gb_vertex_raster_edge_pool_init(impl)) return 0; 
+    tb_assert_abort(impl->edge_pool);
+
+    // the new index
+    tb_size_t index = ++impl->edge_pool_size;
+    tb_assert_abort(index < TB_MAXU16);
 
     // grow the edge pool
     if (index >= impl->edge_pool_maxn)
     {
         impl->edge_pool_maxn = index + GB_VERTEX_RASTER_EDGES_GROW;
         impl->edge_pool = tb_ralloc_type(impl->edge_pool, impl->edge_pool_maxn, gb_vertex_raster_edge_t);
-        tb_assert_and_check_return_val(impl->edge_pool, tb_null);
+        tb_assert_and_check_return_val(impl->edge_pool, 0);
     }
 
     // make a new edge from the edge pool
-    return &impl->edge_pool[index];
+    return (tb_uint16_t)index;
 }
 static tb_bool_t gb_vertex_raster_edge_table_init(gb_vertex_raster_impl_t* impl, tb_long_t table_base, tb_size_t table_size)
 {
@@ -166,6 +197,15 @@ static tb_bool_t gb_vertex_raster_edge_table_init(gb_vertex_raster_impl_t* impl,
 
     // ok
     return tb_true;
+}
+static tb_void_t gb_vertex_raster_edge_table_exit(gb_vertex_raster_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // exit the edge table
+    if (impl->edge_table) tb_free(impl->edge_table);
+    impl->edge_table = tb_null;
 }
 static tb_void_t gb_vertex_raster_edge_table_insert(gb_vertex_raster_impl_t* impl, tb_uint16_t edge_index)
 {
@@ -230,6 +270,69 @@ static tb_void_t gb_vertex_raster_edge_table_insert(gb_vertex_raster_impl_t* imp
     // update the head index
     impl->edge_table[table_index] = table_head;
 }
+static tb_void_t gb_vertex_raster_edge_table_patch(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_int8_t patching)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && impl->edge_table);
+
+    // the edge pool
+    gb_vertex_raster_edge_ref_t edge_pool = impl->edge_pool;
+
+    // the table index
+    tb_long_t table_index = tb_fixed_floor(y) - impl->edge_table_base;
+    tb_assert_abort(table_index >= 0 && table_index < impl->edge_table_maxn);
+
+    // the table head
+    tb_uint16_t table_head = impl->edge_table[table_index];
+
+    // find an inserted position
+    gb_vertex_raster_edge_ref_t     edge_prev   = tb_null;
+    gb_vertex_raster_edge_ref_t     edge_find   = tb_null;
+    tb_uint16_t                     find_index  = table_head;
+    while (find_index)
+    {
+        // the edge
+        edge_find = edge_pool + find_index;
+
+        // found?
+        tb_check_break(y > edge_find->y_top);
+        
+        // the previous edge
+        edge_prev = edge_find;
+
+        // the next edge index
+        find_index = edge_prev->next;
+    }
+
+    // exists? need not patch it
+    if (edge_find && edge_find->y_top == y) return ;
+
+    // make a new edge from the edge pool
+    tb_uint16_t edge_index = gb_vertex_raster_edge_pool_aloc(impl);
+    tb_assert_abort(edge_index);
+
+    // init the new edge
+    gb_vertex_raster_edge_ref_t edge = impl->edge_pool + edge_index;
+    edge->y_top     = y;
+    edge->patching  = patching;
+
+    // insert edge: edge_prev -> edge -> edge_find
+    if (!edge_prev)
+    {
+        // insert to the head
+        edge->next  = table_head;
+        table_head  = edge_index;
+    }
+    else
+    {
+        // insert to the body
+        edge->next      = find_index;
+        edge_prev->next = edge_index;
+    }
+
+    // update the head index
+    impl->edge_table[table_index] = table_head;
+}
 static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
@@ -248,7 +351,6 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
     tb_fixed_t          top         = 0;
     tb_fixed_t          bottom      = 0;
     tb_uint16_t         index       = 0;
-    tb_uint16_t         edge_index  = 0;
     gb_point_ref_t      points      = polygon->points;
     tb_uint16_t*        counts      = polygon->counts;
     tb_uint16_t         count       = *counts++;
@@ -273,14 +375,18 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 tb_fixed_t xe = gb_float_to_fixed(pe.x);
                 tb_fixed_t dx = xe - xb;
 
-                // update the edge index
-                edge_index++;
-
                 // make a new edge from the edge pool
-                gb_vertex_raster_edge_ref_t edge = gb_vertex_raster_edge_init(impl, edge_index);
+                tb_uint16_t edge_index = gb_vertex_raster_edge_pool_aloc(impl);
+                tb_assert_abort(edge_index);
+
+                // the edge
+                gb_vertex_raster_edge_ref_t edge = impl->edge_pool + edge_index;
 
                 // init the winding
                 edge->winding = 1;
+
+                // no patching
+                edge->patching = 0;
 
                 // sort the points of the edge by the y-coordinate
                 if (yb > ye)
@@ -323,6 +429,9 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
 
                 // insert edge to the edge table 
                 gb_vertex_raster_edge_table_insert(impl, edge_index);
+ 
+                // patch one edge to the edge table for scanning the bottom y-coordinate
+                gb_vertex_raster_edge_table_patch(impl, ye, 1);
             }
         }
 
@@ -417,6 +526,7 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
 
         // check
         tb_assert_abort(edge_lsh->x <= edge_rsh->x);
+        tb_assert_abort(edge_lsh->patching != 1 && edge_rsh->patching != 1);
 
         // compute the rule
         switch (rule)
@@ -543,7 +653,7 @@ static tb_fixed_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* imp
          *          .   .   
          *            .      <- bottom
          */
-        if (y_next > edge->y_bottom)
+        if (y_next >= edge->y_bottom)
         {
             // the next edge index
             index = edge->next;
@@ -562,6 +672,9 @@ static tb_fixed_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* imp
             // continue 
             continue;
         }
+
+        // check
+        tb_assert_abort(y_next < edge->y_bottom);
 
         // update the x-coordinate
         edge->x += tb_fixed_mul(y_next - y, edge->slope);
@@ -618,9 +731,13 @@ static tb_void_t gb_vertex_raster_active_append(gb_vertex_raster_impl_t* impl, t
         // save the next edge index
         table_next = edge->next;
 
-        // insert the edge to the head of the active edges
-        edge->next = active_edges;
-        active_edges = table_head;
+        // insert it if be not patching bottom
+        if (edge->patching != 1)
+        {
+            // insert the edge to the head of the active edges
+            edge->next = active_edges;
+            active_edges = table_head;
+        }
 
         // the next edge index
         table_head = table_next;
@@ -788,8 +905,12 @@ static tb_void_t gb_vertex_raster_active_sorted_append(gb_vertex_raster_impl_t* 
         // save the next edge index
         table_next = edge->next;
 
-        // insert the edge to the active edges
-        gb_vertex_raster_active_sorted_insert(impl, table_head);
+        // insert it if be not patching bottom
+        if (edge->patching != 1)
+        { 
+            // insert the edge to the active edges
+            gb_vertex_raster_active_sorted_insert(impl, table_head);
+        }
 
         // the next edge index
         table_head = table_next;
@@ -866,13 +987,11 @@ tb_void_t gb_vertex_raster_exit(gb_vertex_raster_ref_t raster)
     gb_vertex_raster_impl_t* impl = (gb_vertex_raster_impl_t*)raster;
     tb_assert_and_check_return(impl);
 
-    // exit the edge pool
-    if (impl->edge_pool) tb_free(impl->edge_pool);
-    impl->edge_pool = tb_null;
-
     // exit the edge table
-    if (impl->edge_table) tb_free(impl->edge_table);
-    impl->edge_table = tb_null;
+    gb_vertex_raster_edge_table_exit(impl);
+
+    // exit the edge pool
+    gb_vertex_raster_edge_pool_exit(impl);
 
     // exit it
     tb_free(impl);
