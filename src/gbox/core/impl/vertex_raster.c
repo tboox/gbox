@@ -621,7 +621,7 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
     // done the left edge cache
     if (edge_cache_lsh && edge_cache_rsh) func(y, edge_cache_lsh, edge_cache_rsh, priv);
 }
-static tb_fixed_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t y_next, tb_size_t* porder)
+static tb_void_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t y_next, tb_size_t* porder)
 {
     // check
     tb_assert_abort(impl && impl->edge_pool && impl->edge_table);
@@ -701,9 +701,70 @@ static tb_fixed_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* imp
 
     // update the active edges 
     impl->active_edges = active_edges;
+}
+static tb_fixed_t gb_vertex_raster_active_scan_intersection(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t y_next)
+{
+    // check
+    tb_assert_abort(impl && impl->edge_pool && impl->edge_table);
+    tb_assert_abort(y < y_next && y <= impl->bottom);
+
+    // done
+    tb_uint16_t                     index_prev = 0;
+    tb_uint16_t                     index_next = 0;
+    tb_uint16_t                     index = impl->active_edges;
+    tb_fixed_t                      y_next_real = y_next; 
+    gb_vertex_raster_edge_ref_t     edge = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_next = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_pool = impl->edge_pool;
+    while (index)
+    {
+        // the edge
+        edge = edge_pool + index;
+
+        // the next edge index
+        index_next = edge->next;
+
+        // compute the next intersection
+        if (index_next)
+        {
+            // the next edge
+            edge_next = edge_pool + index_next;
+
+            // exists intersection?
+            if (edge->slope != edge_next->slope && edge->x != edge_next->x)
+            {
+                // the min y-coordinate
+                tb_fixed_t y_min = tb_min3(y_next, edge->y_bottom, edge_next->y_bottom);
+                tb_assert_abort(y_min > y);
+
+                // compute the x-coordinate
+                tb_fixed_t edge_x       = edge->x + tb_fixed_mul(y_min - y, edge->slope);
+                tb_fixed_t edge_next_x  = edge_next->x + tb_fixed_mul(y_min - y, edge_next->slope);
+
+                if (edge_x > edge_next_x)
+                {
+                    tb_fixed_t y_inter = y + tb_fixed_div(edge_next->x - edge->x, edge->slope - edge_next->slope);
+                    tb_trace_i("intersection: %{fixed}", y_inter);
+
+                    if (y_inter > y)
+                    {
+                        gb_vertex_raster_edge_table_patch(impl, y_inter, 1);
+
+                        if (y_inter < y_next_real) y_next_real = y_inter;
+                    }
+                }
+            }
+        }
+
+        // update the previous edge index
+        index_prev = index;
+
+        // update the edge index
+        index = index_next;
+    }
 
     // update the next y-coordinate
-    return y_next;
+    return y_next_real;
 }
 static tb_void_t gb_vertex_raster_active_append(gb_vertex_raster_impl_t* impl, tb_fixed_t y)
 {
@@ -1039,8 +1100,15 @@ tb_void_t gb_vertex_raster_done(gb_vertex_raster_ref_t raster, gb_polygon_ref_t 
         // find the next y-coordinate from the edge table
         y_next = gb_vertex_raster_edge_table_next(impl, y);
 
-        // scan the next line from the active edges
-        if (y_next <= bottom) gb_vertex_raster_active_scan_next(impl, y, y_next, &order); 
+        // exists the next line?
+        if (y_next <= bottom)
+        {
+            // scan the intersection from the active edges
+            y_next = gb_vertex_raster_active_scan_intersection(impl, y, y_next); 
+
+            // scan the next line from the active edges
+            if (y_next <= bottom) gb_vertex_raster_active_scan_next(impl, y, y_next, &order); 
+        }
 
         // update the y-coordinate 
         y = y_next;
