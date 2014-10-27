@@ -32,7 +32,7 @@
  * includes
  */
 #include "convex_maker.h"
-#include "polygon_raster.h"
+#include "vertex_raster.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -65,20 +65,17 @@ typedef struct __gb_convex_maker_contour_edge_t
     // the current x-coordinate
     tb_fixed_t                          x;
 
+    // the next x-coordinate
+    tb_fixed_t                          x_next;
+
+    // the bottom y-coordinate
+    tb_fixed_t                          y_bottom;
+
     // the current slope: dx / dy
     tb_fixed_t                          slope;
 
     // the last cross for analyzing convex contour
     tb_fixed_t                          cross;
-
-    // the bottom dy value: (y_top - round(y_top)), range: [-0.5-0.5]
-    tb_fixed_t                          dy;
-    
-    // the next real x-coordinate
-    tb_fixed_t                          x_next;
- 
-    // the next real y-coordinate
-    tb_fixed_t                          y_next;
 
     // the points
     gb_point_ref_t                      points;
@@ -89,22 +86,22 @@ typedef struct __gb_convex_maker_contour_edge_t
     // the points count
     tb_uint16_t                         points_count;
 
-    // the bottom y-coordinate
-    tb_int16_t                          ye;
-
 }gb_convex_maker_contour_edge_t;
 
 // the polygon contour type
 typedef struct __gb_convex_maker_contour_t
 {
     // the current y-coordinate
-    tb_long_t                           y;
+    tb_fixed_t                          y;
+
+    // the next y-coordinate
+    tb_fixed_t                          y_next;
 
     // the left-hand edge
-    gb_convex_maker_contour_edge_t    le;
+    gb_convex_maker_contour_edge_t      le;
 
     // the right-hand edge
-    gb_convex_maker_contour_edge_t    re;
+    gb_convex_maker_contour_edge_t      re;
 
     // the active contour index
     tb_uint16_t                         index;
@@ -118,7 +115,7 @@ typedef struct __gb_convex_maker_contour_t
 typedef struct __gb_convex_maker_impl_t
 {
     // the raster
-    gb_polygon_raster_ref_t             raster;
+    gb_vertex_raster_ref_t              raster;
 
     // the contours
     tb_fixed_pool_ref_t                 contours;
@@ -144,20 +141,11 @@ typedef struct __gb_convex_maker_impl_t
     // the active contours size
     tb_size_t                           contours_active_size;
 
-    // the real top y-coordinate 
-    tb_fixed_t                          y_top;
-
-    // the real next y-coordinate
-    tb_fixed_t                          y_next;
-
-    // the last y-coordinate
-    tb_int16_t                          y_last;
-
-    // the left-hand x-coordinate of the polygon
+    // the left x-coordinate of the polygon
     tb_long_t                           x_left;
 
     // the user maker func
-    gb_convex_maker_func_t            func;
+    gb_convex_maker_func_t              func;
 
     // the user private data
     tb_cpointer_t                       priv;
@@ -167,7 +155,6 @@ typedef struct __gb_convex_maker_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-#if 0
 static tb_void_t gb_convex_maker_contour_free(tb_pointer_t data, tb_cpointer_t priv)
 {
     // check
@@ -220,15 +207,14 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_make
 
         // init the contour 
         contour->y      = 0;
+        contour->y_next = 0;
         contour->index  = 0;
 
         // init the left-hand edge
         contour->le.x               = 0;
-        contour->le.slope           = 0;
-        contour->le.dy              = 0;
         contour->le.x_next          = 0;
-        contour->le.y_next          = 0;
-        contour->le.ye              = 0;
+        contour->le.y_bottom        = 0;
+        contour->le.slope           = 0;
         contour->le.cross           = TB_FIXED_ONE;
         contour->le.points_count    = 0;
         if (!contour->le.points) 
@@ -240,11 +226,9 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_make
 
         // init the right-hand points
         contour->re.x               = 0;
-        contour->re.slope           = 0;
-        contour->re.dy              = 0;
         contour->re.x_next          = 0;
-        contour->re.y_next          = 0;
-        contour->re.ye              = 0;
+        contour->re.y_bottom        = 0;
+        contour->re.slope           = 0;
         contour->re.cross           = -TB_FIXED_ONE;
         contour->re.points_count    = 0;
         if (!contour->re.points) 
@@ -271,123 +255,6 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_make
     // ok?
     return contour;
 }
-static tb_void_t gb_convex_maker_contour_real(gb_convex_maker_impl_t* impl, tb_long_t y, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_fixed_t* plx, tb_fixed_t* ply, tb_fixed_t* prx, tb_fixed_t* pry)
-{
-    // check
-    tb_assert_abort(impl && edge_lsh && edge_rsh && plx && ply && prx && pry);
-
-    // is top line for edges?
-    tb_bool_t lt = edge_lsh->is_top;
-    tb_bool_t rt = edge_rsh->is_top;
-
-    // the y-coordinate errors
-    tb_fixed_t ldy = edge_lsh->dy_top;
-    tb_fixed_t rdy = edge_rsh->dy_top;
-
-    // the real x-coordinates
-    tb_fixed_t lx = edge_lsh->x;
-    tb_fixed_t rx = edge_rsh->x;
-
-    // the real y-coordinates
-    tb_fixed_t ly = tb_long_to_fixed(y);
-    tb_fixed_t ry = ly;
-
-    // patch to the real coordinates for the top line
-    if (lt && rt) 
-    {
-        lx += tb_fixed_mul(ldy, edge_lsh->slope);
-        rx += tb_fixed_mul(rdy, edge_rsh->slope);
-        ly += ldy;
-        ry += rdy;
-    }
-    else if (lt) 
-    {
-        lx += tb_fixed_mul(ldy, edge_lsh->slope);
-        rx += tb_fixed_mul(ldy, edge_rsh->slope);
-        ly += ldy;
-        ry += ldy;
-    }
-    else if (rt) 
-    { 
-        lx += tb_fixed_mul(rdy, edge_lsh->slope);
-        rx += tb_fixed_mul(rdy, edge_rsh->slope);
-        ly += rdy;
-        ry += rdy;
-    }
-    else
-    {
-        tb_fixed_t dy = impl->y_top - ly;
-        lx += tb_fixed_mul(dy, edge_lsh->slope);
-        rx += tb_fixed_mul(dy, edge_rsh->slope);
-        ly += dy;
-        ry += dy;
-    }
-
-    // save the coordinates
-    *plx = lx;
-    *ply = ly;
-    *prx = rx;
-    *pry = ry;
-}
-static tb_void_t gb_convex_maker_contour_next(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour, tb_fixed_t* plx, tb_fixed_t* ply, tb_fixed_t* prx, tb_fixed_t* pry)
-{
-    // check
-    tb_assert_abort(impl && contour && plx && prx);
-
-    // the slopes
-    tb_fixed_t ls = contour->le.slope;
-    tb_fixed_t rs = contour->re.slope;
-
-    // the y-coordinates
-    tb_int16_t y    = contour->y;
-    tb_int16_t lye  = contour->le.ye;
-    tb_int16_t rye  = contour->re.ye;
-
-    // the y-coordinate errors
-    tb_fixed_t ldy = contour->le.dy;
-    tb_fixed_t rdy = contour->re.dy;
-
-    // the next x-coordinates
-    tb_fixed_t lx = contour->le.x + ls;
-    tb_fixed_t rx = contour->re.x + rs;
-
-    // the next y-coordinates
-    tb_fixed_t ly = tb_long_to_fixed(y + 1);
-    tb_fixed_t ry = ly;
-
-    // patch to the real x-coordinates for joins
-    if (y == lye && y == rye) 
-    {
-        lx += tb_fixed_mul(ldy, ls);
-        rx += tb_fixed_mul(rdy, rs);
-        ly += ldy;
-        ry += rdy;
-    }
-    else if (y == lye) 
-    {
-        lx += tb_fixed_mul(ldy, ls);
-        rx += tb_fixed_mul(ldy, rs);
-        ly += ldy;
-        ry += ldy;
-    }
-    else if (y == rye) 
-    { 
-        lx += tb_fixed_mul(rdy, ls);
-        rx += tb_fixed_mul(rdy, rs);
-        ly += rdy;
-        ry += rdy;
-    }
-
-    // update the real next y-coordinates
-    if (ly > impl->y_next) impl->y_next = ly;
-    if (ry > impl->y_next) impl->y_next = ry;
-
-    // save the coordinates
-    *plx = lx;
-    *ply = ly;
-    *prx = rx;
-    *pry = ry;
-}
 static __tb_inline__ tb_long_t gb_convex_maker_contour_indx(gb_convex_maker_impl_t* impl, tb_long_t xb)
 {
     // check
@@ -402,7 +269,7 @@ static __tb_inline__ tb_long_t gb_convex_maker_contour_indx(gb_convex_maker_impl
     // ok
     return index;
 }
-static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find_at(gb_convex_maker_impl_t* impl, tb_long_t index, tb_long_t y)
+static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find_at(gb_convex_maker_impl_t* impl, tb_long_t index, tb_fixed_t y, tb_fixed_t lx, tb_fixed_t rx)
 {
     // check
     tb_assert_abort(impl && impl->contours_active);
@@ -418,8 +285,10 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find_at(gb_convex_m
         // find it
         tb_for_all_if (gb_convex_maker_contour_ref_t, item, tb_list_entry_itor(contours), item)
         {
-            // only one contour at this index for the same line
-            if (item->y + 1 == y)
+            // is this?
+            if (    item->y_next == y
+                &&  tb_fixed_abs(rx - item->re.x_next) <= TB_FIXED_HALF
+                &&  tb_fixed_abs(lx - item->le.x_next) <= TB_FIXED_HALF)
             {
                 // save it
                 contour = item;
@@ -431,30 +300,32 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find_at(gb_convex_m
     }
 
     // trace
-    tb_trace_d("find contour(at: (%ld, %lu), y: %ld: %s", index, tb_list_entry_size(contours), y, contour? "ok" : "no");
+    tb_trace_d("find contour(at: (%ld, %lu), y: %{fixed}: %s", index, tb_list_entry_size(contours), y, contour? "ok" : "no");
 
     // ok?
     return contour;
 }
-static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find(gb_convex_maker_impl_t* impl, tb_long_t y, tb_fixed_t lx, tb_fixed_t rx)
+static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find(gb_convex_maker_impl_t* impl, tb_fixed_t y, tb_fixed_t lx, tb_fixed_t rx)
 {
     // check
     tb_assert_abort(impl && impl->contours_active);
 
     // compute the current contour index
-    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(lx));
 
     // find the contour in the current index
-    gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find_at(impl, index, y);
+    gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find_at(impl, index, y, lx, rx);
     if (!contour)
     {
+#if 1
         /* find the contour in the range: [index - 1, index + 1]
          *
          * because the fixed_round() exists some error 
          */
-        if (index > 1) contour = gb_convex_maker_contour_find_at(impl, index - 1, y);
+        if (index > 1) contour = gb_convex_maker_contour_find_at(impl, index - 1, y, lx, rx);
         if (!contour && index < impl->contours_active_size - 1)
-            contour = gb_convex_maker_contour_find_at(impl, index + 1, y);
+            contour = gb_convex_maker_contour_find_at(impl, index + 1, y, lx, rx);
+#endif
     }
 
     // ok?
@@ -508,31 +379,14 @@ static tb_void_t gb_convex_maker_contour_append_r(gb_convex_maker_contour_ref_t 
     // append the right-hand point
     gb_point_make(&contour->re.points[contour->re.points_count++], gb_fixed_to_float(x), gb_fixed_to_float(y));
 }
-static tb_void_t gb_convex_maker_contour_append(gb_convex_maker_contour_ref_t contour, tb_fixed_t lx, tb_fixed_t ly, tb_fixed_t rx, tb_fixed_t ry)
-{
-    // check
-    tb_assert_abort(contour && lx <= rx);
-
-    // append points
-    if (lx != rx || ly != ry) 
-    {
-        // append the left-hand point
-        gb_convex_maker_contour_append_l(contour, lx, ly);
-    }
-
-    // append the right-hand point
-    gb_convex_maker_contour_append_r(contour, rx, ry);
-}
 static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && impl->func && contour && contour->le.points && contour->re.points);
     
-    // TODO split it?
     // add points to the contour
-    if (contour->le.x_next > contour->re.x_next)
-        gb_convex_maker_contour_append(contour, contour->le.x, tb_long_to_fixed(contour->y), contour->re.x, tb_long_to_fixed(contour->y));
-    else gb_convex_maker_contour_append(contour, contour->le.x_next, contour->le.y_next, contour->re.x_next, contour->re.y_next);
+    gb_convex_maker_contour_append_l(contour, contour->le.x_next, tb_min(contour->y_next, contour->le.y_bottom));
+    gb_convex_maker_contour_append_r(contour, contour->re.x_next, tb_min(contour->y_next, contour->re.y_bottom));
 
     // grow the right-hand points if not enough 
     gb_convex_maker_contour_grow_r(contour, (tb_size_t)contour->re.points_count + contour->le.points_count + 1);
@@ -556,7 +410,7 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
     tb_assert_abort(re_points_count <= contour->re.points_count + contour->le.points_count + 1);
 
     // trace
-    tb_trace_d("done contour(at: (%ld), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", contour->index, contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
+    tb_trace_d("done contour(at: (%ld), y: %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed})", contour->index, contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
 
     // done func
     impl->func(contour->re.points, re_points_count, impl->priv);
@@ -574,15 +428,8 @@ static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
 
-    // compute the next coordinates
-    tb_fixed_t lx;
-    tb_fixed_t ly;
-    tb_fixed_t rx;
-    tb_fixed_t ry;
-    gb_convex_maker_contour_next(impl, contour, &lx, &ly, &rx, &ry);
-
-    // compute the contour next index
-    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+    // compute the contour index
+    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(contour->le.x_next));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -593,29 +440,16 @@ static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb
     // save the active contours index
     contour->index = (tb_uint16_t)index;
 
-    // save the next coordinates
-    contour->le.x_next = lx;
-    contour->le.y_next = ly;
-    contour->re.x_next = rx;
-    contour->re.y_next = ry;
-
     // trace
-    tb_trace_d("insert contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", index, tb_list_entry_size(contours), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
+    tb_trace_d("insert contour(at: (%ld, %lu), y: %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed})", index, tb_list_entry_size(contours), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
 }
 static tb_void_t gb_convex_maker_contour_update(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
     // check
     tb_assert_abort(impl && impl->contours_active && contour);
 
-    // compute the next coordinates
-    tb_fixed_t lx;
-    tb_fixed_t ly;
-    tb_fixed_t rx;
-    tb_fixed_t ry;
-    gb_convex_maker_contour_next(impl, contour, &lx, &ly, &rx, &ry);
-
-    // compute the contour next index
-    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
+    // compute the contour index
+    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(contour->le.x_next));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
@@ -632,14 +466,8 @@ static tb_void_t gb_convex_maker_contour_update(gb_convex_maker_impl_t* impl, gb
     // update the active contours index
     contour->index = (tb_uint16_t)index;
 
-    // save the next coordinates
-    contour->le.x_next = lx;
-    contour->le.y_next = ly;
-    contour->re.x_next = rx;
-    contour->re.y_next = ry;
-
     // trace
-    tb_trace_d("update contour(at: (%ld, %lu), y: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed})", index, tb_list_entry_size(contours_new), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
+    tb_trace_d("update contour(at: (%ld, %lu), y: %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed})", index, tb_list_entry_size(contours_new), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
 }
 static tb_void_t gb_convex_maker_builder_init(gb_convex_maker_impl_t* impl, gb_rect_ref_t bounds, gb_convex_maker_func_t func, tb_cpointer_t priv)
 {
@@ -650,13 +478,8 @@ static tb_void_t gb_convex_maker_builder_init(gb_convex_maker_impl_t* impl, gb_r
     impl->func = func;
     impl->priv = priv;
 
-    // init the left-hand-hand x-coordinate
+    // init the left x-coordinate
     impl->x_left = gb_round(bounds->x);
-
-    // init the y-coordinates
-    impl->y_top     = bounds->y;
-    impl->y_next    = bounds->y;
-    impl->y_last    = gb_round(bounds->y) - 1;
 
     // the active contours size
     tb_size_t contours_active_size = gb_ceil(bounds->w) + 1;
@@ -719,61 +542,36 @@ static tb_void_t gb_convex_maker_builder_init(gb_convex_maker_impl_t* impl, gb_r
     // save the active contours size
     impl->contours_active_size = contours_active_size;
 }
-static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_polygon_raster_edge_ref_t edge_lsh, gb_polygon_raster_edge_ref_t edge_rsh, tb_cpointer_t priv)
+static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, gb_vertex_raster_edge_ref_t le, gb_vertex_raster_edge_ref_t re, tb_cpointer_t priv)
 {
     // check
     gb_convex_maker_impl_t* impl = (gb_convex_maker_impl_t*)priv;
-    tb_assert_abort(impl && edge_lsh && edge_rsh);
-
-    // only one line
-    tb_assert_abort(yb < TB_MAXS16 && yb + 1 == ye);
-
-    // is new line?
-    if (yb != impl->y_last)
-    {
-        // update the real top y-coordinate
-        impl->y_top = tb_long_to_fixed(yb);
-        if (impl->y_next < impl->y_top) impl->y_top = impl->y_next;
-
-        // update the last y-coordinate
-        impl->y_last = yb;
-    }
+    tb_assert_abort(impl && le && re);
 
     // the edge factors
-    tb_fixed_t  lx = edge_lsh->x;
-    tb_fixed_t  rx = edge_rsh->x;
-    tb_fixed_t  ls = edge_lsh->slope;
-    tb_fixed_t  rs = edge_rsh->slope;
+    tb_fixed_t  lx      = le->x;
+    tb_fixed_t  rx      = re->x;
+    tb_fixed_t  lx_next = le->x_next;
+    tb_fixed_t  rx_next = re->x_next;
+    tb_fixed_t  ls      = le->slope;
+    tb_fixed_t  rs      = re->slope;
     tb_assert_abort(rx >= lx);
-        
-    // compute the more accurate coordinates for joins
-    tb_fixed_t lx_real;
-    tb_fixed_t ly_real;
-    tb_fixed_t rx_real;
-    tb_fixed_t ry_real;
-    gb_convex_maker_contour_real(impl, yb, edge_lsh, edge_rsh, &lx_real, &ly_real, &rx_real, &ry_real);
-
+       
     // trace
-    tb_trace_d("line: yb: %ld, lx: %{fixed}, rx: %{fixed}, ls: %{fixed}, rs: %{fixed}, y_bottom: %d %d", yb, lx, rx, ls, rs, edge_lsh->y_bottom, edge_rsh->y_bottom);
+    tb_trace_d("line: y: %{fixed}, %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed}, x_next: %{fixed}, %{fixed}, y_bottom: %{fixed}, %{fixed}", y, y_next, lx, rx, ls, rs, lx_next, rx_next, le->y_bottom, re->y_bottom);
 
     // find the contour of this two edges
-    gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find(impl, yb, lx_real, rx_real);
+    gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find(impl, y, lx, rx);
     if (contour)
     {
         // cannot be the first line
         tb_assert_abort(contour->le.points_count || contour->re.points_count);
 
         // the x-coordinates is same?
-        tb_bool_t is_same_x = lx_real == rx_real;
+        tb_bool_t is_same_x = lx == rx;
 
         // the contour is finished?
         tb_bool_t is_finished = tb_false;
-
-        // is join?
-        tb_bool_t is_join = (tb_fixed_abs(lx_real - contour->le.x_next) < TB_FIXED_ONE) && (tb_fixed_abs(rx_real - contour->re.x_next) < TB_FIXED_ONE);
-
-        // not join? force to finish it for fixing the contour index error 
-        if (!is_join) is_finished = tb_true;
 
         /* is intersecting join?
          * 
@@ -784,7 +582,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_pol
          * .       .
          *
          */
-        tb_bool_t is_inter = is_join && (is_same_x || (contour->le.x_next) > (contour->re.x_next));
+        tb_bool_t is_inter = (is_same_x || (contour->le.x_next > contour->re.x_next));
         if (is_inter)
         { 
             // trace
@@ -795,7 +593,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_pol
         }
 
         // the left-hand point is join?
-        tb_bool_t is_join_left = is_join && (contour->le.slope != ls) && !is_inter;
+        tb_bool_t is_join_left = (contour->le.slope != ls) && !is_inter;
         if (is_join_left)
         {
             // trace
@@ -815,7 +613,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_pol
         }
         
         // the right-hand point is join?
-        tb_bool_t is_join_right = is_join && (contour->re.slope != rs) && !is_inter;
+        tb_bool_t is_join_right = (contour->re.slope != rs) && !is_inter;
         if (is_join_right)
         {
             // trace
@@ -839,7 +637,8 @@ static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_pol
         is_inter        = tb_false;
         is_join_left    = tb_false;
         is_join_right   = tb_false;       
-        gb_convex_maker_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+        gb_convex_maker_contour_append_l(contour, lx, y);
+        gb_convex_maker_contour_append_r(contour, rx, y);
 #else
         // the contour is finished? 
         if (is_finished)
@@ -860,34 +659,35 @@ static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_pol
         if (is_inter)
         {
             // append points to the new contour
-            if (is_same_x) gb_convex_maker_contour_append_r(contour, rx_real, ry_real);
-            else gb_convex_maker_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
+            gb_convex_maker_contour_append_l(contour, lx, y);
+            gb_convex_maker_contour_append_r(contour, rx, y);
         }
 
         // the left-hand point is join?
         if (is_join_left)
         {
             // append the left-hand point to the new contour
-            gb_convex_maker_contour_append_l(contour, lx_real, ly_real);
+            gb_convex_maker_contour_append_l(contour, lx, y);
         }
 
         // the right-hand point is join?
         if (is_join_right)
         {
             // append the right-hand point to the new contour
-            gb_convex_maker_contour_append_r(contour, rx_real, ry_real);
+            gb_convex_maker_contour_append_r(contour, rx, y);
         }
 
         // update the new contour
-        contour->y          = yb;
-        contour->le.x       = lx;
-        contour->re.x       = rx;
-        contour->le.slope   = ls;
-        contour->re.slope   = rs;
-        contour->le.dy      = edge_lsh->dy_bottom;
-        contour->re.dy      = edge_rsh->dy_bottom;
-        contour->le.ye      = edge_lsh->y_bottom;
-        contour->re.ye      = edge_rsh->y_bottom;
+        contour->y              = y;
+        contour->y_next         = y_next;
+        contour->le.x           = lx;
+        contour->re.x           = rx;
+        contour->le.slope       = ls;
+        contour->re.slope       = rs;
+        contour->le.x_next      = lx_next;
+        contour->re.x_next      = rx_next;
+        contour->le.y_bottom    = le->y_bottom;
+        contour->re.y_bottom    = re->y_bottom;
         gb_convex_maker_contour_update(impl, contour);        
     }
     // not found? add a new contour
@@ -898,19 +698,21 @@ static tb_void_t gb_convex_maker_builder_done(tb_long_t yb, tb_long_t ye, gb_pol
         tb_assert_abort(contour);
 
         // init the new contour
-        contour->y          = yb;
-        contour->le.x       = lx;
-        contour->re.x       = rx;
-        contour->le.slope   = ls;
-        contour->re.slope   = rs; 
-        contour->le.dy      = edge_lsh->dy_bottom;
-        contour->re.dy      = edge_rsh->dy_bottom;
-        contour->le.ye      = edge_lsh->y_bottom;
-        contour->re.ye      = edge_rsh->y_bottom;
+        contour->y              = y;
+        contour->y_next         = y_next;
+        contour->le.x           = lx;
+        contour->re.x           = rx;
+        contour->le.slope       = ls;
+        contour->re.slope       = rs;
+        contour->le.x_next      = lx_next;
+        contour->re.x_next      = rx_next;
+        contour->le.y_bottom    = le->y_bottom;
+        contour->re.y_bottom    = re->y_bottom;
   
         // append points to the contour
-        if (lx_real <= rx_real) gb_convex_maker_contour_append(contour, lx_real, ly_real, rx_real, ry_real);
-        else gb_convex_maker_contour_append(contour, lx, tb_long_to_fixed(yb), rx, tb_long_to_fixed(yb));
+        gb_convex_maker_contour_append_l(contour, lx, y);
+        gb_convex_maker_contour_append_r(contour, rx, y);
+
 
         // insert the new contour
         gb_convex_maker_contour_insert(impl, contour);
@@ -988,7 +790,7 @@ gb_convex_maker_ref_t gb_convex_maker_init()
         tb_assert_and_check_break(impl);
 
         // init raster
-        impl->raster = gb_polygon_raster_init();
+        impl->raster = gb_vertex_raster_init();
         tb_assert_and_check_break(impl->raster);
 
         // init the contours
@@ -1032,7 +834,7 @@ tb_void_t gb_convex_maker_exit(gb_convex_maker_ref_t maker)
     impl->contours = tb_null;
 
     // exit the raster
-    if (impl->raster) gb_polygon_raster_exit(impl->raster);
+    if (impl->raster) gb_vertex_raster_exit(impl->raster);
     impl->raster = tb_null;
 
     // exit it
@@ -1067,21 +869,9 @@ tb_void_t gb_convex_maker_done(gb_convex_maker_ref_t maker, gb_polygon_ref_t pol
         gb_convex_maker_builder_init(impl, bounds, func, priv);
 
         // done raster and reduce the complex polygon to the some convex polygons
-        gb_polygon_raster_done(impl->raster, polygon, bounds, rule, gb_convex_maker_builder_done, (tb_cpointer_t)impl);
+        gb_vertex_raster_done(impl->raster, polygon, bounds, rule, gb_convex_maker_builder_done, (tb_cpointer_t)impl);
 
         // exit builder
         gb_convex_maker_builder_exit(impl);
     }
 }
-#else
-gb_convex_maker_ref_t gb_convex_maker_init()
-{
-    return tb_null;
-}
-tb_void_t gb_convex_maker_exit(gb_convex_maker_ref_t maker)
-{
-}
-tb_void_t gb_convex_maker_done(gb_convex_maker_ref_t maker, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_convex_maker_func_t func, tb_cpointer_t priv)
-{
-}
-#endif

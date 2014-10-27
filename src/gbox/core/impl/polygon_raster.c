@@ -212,11 +212,7 @@ static tb_void_t gb_polygon_raster_edge_pool_exit(gb_polygon_raster_impl_t* impl
 static tb_uint16_t gb_polygon_raster_edge_pool_aloc(gb_polygon_raster_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl);
-
-    // init the edge pool
-    if (!impl->edge_pool && !gb_polygon_raster_edge_pool_init(impl)) return 0; 
-    tb_assert_abort(impl->edge_pool);
+    tb_assert_abort(impl && impl->edge_pool);
 
     // the new index
     tb_size_t index = ++impl->edge_pool_size;
@@ -276,6 +272,9 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
 
     // empty polygon?
     tb_check_return_val(gb_nz(bounds->w) && gb_nz(bounds->h), tb_false);
+
+    // init the edge pool
+    if (!gb_polygon_raster_edge_pool_init(impl)) return tb_false; 
 
     // init the edge table
     if (!gb_polygon_raster_edge_table_init(impl, gb_round(bounds->y), gb_round(bounds->h) + 1)) return tb_false;
@@ -410,18 +409,18 @@ static tb_void_t gb_polygon_raster_active_scan_line_convex(gb_polygon_raster_imp
     // check
     tb_assert_abort(impl && impl->edge_pool && func);
 
-    // the left-hand edge index
+    // the edge index
     tb_uint16_t index = impl->active_edges; 
     tb_check_return(index);
 
-    // the left-hand edge
+    // the edge
     gb_polygon_raster_edge_ref_t edge = impl->edge_pool + index; 
 
-    // the right-hand edge index
+    // the next edge index
     tb_uint16_t index_next = edge->next; 
     tb_check_return(index_next);
 
-    // the right-hand edge
+    // the next edge
     gb_polygon_raster_edge_ref_t edge_next = impl->edge_pool + index_next; 
 
     // check
@@ -495,7 +494,7 @@ static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_im
     gb_polygon_raster_edge_ref_t    edge_pool       = impl->edge_pool;
     while (index) 
     { 
-        // the left-hand edge
+        // the edge
         edge = edge_pool + index; 
 
         /* compute the winding
@@ -509,11 +508,11 @@ static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_im
          */
         winding += edge->winding; 
 
-        // the right-hand edge index
+        // the next edge index
         index_next = edge->next; 
         tb_check_break(index_next);
 
-        // the right-hand edge
+        // the next edge
         edge_next = edge_pool + index_next; 
 
         // check
@@ -605,7 +604,7 @@ static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_im
         }
 #endif
 
-        // the next left-hand edge index
+        // the next edge index
         index = index_next; 
     }
 
@@ -883,38 +882,38 @@ static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
     gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
     while (index)
     {
-        // the left-hand edge
+        // the edge
         edge = edge_pool + index;
 
-        // the right-hand edge index
+        // the next edge index
         index_next = edge->next;
         while (index_next)
         {
-            // the right-hand edge
+            // the next edge
             edge_next = edge_pool + index_next;
 
             // need sort? swap them
             if (edge->x > edge_next->x)
             {
-                // save the left-hand edge
+                // save the edge
                 edge_tmp = *edge;
 
-                // swap the left-hand edge
+                // swap the edge
                 *edge = *edge_next;
 
                 // restore the next index
                 edge->next = edge_tmp.next;
                 edge_tmp.next = edge_next->next;
 
-                // swap the right-hand edge
+                // swap the next edge
                 *edge_next = edge_tmp;
             }
         
-            // the next right-hand edge index
+            // the next edge index
             index_next = edge_next->next;
         }
 
-        // the next left-hand edge index
+        // the next edge index
         index = edge->next;
     }
 }

@@ -80,6 +80,9 @@ typedef struct __gb_vertex_raster_edge_t
     // the x-coordinate of the active edge
     tb_fixed_t          x;
 
+    // the next x-coordinate of the active edge
+    tb_fixed_t          x_next;
+
     // the slope of the edge: dx / dy 
     tb_fixed_t          slope;
 
@@ -91,11 +94,12 @@ typedef struct{}*       gb_vertex_raster_ref_t;
 /* the vertex raster func type
  *
  * @param y             the y-coordinate
+ * @param y_next        the next y-coordinate
  * @param le            the left edge
  * @param re            the right edge
  * @param priv          the private data
  */
-typedef tb_void_t       (*gb_vertex_raster_func_t)(tb_fixed_t y, gb_vertex_raster_edge_ref_t le, gb_vertex_raster_edge_ref_t re, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_vertex_raster_func_t)(tb_fixed_t y, tb_fixed_t y_next, gb_vertex_raster_edge_ref_t le, gb_vertex_raster_edge_ref_t re, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

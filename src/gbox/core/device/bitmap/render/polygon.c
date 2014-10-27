@@ -38,7 +38,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-#if 1
+#if 0
 static tb_void_t gb_bitmap_render_fill_raster(tb_long_t lx, tb_long_t rx, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
 {
     // check
@@ -48,7 +48,7 @@ static tb_void_t gb_bitmap_render_fill_raster(tb_long_t lx, tb_long_t rx, tb_lon
     gb_bitmap_biltter_done_r((gb_bitmap_biltter_ref_t)priv, lx, yb, rx - lx, ye - yb);
 }
 #else
-static tb_void_t gb_bitmap_render_fill_raster(tb_fixed_t y, gb_vertex_raster_edge_ref_t le, gb_vertex_raster_edge_ref_t re, tb_cpointer_t priv)
+static tb_void_t gb_bitmap_render_fill_raster(tb_fixed_t y, tb_fixed_t y_next, gb_vertex_raster_edge_ref_t le, gb_vertex_raster_edge_ref_t re, tb_cpointer_t priv)
 {
     // done biltter
     gb_bitmap_biltter_done_r((gb_bitmap_biltter_ref_t)priv, tb_fixed_round(le->x), tb_fixed_round(y), tb_fixed_round(re->x) - tb_fixed_round(le->x), 1);
@@ -63,7 +63,7 @@ tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygo
     // check
     tb_assert_abort(device && device->base.paint);
 
-#if 1
+#if 0
     // done raster
     gb_polygon_raster_done(device->raster, polygon, bounds, gb_paint_fill_rule(device->base.paint), gb_bitmap_render_fill_raster, &device->biltter);
 #else
