@@ -38,7 +38,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-#if 0
+#if 1
 static tb_void_t gb_bitmap_render_fill_raster(tb_long_t lx, tb_long_t rx, tb_long_t yb, tb_long_t ye, tb_cpointer_t priv)
 {
     // check
@@ -63,7 +63,7 @@ tb_void_t gb_bitmap_render_fill_polygon(gb_bitmap_device_ref_t device, gb_polygo
     // check
     tb_assert_abort(device && device->base.paint);
 
-#if 0
+#if 1
     // done raster
     gb_polygon_raster_done(device->raster, polygon, bounds, gb_paint_fill_rule(device->base.paint), gb_bitmap_render_fill_raster, &device->biltter);
 #else

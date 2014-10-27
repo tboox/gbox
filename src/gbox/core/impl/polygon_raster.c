@@ -411,24 +411,24 @@ static tb_void_t gb_polygon_raster_active_scan_line_convex(gb_polygon_raster_imp
     tb_assert_abort(impl && impl->edge_pool && func);
 
     // the left-hand edge index
-    tb_uint16_t index_lsh = impl->active_edges; 
-    tb_check_return(index_lsh);
+    tb_uint16_t index = impl->active_edges; 
+    tb_check_return(index);
 
     // the left-hand edge
-    gb_polygon_raster_edge_ref_t edge_lsh = impl->edge_pool + index_lsh; 
+    gb_polygon_raster_edge_ref_t edge = impl->edge_pool + index; 
 
     // the right-hand edge index
-    tb_uint16_t index_rsh = edge_lsh->next; 
-    tb_check_return(index_rsh);
+    tb_uint16_t index_next = edge->next; 
+    tb_check_return(index_next);
 
     // the right-hand edge
-    gb_polygon_raster_edge_ref_t edge_rsh = impl->edge_pool + index_rsh; 
+    gb_polygon_raster_edge_ref_t edge_next = impl->edge_pool + index_next; 
 
     // check
-    tb_assert_abort(edge_lsh->x <= edge_rsh->x);
+    tb_assert_abort(edge->x <= edge_next->x);
 
     // trace
-    tb_trace_d("y: %ld, %{fixed} => %{fixed}", y, edge_lsh->x, edge_rsh->x);
+    tb_trace_d("y: %ld, %{fixed} => %{fixed}", y, edge->x, edge_next->x);
 
     // init the end y-coordinate for the only one line
     tb_long_t ye = y + 1;
@@ -439,17 +439,17 @@ static tb_void_t gb_polygon_raster_active_scan_line_convex(gb_polygon_raster_imp
      * |    |
      * |    |
      */
-    if (tb_fixed_abs(edge_lsh->slope) <= TB_FIXED_NEAR0 && tb_fixed_abs(edge_rsh->slope) <= TB_FIXED_NEAR0)        
+    if (tb_fixed_abs(edge->slope) <= TB_FIXED_NEAR0 && tb_fixed_abs(edge_next->slope) <= TB_FIXED_NEAR0)        
     {
         // get the min and max edge for the y-bottom
-        gb_polygon_raster_edge_ref_t    edge_min    = edge_lsh; 
-        gb_polygon_raster_edge_ref_t    edge_max    = edge_rsh; 
-        tb_uint16_t                     index_max   = index_rsh;
+        gb_polygon_raster_edge_ref_t    edge_min    = edge; 
+        gb_polygon_raster_edge_ref_t    edge_max    = edge_next; 
+        tb_uint16_t                     index_max   = index_next;
         if (edge_min->y_bottom > edge_max->y_bottom)
         {
-            edge_min    = edge_rsh; 
-            edge_max    = edge_lsh; 
-            index_max   = index_lsh;
+            edge_min    = edge_next; 
+            edge_max    = edge; 
+            index_max   = index;
         }
 
         // compute the ye
@@ -476,7 +476,7 @@ static tb_void_t gb_polygon_raster_active_scan_line_convex(gb_polygon_raster_imp
     }
 
     // done it
-    func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, ye, priv);
+    func(tb_fixed_round(edge->x), tb_fixed_round(edge_next->x), y, ye, priv);
 }
 static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
@@ -484,19 +484,19 @@ static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_im
     tb_assert_abort(impl && impl->edge_pool && func);
 
     // done
-    tb_long_t                       done = 0;
-    tb_long_t                       winding = 0; 
-    tb_uint16_t                     index_lsh = impl->active_edges; 
-    tb_uint16_t                     index_rsh = 0; 
-    gb_polygon_raster_edge_ref_t    edge_lsh = tb_null; 
-    gb_polygon_raster_edge_ref_t    edge_rsh = tb_null; 
-    gb_polygon_raster_edge_ref_t    edge_cache_lsh = tb_null; 
-    gb_polygon_raster_edge_ref_t    edge_cache_rsh = tb_null; 
-    gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
-    while (index_lsh) 
+    tb_long_t                       done            = 0;
+    tb_long_t                       winding         = 0; 
+    tb_uint16_t                     index           = impl->active_edges; 
+    tb_uint16_t                     index_next      = 0; 
+    gb_polygon_raster_edge_ref_t    edge            = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_next       = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_cache      = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_cache_next = tb_null; 
+    gb_polygon_raster_edge_ref_t    edge_pool       = impl->edge_pool;
+    while (index) 
     { 
         // the left-hand edge
-        edge_lsh = edge_pool + index_lsh; 
+        edge = edge_pool + index; 
 
         /* compute the winding
          *   
@@ -507,17 +507,17 @@ static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_im
          *    |            |
          *                \/
          */
-        winding += edge_lsh->winding; 
+        winding += edge->winding; 
 
         // the right-hand edge index
-        index_rsh = edge_lsh->next; 
-        tb_check_break(index_rsh);
+        index_next = edge->next; 
+        tb_check_break(index_next);
 
         // the right-hand edge
-        edge_rsh = edge_pool + index_rsh; 
+        edge_next = edge_pool + index_next; 
 
         // check
-        tb_assert_abort(edge_lsh->x <= edge_rsh->x);
+        tb_assert_abort(edge->x <= edge_next->x);
 
         // compute the rule
         switch (rule)
@@ -568,49 +568,49 @@ static tb_void_t gb_polygon_raster_active_scan_line_concave(gb_polygon_raster_im
         }
 
         // trace
-        tb_trace_d("y: %ld, winding: %ld, %{fixed} => %{fixed}", y, winding, edge_lsh->x, edge_rsh->x);
+        tb_trace_d("y: %ld, winding: %ld, %{fixed} => %{fixed}", y, winding, edge->x, edge_next->x);
 
 #if 0
         // done it for winding?
-        if (done) func(tb_fixed_round(edge_lsh->x), tb_fixed_round(edge_rsh->x), y, y + 1, priv);
+        if (done) func(tb_fixed_round(edge->x), tb_fixed_round(edge_next->x), y, y + 1, priv);
 #else
         // cache the conjoint edges and done them together
         if (done)
         {
             // no edge cache?
-            if (!edge_cache_lsh && !edge_cache_rsh) 
+            if (!edge_cache && !edge_cache_next) 
             {
                 // init edge cache
-                edge_cache_lsh = edge_lsh;
-                edge_cache_rsh = edge_rsh;
+                edge_cache = edge;
+                edge_cache_next = edge_next;
             }
             // is conjoint? merge it
-            else if (edge_cache_rsh && tb_fixed_round(edge_cache_rsh->x) == tb_fixed_round(edge_lsh->x))
+            else if (edge_cache_next && tb_fixed_round(edge_cache_next->x) == tb_fixed_round(edge->x))
             {
                 // merge the edges to the edge cache
-                edge_cache_rsh = edge_rsh;
+                edge_cache_next = edge_next;
             }
             else
             {
                 // check
-                tb_assert_abort(edge_cache_lsh && edge_cache_rsh);
+                tb_assert_abort(edge_cache && edge_cache_next);
 
                 // done edge cache
-                func(tb_fixed_round(edge_cache_lsh->x), tb_fixed_round(edge_cache_rsh->x), y, y + 1, priv);
+                func(tb_fixed_round(edge_cache->x), tb_fixed_round(edge_cache_next->x), y, y + 1, priv);
 
                 // update edge cache
-                edge_cache_lsh = edge_lsh;
-                edge_cache_rsh = edge_rsh;
+                edge_cache = edge;
+                edge_cache_next = edge_next;
             }
         }
 #endif
 
         // the next left-hand edge index
-        index_lsh = index_rsh; 
+        index = index_next; 
     }
 
     // done the left edge cache
-    if (edge_cache_lsh && edge_cache_rsh) func(tb_fixed_round(edge_cache_lsh->x), tb_fixed_round(edge_cache_rsh->x), y, y + 1, priv);
+    if (edge_cache && edge_cache_next) func(tb_fixed_round(edge_cache->x), tb_fixed_round(edge_cache_next->x), y, y + 1, priv);
 }
 static tb_void_t gb_polygon_raster_active_scan_next(gb_polygon_raster_impl_t* impl, tb_long_t y, tb_size_t* porder)
 {
@@ -875,47 +875,47 @@ static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
     tb_assert_abort(impl && impl->edge_pool);
 
     // done
-    tb_uint16_t                     index_lsh   = impl->active_edges;
-    tb_uint16_t                     index_rsh   = 0;
-    gb_polygon_raster_edge_ref_t    edge_lsh    = tb_null;
-    gb_polygon_raster_edge_ref_t    edge_rsh    = tb_null;
+    tb_uint16_t                     index       = impl->active_edges;
+    tb_uint16_t                     index_next  = 0;
+    gb_polygon_raster_edge_ref_t    edge        = tb_null;
+    gb_polygon_raster_edge_ref_t    edge_next   = tb_null;
     gb_polygon_raster_edge_t        edge_tmp;
     gb_polygon_raster_edge_ref_t    edge_pool   = impl->edge_pool;
-    while (index_lsh)
+    while (index)
     {
         // the left-hand edge
-        edge_lsh = edge_pool + index_lsh;
+        edge = edge_pool + index;
 
         // the right-hand edge index
-        index_rsh = edge_lsh->next;
-        while (index_rsh)
+        index_next = edge->next;
+        while (index_next)
         {
             // the right-hand edge
-            edge_rsh = edge_pool + index_rsh;
+            edge_next = edge_pool + index_next;
 
             // need sort? swap them
-            if (edge_lsh->x > edge_rsh->x)
+            if (edge->x > edge_next->x)
             {
                 // save the left-hand edge
-                edge_tmp = *edge_lsh;
+                edge_tmp = *edge;
 
                 // swap the left-hand edge
-                *edge_lsh = *edge_rsh;
+                *edge = *edge_next;
 
                 // restore the next index
-                edge_lsh->next = edge_tmp.next;
-                edge_tmp.next = edge_rsh->next;
+                edge->next = edge_tmp.next;
+                edge_tmp.next = edge_next->next;
 
                 // swap the right-hand edge
-                *edge_rsh = edge_tmp;
+                *edge_next = edge_tmp;
             }
         
             // the next right-hand edge index
-            index_rsh = edge_rsh->next;
+            index_next = edge_next->next;
         }
 
         // the next left-hand edge index
-        index_lsh = edge_lsh->next;
+        index = edge->next;
     }
 }
 static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, gb_polygon_raster_func_t func, tb_cpointer_t priv)

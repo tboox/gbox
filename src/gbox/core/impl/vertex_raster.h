@@ -65,12 +65,8 @@ typedef struct __gb_vertex_raster_edge_t
      */
     tb_int8_t           winding     : 2;
 
-    /* patch the point? 
-     *
-     * bottom:          1
-     * intersection:    -1
-     */
-    tb_int8_t           patching    : 2;
+    // patch the point only for the y-coordinate of bottom and intersection? 
+    tb_int8_t           patching    : 1;
 
     // the index of next edge at the edge pool 
     tb_uint16_t         next;
