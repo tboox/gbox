@@ -82,6 +82,9 @@
 #define gb_ceil(x)              tb_fixed_ceil(x)
 #define gb_floor(x)             tb_fixed_floor(x)
 
+// nearly equal?
+#define gb_near_eq(x, y)        tb_fixed_near_eq(x, y)
+
 // is finite?
 #define gb_isfinite(x)          ((x) != TB_FIXED_NAN)
 
@@ -167,6 +170,9 @@
 #define gb_round(x)             tb_round(x)
 #define gb_ceil(x)              tb_ceil(x)
 #define gb_floor(x)             tb_floor(x)
+
+// nearly equal?
+#define gb_near_eq(x, y)        (tb_fabs((x) - (y)) <= GB_NEAR0)
 
 // is finite?
 #define gb_isfinite(x)          tb_isfinf(x)

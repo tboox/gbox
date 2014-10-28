@@ -1480,7 +1480,7 @@ tb_void_t gb_stroker_line_to(gb_stroker_ref_t stroker, gb_point_ref_t point)
     tb_assert_and_check_return(impl && point);
 
     // only be a point?
-    if (gb_point_equal_nearly(&impl->point_prev, point)) return ;
+    if (gb_point_near_eq(&impl->point_prev, point)) return ;
 
     // enter-to 
     gb_vector_t normal;
@@ -1500,8 +1500,8 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
     tb_assert_and_check_return(impl && ctrl && point);
 
     // is point for p0 => p1 and p1 => p2?
-    tb_bool_t is_point_for_01 = gb_point_equal_nearly(&impl->point_prev, ctrl);
-    tb_bool_t is_point_for_12 = gb_point_equal_nearly(ctrl, point);
+    tb_bool_t is_point_for_01 = gb_point_near_eq(&impl->point_prev, ctrl);
+    tb_bool_t is_point_for_12 = gb_point_near_eq(ctrl, point);
 
     // only be line?
     if (is_point_for_01 | is_point_for_12) 
@@ -1605,9 +1605,9 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
     tb_assert_and_check_return(impl && ctrl0 && ctrl1 && point);
 
     // is point for p0 => p1 and p1 => p2 and p2 = > p3?
-    tb_bool_t is_point_for_01 = gb_point_equal_nearly(&impl->point_prev, ctrl0);
-    tb_bool_t is_point_for_12 = gb_point_equal_nearly(ctrl0, ctrl1);
-    tb_bool_t is_point_for_23 = gb_point_equal_nearly(ctrl1, point);
+    tb_bool_t is_point_for_01 = gb_point_near_eq(&impl->point_prev, ctrl0);
+    tb_bool_t is_point_for_12 = gb_point_near_eq(ctrl0, ctrl1);
+    tb_bool_t is_point_for_23 = gb_point_near_eq(ctrl1, point);
 
     // only be quad?
     if (is_point_for_01 | is_point_for_12 | is_point_for_23) 

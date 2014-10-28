@@ -347,9 +347,7 @@ static tb_void_t gb_vertex_raster_edge_table_intersection(gb_vertex_raster_impl_
     tb_assert_abort(y_bottom > y);
 
     // no intersection?
-    tb_check_return(    slope != slope_next
-                    &&  tb_fixed_abs(x - x_next) > TB_FIXED_HALF
-                    &&  tb_fixed_abs(y - y_bottom) > TB_FIXED_HALF);
+    tb_check_return(slope != slope_next && !tb_fixed_near_eq(x, x_next) && !tb_fixed_near_eq(y, y_bottom));
 
     // the bottom x-coordinate
     tb_fixed_t x_bottom         = x + tb_fixed_mul(y_bottom - y, slope);
@@ -577,7 +575,6 @@ static tb_fixed_t gb_vertex_raster_active_scan_intersection(gb_vertex_raster_imp
         edge_next = edge_pool + index_next; 
 
         // check
-        tb_assert_abort(edge->x <= edge_next->x);
         tb_assert_abort(!edge->patching && !edge_next->patching);
 
         // compute the intersection of the current edge and next edge?
@@ -596,7 +593,7 @@ static tb_fixed_t gb_vertex_raster_active_scan_intersection(gb_vertex_raster_imp
          *                    compute intersection
          */
         if (    y != edge->y_top && y != edge_next->y_top 
-            &&  tb_fixed_abs(edge->x - edge_next->x) <= TB_FIXED_NEAR0
+            &&  tb_fixed_near_eq(edge->x, edge_next->x)
             &&  edge->slope != edge_next->slope
             &&  edge->x - edge->slope < edge_next->x - edge_next->slope)
         {
@@ -665,7 +662,6 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
         edge_next->x_next = edge_next->x + tb_fixed_mul(tb_min(y_next, edge_next->y_bottom) - y, edge_next->slope);
 
         // check
-        tb_assert_abort(edge->x <= edge_next->x);
         tb_assert_abort(!edge->patching && !edge_next->patching);
 
         // compute the rule
@@ -792,7 +788,7 @@ static tb_void_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* impl
         if (porder)
         {
             if (first) first = 0;
-            else if (order && (x_prev > edge->x || (x_prev == edge->x && slope_prev > edge->slope))) 
+            else if (order && (x_prev > edge->x || (tb_fixed_near_eq(x_prev, edge->x) && slope_prev > edge->slope))) 
             {
                 order = 0;
             }
@@ -950,7 +946,7 @@ static tb_void_t gb_vertex_raster_active_sorted_insert(gb_vertex_raster_impl_t* 
                  *                                 .
                  *                                 edge
                  */
-                if (edge->x == edge_active->x)
+                if (tb_fixed_near_eq(edge->x, edge_active->x))
                 {
                     /* the edge is at the left-hand of the active edge?
                      * 
@@ -1060,7 +1056,7 @@ static tb_void_t gb_vertex_raster_active_sort(gb_vertex_raster_impl_t* impl)
             edge_next = edge_pool + index_next;
 
             // need sort? swap them
-            if (edge->x > edge_next->x || (edge->x == edge_next->x && edge->slope > edge_next->slope))
+            if (edge->x > edge_next->x || (tb_fixed_near_eq(edge->x, edge_next->x) && edge->slope > edge_next->slope))
             {
                 // save the edge
                 edge_tmp = *edge;

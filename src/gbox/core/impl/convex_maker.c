@@ -287,8 +287,8 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find_at(gb_convex_m
         {
             // is this?
             if (    item->y_next == y
-                &&  tb_fixed_abs(rx - item->re.x_next) <= TB_FIXED_HALF
-                &&  tb_fixed_abs(lx - item->le.x_next) <= TB_FIXED_HALF)
+                &&  tb_fixed_near_eq(rx, item->re.x_next)
+                &&  tb_fixed_near_eq(lx, item->le.x_next))
             {
                 // save it
                 contour = item;
@@ -558,7 +558,6 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
     tb_fixed_t  rx_next = re->x_next;
     tb_fixed_t  ls      = le->slope;
     tb_fixed_t  rs      = re->slope;
-    tb_assert_abort(rx >= lx);
        
     // trace
     tb_trace_d("line: y: %{fixed}, %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed}, x_next: %{fixed}, %{fixed}, y_bottom: %{fixed}, %{fixed}", y, y_next, lx, rx, ls, rs, lx_next, rx_next, le->y_bottom, re->y_bottom);
@@ -570,11 +569,16 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
         // cannot be the first line
         tb_assert_abort(contour->le.points_count || contour->re.points_count);
 
-        // the x-coordinates is same?
-        tb_bool_t is_same_x = lx == rx;
-
         // the contour is finished?
         tb_bool_t is_finished = tb_false;
+
+#if 0
+        // is join?
+        tb_bool_t is_join = (tb_fixed_abs(lx - contour->le.x_next) < TB_FIXED_HALF) && (tb_fixed_abs(rx - contour->re.x_next) < TB_FIXED_HALF);
+
+        // not join? force to finish it for fixing the contour index error 
+        if (!is_join) is_finished = tb_true;
+#endif
 
         /* is intersecting join?
          * 
@@ -585,7 +589,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
          * .       .
          *
          */
-        tb_bool_t is_inter = (is_same_x || (contour->le.x_next > contour->re.x_next));
+        tb_bool_t is_inter = (tb_fixed_abs(lx - rx) <= TB_FIXED_HALF) && (ls != rs);
         if (is_inter)
         { 
             // trace
@@ -751,7 +755,7 @@ static tb_void_t gb_convex_maker_builder_exit(gb_convex_maker_impl_t* impl)
         {
             // the contour
             gb_convex_maker_contour_ref_t contour = (gb_convex_maker_contour_ref_t)tb_iterator_item(iterator, itor);
-            tb_assert_abort(contour && contour->re.x >= contour->le.x);
+            tb_assert_abort(contour);
 
             // save next
             tb_size_t next = tb_iterator_next(iterator, itor);

@@ -78,11 +78,11 @@ gb_float_t gb_point_distance(gb_point_ref_t point, gb_point_ref_t other)
     // the distance
     return gb_vector_length(&vector);
 }
-tb_bool_t gb_point_equal_nearly(gb_point_ref_t point, gb_point_ref_t other)
+tb_bool_t gb_point_near_eq(gb_point_ref_t point, gb_point_ref_t other)
 {
     // check
     tb_assert_abort(point && other);
  
     // equal?
-    return (gb_fabs(point->x - other->x) <= GB_NEAR0) && (gb_fabs(point->y - other->y) <= GB_NEAR0);
+    return (gb_near_eq(point->x, other->x)) && (gb_near_eq(point->y, other->y));
 }
