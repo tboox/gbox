@@ -157,6 +157,13 @@ gb_shape_ref_t      gb_path_hint(gb_path_ref_t path);
  */
 gb_polygon_ref_t    gb_path_polygon(gb_path_ref_t path);
 
+/*! apply the matrix to the path 
+ *
+ * @param path      the path
+ * @param matrix    the matrix
+ */
+tb_void_t           gb_path_apply(gb_path_ref_t path, gb_matrix_ref_t matrix);
+
 /*! close the current contour
  *
  * if the current point is not equal to the first point of the contour

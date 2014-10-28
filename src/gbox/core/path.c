@@ -848,6 +848,22 @@ gb_polygon_ref_t gb_path_polygon(gb_path_ref_t path)
     // ok?
     return &impl->polygon;
 }
+tb_void_t gb_path_apply(gb_path_ref_t path, gb_matrix_ref_t matrix)
+{
+    // check
+    gb_path_impl_t* impl = (gb_path_impl_t*)path;
+    tb_assert_and_check_return(impl && impl->points && matrix);
+
+    // empty?
+    tb_check_return(!gb_path_null(path));
+
+    // done
+    tb_for_all_if (gb_point_ref_t, point, impl->points, point)
+    {
+        // apply it
+        gb_point_apply(point, matrix);
+    }
+}
 tb_void_t gb_path_clos(gb_path_ref_t path)
 {
     // check

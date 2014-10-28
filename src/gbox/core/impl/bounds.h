@@ -46,7 +46,7 @@ __tb_extern_c_enter__
 static __tb_inline__ tb_void_t  gb_bounds_make(gb_rect_ref_t bounds, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(bounds && points && count > 1);
+    tb_assert_abort(bounds && points && count);
 
     // the point
     gb_point_ref_t point = points++; count--;
