@@ -738,7 +738,8 @@ static tb_void_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* impl
     // done
     tb_size_t                       first = 1;
     tb_size_t                       order = 1;
-    tb_fixed_t                      prev_x = 0;
+    tb_fixed_t                      x_prev = 0;
+    tb_fixed_t                      slope_prev = 0;
     tb_uint16_t                     index_prev = 0;
     tb_uint16_t                     index = impl->active_edges;
     gb_vertex_raster_edge_ref_t     edge = tb_null; 
@@ -791,11 +792,17 @@ static tb_void_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* impl
         if (porder)
         {
             if (first) first = 0;
-            else if (order && edge->x < prev_x) order = 0;
+            else if (order && (x_prev > edge->x || (x_prev == edge->x && slope_prev > edge->slope))) 
+            {
+                order = 0;
+            }
         }
 
-        // update the previous x coordinate
-        prev_x = edge->x;
+        // update the previous x-coordinate
+        x_prev = edge->x;
+
+        // update the previous slope
+        slope_prev = edge->slope;
 
         // update the previous edge index
         index_prev = index;
@@ -1053,7 +1060,7 @@ static tb_void_t gb_vertex_raster_active_sort(gb_vertex_raster_impl_t* impl)
             edge_next = edge_pool + index_next;
 
             // need sort? swap them
-            if (edge->x > edge_next->x)
+            if (edge->x > edge_next->x || (edge->x == edge_next->x && edge->slope > edge_next->slope))
             {
                 // save the edge
                 edge_tmp = *edge;
@@ -1117,11 +1124,11 @@ tb_void_t gb_vertex_raster_done(gb_vertex_raster_ref_t raster, gb_polygon_ref_t 
     if (!gb_vertex_raster_edge_table_make(impl, polygon, bounds)) return ;
 
     // done scan
-    tb_size_t       order       = 1; 
-    tb_fixed_t      top         = impl->top; 
-    tb_fixed_t      bottom      = impl->bottom; 
-    tb_fixed_t      y           = top;
-    tb_fixed_t      y_next      = top;
+    tb_size_t   order       = 1; 
+    tb_fixed_t  top         = impl->top; 
+    tb_fixed_t  bottom      = impl->bottom; 
+    tb_fixed_t  y           = top;
+    tb_fixed_t  y_next      = top;
     while (y <= bottom)
     {
         // order? append edges to the sorted active edges by x in ascending

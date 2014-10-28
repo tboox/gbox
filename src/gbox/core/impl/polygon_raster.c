@@ -619,7 +619,7 @@ static tb_void_t gb_polygon_raster_active_scan_next(gb_polygon_raster_impl_t* im
     // done
     tb_size_t                       first = 1;
     tb_size_t                       order = 1;
-    tb_fixed_t                      prev_x = 0;
+    tb_fixed_t                      x_prev = 0;
     tb_uint16_t                     index_prev = 0;
     tb_uint16_t                     index = impl->active_edges;
     gb_polygon_raster_edge_ref_t    edge = tb_null; 
@@ -669,11 +669,11 @@ static tb_void_t gb_polygon_raster_active_scan_next(gb_polygon_raster_impl_t* im
         if (porder)
         {
             if (first) first = 0;
-            else if (order && edge->x < prev_x) order = 0;
+            else if (order && edge->x < x_prev) order = 0;
         }
 
-        // update the previous x coordinate
-        prev_x = edge->x;
+        // update the previous x-coordinate
+        x_prev = edge->x;
 
         // update the previous edge index
         index_prev = index;

@@ -312,6 +312,7 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find(gb_convex_make
 
     // compute the current contour index
     tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(lx));
+//    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // find the contour in the current index
     gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find_at(impl, index, y, lx, rx);
@@ -430,6 +431,7 @@ static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb
 
     // compute the contour index
     tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(contour->le.x_next));
+//    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->le.x_next, contour->re.x_next)));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -450,6 +452,7 @@ static tb_void_t gb_convex_maker_contour_update(gb_convex_maker_impl_t* impl, gb
 
     // compute the contour index
     tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(contour->le.x_next));
+//    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->le.x_next, contour->re.x_next)));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
