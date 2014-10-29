@@ -53,7 +53,7 @@
 #endif
 
 // test the polygon edge
-//#define GB_CONVEX_MAKER_TEST_EDGE
+#define GB_CONVEX_MAKER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -384,14 +384,16 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
 {
     // check
     tb_assert_abort(impl && impl->func && contour && contour->le.points && contour->re.points);
-    
+
     // add end-points to the contour
     tb_fixed_t lx = contour->le.x_next;
     tb_fixed_t rx = contour->re.x_next;
     tb_fixed_t ly = tb_min(contour->y_next, contour->le.y_bottom);
     tb_fixed_t ry = tb_min(contour->y_next, contour->re.y_bottom);
-    if (0)//lx > rx)
+    if (lx > rx)
     {
+        tb_used(&ly);
+        tb_used(&ry);
         // TODO
 #if 0
         if (ly == ry && contour->le.slope != contour->re.slope)

@@ -173,7 +173,7 @@ static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t cou
     // apply it
     gb_gl_render_apply_vertices((gb_gl_device_ref_t)priv, points);
 
-#if 1
+#if 0
     // draw it
     gb_glDrawArrays(GB_GL_TRIANGLE_FAN, 0, (gb_GLint_t)count);
 #else

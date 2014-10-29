@@ -334,6 +334,8 @@ static tb_void_t gb_vertex_raster_edge_table_intersection(gb_vertex_raster_impl_
     // check
     tb_assert_abort(impl && edge && edge_next && y_next_real);
 
+    // TODO optimizate repeat intersection
+
     // the x-coordinates
     tb_fixed_t x                = edge->x;
     tb_fixed_t x_next           = edge_next->x;
@@ -430,7 +432,7 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
             tb_fixed_t dy = ye - yb;
 
             // not horizaontal edge?
-            if (tb_fixed_abs(dy) > TB_FIXED_NEAR0)
+            if (dy)
             {
                 // the x-coordinates
                 tb_fixed_t xb = gb_float_to_fixed(pb.x);
@@ -633,12 +635,15 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
     tb_uint16_t                     index_prev      = 0;
     gb_vertex_raster_edge_ref_t     edge            = tb_null; 
     gb_vertex_raster_edge_ref_t     edge_next       = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_cache      = tb_null; 
+    gb_vertex_raster_edge_ref_t     edge_cache_next = tb_null; 
     gb_vertex_raster_edge_ref_t     edge_pool       = impl->edge_pool;
     while (index) 
     { 
         // the edge
         edge = edge_pool + index; 
 
+        // TODO
         // compute the next x-coordinate first
 #if 0
         if (index == active_edges) edge->x_next = edge->x + tb_fixed_mul(tb_min(y_next, edge->y_bottom) - y, edge->slope);
@@ -728,10 +733,44 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
         }
 
         // trace
-        tb_trace_d("y: %{fixed}, winding: %ld, %{fixed} => %{fixed}", y, winding, edge->x, edge_next->x);
+        tb_trace_d("y: %{fixed}, y_next: %{fixed}, winding: %ld, x: %{fixed} => %{fixed}, y_bottom: %{fixed}, %{fixed}", y, y_next, winding, edge->x, edge_next->x, edge->y_bottom, edge_next->y_bottom);
 
+#if 0
         // done it for winding?
         if (done) func(y, y_next, edge, edge_next, priv);
+#else
+        // cache the conjoint edges and done them together
+        if (done)
+        {
+            // no edge cache?
+            if (!edge_cache && !edge_cache_next) 
+            {
+                // init edge cache
+                edge_cache = edge;
+                edge_cache_next = edge_next;
+            }
+            // is conjoint? merge it
+            else if (   edge_cache_next
+                    &&  tb_fixed_near_eq(edge_cache_next->x, edge->x)
+                    &&  edge_cache_next->slope == edge->slope)
+            {
+                // merge the edges to the edge cache
+                edge_cache_next = edge_next;
+            }
+            else
+            {
+                // check
+                tb_assert_abort(edge_cache && edge_cache_next);
+
+                // done edge cache
+                func(y, y_next, edge_cache, edge_cache_next, priv);
+
+                // update edge cache
+                edge_cache = edge;
+                edge_cache_next = edge_next;
+            }
+        }
+#endif
 
         // update the previous edge index
         index_prev = index;
@@ -739,6 +778,9 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
         // the next edge index
         index = index_next; 
     }
+ 
+    // done the left edge cache
+    if (edge_cache && edge_cache_next) func(y, y_next, edge_cache, edge_cache_next, priv);
 }
 static tb_void_t gb_vertex_raster_active_scan_next(gb_vertex_raster_impl_t* impl, tb_fixed_t y, tb_fixed_t y_next, tb_size_t* porder)
 {
