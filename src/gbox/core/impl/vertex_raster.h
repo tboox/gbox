@@ -80,6 +80,12 @@ typedef struct __gb_vertex_raster_edge_t
     // the x-coordinate of the active edge
     tb_fixed_t          x;
 
+    // the top x-coordinate
+    tb_fixed_t          x_top;
+
+    // the bottom x-coordinate
+    tb_fixed_t          x_bottom;
+
     // the next x-coordinate of the active edge
     tb_fixed_t          x_next;
 

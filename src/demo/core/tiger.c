@@ -186,6 +186,9 @@ static tb_char_t const* gb_demo_tiger_entry_init_style_stroke(gb_demo_tiger_entr
     entry->stroke_color     = gb_pixel_color(pixel);
     entry->is_stroke        = 1;
 
+    // init stroke width
+    entry->stroke_width     = GB_ONE;
+
     // trace
     tb_trace_d("stroke: %{color}", &entry->stroke_color);
 

@@ -483,6 +483,8 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 // init the x-coordinate
                 edge->x         = xb;
                 edge->x_next    = xb;
+                edge->x_top     = xb;
+                edge->x_bottom  = xe;
 
                 // init top y-coordinate
                 edge->y_top     = yb;
@@ -638,7 +640,15 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
         edge = edge_pool + index; 
 
         // compute the next x-coordinate first
+#if 0
         if (index == active_edges) edge->x_next = edge->x + tb_fixed_mul(tb_min(y_next, edge->y_bottom) - y, edge->slope);
+#else
+        if (index == active_edges)
+        {
+            if (y_next != edge->y_bottom) edge->x_next = edge->x_top + tb_fixed_mul(tb_min(y_next, edge->y_bottom) - edge->y_top, edge->slope);
+            else edge->x_next = edge->x_bottom;
+        }
+#endif
 
         /* compute the winding
          *   
@@ -659,8 +669,13 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
         edge_next = edge_pool + index_next; 
 
         // compute the next x-coordinate
+#if 0
         edge_next->x_next = edge_next->x + tb_fixed_mul(tb_min(y_next, edge_next->y_bottom) - y, edge_next->slope);
-
+#else
+        if (y_next != edge_next->y_bottom) edge_next->x_next = edge_next->x_top + tb_fixed_mul(tb_min(y_next, edge_next->y_bottom) - edge_next->y_top, edge_next->slope);
+        else edge_next->x_next = edge_next->x_bottom;
+#endif
+        
         // check
         tb_assert_abort(!edge->patching && !edge_next->patching);
 

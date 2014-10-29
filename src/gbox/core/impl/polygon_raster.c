@@ -197,6 +197,9 @@ static tb_bool_t gb_polygon_raster_edge_pool_init(gb_polygon_raster_impl_t* impl
     if (!impl->edge_pool) impl->edge_pool = tb_nalloc_type(GB_POLYGON_RASTER_EDGES_GROW, gb_polygon_raster_edge_t);
     tb_assert_and_check_return_val(impl->edge_pool, tb_false);
 
+    // init the edge pool size
+    impl->edge_pool_size = 0;
+
     // ok
     return tb_true;
 }

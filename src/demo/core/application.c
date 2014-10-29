@@ -16,7 +16,7 @@ tb_bool_t gb_application_init(gb_application_ref_t application, gb_window_info_r
     info->title         = "demo";
     info->framerate     = 60;
     info->width         = 640;
-    info->height        = 480;
+    info->height        = 640;
     info->init          = gb_demo_init;
     info->exit          = gb_demo_exit;
     info->draw          = gb_demo_draw;

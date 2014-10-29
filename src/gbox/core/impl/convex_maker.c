@@ -385,9 +385,36 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
     // check
     tb_assert_abort(impl && impl->func && contour && contour->le.points && contour->re.points);
     
-    // add points to the contour
+    // add end-points to the contour
+    tb_fixed_t lx = contour->le.x_next;
+    tb_fixed_t rx = contour->re.x_next;
+    tb_fixed_t ly = tb_min(contour->y_next, contour->le.y_bottom);
+    tb_fixed_t ry = tb_min(contour->y_next, contour->re.y_bottom);
+    if (0)//lx > rx)
+    {
+        // TODO
+#if 0
+        if (ly == ry && contour->le.slope != contour->re.slope)
+        {
+            tb_fixed_t y = contour->y + tb_fixed_div(contour->re.x - contour->le.x, contour->le.slope - contour->re.slope);
+            tb_fixed_t x = contour->le.x + tb_fixed_mul(y - contour->y, contour->le.slope);
+            gb_convex_maker_contour_append_r(contour, x, y);
+        }
+        else
+        {
+            tb_assert_abort(0);
+        }
+#endif
+    }
+    else
+    {
+        gb_convex_maker_contour_append_l(contour, lx, ly);
+        gb_convex_maker_contour_append_r(contour, rx, ry);
+    }
+#if 0
     gb_convex_maker_contour_append_l(contour, contour->le.x_next, tb_min(contour->y_next, contour->le.y_bottom));
     gb_convex_maker_contour_append_r(contour, contour->re.x_next, tb_min(contour->y_next, contour->re.y_bottom));
+#endif
 
     // grow the right-hand points if not enough 
     gb_convex_maker_contour_grow_r(contour, (tb_size_t)contour->re.points_count + contour->le.points_count + 1);
@@ -589,7 +616,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
          * .       .
          *
          */
-        tb_bool_t is_inter = (tb_fixed_abs(lx - rx) <= TB_FIXED_HALF) && (ls != rs);
+        tb_bool_t is_inter = tb_fixed_near_eq(lx, rx) && (ls != rs);
         if (is_inter)
         { 
             // trace
@@ -597,6 +624,8 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
 
             // finish it 
             is_finished = tb_true;
+
+            // TODO
         }
 
         // the left-hand point is join?
