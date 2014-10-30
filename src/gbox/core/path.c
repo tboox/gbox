@@ -62,7 +62,7 @@ typedef enum __gb_path_flag_e
 ,   GB_PATH_FLAG_DIRTY_POLYGON          = 4
 ,   GB_PATH_FLAG_DIRTY_CONVEX           = 8
 ,   GB_PATH_FLAG_DIRTY_ALL              = GB_PATH_FLAG_DIRTY_HINT | GB_PATH_FLAG_DIRTY_BOUNDS | GB_PATH_FLAG_DIRTY_POLYGON | GB_PATH_FLAG_DIRTY_CONVEX
-,   GB_PATH_FLAG_HAVE_CURVE             = 16    //< have curve contour?
+,   GB_PATH_FLAG_CURVE                  = 16    //< have curve contour?
 ,   GB_PATH_FLAG_CONVEX                 = 32    //< all contours are convex polygon?
 ,   GB_PATH_FLAG_CLOSED                 = 64    //< the contour is closed now?
 ,   GB_PATH_FLAG_SINGLE                 = 128   //< single contour?
@@ -233,7 +233,7 @@ static tb_bool_t gb_path_make_hint(gb_path_impl_t* impl)
     impl->hint.type = GB_SHAPE_TYPE_NONE;
 
     // no curve? make bounds
-    if (!(impl->flag & GB_PATH_FLAG_HAVE_CURVE))
+    if (!(impl->flag & GB_PATH_FLAG_CURVE))
     {
         // the codes 
         tb_uint8_t const* codes = (tb_uint8_t const*)tb_vector_data(impl->codes);
@@ -355,6 +355,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
 
     // analyze convex from the single closed contour 
     if (    !(impl->flag & GB_PATH_FLAG_CONVEX) 
+        &&  !(impl->flag & GB_PATH_FLAG_CURVE)
         &&  (impl->flag & GB_PATH_FLAG_SINGLE)
         &&  (impl->flag & GB_PATH_FLAG_CLOSED)
         &&  tb_vector_size(impl->codes) > 3)
@@ -409,108 +410,6 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     point_count++;
                 }
                 break;
-            case GB_PATH_CODE_QUAD:
-                {
-                    // update points
-                    x0 = x1;
-                    y0 = y1;
-                    x1 = x2;
-                    y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[1].x);
-                    y2 = gb_float_to_fixed6(item->points[1].y);
-
-                    // exists enough points?
-                    if (point_count > 1)
-                    {
-                        // compute the cross of the vectors (p1, p0) and (p1, p2)
-                        cross = tb_fixed6_mul(x0 - x1, y2 - y1) - tb_fixed6_mul(y0 - y1, x2 - x1);
-
-                        // concave contour?
-                        if (((tb_hong_t)cross * cross_prev) < 0)
-                        {
-                            finished    = tb_true;
-                            impl->flag  &= ~GB_PATH_FLAG_CONVEX;
-                            break;
-                        }
-
-                        // update the previous cross
-                        cross_prev = cross;
-                    }
-                    
-                    // update the point count
-                    point_count += 2;
-
-                    // update the points
-                    x0 = x1;
-                    y0 = y1;
-                    x1 = x2;
-                    y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[2].x);
-                    y2 = gb_float_to_fixed6(item->points[2].y);
-                }
-                break;
-            case GB_PATH_CODE_CUBIC:
-                {
-                    // update points
-                    x0 = x1;
-                    y0 = y1;
-                    x1 = x2;
-                    y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[1].x);
-                    y2 = gb_float_to_fixed6(item->points[1].y);
-
-                    // exists enough points?
-                    if (point_count > 1)
-                    {
-                        // compute the cross of the vectors (p1, p0) and (p1, p2)
-                        cross = tb_fixed6_mul(x0 - x1, y2 - y1) - tb_fixed6_mul(y0 - y1, x2 - x1);
-
-                        // concave contour?
-                        if (((tb_hong_t)cross * cross_prev) < 0)
-                        {
-                            finished    = tb_true;
-                            impl->flag  &= ~GB_PATH_FLAG_CONVEX;
-                            break;
-                        }
-
-                        // update the previous cross
-                        cross_prev = cross;
-                    }
-                    
-                    // update the point count
-                    point_count += 3;
-
-                    // update points
-                    x0 = x1;
-                    y0 = y1;
-                    x1 = x2;
-                    y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[2].x);
-                    y2 = gb_float_to_fixed6(item->points[2].y);
-
-                    // compute the cross of the vectors (p1, p0) and (p1, p2)
-                    cross = tb_fixed6_mul(x0 - x1, y2 - y1) - tb_fixed6_mul(y0 - y1, x2 - x1);
-
-                    // concave contour?
-                    if (((tb_hong_t)cross * cross_prev) < 0)
-                    {
-                        finished    = tb_true;
-                        impl->flag  &= ~GB_PATH_FLAG_CONVEX;
-                        break;
-                    }
-
-                    // update the previous cross
-                    cross_prev = cross;
-
-                    // update the points
-                    x0 = x1;
-                    y0 = y1;
-                    x1 = x2;
-                    y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[3].x);
-                    y2 = gb_float_to_fixed6(item->points[3].y);
-                }
-                break;
             case GB_PATH_CODE_CLOS:
                 {
                     // the points
@@ -530,6 +429,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                 }
                 break;
             default:
+                tb_assert_abort(0);
                 break;
             }
 
@@ -606,7 +506,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
     tb_assert_and_check_return_val(impl->polygon_counts, tb_false);
 
     // have curve?
-    if (impl->flag & GB_PATH_FLAG_HAVE_CURVE)
+    if (impl->flag & GB_PATH_FLAG_CURVE)
     {
         // make polygon points
         if (!impl->polygon_points) impl->polygon_points = tb_vector_init(tb_vector_size(impl->points), tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
@@ -1207,7 +1107,7 @@ tb_void_t gb_path_quad_to(gb_path_ref_t path, gb_point_ref_t ctrl, gb_point_ref_
     tb_vector_insert_tail(impl->points, point);
 
     // mark dirty and curve
-    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_HAVE_CURVE;
+    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_CURVE;
 }
 tb_void_t gb_path_quad2_to(gb_path_ref_t path, gb_float_t cx, gb_float_t cy, gb_float_t x, gb_float_t y)
 {
@@ -1259,7 +1159,7 @@ tb_void_t gb_path_cubic_to(gb_path_ref_t path, gb_point_ref_t ctrl0, gb_point_re
     tb_vector_insert_tail(impl->points, point);
 
     // mark dirty and curve
-    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_HAVE_CURVE;
+    impl->flag |= GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_CURVE;
 }
 tb_void_t gb_path_cubic2_to(gb_path_ref_t path, gb_float_t cx0, gb_float_t cy0, gb_float_t cx1, gb_float_t cy1, gb_float_t x, gb_float_t y)
 {

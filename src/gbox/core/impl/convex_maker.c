@@ -53,7 +53,7 @@
 #endif
 
 // test the polygon edge
-#define GB_CONVEX_MAKER_TEST_EDGE
+//#define GB_CONVEX_MAKER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -390,7 +390,7 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
     tb_fixed_t rx = contour->re.x_next;
     tb_fixed_t ly = tb_min(contour->y_next, contour->le.y_bottom);
     tb_fixed_t ry = tb_min(contour->y_next, contour->re.y_bottom);
-    if (lx > rx)
+    if (0)//lx > rx)
     {
         tb_used(&ly);
         tb_used(&ry);
@@ -644,7 +644,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
             tb_fixed_t cross = ls - contour->le.slope;
 
             // is concave? finish it
-            if (tb_fixed_mul(cross, contour->le.cross) < 0) is_finished = tb_true;
+            if (((tb_hong_t)cross * contour->le.cross) < 0) is_finished = tb_true;
 
             // save this cross
             contour->le.cross = cross;
@@ -664,7 +664,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
             tb_fixed_t cross = rs - contour->re.slope;
 
             // is concave? finish it
-            if (tb_fixed_mul(cross, contour->re.cross) < 0) is_finished = tb_true;
+            if (((tb_hong_t)cross * contour->re.cross) < 0) is_finished = tb_true;
 
             // save this cross
             contour->re.cross = cross;

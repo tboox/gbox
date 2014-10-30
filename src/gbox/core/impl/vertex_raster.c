@@ -427,17 +427,17 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
         if (index)
         {
             // the y-coordinates
-            tb_fixed_t yb = gb_float_to_fixed(pb.y);
-            tb_fixed_t ye = gb_float_to_fixed(pe.y);
-            tb_fixed_t dy = ye - yb;
+            tb_fixed_t  yb = gb_float_to_fixed(pb.y);
+            tb_fixed_t  ye = gb_float_to_fixed(pe.y);
+            tb_fixed6_t dy = tb_fixed_to_fixed6(ye - yb);
 
             // not horizaontal edge?
             if (dy)
             {
                 // the x-coordinates
-                tb_fixed_t xb = gb_float_to_fixed(pb.x);
-                tb_fixed_t xe = gb_float_to_fixed(pe.x);
-                tb_fixed_t dx = xe - xb;
+                tb_fixed_t  xb = gb_float_to_fixed(pb.x);
+                tb_fixed_t  xe = gb_float_to_fixed(pe.x);
+                tb_fixed6_t dx = tb_fixed_to_fixed6(xe - xb);
 
                 // make a new edge from the edge pool
                 tb_uint16_t edge_index = gb_vertex_raster_edge_pool_aloc(impl);
@@ -480,7 +480,7 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 tb_assert_abort(yb < ye);
 
                 // compute the slope 
-                edge->slope = tb_fixed_div(dx, dy);
+                edge->slope = tb_fixed6_div(dx, dy);
 
                 // init the x-coordinate
                 edge->x         = xb;
@@ -735,7 +735,7 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
         // trace
         tb_trace_d("y: %{fixed}, y_next: %{fixed}, winding: %ld, x: %{fixed} => %{fixed}, y_bottom: %{fixed}, %{fixed}", y, y_next, winding, edge->x, edge_next->x, edge->y_bottom, edge_next->y_bottom);
 
-#if 0
+#if 1
         // done it for winding?
         if (done) func(y, y_next, edge, edge_next, priv);
 #else
@@ -750,6 +750,7 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
                 edge_cache_next = edge_next;
             }
             // is conjoint? merge it
+            // FIXME
             else if (   edge_cache_next
                     &&  tb_fixed_near_eq(edge_cache_next->x, edge->x)
                     &&  edge_cache_next->slope == edge->slope)
