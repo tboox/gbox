@@ -1679,7 +1679,7 @@ tb_void_t gb_stroker_add_path(gb_stroker_ref_t stroker, gb_path_ref_t path)
         case GB_PATH_CODE_QUAD:
             gb_stroker_quad_to(stroker, &item->points[1], &item->points[2]);
             break;
-        case GB_PATH_CODE_CUBE:
+        case GB_PATH_CODE_CUBIC:
             gb_stroker_cubic_to(stroker, &item->points[1], &item->points[2], &item->points[3]);
             break;
         case GB_PATH_CODE_CLOS:

@@ -55,7 +55,7 @@ tb_int_t gb_demo_core_path_main(tb_int_t argc, tb_char_t** argv)
             case GB_PATH_CODE_QUAD:
                 tb_trace_i("quad_to: %{point}, %{point}", &item->points[1], &item->points[2]);
                 break;
-            case GB_PATH_CODE_CUBE:
+            case GB_PATH_CODE_CUBIC:
                 tb_trace_i("cubic_to: %{point}, %{point}, %{point}", &item->points[1], &item->points[2], &item->points[3]);
                 break;
             case GB_PATH_CODE_CLOS:

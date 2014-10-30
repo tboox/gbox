@@ -325,7 +325,7 @@ static tb_void_t gb_device_skia_draw_path(gb_device_impl_t* device, gb_path_ref_
         case GB_PATH_CODE_QUAD:
             impl->path->quadTo(gb_float_to_sk(item->points[1].x), gb_float_to_sk(item->points[1].y), gb_float_to_sk(item->points[2].x), gb_float_to_sk(item->points[2].y));
             break;
-        case GB_PATH_CODE_CUBE:
+        case GB_PATH_CODE_CUBIC:
             impl->path->cubicTo(gb_float_to_sk(item->points[1].x), gb_float_to_sk(item->points[1].y), gb_float_to_sk(item->points[2].x), gb_float_to_sk(item->points[2].y), gb_float_to_sk(item->points[3].x), gb_float_to_sk(item->points[3].y));
             break;
         case GB_PATH_CODE_CLOS:

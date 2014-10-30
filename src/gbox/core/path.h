@@ -48,7 +48,7 @@ typedef enum __gb_path_code_e
 ,   GB_PATH_CODE_CLOS       = 1 //!< the clos code
 ,   GB_PATH_CODE_LINE       = 2 //!< the line-to code
 ,   GB_PATH_CODE_QUAD       = 3 //!< the quad-to code
-,   GB_PATH_CODE_CUBE       = 4 //!< the cubic-to code
+,   GB_PATH_CODE_CUBIC      = 4 //!< the cubic-to code
 ,   GB_PATH_CODE_MAXN       = 5 //!< the code max count
 
 }gb_path_code_e;
@@ -59,7 +59,14 @@ typedef struct __gb_path_item_t
     /// the code
     tb_size_t       code;
 
-    /// the points[4]
+    /*! the points[4]
+     *
+     * move-to:     points[0]
+     * line-to:     points[0], points[1]
+     * quad-to:     points[0], points[1], points[2]
+     * cubic-to:    points[0], points[1], points[2], points[3]
+     * close:       points[0]
+     */
     gb_point_ref_t  points;
 
 }gb_path_item_t, *gb_path_item_ref_t;
