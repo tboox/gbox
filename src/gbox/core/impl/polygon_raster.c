@@ -427,7 +427,7 @@ static tb_void_t gb_polygon_raster_active_scan_line_convex(gb_polygon_raster_imp
     gb_polygon_raster_edge_ref_t edge_next = impl->edge_pool + index_next; 
 
     // check
-    tb_assert_abort(edge->x <= edge_next->x);
+    tb_assert_abort(edge->x < edge_next->x || tb_fixed_abs(edge->x - edge_next->x) <= TB_FIXED_HALF);
 
     // trace
     tb_trace_d("y: %ld, %{fixed} => %{fixed}", y, edge->x, edge_next->x);

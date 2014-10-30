@@ -355,7 +355,6 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
 
     // analyze convex from the single closed contour 
     if (    !(impl->flag & GB_PATH_FLAG_CONVEX) 
-        &&  !(impl->flag & GB_PATH_FLAG_CURVE)
         &&  (impl->flag & GB_PATH_FLAG_SINGLE)
         &&  (impl->flag & GB_PATH_FLAG_CLOSED)
         &&  tb_vector_size(impl->codes) > 3)
@@ -364,17 +363,17 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
         impl->flag |= GB_PATH_FLAG_CONVEX;
 
         // analyze it
-        tb_fixed6_t     cross = 0;
-        tb_fixed6_t     cross_prev = 0;
+        tb_fixed_t      x0 = 0;
+        tb_fixed_t      y0 = 0;
+        tb_fixed_t      x1 = 0;
+        tb_fixed_t      y1 = 0;
+        tb_fixed_t      x2 = 0;
+        tb_fixed_t      y2 = 0;
+        tb_fixed_t      cross = 0;
+        tb_fixed_t      cross_prev = 0;
         tb_size_t       point_count = 0;
         tb_size_t       contour_count = 0;
         tb_bool_t       finished = tb_false;
-        tb_fixed6_t     x0 = 0;
-        tb_fixed6_t     y0 = 0;
-        tb_fixed6_t     x1 = 0;
-        tb_fixed6_t     y1 = 0;
-        tb_fixed6_t     x2 = 0;
-        tb_fixed6_t     y2 = 0;
         tb_for_all_if (gb_path_item_ref_t, item, (gb_path_ref_t)impl, item && contour_count < 2)
         {
             switch (item->code)
@@ -386,8 +385,8 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     y0 = y1;
                     x1 = x2;
                     y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[0].x);
-                    y2 = gb_float_to_fixed6(item->points[0].y);
+                    x2 = gb_float_to_fixed(item->points[0].x);
+                    y2 = gb_float_to_fixed(item->points[0].y);
  
                     // update the contour count
                     contour_count++;
@@ -403,11 +402,113 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     y0 = y1;
                     x1 = x2;
                     y1 = y2;
-                    x2 = gb_float_to_fixed6(item->points[0].x);
-                    y2 = gb_float_to_fixed6(item->points[0].y);
+                    x2 = gb_float_to_fixed(item->points[0].x);
+                    y2 = gb_float_to_fixed(item->points[0].y);
 
                     // update the point count
                     point_count++;
+                }
+                break;
+            case GB_PATH_CODE_QUAD:
+                {
+                    // update points
+                    x0 = x1;
+                    y0 = y1;
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = gb_float_to_fixed(item->points[1].x);
+                    y2 = gb_float_to_fixed(item->points[1].y);
+
+                    // points enough?
+                    if (point_count > 1)
+                    {
+                        // compute the cross of the vectors (p1, p0) and (p1, p2)
+                        cross = tb_fixed_mul(x0 - x1, y2 - y1) - tb_fixed_mul(y0 - y1, x2 - x1);
+
+                        // concave contour?
+                        if (((tb_hong_t)cross * cross_prev) < 0)
+                        {
+                            impl->flag  &= ~GB_PATH_FLAG_CONVEX;
+                            finished = tb_true;
+                            break;
+                        }
+
+                        // update the previous cross
+                        cross_prev = cross;
+                    }
+
+                    // update the point count
+                    point_count += 2;
+
+                    // update points
+                    x0 = x1;
+                    y0 = y1;
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = gb_float_to_fixed(item->points[2].x);
+                    y2 = gb_float_to_fixed(item->points[2].y);
+                }
+                break;
+            case GB_PATH_CODE_CUBIC:
+                {
+                    // update points
+                    x0 = x1;
+                    y0 = y1;
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = gb_float_to_fixed(item->points[1].x);
+                    y2 = gb_float_to_fixed(item->points[1].y);
+
+                    // points enough?
+                    if (point_count > 1)
+                    {
+                        // compute the cross of the vectors (p1, p0) and (p1, p2)
+                        cross = tb_fixed_mul(x0 - x1, y2 - y1) - tb_fixed_mul(y0 - y1, x2 - x1);
+
+                        // concave contour?
+                        if (((tb_hong_t)cross * cross_prev) < 0)
+                        {
+                            impl->flag  &= ~GB_PATH_FLAG_CONVEX;
+                            finished = tb_true;
+                            break;
+                        }
+
+                        // update the previous cross
+                        cross_prev = cross;
+                    }
+
+                    // update the point count
+                    point_count += 3;
+
+                    // update points
+                    x0 = x1;
+                    y0 = y1;
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = gb_float_to_fixed(item->points[2].x);
+                    y2 = gb_float_to_fixed(item->points[2].y);
+                   
+                    // compute the cross of the vectors (p1, p0) and (p1, p2)
+                    cross = tb_fixed_mul(x0 - x1, y2 - y1) - tb_fixed_mul(y0 - y1, x2 - x1);
+
+                    // concave contour?
+                    if (((tb_hong_t)cross * cross_prev) < 0)
+                    {
+                        impl->flag  &= ~GB_PATH_FLAG_CONVEX;
+                        finished = tb_true;
+                        break;
+                    }
+
+                    // update the previous cross
+                    cross_prev = cross;
+
+                    // update points
+                    x0 = x1;
+                    y0 = y1;
+                    x1 = x2;
+                    y1 = y2;
+                    x2 = gb_float_to_fixed(item->points[3].x);
+                    y2 = gb_float_to_fixed(item->points[3].y);
                 }
                 break;
             case GB_PATH_CODE_CLOS:
@@ -424,8 +525,8 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     y0 = y1;
                     x1 = x2;
                     y1 = y2;
-                    x2 = gb_float_to_fixed6(points[1].x);
-                    y2 = gb_float_to_fixed6(points[1].y);
+                    x2 = gb_float_to_fixed(points[1].x);
+                    y2 = gb_float_to_fixed(points[1].y);
                 }
                 break;
             default:
@@ -440,7 +541,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
             tb_check_continue(point_count > 2);
                     
             // compute the cross of the vectors (p1, p0) and (p1, p2)
-            cross = tb_fixed6_mul(x0 - x1, y2 - y1) - tb_fixed6_mul(y0 - y1, x2 - x1);
+            cross = tb_fixed_mul(x0 - x1, y2 - y1) - tb_fixed_mul(y0 - y1, x2 - x1);
 
             // concave contour?
             if (((tb_hong_t)cross * cross_prev) < 0)
