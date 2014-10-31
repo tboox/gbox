@@ -84,7 +84,7 @@ typedef struct __gb_convex_maker_contour_edge_t
     tb_uint16_t                         points_maxn;
 
     // the points count
-    tb_uint16_t                         points_count;
+    tb_uint16_t                         points_size;
 
 }gb_convex_maker_contour_edge_t;
 
@@ -216,7 +216,7 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_make
         contour->le.y_bottom        = 0;
         contour->le.slope           = 0;
         contour->le.cross           = TB_FIXED_ONE;
-        contour->le.points_count    = 0;
+        contour->le.points_size    = 0;
         if (!contour->le.points) 
         {
             contour->le.points_maxn    = GB_CONVEX_MAKER_POINTS_GROW;
@@ -230,7 +230,7 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_make
         contour->re.y_bottom        = 0;
         contour->re.slope           = 0;
         contour->re.cross           = -TB_FIXED_ONE;
-        contour->re.points_count    = 0;
+        contour->re.points_size    = 0;
         if (!contour->re.points) 
         {
             // ensure the enough space for making complete contour: re.points = re.points + reverse(le.points)
@@ -331,7 +331,7 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find(gb_convex_make
     // ok?
     return contour;
 }
-static tb_void_t gb_convex_maker_contour_grow_l(gb_convex_maker_contour_ref_t contour, tb_size_t count)
+static tb_void_t gb_convex_maker_contour_grow_l(gb_convex_maker_contour_ref_t contour, tb_uint16_t count)
 {
     // check
     tb_assert_abort(contour && count <= TB_MAXU16);
@@ -339,12 +339,25 @@ static tb_void_t gb_convex_maker_contour_grow_l(gb_convex_maker_contour_ref_t co
     // grow the left-hand points if not enough 
     if (count > contour->le.points_maxn)
     {
-        contour->le.points_maxn    = count + GB_CONVEX_MAKER_POINTS_GROW;
-        contour->le.points         = tb_ralloc_type(contour->le.points, contour->le.points_maxn, gb_point_t);
-        tb_assert_abort(contour->le.points);
+        // the points
+        gb_point_ref_t  points          = contour->le.points;
+        tb_uint16_t     points_size     = contour->le.points_size;
+        tb_uint16_t     points_maxn     = contour->le.points_maxn;
+        tb_uint16_t     points_maxn_new = count + GB_CONVEX_MAKER_POINTS_GROW;
+
+        // grow points
+        points = tb_ralloc_type(points, points_maxn_new, gb_point_t);
+        tb_assert_abort(points);
+
+        // move the previous data to the new tail
+        if (points_size) tb_memmov(points + points_maxn_new - points_size, points + points_maxn - points_size, points_size * sizeof(gb_point_t));
+
+        // update the points
+        contour->le.points      = points;
+        contour->le.points_maxn = points_maxn_new;
     }
 }
-static tb_void_t gb_convex_maker_contour_grow_r(gb_convex_maker_contour_ref_t contour, tb_size_t count)
+static tb_void_t gb_convex_maker_contour_grow_r(gb_convex_maker_contour_ref_t contour, tb_uint16_t count)
 {
     // check
     tb_assert_abort(contour && count <= TB_MAXU16);
@@ -360,24 +373,24 @@ static tb_void_t gb_convex_maker_contour_grow_r(gb_convex_maker_contour_ref_t co
 static tb_void_t gb_convex_maker_contour_append_l(gb_convex_maker_contour_ref_t contour, tb_fixed_t x, tb_fixed_t y)
 {
     // check
-    tb_assert_abort(contour && contour->le.points_count < TB_MAXU16);
+    tb_assert_abort(contour && contour->le.points_size < TB_MAXU16);
 
     // grow the left-hand points if not enough 
-    gb_convex_maker_contour_grow_l(contour, contour->le.points_count + 1);
+    gb_convex_maker_contour_grow_l(contour, contour->le.points_size + 1);
 
-    // append the left-hand point
-    gb_point_make(&contour->le.points[contour->le.points_count++], gb_fixed_to_float(x), gb_fixed_to_float(y));
+    // reverse to append the left-hand point in the tail
+    gb_point_make(&contour->le.points[contour->le.points_maxn - ++contour->le.points_size], gb_fixed_to_float(x), gb_fixed_to_float(y));
 }
 static tb_void_t gb_convex_maker_contour_append_r(gb_convex_maker_contour_ref_t contour, tb_fixed_t x, tb_fixed_t y)
 {
     // check
-    tb_assert_abort(contour && contour->re.points_count < TB_MAXU16);
+    tb_assert_abort(contour && contour->re.points_size < TB_MAXU16);
 
     // grow the right-hand points if not enough 
-    gb_convex_maker_contour_grow_r(contour, contour->re.points_count + 1);
+    gb_convex_maker_contour_grow_r(contour, contour->re.points_size + 1);
 
     // append the right-hand point
-    gb_point_make(&contour->re.points[contour->re.points_count++], gb_fixed_to_float(x), gb_fixed_to_float(y));
+    gb_point_make(&contour->re.points[contour->re.points_size++], gb_fixed_to_float(x), gb_fixed_to_float(y));
 }
 static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
@@ -417,40 +430,35 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
     gb_convex_maker_contour_append_r(contour, contour->re.x_next, tb_min(contour->y_next, contour->re.y_bottom));
 #endif
 
-    // grow the right-hand points if not enough 
-    gb_convex_maker_contour_grow_r(contour, (tb_size_t)contour->re.points_count + contour->le.points_count + 1);
+    // the points
+    gb_point_ref_t  re_points       = contour->re.points;
+    gb_point_ref_t  le_points       = contour->le.points;
+    tb_uint16_t     re_points_size  = contour->re.points_size;
+    tb_uint16_t     le_points_size  = contour->le.points_size;
+    tb_uint16_t     le_points_maxn  = contour->le.points_maxn;
 
-    // TODO: optimization
-    // reverse to append the left-hand-hand points to the right-hand points
-    gb_point_ref_t  re_points = contour->re.points;
-    gb_point_ref_t  le_points = contour->le.points;
-    tb_uint16_t     re_points_count = contour->re.points_count;
-    tb_uint16_t     le_points_count = contour->le.points_count;
-    while (le_points_count--)
-    {
-        re_points[re_points_count++] = le_points[le_points_count];
-    }
+    // grow the right-hand points if not enough 
+    gb_convex_maker_contour_grow_r(contour, re_points_size + le_points_size + 1);
+
+    // append the left-hand points to the right-hand points
+    tb_memcpy(re_points + re_points_size, le_points + le_points_maxn - le_points_size, le_points_size * sizeof(gb_point_t));
+    re_points_size += le_points_size;
 
     // close it
-    if (re_points[re_points_count - 1].x != re_points[0].x || re_points[re_points_count - 1].y != re_points[0].y)
-        re_points[re_points_count++] = re_points[0];
-
-    // check
-    tb_assert_abort(re_points_count <= contour->re.points_count + contour->le.points_count + 1);
+    if (re_points[re_points_size - 1].x != re_points[0].x || re_points[re_points_size - 1].y != re_points[0].y)
+        re_points[re_points_size++] = re_points[0];
 
     // trace
     tb_trace_d("done contour(at: (%ld), y: %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed})", contour->index, contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
 
     // done func
-    impl->func(contour->re.points, re_points_count, impl->priv);
+    impl->func(re_points, re_points_size, impl->priv);
 
-    // clear points
-    contour->le.points_count = 0;
-    contour->re.points_count = 0;
-
-    // reset the cross
-    contour->le.cross = TB_FIXED_ONE;
-    contour->re.cross = -TB_FIXED_ONE;
+    // reset the contour
+    contour->le.points_size = 0;
+    contour->re.points_size = 0;
+    contour->le.cross       = TB_FIXED_ONE;
+    contour->re.cross       = -TB_FIXED_ONE;
 }
 static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
@@ -612,7 +620,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
     if (contour)
     {
         // cannot be the first line
-        tb_assert_abort(contour->le.points_count || contour->re.points_count);
+        tb_assert_abort(contour->le.points_size || contour->re.points_size);
 
         // the contour is finished?
         tb_bool_t is_finished = tb_false;
