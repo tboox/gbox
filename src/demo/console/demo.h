@@ -20,8 +20,8 @@
  * @file        demo.h
  *
  */
-#ifndef TB_DEMO_H
-#define TB_DEMO_H
+#ifndef GB_DEMO_H
+#define GB_DEMO_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -33,19 +33,19 @@
  */
 
 // the main decl
-#define TB_DEMO_MAIN_DECL(name)         tb_int_t gb_demo_##name##_main(tb_int_t argc, tb_char_t** argv)
+#define GB_DEMO_MAIN_DECL(name)         tb_int_t gb_demo_##name##_main(tb_int_t argc, tb_char_t** argv)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
 // core
-TB_DEMO_MAIN_DECL(core_path);
-TB_DEMO_MAIN_DECL(core_bitmap);
-TB_DEMO_MAIN_DECL(core_vector);
+GB_DEMO_MAIN_DECL(core_path);
+GB_DEMO_MAIN_DECL(core_bitmap);
+GB_DEMO_MAIN_DECL(core_vector);
 
 // other
-TB_DEMO_MAIN_DECL(other_test);
+GB_DEMO_MAIN_DECL(other_test);
 
 #endif
 

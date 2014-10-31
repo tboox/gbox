@@ -187,7 +187,7 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_init(gb_convex_make
 
     // done
     tb_bool_t                       ok  = tb_false;
-    gb_convex_maker_contour_ref_t contour = tb_null;
+    gb_convex_maker_contour_ref_t   contour = tb_null;
     do
     {
         // attempt to get contour from the free contours

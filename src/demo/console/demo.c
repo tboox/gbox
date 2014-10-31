@@ -8,14 +8,14 @@
  */
 
 // the main item
-#define TB_DEMO_MAIN_ITEM(name)         { #name, gb_demo_##name##_main }
+#define GB_DEMO_MAIN_ITEM(name)         { #name, gb_demo_##name##_main }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
 // the demo type
-typedef struct __tb_demo_t
+typedef struct __gb_demo_t
 {
     // the demo name
     tb_char_t const*    name;
@@ -23,22 +23,22 @@ typedef struct __tb_demo_t
     // the demo main
     tb_int_t            (*main)(tb_int_t argc, tb_char_t** argv);
 
-}tb_demo_t;
+}gb_demo_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * globals
  */
 
 // the demos
-static tb_demo_t g_demo[] = 
+static gb_demo_t g_demo[] = 
 {
     // core
-    TB_DEMO_MAIN_ITEM(core_path)
-,   TB_DEMO_MAIN_ITEM(core_bitmap)
-,   TB_DEMO_MAIN_ITEM(core_vector)
+    GB_DEMO_MAIN_ITEM(core_path)
+,   GB_DEMO_MAIN_ITEM(core_bitmap)
+,   GB_DEMO_MAIN_ITEM(core_vector)
 
     // ohter
-,   TB_DEMO_MAIN_ITEM(other_test)
+,   GB_DEMO_MAIN_ITEM(other_test)
 };
 
 /* //////////////////////////////////////////////////////////////////////////////////////
