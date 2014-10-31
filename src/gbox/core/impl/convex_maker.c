@@ -312,7 +312,6 @@ static gb_convex_maker_contour_ref_t gb_convex_maker_contour_find(gb_convex_make
 
     // compute the current contour index
     tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(lx));
-//    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(lx, rx)));
 
     // find the contour in the current index
     gb_convex_maker_contour_ref_t contour = gb_convex_maker_contour_find_at(impl, index, y, lx, rx);
@@ -460,7 +459,6 @@ static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb
 
     // compute the contour index
     tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(contour->le.x_next));
-//    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->le.x_next, contour->re.x_next)));
 
     // the active contours 
     tb_list_entry_head_ref_t contours = impl->contours_active + index;
@@ -481,7 +479,6 @@ static tb_void_t gb_convex_maker_contour_update(gb_convex_maker_impl_t* impl, gb
 
     // compute the contour index
     tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(contour->le.x_next));
-//    tb_long_t index = gb_convex_maker_contour_indx(impl, tb_fixed_round(tb_fixed_avg(contour->le.x_next, contour->re.x_next)));
 
     // the old active contours 
     tb_list_entry_head_ref_t contours_old = impl->contours_active + contour->index;
@@ -500,6 +497,25 @@ static tb_void_t gb_convex_maker_contour_update(gb_convex_maker_impl_t* impl, gb
 
     // trace
     tb_trace_d("update contour(at: (%ld, %lu), y: %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed})", index, tb_list_entry_size(contours_new), contour->y, contour->le.x, contour->re.x, contour->le.slope, contour->re.slope);
+}
+static tb_long_t gb_convex_maker_contour_finish(tb_iterator_ref_t iterator, tb_cpointer_t item, tb_cpointer_t priv)
+{
+    // check
+    gb_convex_maker_impl_t* impl = (gb_convex_maker_impl_t*)priv;
+    tb_assert_abort(impl);
+
+    // the contour
+    gb_convex_maker_contour_ref_t contour = (gb_convex_maker_contour_ref_t)item;
+    tb_assert_abort(contour);
+
+    // done contour
+    gb_convex_maker_contour_done(impl, contour);
+
+    // exit contour
+    gb_convex_maker_contour_exit(impl, contour);
+
+    // remove it
+    return 0;
 }
 static tb_void_t gb_convex_maker_builder_init(gb_convex_maker_impl_t* impl, gb_rect_ref_t bounds, gb_convex_maker_func_t func, tb_cpointer_t priv)
 {
@@ -601,14 +617,6 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
         // the contour is finished?
         tb_bool_t is_finished = tb_false;
 
-#if 0
-        // is join?
-        tb_bool_t is_join = (tb_fixed_abs(lx - contour->le.x_next) < TB_FIXED_HALF) && (tb_fixed_abs(rx - contour->re.x_next) < TB_FIXED_HALF);
-
-        // not join? force to finish it for fixing the contour index error 
-        if (!is_join) is_finished = tb_true;
-#endif
-
         /* is intersecting join?
          * 
          * .       .
@@ -626,8 +634,6 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
 
             // finish it 
             is_finished = tb_true;
-
-            // TODO
         }
 
         // the left-hand point is join?
@@ -775,34 +781,8 @@ static tb_void_t gb_convex_maker_builder_exit(gb_convex_maker_impl_t* impl)
         // trace
         tb_trace_d("finished contours: %lu", tb_list_entry_size(contours));
 
-        // TODO: using tb_remove_if
-        // the active iterator
-        tb_iterator_ref_t iterator = tb_list_entry_itor(contours);
-        tb_assert_abort(iterator);
-
-        // done
-        tb_size_t itor = tb_iterator_head(iterator);
-        while (itor != tb_iterator_tail(iterator))
-        {
-            // the contour
-            gb_convex_maker_contour_ref_t contour = (gb_convex_maker_contour_ref_t)tb_iterator_item(iterator, itor);
-            tb_assert_abort(contour);
-
-            // save next
-            tb_size_t next = tb_iterator_next(iterator, itor);
-
-            // done contour
-            gb_convex_maker_contour_done(impl, contour);
-
-            // remove contour
-            tb_list_entry_remove(contours, &contour->entry);
-
-            // exit contour
-            gb_convex_maker_contour_exit(impl, contour);
-
-            // next
-            itor = next;
-        }
+        // finish them
+        tb_remove_if(tb_list_entry_itor(contours), gb_convex_maker_contour_finish, (tb_pointer_t)impl);
 
         // check
         tb_assert_abort(tb_list_entry_is_valid(contours));
