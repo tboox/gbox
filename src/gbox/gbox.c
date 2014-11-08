@@ -36,7 +36,7 @@ static tb_atomic_t  g_init = 0;
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static __tb_inline__ tb_bool_t tb_check_mode(tb_size_t mode)
+static __tb_inline__ tb_bool_t gb_check_mode(tb_size_t mode)
 {
 #ifdef __gb_debug__
     if (!(mode & TB_MODE_DEBUG))
@@ -69,7 +69,7 @@ static __tb_inline__ tb_bool_t tb_check_mode(tb_size_t mode)
     // ok
     return tb_true;
 }
-static __tb_inline__ tb_bool_t tb_version_check(tb_hize_t build)
+static __tb_inline__ tb_bool_t gb_version_check(tb_hize_t build)
 {
     // the version oly for link the static vtag string
     tb_version_t const* version = tb_version(); tb_used(version);
@@ -82,7 +82,7 @@ static __tb_inline__ tb_bool_t tb_version_check(tb_hize_t build)
     }
     else
     {
-        tb_trace_w("version: %s != %s", GB_VERSION_STRING, GB_VERSION_BUILD_STRING);
+        tb_trace_w("version: %s != %llu", GB_VERSION_STRING, build);
     }
 
     // no
@@ -101,10 +101,10 @@ tb_bool_t gb_init_(tb_size_t mode, tb_hize_t build)
     tb_trace_d("init: ..");
 
     // check mode
-    if (!tb_check_mode(mode)) return tb_false;
+    if (!gb_check_mode(mode)) return tb_false;
 
     // check version
-    tb_version_check(build);
+    gb_version_check(build);
 
     // init platform
     if (!gb_platform_init()) return tb_false;
