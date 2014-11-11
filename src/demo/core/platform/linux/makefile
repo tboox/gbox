@@ -19,6 +19,7 @@ application_C_FILES 								+= \
 													../../cubic \
 													../../line \
 													../../lines \
+													../../tiger \
 													../../point \
 													../../points \
 													../../circle \
