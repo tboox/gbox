@@ -686,7 +686,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         // init polygon counts
         tb_uint16_t count = 0;
         tb_vector_clear(impl->polygon_counts);
-        tb_for_all (tb_int8_t, code, impl->codes)
+        tb_for_all (tb_long_t, code, impl->codes)
         {
             // check
             tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);

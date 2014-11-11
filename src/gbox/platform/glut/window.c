@@ -366,7 +366,7 @@ static tb_void_t gb_window_glut_visibility(tb_int_t state)
     // done event
     gb_window_impl_event((gb_window_ref_t)impl, &event);
 }
-#ifndef TB_CONFIG_OS_WINDOWS
+#ifdef TB_CONFIG_OS_MAC
 static tb_void_t gb_window_glut_close()
 { 
     // check
@@ -440,13 +440,13 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
     if (impl->base.info.init && !impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv)) return ;
 
     // loop
-#ifdef TB_CONFIG_OS_WINDOWS
-    glutMainLoop();
-#else
+#ifdef TB_CONFIG_OS_MAC
     while (!tb_atomic_get(&impl->stop))
     {
         glutCheckLoop();
     }
+#else
+    glutMainLoop();
 #endif
 
     // done exit
@@ -563,7 +563,7 @@ gb_window_ref_t gb_window_init_glut(gb_window_info_ref_t info)
         glutPassiveMotionFunc(gb_window_glut_motion);
         glutTimerFunc(1000 / impl->base.info.framerate, gb_window_glut_timer, impl->id);
         glutVisibilityFunc(gb_window_glut_visibility);
-#ifndef TB_CONFIG_OS_WINDOWS
+#ifdef TB_CONFIG_OS_MAC
         glutWMCloseFunc(gb_window_glut_close);
 #endif
 

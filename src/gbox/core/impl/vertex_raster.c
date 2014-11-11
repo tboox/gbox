@@ -670,7 +670,6 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
     tb_uint16_t                     active_edges    = impl->active_edges;
     tb_uint16_t                     index           = active_edges; 
     tb_uint16_t                     index_next      = 0; 
-    tb_uint16_t                     index_prev      = 0;
     gb_vertex_raster_edge_ref_t     edge            = tb_null; 
     gb_vertex_raster_edge_ref_t     edge_next       = tb_null; 
     gb_vertex_raster_edge_ref_t     edge_cache      = tb_null; 
@@ -804,9 +803,6 @@ static tb_void_t gb_vertex_raster_active_scan_line(gb_vertex_raster_impl_t* impl
             }
         }
 #endif
-
-        // update the previous edge index
-        index_prev = index;
 
         // the next edge index
         index = index_next; 
