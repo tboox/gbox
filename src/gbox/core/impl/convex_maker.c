@@ -404,26 +404,33 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
     tb_fixed_t rx_next  = contour->re.x_next;
     tb_fixed_t ly_next  = tb_min(contour->y_next, contour->le.y_bottom);
     tb_fixed_t ry_next  = tb_min(contour->y_next, contour->re.y_bottom);
-    if ((tb_hong_t)(lx - rx) * (lx_next - rx_next) < 0)
+    if (lx_next >= rx_next)
     {
-        tb_trace_i("x: %{fixed} %{fixed} => %{fixed} %{fixed}", lx, rx, lx_next, rx_next);
-        tb_trace_i("y: %{fixed} => %{fixed} %{fixed}", contour->y, ly_next, ry_next);
-#if 1
-        if (ly_next == ry_next && contour->le.slope != contour->re.slope)
+        //tb_trace_i("x: %{fixed} %{fixed} => %{fixed} %{fixed}", lx, rx, lx_next, rx_next);
+        //tb_trace_i("y: %{fixed} => %{fixed} %{fixed}", contour->y, ly_next, ry_next);
+        if (ly_next == ry_next)
         {
-            tb_fixed_t y = contour->y + tb_fixed_div(rx - lx, contour->le.slope - contour->re.slope);
-            tb_fixed_t x = lx + tb_fixed_mul(y - contour->y, contour->le.slope);
-            gb_convex_maker_contour_append_r(contour, x, y);
-            tb_trace_i("intersecting: %{fixed} %{fixed}", x, y);
+            if (lx_next == rx_next)
+            {
+                gb_convex_maker_contour_append_r(contour, rx_next, ry_next);
+            }
+            else if (contour->le.slope != contour->re.slope)
+            {
+                tb_fixed_t y = contour->y + tb_fixed_div(rx - lx, contour->le.slope - contour->re.slope);
+                tb_fixed_t x = lx + tb_fixed_mul(y - contour->y, contour->le.slope);
+                gb_convex_maker_contour_append_r(contour, x, y);
+                //tb_trace_i("intersecting: %{fixed} %{fixed}", x, y);
+            }
+            else
+            {
+                //tb_trace_i("slope: %{fixed}", contour->le.slope);
+                //tb_assert_abort(tb_fixed_near_eq(lx_next, rx_next));
+            }
         }
         else
         {
             tb_assert_abort(0);
         }
-#else
-        gb_convex_maker_contour_append_l(contour, lx, contour->y);
-        gb_convex_maker_contour_append_r(contour, rx, contour->y);
-#endif
     }
     else
     {
@@ -612,6 +619,9 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
     tb_fixed_t  rx_next = re->x_next;
     tb_fixed_t  ls      = le->slope;
     tb_fixed_t  rs      = re->slope;
+
+    // check
+    tb_assert_abort(lx <= rx);
        
     // trace
     tb_trace_d("line: y: %{fixed}, %{fixed}, x: %{fixed}, %{fixed}, slope: %{fixed}, %{fixed}, x_next: %{fixed}, %{fixed}, y_bottom: %{fixed}, %{fixed}", y, y_next, lx, rx, ls, rs, lx_next, rx_next, le->y_bottom, re->y_bottom);
@@ -635,8 +645,7 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
          * .       .
          *
          */
-        // TODO next it intersecting?
-        tb_bool_t is_inter = tb_fixed_near_eq(lx, rx) && (ls != rs);
+        tb_bool_t is_inter = lx == rx;
         if (is_inter)
         { 
             // trace
