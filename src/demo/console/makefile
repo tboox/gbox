@@ -23,7 +23,6 @@ demo_LIBS-$(GB_CONFIG_THIRD_HAVE_JPEG) 			+= jpeg
 demo_LIBS-$(GB_CONFIG_THIRD_HAVE_FREETYPE) 		+= freetype bz2
 demo_LIBS-$(GB_CONFIG_DEVICE_HAVE_SKIA)  		+= skia 
 demo_LIBS-$(GB_CONFIG_WINDOW_HAVE_SDL)  		+= SDL 
-demo_LIBS-$(GB_CONFIG_APPLICATION_WINDOW_SDL)  	+= SDLmain
 
 # path
 demo_INC_DIR 									+= ../../
