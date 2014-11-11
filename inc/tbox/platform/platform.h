@@ -43,6 +43,7 @@
 #include "thread.h"
 #include "atomic.h"
 #include "memory.h"
+#include "hostmac.h"
 #include "barrier.h"
 #include "dynamic.h"
 #include "process.h"
