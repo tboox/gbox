@@ -418,10 +418,15 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
         /* init pixfmt
          * 
          * supports: 
+         * - xrgb8888_le
          * - xrgb8888_be
          * - rgb565_le
          */
+#ifdef TB_CONFIG_OS_MAC
         impl->base.pixfmt       = gb_quality() < GB_QUALITY_TOP? GB_PIXFMT_RGB565 : (GB_PIXFMT_XRGB8888 | GB_PIXFMT_BENDIAN);
+#else
+        impl->base.pixfmt       = gb_quality() < GB_QUALITY_TOP? GB_PIXFMT_RGB565 : GB_PIXFMT_XRGB8888;
+#endif
 
         // init sdl
         if (SDL_Init(SDL_INIT_VIDEO) < 0) break;
