@@ -540,7 +540,7 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 gb_vertex_raster_edge_table_patch(impl, ye);
             }
             // adjust the y-coordinate, made it more horizaontal
-            else pe.y = tb_min(yb, ye);
+            else pe.y = tb_min(pb.y, pe.y);
         }
 
         // save the previous point
