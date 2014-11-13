@@ -53,7 +53,7 @@
 #endif
 
 // test the polygon edge
-#define GB_CONVEX_MAKER_TEST_EDGE
+//#define GB_CONVEX_MAKER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -446,15 +446,15 @@ static tb_bool_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
         gb_convex_maker_contour_append_r(contour, rx_next, ry_next);
     }
 
+    // grow the right-hand points if not enough 
+    gb_convex_maker_contour_grow_r(contour, contour->re.points_size + contour->le.points_size + 1);
+
     // the points
     gb_point_ref_t  re_points       = contour->re.points;
     gb_point_ref_t  le_points       = contour->le.points;
     tb_uint16_t     re_points_size  = contour->re.points_size;
     tb_uint16_t     le_points_size  = contour->le.points_size;
     tb_uint16_t     le_points_maxn  = contour->le.points_maxn;
-
-    // grow the right-hand points if not enough 
-    gb_convex_maker_contour_grow_r(contour, re_points_size + le_points_size + 1);
 
     // append the left-hand points to the right-hand points
     tb_memcpy(re_points + re_points_size, le_points + le_points_maxn - le_points_size, le_points_size * sizeof(gb_point_t));
