@@ -53,7 +53,7 @@
 #endif
 
 // test the polygon edge
-//#define GB_CONVEX_MAKER_TEST_EDGE
+#define GB_CONVEX_MAKER_TEST_EDGE
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -392,45 +392,53 @@ static tb_void_t gb_convex_maker_contour_append_r(gb_convex_maker_contour_ref_t 
     // append the right-hand point
     gb_point_make(&contour->re.points[contour->re.points_size++], gb_fixed_to_float(x), gb_fixed_to_float(y));
 }
-static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
+static tb_bool_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour, tb_fixed_t* px_inter, tb_fixed_t* py_inter)
 {
     // check
     tb_assert_abort(impl && impl->func && contour && contour->le.points && contour->re.points);
 
     // add end-points to the contour
-    tb_fixed_t lx       = contour->le.x;
-    tb_fixed_t rx       = contour->re.x;
-    tb_fixed_t lx_next  = contour->le.x_next;
-    tb_fixed_t rx_next  = contour->re.x_next;
-    tb_fixed_t ly_next  = tb_min(contour->y_next, contour->le.y_bottom);
-    tb_fixed_t ry_next  = tb_min(contour->y_next, contour->re.y_bottom);
+    tb_bool_t   is_inter = tb_false;
+    tb_fixed_t  lx_next  = contour->le.x_next;
+    tb_fixed_t  rx_next  = contour->re.x_next;
+    tb_fixed_t  ly_next  = tb_min(contour->y_next, contour->le.y_bottom);
+    tb_fixed_t  ry_next  = tb_min(contour->y_next, contour->re.y_bottom);
     if (lx_next >= rx_next)
     {
-        //tb_trace_i("x: %{fixed} %{fixed} => %{fixed} %{fixed}", lx, rx, lx_next, rx_next);
-        //tb_trace_i("y: %{fixed} => %{fixed} %{fixed}", contour->y, ly_next, ry_next);
-        if (ly_next == ry_next)
+        // check
+        tb_assert_abort(ly_next == ry_next);
+
+        // exists intersection
+        is_inter = tb_true;
+
+        // same?
+        tb_fixed_t x;
+        tb_fixed_t y;
+        if (lx_next == rx_next) 
         {
-            if (lx_next == rx_next)
-            {
-                gb_convex_maker_contour_append_r(contour, rx_next, ry_next);
-            }
-            else if (contour->le.slope != contour->re.slope)
-            {
-                tb_fixed_t y = contour->y + tb_fixed_div(rx - lx, contour->le.slope - contour->re.slope);
-                tb_fixed_t x = lx + tb_fixed_mul(y - contour->y, contour->le.slope);
-                gb_convex_maker_contour_append_r(contour, x, y);
-                //tb_trace_i("intersecting: %{fixed} %{fixed}", x, y);
-            }
-            else
-            {
-                //tb_trace_i("slope: %{fixed}", contour->le.slope);
-                //tb_assert_abort(tb_fixed_near_eq(lx_next, rx_next));
-            }
+            x = rx_next;
+            y = ry_next;
         }
+        // compute the intersection
+        else if (contour->le.slope != contour->re.slope)
+        {
+            y = contour->y + tb_fixed_div(contour->re.x - contour->le.x, contour->le.slope - contour->re.slope);
+            x = contour->le.x + tb_fixed_mul(y - contour->y, contour->le.slope);
+            gb_convex_maker_contour_append_r(contour, x, y);
+        }
+        // nearly same? compute the center point
         else
         {
-            tb_assert_abort(0);
+            x = tb_fixed_avg(lx_next, rx_next);
+            y = tb_fixed_avg(contour->y, ly_next);
         }
+            
+        // append the intersection
+        gb_convex_maker_contour_append_r(contour, x, y);
+
+        // save the intersection
+        if (px_inter) *px_inter = x;
+        if (py_inter) *py_inter = y;
     }
     else
     {
@@ -467,6 +475,9 @@ static tb_void_t gb_convex_maker_contour_done(gb_convex_maker_impl_t* impl, gb_c
     contour->re.points_size = 0;
     contour->le.cross       = TB_FIXED_ONE;
     contour->re.cross       = -TB_FIXED_ONE;
+
+    // ok?
+    return is_inter;
 }
 static tb_void_t gb_convex_maker_contour_insert(gb_convex_maker_impl_t* impl, gb_convex_maker_contour_ref_t contour)
 {
@@ -525,7 +536,7 @@ static tb_long_t gb_convex_maker_contour_finish(tb_iterator_ref_t iterator, tb_c
     tb_assert_abort(contour);
 
     // done contour
-    gb_convex_maker_contour_done(impl, contour);
+    gb_convex_maker_contour_done(impl, contour, tb_null, tb_null);
 
     // exit contour
     gb_convex_maker_contour_exit(impl, contour);
@@ -696,20 +707,26 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
         }
 
 #ifdef GB_CONVEX_MAKER_TEST_EDGE
-        // only append all edge points
-        is_inter        = tb_false;
-        is_join_left    = tb_false;
-        is_join_right   = tb_false;       
-        gb_convex_maker_contour_append_l(contour, lx, y);
-        gb_convex_maker_contour_append_r(contour, rx, y);
+        tb_fixed_t x_inter = 0;
+        tb_fixed_t y_inter = 0;
+        {
+            // only append all edge points
+            is_inter        = tb_false;
+            is_join_left    = tb_false;
+            is_join_right   = tb_false;       
+            gb_convex_maker_contour_append_l(contour, lx, y);
+            gb_convex_maker_contour_append_r(contour, rx, y);
+        }
 #else
         // the contour is finished? 
+        tb_fixed_t x_inter;
+        tb_fixed_t y_inter;
         if (is_finished)
         {
             // done it and clear points for inserting a new contour
-            gb_convex_maker_contour_done(impl, contour);
+            is_inter = gb_convex_maker_contour_done(impl, contour, &x_inter, &y_inter);
 
-            // patch the joins if be not inserting point after doing maker
+            // patch the joins if be not intersection after doing maker
             if (!is_inter)
             {
                 is_join_left = tb_true;
@@ -718,26 +735,27 @@ static tb_void_t gb_convex_maker_builder_done(tb_fixed_t y, tb_fixed_t y_next, g
         }
 #endif
 
-        // is intersecting point?
+        // is intersection?
         if (is_inter)
         {
-            // append points to the new contour
-            gb_convex_maker_contour_append_l(contour, lx, y);
-            gb_convex_maker_contour_append_r(contour, rx, y);
+            // append the intersection
+            gb_convex_maker_contour_append_r(contour, x_inter, y_inter);
         }
-
-        // the left-hand point is join?
-        if (is_join_left)
+        else
         {
-            // append the left-hand point to the new contour
-            gb_convex_maker_contour_append_l(contour, lx, y);
-        }
+            // the left-hand point is join?
+            if (is_join_left)
+            {
+                // append the left-hand point to the new contour
+                gb_convex_maker_contour_append_l(contour, lx, y);
+            }
 
-        // the right-hand point is join?
-        if (is_join_right)
-        {
-            // append the right-hand point to the new contour
-            gb_convex_maker_contour_append_r(contour, rx, y);
+            // the right-hand point is join?
+            if (is_join_right)
+            {
+                // append the right-hand point to the new contour
+                gb_convex_maker_contour_append_r(contour, rx, y);
+            }
         }
 
         // update the new contour
