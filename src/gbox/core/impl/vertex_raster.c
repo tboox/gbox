@@ -464,19 +464,20 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
         // exists edge?
         if (index)
         {
-            // the y-coordinates
+            // the coordinates
+            tb_fixed_t  xb = gb_float_to_fixed(pb.x);
+            tb_fixed_t  xe = gb_float_to_fixed(pe.x);
             tb_fixed_t  yb = gb_float_to_fixed(pb.y);
             tb_fixed_t  ye = gb_float_to_fixed(pe.y);
-            tb_fixed6_t dy = tb_fixed_to_fixed6(ye - yb);
+            tb_fixed_t  dy = ye - yb;
+            tb_fixed_t  dx = xe - xb;
 
-            // not horizaontal edge?
-            if (dy)
+            // compute the slope
+            tb_hong_t   slope = dy? ((((tb_hong_t)dx) << 16) / dy) : 0;
+
+            // not horizaontal edge and exists valid slope?
+            if (dy && slope == (tb_fixed16_t)slope)
             {
-                // the x-coordinates
-                tb_fixed_t  xb = gb_float_to_fixed(pb.x);
-                tb_fixed_t  xe = gb_float_to_fixed(pe.x);
-                tb_fixed6_t dx = tb_fixed_to_fixed6(xe - xb);
-
                 // make a new edge from the edge pool
                 tb_uint16_t edge_index = gb_vertex_raster_edge_pool_aloc(impl);
                 tb_assert_abort(edge_index);
@@ -518,7 +519,7 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 tb_assert_abort(yb < ye);
 
                 // compute the slope 
-                edge->slope = tb_fixed6_div(dx, dy);
+                edge->slope = (tb_fixed16_t)slope;
 
                 // init the x-coordinate
                 edge->x         = xb;
@@ -538,6 +539,8 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 // patch one edge to the edge table for scanning the bottom y-coordinate
                 gb_vertex_raster_edge_table_patch(impl, ye);
             }
+            // adjust the y-coordinate, made it more horizaontal
+            else pe.y = tb_min(yb, ye);
         }
 
         // save the previous point
