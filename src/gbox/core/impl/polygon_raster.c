@@ -896,7 +896,7 @@ static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
             edge_next = edge_pool + index_next;
 
             // need sort? swap them
-            if (edge->x > edge_next->x)
+            if (edge->x > edge_next->x || (edge->x == edge_next->x && edge->slope > edge_next->slope))
             {
                 // save the edge
                 edge_tmp = *edge;

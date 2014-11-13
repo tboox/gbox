@@ -288,6 +288,11 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 #ifdef GB_DEVICE_GL_TEST_v1
             impl->version = 0x10;
 #endif
+
+#if 0
+            // dump extensions
+            tb_trace_d("extensions: %s", gb_glGetString(GB_GL_EXTENSIONS));
+#endif
         }
 
         // init viewport
