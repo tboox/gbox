@@ -306,7 +306,7 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
             tb_long_t iyb = gb_round(pb.y);
             tb_long_t iye = gb_round(pe.y);
 
-            // not horizaontal edge?
+            // not horizontal edge?
             if (iyb != iye)
             {
                 // get the fixed-point coordinates

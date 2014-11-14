@@ -475,7 +475,7 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
             // compute the slope
             tb_hong_t   slope = dy? ((((tb_hong_t)dx) << 16) / dy) : 0;
 
-            // not horizaontal edge and exists valid slope?
+            // not horizontal edge and exists valid slope?
             if (dy && slope == (tb_fixed16_t)slope)
             {
                 // make a new edge from the edge pool
@@ -539,8 +539,8 @@ static tb_bool_t gb_vertex_raster_edge_table_make(gb_vertex_raster_impl_t* impl,
                 // patch one edge to the edge table for scanning the bottom y-coordinate
                 gb_vertex_raster_edge_table_patch(impl, ye);
             }
-            // adjust the y-coordinate, made it more horizaontal
-            else pe.y = tb_min(pb.y, pe.y);
+            // adjust the y-coordinate, made it more horizontal
+            else pe.y = pb.y;
         }
 
         // save the previous point

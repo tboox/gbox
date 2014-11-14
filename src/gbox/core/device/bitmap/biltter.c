@@ -83,7 +83,7 @@ tb_void_t gb_bitmap_biltter_done_r(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
     // check
     tb_assert_abort(biltter);
 
-    // horizaontal?
+    // horizontal?
     if (h == 1) 
     {
         // check
