@@ -212,10 +212,6 @@ static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
     if (impl->stroker) gb_stroker_exit(impl->stroker);
     impl->stroker = tb_null;
  
-    // exit maker
-    if (impl->maker) gb_convex_maker_exit(impl->maker);
-    impl->maker = tb_null;
-
     // exit programs 
     tb_size_t i = 0;
     for (i = 0; i < GB_GL_PROGRAM_TYPE_MAXN; i++)
@@ -265,10 +261,6 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
 
         // init window
         impl->window                = window;
-
-        // init maker
-        impl->maker = gb_convex_maker_init();
-        tb_assert_and_check_break(impl->maker);
 
         // init stroker
         impl->stroker = gb_stroker_init();

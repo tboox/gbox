@@ -42,8 +42,9 @@ gbox_C_FILES 			+= \
 						core/impl/cubic \
 						core/impl/float \
 						core/impl/stroker \
-						core/impl/convex_maker \
-						core/impl/vertex_raster \
+						core/impl/mesh \
+						core/impl/geometry \
+						core/impl/polygon_tesselator \
 						core/impl/polygon_raster 
 
 

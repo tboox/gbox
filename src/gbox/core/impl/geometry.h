@@ -17,55 +17,27 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        device.h
+ * @file        geometry.h
  * @ingroup     core
+ *
  */
-#ifndef GB_CORE_DEVICE_GL_DEVICE_H
-#define GB_CORE_DEVICE_GL_DEVICE_H
+#ifndef GB_CORE_IMPL_GEOMETRY_H
+#define GB_CORE_IMPL_GEOMETRY_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "interface.h"
-#include "program.h"
-#include "matrix.h"
-#include "../../impl/stroker.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * extern
  */
+__tb_extern_c_enter__
 
-// the gl device type
-typedef struct __gb_gl_device_t
-{
-    // the base
-    gb_device_impl_t            base;
-
-    // the window
-    gb_window_ref_t             window;
-
-    // the version: 1.0, 2.x, ...
-    tb_size_t                   version;
-
-    // the programs
-    gb_gl_program_ref_t         programs[GB_GL_PROGRAM_LOCATION_MAXN];
-
-	// the projection matrix for gl >= 2.0
-	gb_gl_matrix_t              matrix_project;
-
-	// the vertex matrix 
-	gb_gl_matrix_t              matrix_vertex;
-
-    // the shader
-    gb_shader_ref_t             shader;
-
-    // the stroker
-    gb_stroker_ref_t            stroker;
-
-    // the program
-    gb_gl_program_ref_t         program;
-
-}gb_gl_device_t, *gb_gl_device_ref_t;
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
 #endif
 

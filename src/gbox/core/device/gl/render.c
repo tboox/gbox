@@ -165,6 +165,7 @@ static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
     // leave solid
     else gb_gl_render_leave_solid(device);
 }
+#if 0
 static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv)
 {
     // check
@@ -173,35 +174,17 @@ static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t cou
     // apply it
     gb_gl_render_apply_vertices((gb_gl_device_ref_t)priv, points);
 
-#if 0
     // draw it
     gb_glDrawArrays(GB_GL_TRIANGLE_FAN, 0, (gb_GLint_t)count);
-#else
-    // the device 
-    gb_gl_device_ref_t device = (gb_gl_device_ref_t)priv;
-
-    // make color
-    gb_color_t color;
-    color.r = (tb_byte_t)(gb_float_to_long(gb_avg(points[0].x, points[count >> 1].x)));
-    color.g = (tb_byte_t)(gb_float_to_long(gb_avg(points[0].y, points[count >> 1].y)));
-    color.b = (tb_byte_t)count;
-    color.a = 0xff;
-
-    // apply color
-    if (device->version >= 0x20) gb_glVertexAttrib4f(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_COLORS), (gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
-    else gb_glColor4f((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
-
-    // draw the edges of the filled contour
-    gb_glDrawArrays(GB_GL_LINE_STRIP, 0, (gb_GLint_t)count);
-#endif
 }
+#endif
 static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule)
 {
     // check
     tb_assert_abort(device);
 
-    // done maker and fill each convex contour
-    gb_convex_maker_done(device->maker, polygon, bounds, rule, gb_gl_render_fill_convex, (tb_cpointer_t)device);
+    // TODO
+    tb_trace_noimpl();
 }
 static tb_void_t gb_gl_render_stroke_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
