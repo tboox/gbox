@@ -17,22 +17,49 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh.c
+ * @file        mesh_vertex.h
  * @ingroup     core
+ *
  */
+#ifndef GB_CORE_IMPL_MESH_VERTEX_H
+#define GB_CORE_IMPL_MESH_VERTEX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh.h"
+#include "prefix.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-// the mesh impl type 
-typedef struct __gb_mesh_impl_t
-{
+// declaration
+struct __gb_mesh_edge_t;
 
-}gb_mesh_impl_t;
+// the mesh vertex type
+typedef struct __gb_mesh_vertex_t
+{
+    // the next vertex for the doubly-linked list
+    struct __gb_mesh_vertex_t*  next;
+
+    // the prev vertex for the doubly-linked list
+    struct __gb_mesh_vertex_t*  prev;
+
+    // an arbitrary edge of the vertex
+    struct __gb_mesh_edge_t*    edge;
+
+}gb_mesh_vertex_t, *gb_mesh_vertex_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
+
+#endif
+
 

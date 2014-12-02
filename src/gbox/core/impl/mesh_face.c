@@ -17,22 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh.c
+ * @file        mesh_face.c
  * @ingroup     core
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh.h"
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * types
- */
-
-// the mesh impl type 
-typedef struct __gb_mesh_impl_t
-{
-
-}gb_mesh_impl_t;
+#include "mesh_face.h"
 

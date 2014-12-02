@@ -17,22 +17,26 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh.c
+ * @file        mesh_edge.c
  * @ingroup     core
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh.h"
+#include "mesh_edge.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * macros
  */
 
-// the mesh impl type 
-typedef struct __gb_mesh_impl_t
-{
-
-}gb_mesh_impl_t;
+// the other members of the half-edge
+#define dst         sym->org
+#define rface       sym->lface
+#define oprev       sym->lnext
+#define lprev       onext->sym
+#define dprev       lnext->sym
+#define rprev       sym->onext
+#define dnext       rprev->sym
+#define rnext       oprev->sym
 

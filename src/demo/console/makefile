@@ -13,6 +13,7 @@ demo_C_FILES 									+= \
 												core/path \
 												core/vector \
 												core/bitmap \
+												core/impl/mesh \
 												other/test
 
 # libs
