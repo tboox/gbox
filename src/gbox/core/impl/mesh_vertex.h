@@ -35,6 +35,10 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -44,16 +48,51 @@ struct __gb_mesh_edge_t;
 // the mesh vertex type
 typedef struct __gb_mesh_vertex_t
 {
-    // the next vertex for the doubly-linked list
-    struct __gb_mesh_vertex_t*  next;
-
-    // the prev vertex for the doubly-linked list
-    struct __gb_mesh_vertex_t*  prev;
+    // the list entry
+    tb_list_entry_t                 entry;
 
     // an arbitrary edge of the vertex
-    struct __gb_mesh_edge_t*    edge;
+    struct __gb_mesh_edge_t*        edge;
 
 }gb_mesh_vertex_t, *gb_mesh_vertex_ref_t;
+
+// the mesh vertex list type
+typedef struct{}*                   gb_mesh_vertex_list_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
+
+/* init the mesh vertex list 
+ *
+ * @param grow              the grow size
+ * @param func              the item func
+ *
+ * @returned                the vertex list
+ */
+gb_mesh_vertex_list_ref_t   gb_mesh_vertex_list_init(tb_size_t grow, tb_item_func_t func);
+
+/* exit the mesh vertex list
+ *
+ * @param list              the vertex list
+ */
+tb_void_t                   gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t list);
+
+/*! the mesh vertex count
+ *
+ * @param list              the list
+ *
+ * @return                  the item count
+ */
+tb_size_t                   gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t list);
+
+/*! the mesh vertex maximum count
+ *
+ * @param list              the list
+ *
+ * @return                  the item max count
+ */
+tb_size_t                   gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t list);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

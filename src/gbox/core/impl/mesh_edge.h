@@ -136,25 +136,43 @@ typedef struct __gb_mesh_edge_t
 
 }gb_mesh_edge_t, *gb_mesh_edge_ref_t;
 
-/// the mesh edge head type
-typedef struct __gb_mesh_edge_head_t 
-{
-    /// the base
-    gb_mesh_edge_t              base;
+// the mesh edge list ref type
+typedef struct{}*               gb_mesh_edge_list_ref_t;
 
-    /// the list size
-    tb_size_t                   size;
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
 
-    /// the iterator 
-    tb_iterator_t               itor;
+/* init the mesh edge list 
+ *
+ * @param grow              the grow size
+ * @param func              the item func
+ *
+ * @returned                the edge list
+ */
+gb_mesh_edge_list_ref_t     gb_mesh_edge_list_init(tb_size_t grow, tb_item_func_t func);
 
-    /// the entry offset
-    tb_size_t                   eoff;
+/* exit the mesh edge list
+ *
+ * @param list              the edge list
+ */
+tb_void_t                   gb_mesh_edge_list_exit(gb_mesh_edge_list_ref_t list);
 
-    /// the entry copy func
-    tb_entry_copy_t             copy;
+/*! the mesh edge count
+ *
+ * @param list              the list
+ *
+ * @return                  the item count
+ */
+tb_size_t                   gb_mesh_edge_list_size(gb_mesh_edge_list_ref_t list);
 
-}gb_mesh_edge_head_t;
+/*! the mesh edge maximum count
+ *
+ * @param list              the list
+ *
+ * @return                  the item max count
+ */
+tb_size_t                   gb_mesh_edge_list_maxn(gb_mesh_edge_list_ref_t list);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

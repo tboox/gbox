@@ -33,6 +33,14 @@
 // the mesh impl type 
 typedef struct __gb_mesh_impl_t
 {
+    // the edges
+    gb_mesh_edge_list_ref_t         edges;
+
+    // the faces
+    gb_mesh_face_list_ref_t         faces;
+
+    // the vertices
+    gb_mesh_vertex_list_ref_t       vertices;
 
 }gb_mesh_impl_t;
 
