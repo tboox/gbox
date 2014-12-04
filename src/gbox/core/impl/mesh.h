@@ -44,7 +44,33 @@ __tb_extern_c_enter__
  *
  * using the quad-edge data structure
  */
-typedef struct{}*               gb_mesh_ref_t;
+typedef struct{}*           gb_mesh_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
+
+/* init the mesh 
+ *
+ * @param edge_func         the edge func
+ * @param face_func         the face func
+ * @param vertex_func       the vertex func
+ *
+ * @return                  the mesh
+ */
+gb_mesh_ref_t               gb_mesh_init(tb_item_func_t edge_func, tb_item_func_t face_func, tb_item_func_t vertex_func);
+
+/* exit the mesh 
+ *
+ * @param list              the mesh
+ */
+tb_void_t                   gb_mesh_exit(gb_mesh_ref_t mesh);
+
+/* clear the mesh 
+ *
+ * @param list              the mesh
+ */
+tb_void_t                   gb_mesh_clear(gb_mesh_ref_t mesh);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

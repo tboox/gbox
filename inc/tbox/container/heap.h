@@ -87,7 +87,7 @@ typedef tb_iterator_ref_t tb_heap_ref_t;
  */
 tb_heap_ref_t       tb_heap_init(tb_size_t grow, tb_item_func_t func);
 
-/*! exist heap
+/*! exit heap
  *
  * @param heap      the heap
  */
@@ -106,14 +106,6 @@ tb_void_t           tb_heap_clear(tb_heap_ref_t heap);
  * @return          the heap size
  */
 tb_size_t           tb_heap_size(tb_heap_ref_t heap);
-
-/*! the heap grow
- *
- * @param heap      the heap
- *
- * @return          the heap grow
- */
-tb_size_t           tb_heap_grow(tb_heap_ref_t heap);
 
 /*! the heap maxn
  *
@@ -150,24 +142,6 @@ tb_void_t           tb_heap_pop(tb_heap_ref_t heap);
  * @param itor      the itor
  */
 tb_void_t           tb_heap_del(tb_heap_ref_t heap, tb_size_t itor);
-
-/*! load heap from the stream
- *
- * @param heap      the heap
- * @param stream    the stream
- *
- * @return          tb_true or tb_false
- */
-tb_bool_t           tb_heap_load(tb_heap_ref_t heap, tb_stream_ref_t stream);
-
-/*! save heap to the stream
- *
- * @param heap      the heap
- * @param stream    the stream
- *
- * @return          tb_true or tb_false
- */
-tb_bool_t           tb_heap_save(tb_heap_ref_t heap, tb_stream_ref_t stream);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

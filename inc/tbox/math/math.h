@@ -33,7 +33,7 @@
 #include "fixed16.h"
 #include "fixed30.h"
 #include "fixed.h"
-#include "random/random.h"
+#include "random.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

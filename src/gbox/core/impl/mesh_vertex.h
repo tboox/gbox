@@ -65,18 +65,23 @@ typedef struct{}*                   gb_mesh_vertex_list_ref_t;
 
 /* init the mesh vertex list 
  *
- * @param grow              the grow size
  * @param func              the item func
  *
  * @returned                the vertex list
  */
-gb_mesh_vertex_list_ref_t   gb_mesh_vertex_list_init(tb_size_t grow, tb_item_func_t func);
+gb_mesh_vertex_list_ref_t   gb_mesh_vertex_list_init(tb_item_func_t func);
 
 /* exit the mesh vertex list
  *
  * @param list              the vertex list
  */
 tb_void_t                   gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t list);
+
+/* clear the mesh vertex list
+ *
+ * @param list              the vertex list
+ */
+tb_void_t                   gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list);
 
 /*! the mesh vertex count
  *

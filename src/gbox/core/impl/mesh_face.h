@@ -35,10 +35,6 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * macros
- */
-
-/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -65,18 +61,23 @@ typedef struct{}*                   gb_mesh_face_list_ref_t;
 
 /* init the mesh face list 
  *
- * @param grow              the grow size
  * @param func              the item func
  *
- * @returned                the face list
+ * @return                  the face list
  */
-gb_mesh_face_list_ref_t     gb_mesh_face_list_init(tb_size_t grow, tb_item_func_t func);
+gb_mesh_face_list_ref_t     gb_mesh_face_list_init(tb_item_func_t func);
 
 /* exit the mesh face list
  *
  * @param list              the face list
  */
 tb_void_t                   gb_mesh_face_list_exit(gb_mesh_face_list_ref_t list);
+
+/* clear the mesh face list
+ *
+ * @param list              the face list
+ */
+tb_void_t                   gb_mesh_face_list_clear(gb_mesh_face_list_ref_t list);
 
 /*! the mesh face count
  *
