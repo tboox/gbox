@@ -28,6 +28,7 @@
  */
 #include "prefix.h"
 #include "path.h"
+#include "mesh.h"
 #include "paint.h"
 #include "shader.h"
 #include "pixmap.h"

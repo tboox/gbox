@@ -25,6 +25,9 @@
  * includes
  */
 #include "mesh.h"
+#include "impl/mesh_edge.h"
+#include "impl/mesh_face.h"
+#include "impl/mesh_vertex.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types

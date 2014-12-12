@@ -28,6 +28,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../mesh.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -42,22 +43,8 @@ __tb_extern_c_enter__
  * types
  */
 
-// declaration
-struct __gb_mesh_edge_t;
-
-// the mesh vertex type
-typedef struct __gb_mesh_vertex_t
-{
-    // the list entry
-    tb_list_entry_t                 entry;
-
-    // an arbitrary edge of the vertex
-    struct __gb_mesh_edge_t*        edge;
-
-}gb_mesh_vertex_t, *gb_mesh_vertex_ref_t;
-
 // the mesh vertex list type
-typedef struct{}*                   gb_mesh_vertex_list_ref_t;
+typedef struct{}*           gb_mesh_vertex_list_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

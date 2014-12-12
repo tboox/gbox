@@ -1,13 +1,12 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */ 
-#include "../../demo.h"
-#include "../../../../gbox/core/impl/mesh.h"
+#include "../demo.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * main
  */
-tb_int_t gb_demo_core_impl_mesh_main(tb_int_t argc, tb_char_t** argv)
+tb_int_t gb_demo_core_mesh_main(tb_int_t argc, tb_char_t** argv)
 {
 
     return 0;

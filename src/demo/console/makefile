@@ -11,9 +11,9 @@ demo_TYPE 										= BIN
 demo_C_FILES 									+= \
 												demo \
 												core/path \
+												core/mesh \
 												core/vector \
 												core/bitmap \
-												core/impl/mesh \
 												other/test
 
 # libs

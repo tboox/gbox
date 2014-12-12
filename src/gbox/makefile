@@ -11,6 +11,7 @@ gbox_TYPE 				= LIB
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
+						core/mesh \
 						core/path \
 						core/paint \
 						core/shader \
@@ -42,7 +43,6 @@ gbox_C_FILES 			+= \
 						core/impl/cubic \
 						core/impl/float \
 						core/impl/stroker \
-						core/impl/mesh \
 						core/impl/mesh_edge \
 						core/impl/mesh_face \
 						core/impl/mesh_vertex \
@@ -147,6 +147,7 @@ INC_FILES 				= \
 						core/prefix/triangle.h \
 						core/prefix/round_rect.h \
 						core/path.h \
+						core/mesh.h \
 						core/paint.h \
 						core/shader.h \
 						core/pixmap.h \

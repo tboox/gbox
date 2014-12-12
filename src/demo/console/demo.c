@@ -34,9 +34,9 @@ static gb_demo_t g_demo[] =
 {
     // core
     GB_DEMO_MAIN_ITEM(core_path)
+,   GB_DEMO_MAIN_ITEM(core_mesh)
 ,   GB_DEMO_MAIN_ITEM(core_bitmap)
 ,   GB_DEMO_MAIN_ITEM(core_vector)
-,   GB_DEMO_MAIN_ITEM(core_impl_mesh)
 
     // ohter
 ,   GB_DEMO_MAIN_ITEM(other_test)

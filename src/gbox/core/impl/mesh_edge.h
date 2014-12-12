@@ -27,8 +27,8 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh_face.h"
-#include "mesh_vertex.h"
+#include "prefix.h"
+#include "../mesh.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -39,109 +39,8 @@ __tb_extern_c_enter__
  * types
  */
 
-/* the mesh edge type
- *
- * using the half-edge data structure
- *
- *              .                                            .
- *              . edge->dst                                  . edge->sym->org
- * .............D.............                 ..............O.............
- *              .                                            .
- *              .                                            .      edge->sym->lface
- *              .       edge->rface                          . 
- *              .                                            . edge->sym
- * edge->lface /.\                                          \./
- *              . edge                     edge->sym->rface  . 
- *              .                                            .
- *              .                                            .
- * .............O.............                 ..............D.............
- *              . edge->org                                  . edge->sym->dst
- *              .                                            .
- *
- *
- *
- *
- *              .                                            .
- * edge->lnext  . edge->dnext                  edge->dprev   . edge->rprev
- * ......<......D.....<.......                 ......>.......D......>......
- *              .                                            .
- *              .                                            .     
- *              .                                            . 
- *              .                                            . 
- *             /.\                                          /.\
- *              . edge                                       . edge
- *              .                                            .
- *              .                                            .
- * ......<......O.....<.......                 ......>.......O......>......
- * edge->onext  . edge->rnext                  edge->lprev   . edge->oprev
- *              .                                            .
- *        
- *          next: ccw                                    prev: cw
- */
-typedef struct __gb_mesh_edge_t
-{
-    /* the next edge for the doubly-linked list
-     *
-     * next: edge->next
-     * prev: edge->sym->next
-     *
-     * head                                   null
-     *    |                                    |
-     * edge1: ..............e.............. : edge1->sym
-     *    |                                   /|\
-     *    | next                          next |
-     *   \|/                                   |
-     * edge2: ..............e.............. : edge2->sym       (prev)
-     *    |                                   /|\
-     *    | next                          next |
-     *   \|/                                   |
-     * edge3: ..............e.............. : edge3->sym
-     *    |                                    |
-     *  null                                  head_sym
-     *
-     *  the doubly-linked list = the single-linked list (x2)
-     */
-    tb_single_list_entry_t      entry;
-
-    /* the next edge ccw around the origin
-     *
-     * onext: edge->onext
-     * lprev: edge->onext->sym
-     * rprev: edge->sym->onext
-     * dnext: edge->rprev->sym == edge->sym->onext->sym
-     */
-    struct __gb_mesh_edge_t*    onext;
-
-    /* the next edge ccw around the left face
-     *
-     * lnext: edge->lnext
-     * dprev: edge->lnext->sym
-     * oprev: edge->sym->lnext
-     * rnext: edge->oprev->sym == edge->sym->lnext->sym
-     */
-    struct __gb_mesh_edge_t*    lnext;
-
-    // the same edge, opposite direction
-    struct __gb_mesh_edge_t*    sym;
-
-    /* the origin vertex
-     *
-     * org: edge->org
-     * dst: edge->sym->org
-     */
-    gb_mesh_vertex_ref_t        org;
-
-    /* the left face
-     *
-     * lface: edge->lface
-     * rface: edge->sym->lface
-     */
-    gb_mesh_face_ref_t          lface;
-
-}gb_mesh_edge_t, *gb_mesh_edge_ref_t;
-
 // the mesh edge list ref type
-typedef struct{}*               gb_mesh_edge_list_ref_t;
+typedef struct{}*           gb_mesh_edge_list_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
