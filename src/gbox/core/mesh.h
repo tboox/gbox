@@ -109,23 +109,24 @@ typedef struct __gb_mesh_edge_t
      * next: edge->next
      * prev: edge->sym->next
      *
-     * head                                   null
-     *    |                                    |
+     *  head: ..............e.............. : head_sym
+     *    |                                     /|\
+     *   \|/                                     |
      * edge1: ..............e.............. : edge1->sym
-     *    |                                   /|\
-     *    | next                          next |
-     *   \|/                                   |
+     *    |                                     /|\
+     *    | next                            next |
+     *   \|/                                     |
      * edge2: ..............e.............. : edge2->sym       (prev)
-     *    |                                   /|\
-     *    | next                          next |
-     *   \|/                                   |
+     *    |                                     /|\
+     *    | next                            next |
+     *   \|/                                     |
      * edge3: ..............e.............. : edge3->sym
-     *    |                                    |
-     *  null                                  head_sym
+     *    |                                     /|\
+     *   \|/                                     |
+     *  head: ..............e.............. : head_sym
      *
-     *  the doubly-linked list = the single-linked list (x2)
      */
-    tb_single_list_entry_t      entry;
+    struct __gb_mesh_edge_t*    next;
 
     /*! the next edge ccw around the origin
      *

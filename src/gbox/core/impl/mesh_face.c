@@ -154,4 +154,32 @@ tb_size_t gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list)
     // the face maxn
     return GB_MESH_FACE_LIST_MAXN;
 }
+gb_mesh_face_ref_t gb_mesh_face_list_make(gb_mesh_face_list_ref_t list)
+{
+    // check
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->pool, tb_null);
+
+    // make it
+    gb_mesh_face_ref_t face = (gb_mesh_face_ref_t)tb_fixed_pool_malloc0(impl->pool);
+    tb_assert_and_check_return_val(face, tb_null);
+
+    // insert to the face list
+    tb_list_entry_insert_tail(&impl->head, &face->entry);
+
+    // ok
+    return face;
+}
+tb_void_t gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face)
+{
+    // check
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
+    tb_assert_and_check_return(impl && impl->pool && face);
+
+    // remove from the face list
+    tb_list_entry_remove(&impl->head, &face->entry);
+
+    // exit it
+    tb_fixed_pool_free(impl->pool, face);
+}
 

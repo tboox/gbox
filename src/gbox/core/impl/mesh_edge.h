@@ -82,6 +82,21 @@ tb_size_t                   gb_mesh_edge_list_size(gb_mesh_edge_list_ref_t list)
  */
 tb_size_t                   gb_mesh_edge_list_maxn(gb_mesh_edge_list_ref_t list);
 
+/*! make a bare and unconnected edge
+ *
+ * @param list              the list
+ *
+ * @return                  the new edge
+ */
+gb_mesh_edge_ref_t          gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list);
+
+/*! kill the edge, release the storage
+ *
+ * @param list              the list
+ * @param edge              the edge
+ */
+tb_void_t                   gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

@@ -86,6 +86,21 @@ tb_size_t                   gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t l
  */
 tb_size_t                   gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t list);
 
+/*! make a bare vertex without edges
+ *
+ * @param list              the list
+ *
+ * @return                  the new vertex
+ */
+gb_mesh_vertex_ref_t        gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list);
+
+/*! kill the vertex, release the storage
+ *
+ * @param list              the list
+ * @param vertex            the vertex
+ */
+tb_void_t                   gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

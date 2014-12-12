@@ -154,4 +154,32 @@ tb_size_t gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t list)
     // the vertex maxn
     return GB_MESH_VERTEX_LIST_MAXN;
 }
+gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->pool, tb_null);
+
+    // make it
+    gb_mesh_vertex_ref_t vertex = (gb_mesh_vertex_ref_t)tb_fixed_pool_malloc0(impl->pool);
+    tb_assert_and_check_return_val(vertex, tb_null);
+
+    // insert to the vertex list
+    tb_list_entry_insert_tail(&impl->head, &vertex->entry);
+
+    // ok
+    return vertex;
+}
+tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return(impl && impl->pool && vertex);
+
+    // remove from the vertex list
+    tb_list_entry_remove(&impl->head, &vertex->entry);
+
+    // exit it
+    tb_fixed_pool_free(impl->pool, vertex);
+}
 

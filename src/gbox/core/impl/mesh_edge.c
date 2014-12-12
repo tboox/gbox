@@ -84,16 +84,104 @@ typedef struct __gb_mesh_edge_list_impl_t
     // the pool
     tb_fixed_pool_ref_t             pool;
 
-    // the edge head
-    tb_single_list_entry_head_t     head;
+    // the head edge
+    gb_mesh_edge_t                  head[2];
 
-    // the edge->sym head
-    tb_single_list_entry_head_t     head_sym;
+    // the edge size
+    tb_size_t                       edge_size;
 
     // the func
     tb_item_func_t                  func;
 
 }gb_mesh_edge_list_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static __tb_inline__ tb_void_t gb_mesh_edge_init(gb_mesh_edge_ref_t edge)
+{
+    // check
+    tb_assert_abort(edge);
+
+    // the edge sym
+    gb_mesh_edge_ref_t edge_sym = edge->sym;
+    tb_assert_abort(edge_sym && edge < edge_sym);
+
+    /* init edge and make self-loop
+     *
+     *  edge: ..............e.............. : edge_sym
+     *    |                                     /|\
+     *   \|/                                     |
+     *  edge: ..............e.............. : edge_sym
+     *
+     */
+    edge->next     = edge;
+    edge_sym->next = edge_sym;
+}
+static __tb_inline__ tb_void_t gb_mesh_edge_insert_prev(gb_mesh_edge_ref_t edge, gb_mesh_edge_ref_t edge_next)
+{
+    // check
+    tb_assert_abort(edge && edge_next);
+
+    // the edge sym
+    gb_mesh_edge_ref_t edge_sym = edge->sym;
+    tb_assert_abort(edge_sym && edge < edge_sym);
+
+    // the edge next sym
+    gb_mesh_edge_ref_t edge_next_sym = edge_next->sym;
+    tb_assert_abort(edge_next_sym && edge_next < edge_next_sym);
+
+    // the edge prev sym
+	gb_mesh_edge_ref_t edge_prev_sym = edge_next_sym->next;
+    tb_assert_abort(edge_prev_sym && edge_prev_sym->sym);
+
+    /* insert edge before the next edge
+     *
+     *  edge_prev : ..............e.............. : edge_prev_sym
+     *       |    |                             /|\    /|\
+     *       |   \|/                             |      | 
+     *          edge : ...........e..........: edge_sym 
+     *       |    |                             /|\     |
+     *      \|/  \|/                             |      |
+     *  edge_next : ..............e.............. : edge_next_sym
+     *
+     */
+	edge_sym->next              = edge_prev_sym;
+	edge_prev_sym->sym->next    = edge;
+	edge->next                  = edge_next;
+	edge_next_sym->next         = edge_sym;
+}
+static __tb_inline__ tb_void_t gb_mesh_edge_remove(gb_mesh_edge_ref_t edge)
+{
+    // check
+    tb_assert_abort(edge);
+
+    // the edge sym
+    gb_mesh_edge_ref_t edge_sym = edge->sym;
+    tb_assert_abort(edge_sym && edge < edge_sym);
+
+    // the edge next
+	gb_mesh_edge_ref_t edge_next = edge->next;
+    tb_assert_abort(edge_next && edge_next->sym);
+
+    // the edge prev sym
+	gb_mesh_edge_ref_t edge_prev_sym = edge_sym->next;
+    tb_assert_abort(edge_prev_sym && edge_prev_sym->sym);
+
+    /* remove edge 
+     *
+     *  edge_prev : ..............e.............. : edge_prev_sym
+     *       |    |                             /|\    /|\
+     *       |   \|/                             |      | 
+     *       |  edge : ...........e..........: edge_sym |
+     *       |    |                             /|\     |
+     *      \|/  \|/                             |      |
+     *  edge_next : ..............e.............. : edge_next_sym
+     *
+     */
+	edge_next->sym->next = edge_prev_sym;
+	edge_prev_sym->sym->next = edge_next;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -115,13 +203,19 @@ gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_item_func_t func)
         // init func
         impl->func = func;
 
+        // init edge size
+        impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + func.size);
+
         // init pool, item = (edge + data) + (edge->sym + data)
-        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_EDGE_LIST_GROW, (tb_align_cpu(sizeof(gb_mesh_edge_t) + func.size)) << 1, tb_null, tb_null, (tb_cpointer_t)impl);
+        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_EDGE_LIST_GROW, impl->edge_size << 1, tb_null, tb_null, (tb_cpointer_t)impl);
         tb_assert_and_check_break(impl->pool);
 
-        // init head
-        tb_single_list_entry_init_(&impl->head, 0, sizeof(gb_mesh_edge_t) + func.size, tb_null);
-        tb_single_list_entry_init_(&impl->head_sym, 0, sizeof(gb_mesh_edge_t) + func.size, tb_null);
+        // init head edge
+        impl->head[0].sym = &impl->head[1];
+        impl->head[1].sym = &impl->head[0];
+
+        // init edge list
+        gb_mesh_edge_init(impl->head);
 
         // ok
         ok = tb_true;
@@ -164,19 +258,14 @@ tb_void_t gb_mesh_edge_list_clear(gb_mesh_edge_list_ref_t list)
     // clear pool
     if (impl->pool) tb_fixed_pool_clear(impl->pool);
 
-    // clear head
-    tb_single_list_entry_clear(&impl->head);
-    tb_single_list_entry_clear(&impl->head_sym);
+    // clear list
+    gb_mesh_edge_init(impl->head);
 }
 tb_size_t gb_mesh_edge_list_size(gb_mesh_edge_list_ref_t list)
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
     tb_assert_and_check_return_val(impl && impl->pool, 0);
-
-    // check size
-    tb_assert_abort(tb_single_list_entry_size(&impl->head) == tb_fixed_pool_size(impl->pool));
-    tb_assert_abort(tb_single_list_entry_size(&impl->head_sym) == tb_fixed_pool_size(impl->pool));
 
     // the size
     return tb_fixed_pool_size(impl->pool);
@@ -185,5 +274,49 @@ tb_size_t gb_mesh_edge_list_maxn(gb_mesh_edge_list_ref_t list)
 {
     // the edge maxn
     return GB_MESH_EDGE_LIST_MAXN;
+}
+gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->pool, tb_null);
+
+    // make it
+    gb_mesh_edge_ref_t edge = (gb_mesh_edge_ref_t)tb_fixed_pool_malloc0(impl->pool);
+    tb_assert_and_check_return_val(edge, tb_null);
+
+    // the edge sym
+    gb_mesh_edge_ref_t edge_sym = (gb_mesh_edge_ref_t)((tb_byte_t*)edge + impl->edge_size);
+
+    // init edge
+    edge->sym       = edge_sym;
+    edge->onext     = edge;
+    edge->lnext     = edge;
+
+    // init edge sym
+    edge_sym->sym   = edge;
+    edge_sym->onext = edge_sym;
+    edge_sym->lnext = edge_sym;
+
+    // insert edge to the tail of list
+    gb_mesh_edge_insert_prev(edge, impl->head);
+
+    // ok
+    return edge;
+}
+tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return(impl && impl->pool && edge);
+
+    // make sure the edge points to the first half-edge
+    if (edge->sym < edge) edge = edge->sym;
+
+    // remove it from the list
+    gb_mesh_edge_remove(edge);
+
+    // exit it
+    tb_fixed_pool_free(impl->pool, edge);
 }
 

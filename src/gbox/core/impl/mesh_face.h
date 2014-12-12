@@ -82,6 +82,21 @@ tb_size_t                   gb_mesh_face_list_size(gb_mesh_face_list_ref_t list)
  */
 tb_size_t                   gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list);
 
+/*! make a bare face without edges
+ *
+ * @param list              the list
+ *
+ * @return                  the new face
+ */
+gb_mesh_face_ref_t          gb_mesh_face_list_make(gb_mesh_face_list_ref_t list);
+
+/*! kill the face, release the storage
+ *
+ * @param list              the list
+ * @param face              the face
+ */
+tb_void_t                   gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
