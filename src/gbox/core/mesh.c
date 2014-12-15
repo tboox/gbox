@@ -73,9 +73,6 @@ gb_mesh_ref_t gb_mesh_init(tb_item_func_t edge_func, tb_item_func_t face_func, t
         impl->vertices = gb_mesh_vertex_list_init(vertex_func);
         tb_assert_and_check_break(impl->vertices);
 
-        // clear the mesh first and create a single vertex-edge mesh
-        if (!gb_mesh_clear((gb_mesh_ref_t)impl)) break;
-
         // ok
         ok = tb_true;
 
@@ -98,9 +95,6 @@ tb_void_t gb_mesh_exit(gb_mesh_ref_t mesh)
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
     tb_assert_and_check_return(impl);
    
-    // clear it first
-    gb_mesh_clear(mesh);
-
     // exit edges
     if (impl->edges) gb_mesh_edge_list_exit(impl->edges);
     impl->edges = tb_null;
@@ -116,11 +110,44 @@ tb_void_t gb_mesh_exit(gb_mesh_ref_t mesh)
     // exit it
     tb_free(impl);
 }
-tb_bool_t gb_mesh_clear(gb_mesh_ref_t mesh)
+tb_void_t gb_mesh_clear(gb_mesh_ref_t mesh)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl, tb_false);
+    tb_assert_and_check_return(impl);
+
+    // clear edges
+    if (impl->edges) gb_mesh_edge_list_clear(impl->edges);
+
+    // clear faces
+    if (impl->faces) gb_mesh_face_list_clear(impl->faces);
+
+    // clear vertices
+    if (impl->vertices) gb_mesh_vertex_list_clear(impl->vertices);
+}
+tb_iterator_ref_t gb_mesh_face_itor(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // the face iterator
+    return gb_mesh_face_list_itor(impl->faces);
+}
+tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // the vertex iterator
+    return gb_mesh_vertex_list_itor(impl->vertices);
+}
+gb_mesh_edge_ref_t gb_mesh_make_root_edge(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl, tb_null);
 
     // done
     tb_bool_t               ok = tb_false;
@@ -130,14 +157,8 @@ tb_bool_t gb_mesh_clear(gb_mesh_ref_t mesh)
     gb_mesh_vertex_ref_t    vertex = tb_null;
     do
     {
-        // clear edges
-        if (impl->edges) gb_mesh_edge_list_clear(impl->edges);
-
-        // clear faces
-        if (impl->faces) gb_mesh_face_list_clear(impl->faces);
-
-        // clear vertices
-        if (impl->vertices) gb_mesh_vertex_list_clear(impl->vertices);
+        // clear the mesh first
+        gb_mesh_clear(mesh);
 
         // make the vertex
         vertex = gb_mesh_vertex_list_make(impl->vertices);
@@ -196,6 +217,27 @@ tb_bool_t gb_mesh_clear(gb_mesh_ref_t mesh)
     }
 
     // ok?
-    return ok;
+    return edge;
 }
+gb_mesh_edge_ref_t gb_mesh_make_face_edge(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, gb_mesh_vertex_ref_t org, gb_mesh_vertex_ref_t dst)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl, tb_null);
 
+    return tb_null;
+}
+tb_void_t gb_mesh_kill_face_edge(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
+{
+}
+gb_mesh_edge_ref_t gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, gb_mesh_face_ref_t lface, gb_mesh_face_ref_t rface)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    return tb_null;
+}
+tb_void_t gb_mesh_kill_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
+{
+}

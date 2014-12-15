@@ -66,6 +66,14 @@ tb_void_t                   gb_mesh_face_list_exit(gb_mesh_face_list_ref_t list)
  */
 tb_void_t                   gb_mesh_face_list_clear(gb_mesh_face_list_ref_t list);
 
+/*! the mesh face iterator
+ *
+ * @param list              the list
+ *
+ * @return                  the mesh face iterator
+ */
+tb_iterator_ref_t           gb_mesh_face_list_itor(gb_mesh_face_list_ref_t list);
+
 /*! the mesh face count
  *
  * @param list              the list

@@ -152,6 +152,15 @@ tb_void_t gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list)
     // clear head
     tb_list_entry_clear(&impl->head);
 }
+tb_iterator_ref_t gb_mesh_vertex_list_itor(gb_mesh_vertex_list_ref_t list)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl, tb_null);
+   
+    // the iterator
+    return tb_list_entry_itor(&impl->head);
+}
 tb_size_t gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t list)
 {
     // check

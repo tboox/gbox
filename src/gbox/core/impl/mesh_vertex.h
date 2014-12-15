@@ -70,6 +70,14 @@ tb_void_t                   gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t l
  */
 tb_void_t                   gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list);
 
+/*! the mesh vertex iterator
+ *
+ * @param list              the list
+ *
+ * @return                  the mesh vertex iterator
+ */
+tb_iterator_ref_t           gb_mesh_vertex_list_itor(gb_mesh_vertex_list_ref_t list);
+
 /*! the mesh vertex count
  *
  * @param list              the list
