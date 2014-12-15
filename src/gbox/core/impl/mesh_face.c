@@ -69,6 +69,19 @@ typedef struct __gb_mesh_face_list_impl_t
 }gb_mesh_face_list_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_void_t gb_mesh_face_exit(tb_pointer_t data, tb_cpointer_t priv)
+{
+    // check
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)priv;
+    tb_assert_and_check_return(impl && data);
+
+    // exit the user data
+    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_face_ref_t)data + 1));
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
 gb_mesh_face_list_ref_t gb_mesh_face_list_init(tb_item_func_t func)
@@ -89,7 +102,7 @@ gb_mesh_face_list_ref_t gb_mesh_face_list_init(tb_item_func_t func)
         impl->func = func;
 
         // init pool, item = face + data
-        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_FACE_LIST_GROW, sizeof(gb_mesh_face_t) + func.size, tb_null, tb_null, (tb_cpointer_t)impl);
+        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_FACE_LIST_GROW, sizeof(gb_mesh_face_t) + func.size, tb_null, gb_mesh_face_exit, (tb_cpointer_t)impl);
         tb_assert_and_check_break(impl->pool);
 
         // init head

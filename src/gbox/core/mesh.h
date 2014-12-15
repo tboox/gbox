@@ -195,8 +195,10 @@ tb_void_t                       gb_mesh_exit(gb_mesh_ref_t mesh);
 /*! clear the mesh 
  *
  * @param list                  the mesh
+ *
+ * @return                      tb_true or tb_false
  */
-tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
+tb_bool_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

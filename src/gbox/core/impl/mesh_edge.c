@@ -36,30 +36,6 @@
  * macros
  */
 
-// edge->dst
-#define dst         sym->org
-
-// edge->rface
-#define rface       sym->lface
-
-// edge->oprev
-#define oprev       sym->lnext
-
-// edge->lprev
-#define lprev       onext->sym
-
-// edge->dprev
-#define dprev       lnext->sym
-
-// edge->rprev
-#define rprev       sym->onext
-
-// edge->dnext
-#define dnext       rprev->sym
-
-// edge->rnext
-#define rnext       oprev->sym
-
 // the mesh edge list grow
 #ifdef __tb_small__ 
 #   define GB_MESH_EDGE_LIST_GROW               (128)
@@ -94,6 +70,20 @@ typedef struct __gb_mesh_edge_list_impl_t
     tb_item_func_t                  func;
 
 }gb_mesh_edge_list_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_void_t gb_mesh_edge_exit(tb_pointer_t data, tb_cpointer_t priv)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)priv;
+    tb_assert_and_check_return(impl && data);
+
+    // exit the user data
+    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_edge_ref_t)data + 1));
+    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_edge_ref_t)((tb_byte_t*)data + impl->edge_size) + 1));
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -207,7 +197,7 @@ gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_item_func_t func)
         impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + func.size);
 
         // init pool, item = (edge + data) + (edge->sym + data)
-        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_EDGE_LIST_GROW, impl->edge_size << 1, tb_null, tb_null, (tb_cpointer_t)impl);
+        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_EDGE_LIST_GROW, impl->edge_size << 1, tb_null, gb_mesh_edge_exit, (tb_cpointer_t)impl);
         tb_assert_and_check_break(impl->pool);
 
         // init head edge
