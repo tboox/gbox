@@ -16,7 +16,7 @@ donate
 ------
 
 ####alipay
-![alipay](http://tboox.net/ruki/donate.png)
+<img src="res/donate/alipay.png" alt="alipay" width="128" height="128">
 
 build
 -----
