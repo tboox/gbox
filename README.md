@@ -12,6 +12,12 @@ contact
 - download:     https://github.com/waruqi/gbox/archive/master.zip
 - qq(group):    343118190
 
+donate
+------
+
+####alipay
+![alipay](http://tboox.net/ruki/donate.png)
+
 build
 -----
 
