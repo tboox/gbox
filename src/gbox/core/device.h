@@ -61,7 +61,7 @@ typedef enum __gb_device_type_e
  */
 gb_device_ref_t     gb_device_init(gb_window_ref_t window);
 
-#ifdef GB_CONFIG_DEVICE_HAVE_SKIA
+#ifdef GB_CONFIG_PACKAGE_HAVE_SKIA
 /*! init skia device
  *
  * @param bitmap    the bitmap

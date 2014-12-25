@@ -1,0 +1,10 @@
+#ifndef PKG_OPENGL_H
+#define PKG_OPENGL_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * includes
+ */
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+
+#endif

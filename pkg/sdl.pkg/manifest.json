@@ -1,0 +1,30 @@
+{
+    "format":
+    {
+        "name":         "The TBOOX Package Format"
+    ,   "version":      "v1.0.1"
+    ,   "website":      "http://www.tboox.org"
+    }
+
+,   "package":
+    {
+        "name":         "The SDL Library"
+    ,   "website":      "http://www.libsdl.org"
+    }
+
+,   "compiler": 
+    {
+        "default":
+        {
+            "debug":
+            {
+                "libs":         "SDL"
+            ,   "libpath":      ""
+            ,   "incpath":      ""
+            ,   "libflags":     ""
+            ,   "incflags":     ""
+            }
+        ,   "release":          "$.compiler.default.debug"
+        }
+    }
+}

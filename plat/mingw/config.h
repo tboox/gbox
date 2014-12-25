@@ -1,6 +1,9 @@
 #ifndef GB_CONFIG_H
 #define GB_CONFIG_H
 
+// packages
+// [packages]
+
 // major version
 #define GB_CONFIG_VERSION_MAJOR         [major]
 
@@ -23,24 +26,6 @@
 #define GB_CONFIG_GL_APICALL            __tb_stdcall__
 
 // device
-#define GB_CONFIG_DEVICE_HAVE_GL
-//#define GB_CONFIG_DEVICE_HAVE_SKIA
 //#define GB_CONFIG_DEVICE_HAVE_BITMAP
-
-// window
-#define GB_CONFIG_WINDOW_HAVE_GLUT
-//#define GB_CONFIG_WINDOW_HAVE_SDL
-//#define GB_CONFIG_WINDOW_HAVE_X11
-//#define GB_CONFIG_WINDOW_HAVE_FRAMEBUFFER
-
-// application
-//#define GB_CONFIG_APPLICATION_WINDOW_GLUT
-//#define GB_CONFIG_APPLICATION_WINDOW_SDL
-//#define GB_CONFIG_APPLICATION_WINDOW_FRAMEBUFFER
-
-// third party
-//#define GB_CONFIG_THIRD_HAVE_PNG
-//#define GB_CONFIG_THIRD_HAVE_JPG
-//#define GB_CONFIG_THIRD_HAVE_FREETYPE
 
 #endif

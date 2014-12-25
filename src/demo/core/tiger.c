@@ -73,7 +73,7 @@ static tb_char_t const* gb_demo_tiger_entry_init_float(tb_char_t const* p, gb_fl
     // compute double: lhs.rhs
     tb_long_t   dec = 0;
     tb_uint32_t lhs = 0;
-    gb_float_t  rhs = 0.;
+    gb_float_t  rhs = 0;
     tb_long_t   zeros = 0;
     tb_int8_t   decimals[256];
     tb_int8_t*  d = decimals;

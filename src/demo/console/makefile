@@ -16,25 +16,24 @@ demo_C_FILES 									+= \
 												core/bitmap \
 												other/test
 
-# libs
-demo_LIBS 										+= gbox$(DTYPE) tbox$(DTYPE) 
-demo_LIBS-y 									+= $(GB_CONFIG_DEMO_LIBS)
-demo_LIBS-$(GB_CONFIG_THIRD_HAVE_PNG)  			+= png 
-demo_LIBS-$(GB_CONFIG_THIRD_HAVE_JPEG) 			+= jpeg 
-demo_LIBS-$(GB_CONFIG_THIRD_HAVE_FREETYPE) 		+= freetype bz2
-demo_LIBS-$(GB_CONFIG_DEVICE_HAVE_SKIA)  		+= skia 
-demo_LIBS-$(GB_CONFIG_WINDOW_HAVE_SDL)  		+= SDL 
+# packages
+demo_PKGS-$(TBOX)  								+= tbox 
+demo_PKGS-$(OPENGL)  							+= opengl 
+demo_PKGS-$(SKIA)  								+= skia 
+demo_PKGS-$(GLUT)  								+= glut 
+demo_PKGS-$(SDL)  								+= sdl 
+demo_PKGS-$(X11)  								+= x11 
+demo_PKGS-$(FREETYPE)  							+= freetype 
+demo_PKGS-$(PNG)  								+= png 
+demo_PKGS-$(JPEG)  								+= jpeg 
+demo_PKGS-$(ZLIB)  								+= zlib 
+demo_PKGS-$(BASE)  								+= base 
 
-# path
-demo_INC_DIR 									+= ../../
-demo_LIB_DIR 									+= ../../gbox
-
-# flags
+# others
+demo_LIBS 										+= gbox$(DTYPE)
+demo_INC_DIRS 									+= ../../
+demo_LIB_DIRS 									+= ../../gbox
 demo_CXFLAGS 									+= -D__tb_prefix__=\"demo\"
-demo_LDFLAGS 									+= $(GB_CONFIG_DEMO_LDFLAGS)
-
-# command
-demo_SUFFIX_CMD1 								+= $(GB_CONFIG_DEMO_CMD1)
 
 # demo
 SUB_PROS  										+= ../core

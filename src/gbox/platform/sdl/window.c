@@ -33,7 +33,7 @@
  */
 #include "prefix.h"
 #include "../impl/window.h"
-#include <SDL/SDL.h>
+#include "sdl/sdl.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -309,9 +309,10 @@ static tb_void_t gb_window_sdl_fullscreen(gb_window_ref_t window, tb_bool_t full
         // init mode
         tb_size_t mode = SDL_DOUBLEBUF | SDL_FULLSCREEN;
 
+        // TODO
         // the screen width and height
-        tb_uint16_t screen_width  = tb_screen_width();
-        tb_uint16_t screen_height = tb_screen_height();
+        tb_uint16_t screen_width  = 0;//tb_screen_width();
+        tb_uint16_t screen_height = 0;//tb_screen_height();
         tb_assert_abort(screen_width && screen_height && screen_width <= GB_WIDTH_MAXN && screen_height <= GB_HEIGHT_MAXN);
 
         // init surface
@@ -453,8 +454,9 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
         // fullscreen? update the window size
         if (info->flag & GB_WINDOW_FLAG_FULLSCREEN)
         {
-            impl->base.width    = (tb_uint16_t)tb_screen_width();
-            impl->base.height   = (tb_uint16_t)tb_screen_height();
+            // TODO
+            impl->base.width    = 0;//(tb_uint16_t)tb_screen_width();
+            impl->base.height   = 0;//(tb_uint16_t)tb_screen_height();
             tb_assert_and_check_break(impl->base.width && impl->base.height && impl->base.width <= GB_WIDTH_MAXN && impl->base.height <= GB_HEIGHT_MAXN);
         }
 

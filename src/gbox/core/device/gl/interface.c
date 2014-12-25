@@ -32,24 +32,7 @@
  * includes
  */
 #include "interface.h"
-#if defined(TB_CONFIG_OS_MAC)
-# 	include <OpenGL/gl.h>
-# 	include <OpenGL/glu.h>
-#elif defined(TB_CONFIG_OS_ANDROID)
-# 	include <GLES/gl.h>
-# 	include <GLES/glext.h>
-#elif defined(TB_CONFIG_OS_IOS)
-# 	include <OpenGLES/ES1/gl.h>
-# 	include <OpenGLES/ES1/glext.h>
-# 	include <OpenGLES/ES2/gl.h>
-# 	include <OpenGLES/ES2/glext.h>
-#elif defined(TB_CONFIG_OS_WINDOWS)
-# 	include <GL/gl.h>
-#else
-# 	define GL_GLEXT_PROTOTYPES
-# 	include <GL/gl.h>
-# 	include <GL/glext.h>
-#endif
+#include "opengl/opengl.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

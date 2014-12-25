@@ -39,7 +39,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
  */
-#ifdef GB_CONFIG_DEVICE_HAVE_GL
+#ifdef GB_CONFIG_PACKAGE_HAVE_OPENGL
 __tb_extern_c__ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window);
 #endif
 
@@ -59,13 +59,13 @@ gb_device_ref_t gb_device_init(gb_window_ref_t window)
     gb_device_ref_t device = tb_null;
     switch (mode)
     {
-#ifdef GB_CONFIG_DEVICE_HAVE_GL
+#ifdef GB_CONFIG_PACKAGE_HAVE_OPENGL
     case GB_WINDOW_MODE_GL:
         device = gb_device_init_gl(window);
         break;
 #endif
     case GB_WINDOW_MODE_BITMAP:
-#if defined(GB_CONFIG_DEVICE_HAVE_SKIA)
+#if defined(GB_CONFIG_PACKAGE_HAVE_SKIA)
         device = gb_device_init_skia(gb_window_bitmap(window));
 #elif defined(GB_CONFIG_DEVICE_HAVE_BITMAP)
         device = gb_device_init_bitmap(gb_window_bitmap(window));

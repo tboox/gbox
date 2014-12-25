@@ -7,6 +7,9 @@ NAMES 					= gbox
 # module type
 gbox_TYPE 				= LIB
 
+# config
+gbox_CONFIG 			= y
+
 # core files
 gbox_C_FILES 			+= \
 						gbox \
@@ -64,8 +67,8 @@ gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_BITMAP) += \
 						core/device/bitmap/render/polygon 
 
 
-# gl device files
-gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_GL) += \
+# opengl device files
+gbox_C_FILES-$(OPENGL) += \
 						core/device/gl \
 						core/device/gl/render \
 						core/device/gl/shader \
@@ -75,7 +78,7 @@ gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_GL) += \
 						core/device/gl/program/bitmap 
 
 # skia device files
-gbox_CPP_FILES-$(GB_CONFIG_DEVICE_HAVE_SKIA) += \
+gbox_CPP_FILES-$(SKIA) += \
 						core/device/skia
 
 # platform files
@@ -87,20 +90,16 @@ gbox_C_FILES 			+= \
 						platform/impl/window 
 
 # glut window files
-gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_GLUT) += \
+gbox_C_FILES-$(GLUT) 	+= \
 						platform/glut/window
 
 # sdl window files
-gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_SDL) += \
+gbox_C_FILES-$(SDL) += \
  						platform/sdl/window
 
 # x11 window files
-gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_X11) += \
+gbox_C_FILES-$(X11) += \
  						platform/x11/window
-
-# framebuffer window files
-gbox_C_FILES-$(GB_CONFIG_WINDOW_HAVE_FRAMEBUFFER) += \
- 						platform/framebuffer/window
 
 # ios files
 ifeq ($(PLAT),ios)
@@ -118,9 +117,8 @@ endif
 gbox_CXFLAGS 			+= -D__tb_prefix__=\"gbox\"
 
 # header files
-INC_FILES 				= \
+gbox_INC_FILES 			= \
 						gbox.h \
-						gbox.config.h \
 						config.h \
 						prefix.h \
 						prefix/prefix.h \

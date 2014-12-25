@@ -32,7 +32,7 @@
  * includes
  */
 #include "prefix.h"
-#include <skia/core/SkCanvas.h>
+#include "skia/skia.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

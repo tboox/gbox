@@ -1,0 +1,29 @@
+{
+    "format":
+    {
+        "name":         "The TBOOX Package Format"
+    ,   "version":      "v1.0.1"
+    ,   "website":      "http://www.tboox.org"
+    }
+
+,   "package":
+    {
+        "name":         "The X11 Library"
+    }
+
+,   "compiler": 
+    {
+        "default":
+        {
+            "debug":
+            {
+                "libs":         ""
+            ,   "libpath":      ""
+            ,   "incpath":      ""
+            ,   "libflags":     ""
+            ,   "incflags":     ""
+            }
+        ,   "release":          "$.compiler.default.debug"
+        }
+    }
+}

@@ -33,11 +33,7 @@
  */
 #include "prefix.h"
 #include "../impl/window.h"
-#ifdef TB_CONFIG_OS_MAC
-# 	include <GLUT/glut.h>
-#else
-# 	include <GL/glut.h>
-#endif
+#include "glut/glut.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -474,13 +470,8 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
     else if (impl->base.flag & GB_WINDOW_FLAG_FULLSCREEN)
     {
         // the screen width and height
-        tb_size_t screen_width  = tb_screen_width();
-        tb_size_t screen_height = tb_screen_height();
-        if (!screen_width && !screen_height)
-        {
-            screen_width    = glutGet(GLUT_SCREEN_WIDTH);
-            screen_height   = glutGet(GLUT_SCREEN_HEIGHT);
-        }
+        tb_size_t screen_width  = glutGet(GLUT_SCREEN_WIDTH);
+        tb_size_t screen_height = glutGet(GLUT_SCREEN_HEIGHT);
         tb_assert_abort(screen_width && screen_height && screen_width >= impl->normal_width && screen_height >= impl->normal_height);
 
         // move window

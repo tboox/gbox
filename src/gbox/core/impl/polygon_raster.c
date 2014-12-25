@@ -368,7 +368,8 @@ static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* imp
                 edge->x = tb_fixed6_to_fixed(xb) + ((edge->slope * ((TB_FIXED6_HALF - yb) & 63)) >> 6);
 
                 // init bottom y-coordinate
-                edge->y_bottom = iye - 1;
+                edge->y_bottom = (tb_int16_t)(iye - 1);
+                tb_assert_abort(iye - 1 > TB_MINS16 && iye - 1 <= TB_MAXS16);
 
                 // the table index
                 table_index = iyb - impl->edge_table_base;

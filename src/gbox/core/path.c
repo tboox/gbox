@@ -514,7 +514,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
             case GB_PATH_CODE_CLOS:
                 {
                     // the points
-                    gb_point_ref_t points = tb_vector_data(impl->points);
+                    gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);
 
                     // check
                     tb_assert_abort(points && tb_vector_size(impl->points) > 1);
@@ -699,7 +699,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
             }
 
             // update count
-            count += gb_path_point_step(code);
+            count += (tb_uint16_t)gb_path_point_step(code);
         }
 
         // append the last count

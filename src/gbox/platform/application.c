@@ -103,15 +103,7 @@ tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_ini
         if (!init((gb_application_ref_t)impl, &impl->info)) break;
 
         // init window
-#if defined(GB_CONFIG_APPLICATION_WINDOW_GLUT)
-        impl->window = gb_window_init_glut(&impl->info);
-#elif defined(GB_CONFIG_APPLICATION_WINDOW_SDL)
-        impl->window = gb_window_init_sdl(&impl->info);
-#elif defined(GB_CONFIG_APPLICATION_WINDOW_FRAMEBUFFER)
-        impl->window = gb_window_init_framebuffer(&impl->info);
-#else
         impl->window = gb_window_init(&impl->info);
-#endif
         tb_assert_and_check_break(impl->window);
 
         // loop window

@@ -54,7 +54,7 @@ gb_canvas_ref_t     gb_canvas_init(gb_device_ref_t device);
  */
 gb_canvas_ref_t     gb_canvas_init_from_window(gb_window_ref_t window);
 
-#ifdef GB_CONFIG_DEVICE_HAVE_SKIA
+#ifdef GB_CONFIG_PACKAGE_HAVE_SKIA
 /*! init canvas from skia
  *
  * @param bitmap    the bitmap

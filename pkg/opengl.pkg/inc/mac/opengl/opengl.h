@@ -1,0 +1,10 @@
+#ifndef PKG_OPENGL_H
+#define PKG_OPENGL_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * includes
+ */
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+
+#endif

@@ -20,7 +20,7 @@ demo_LIBS-$(GB_CONFIG_THIRD_HAVE_ZLIB) 		+= z
 demo_LIBS-y 								+= $(GB_CONFIG_DEMO_LIBS)
 
 # path
-demo_LIB_DIR 								+= ../../gbox
+demo_LIB_DIRS 								+= ../../gbox
 
 # flags
 demo_CXFLAGS 								+= -D__tb_prefix__=\"demo\"

@@ -2,50 +2,52 @@
 include $(PRO_DIR)/prefix.mak
 
 # module name
-NAMES 												= application
+NAMES 														= application
+
+# package name
+application_PKG_NAME 										= demo
 
 # type
-application_TYPE 									= BIN
+application_TYPE 											= BIN
 
 # files
-application_C_FILES 								+= \
-													main \
-													../../application \
-													../../demo \
-													../../arc \
-													../../rect \
-													../../path \
-													../../quad \
-													../../cubic \
-													../../line \
-													../../lines \
-													../../point \
-													../../points \
-													../../circle \
-													../../ellipse \
-													../../triangle \
-													../../round_rect  
+application_C_FILES 										+= \
+															main \
+															../../application \
+															../../demo \
+															../../arc \
+															../../rect \
+															../../path \
+															../../quad \
+															../../cubic \
+															../../line \
+															../../lines \
+															../../tiger \
+															../../point \
+															../../points \
+															../../circle \
+															../../ellipse \
+															../../triangle \
+															../../round_rect  
 
-# libs
-application_LIBS 									+= gbox$(DTYPE) tbox$(DTYPE)
-application_LIBS-y 									+= $(GB_CONFIG_DEMO_LIBS)
-application_LIBS-$(GB_CONFIG_THIRD_HAVE_PNG)  		+= png 
-application_LIBS-$(GB_CONFIG_THIRD_HAVE_JPG)  		+= jpeg 
-application_LIBS-$(GB_CONFIG_THIRD_HAVE_FREETYPE)  	+= freetype bz2
-application_LIBS-$(GB_CONFIG_DEVICE_HAVE_SKIA)  	+= skia 
-application_LIBS-$(GB_CONFIG_WINDOW_HAVE_SDL)  		+= SDL 
-application_LIBS-$(GB_CONFIG_APPLICATION_WINDOW_SDL)+= SDLmain
+# packages
+application_PKGS-$(TBOX)  									+= tbox 
+application_PKGS-$(OPENGL)  								+= opengl 
+application_PKGS-$(SKIA)  									+= skia 
+application_PKGS-$(GLUT)  									+= glut 
+application_PKGS-$(SDL)  									+= sdl 
+application_PKGS-$(X11)  									+= x11 
+application_PKGS-$(FREETYPE)  								+= freetype 
+application_PKGS-$(PNG)  									+= png 
+application_PKGS-$(JPEG)  									+= jpeg 
+application_PKGS-$(ZLIB)  									+= zlib 
+application_PKGS-$(BASE)  									+= base 
 
-# path
-application_INC_DIR 								+= ../../../../
-application_LIB_DIR 								+= ../../../../gbox
-
-# flags
-application_CXFLAGS 								+= -D__tb_prefix__=\"demo\"
-application_LDFLAGS 								+= -L/usr/local/lib $(GB_CONFIG_DEMO_LDFLAGS)
-
-# command
-application_SUFFIX_CMD1 							+= $(GB_CONFIG_DEMO_CMD1)
+# others
+application_LIBS 											+= gbox$(DTYPE)
+application_INC_DIRS 										+= ../../../../
+application_LIB_DIRS 										+= ../../../../gbox
+application_CXFLAGS 										+= -D__tb_prefix__=\"demo\"
 
 # suffix
 include $(PRO_DIR)/suffix.mak

@@ -1,0 +1,35 @@
+{
+    "format":
+    {
+        "name":         "The TBOOX Package Format"
+    ,   "version":      "v1.0.1"
+    ,   "website":      "http://www.tboox.org"
+    }
+
+,   "package":
+    {
+        "name":         "The JPEG Library"
+    ,   "website":      "http://www.jpeg.org/"
+    }
+
+,   "compiler": 
+    {
+        "default":
+        {
+            "debug":
+            {
+                "libs":         "jpeg"
+            ,   "libpath":      ""
+            ,   "incpath":      ""
+            ,   "libflags":     ""
+            ,   "incflags":     ""
+            }
+        ,   "release":          "$.compiler.default.debug"
+        }
+
+    ,   "mac":
+        {
+            "x64":              "$.compiler.default"
+        }
+    }
+}

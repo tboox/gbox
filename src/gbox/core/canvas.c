@@ -154,7 +154,7 @@ gb_canvas_ref_t gb_canvas_init_from_window(gb_window_ref_t window)
     // ok?
     return canvas;
 }
-#ifdef GB_CONFIG_DEVICE_HAVE_SKIA
+#ifdef GB_CONFIG_PACKAGE_HAVE_SKIA
 gb_canvas_ref_t gb_canvas_init_from_skia(gb_bitmap_ref_t bitmap)
 {
     // done
