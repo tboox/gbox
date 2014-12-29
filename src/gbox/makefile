@@ -126,6 +126,8 @@ gbox_INC_FILES 			= \
 						prefix/prefix.h \
 						prefix/config.h \
 						prefix/version.h \
+						svg/svg.h \
+						svg/prefix.h \
 						base/base.h \
 						base/prefix.h \
 						base/mesh.h \
@@ -148,7 +150,6 @@ gbox_INC_FILES 			= \
 						core/prefix/triangle.h \
 						core/prefix/round_rect.h \
 						core/path.h \
-						core/mesh.h \
 						core/paint.h \
 						core/shader.h \
 						core/pixmap.h \
@@ -156,8 +157,6 @@ gbox_INC_FILES 			= \
 						core/canvas.h \
 						core/device.h \
 						core/clipper.h \
-						core/svg/svg.h \
-						core/svg/prefix.h \
 						platform/prefix.h \
 						platform/touch.h \
 						platform/event.h \

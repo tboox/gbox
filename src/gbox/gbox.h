@@ -27,6 +27,7 @@
  * includes
  */
 #include "prefix.h"
+#include "svg/svg.h"
 #include "base/base.h"
 #include "core/core.h"
 #include "platform/platform.h"

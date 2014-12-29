@@ -19,8 +19,8 @@
  * @author      ruki
  * @file        prefix.h
  */
-#ifndef GB_CORE_SVG_PREFIX_H
-#define GB_CORE_SVG_PREFIX_H
+#ifndef GB_SVG_PREFIX_H
+#define GB_SVG_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

@@ -18,10 +18,10 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @ingroup     core
+ * @defgroup    svg
  */
-#ifndef GB_CORE_SVG_H
-#define GB_CORE_SVG_H
+#ifndef GB_SVG_H
+#define GB_SVG_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
