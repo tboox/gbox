@@ -48,6 +48,7 @@ application_LIBS 											+= gbox$(DTYPE)
 application_INC_DIRS 										+= ../../../../
 application_LIB_DIRS 										+= ../../../../gbox
 application_CXFLAGS 										+= -D__tb_prefix__=\"demo\"
+application_CXFLAGS-$(SDL) 									+= -Dmain=SDL_main
 
 # suffix
 include $(PRO_DIR)/suffix.mak

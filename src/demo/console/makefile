@@ -34,6 +34,7 @@ demo_LIBS 										+= gbox$(DTYPE)
 demo_INC_DIRS 									+= ../../
 demo_LIB_DIRS 									+= ../../gbox
 demo_CXFLAGS 									+= -D__tb_prefix__=\"demo\"
+demo_CXFLAGS-$(SDL) 							+= -Dmain=SDL_main
 
 # demo
 SUB_PROS  										+= ../core
