@@ -17,45 +17,45 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh_vertex.c
- * @ingroup     core
+ * @file        mesh_face.c
+ * @ingroup     base
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME                "mesh_vertex"
+#define TB_TRACE_MODULE_NAME                "mesh_face"
 #define TB_TRACE_MODULE_DEBUG               (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh_vertex.h"
+#include "mesh_face.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
  */
 
-// the mesh vertex list grow
+// the mesh face list grow
 #ifdef __tb_small__ 
-#   define GB_MESH_VERTEX_LIST_GROW               (128)
+#   define GB_MESH_FACE_LIST_GROW               (32)
 #else
-#   define GB_MESH_VERTEX_LIST_GROW               (256)
+#   define GB_MESH_FACE_LIST_GROW               (64)
 #endif
 
-// the mesh vertex list maxn
+// the mesh face list maxn
 #ifdef __tb_small__
-#   define GB_MESH_VERTEX_LIST_MAXN               (1 << 16)
+#   define GB_MESH_FACE_LIST_MAXN               (1 << 16)
 #else
-#   define GB_MESH_VERTEX_LIST_MAXN               (1 << 30)
+#   define GB_MESH_FACE_LIST_MAXN               (1 << 30)
 #endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-// the mesh vertex list impl type
-typedef struct __gb_mesh_vertex_list_impl_t
+// the mesh face list impl type
+typedef struct __gb_mesh_face_list_impl_t
 {
     // the pool
     tb_fixed_pool_ref_t         pool;
@@ -66,47 +66,47 @@ typedef struct __gb_mesh_vertex_list_impl_t
     // the func
     tb_item_func_t              func;
 
-}gb_mesh_vertex_list_impl_t;
+}gb_mesh_face_list_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_mesh_vertex_exit(tb_pointer_t data, tb_cpointer_t priv)
+static tb_void_t gb_mesh_face_exit(tb_pointer_t data, tb_cpointer_t priv)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)priv;
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)priv;
     tb_assert_and_check_return(impl && data);
 
     // exit the user data
-    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_vertex_ref_t)data + 1));
+    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_face_ref_t)data + 1));
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_mesh_vertex_list_ref_t gb_mesh_vertex_list_init(tb_item_func_t func)
+gb_mesh_face_list_ref_t gb_mesh_face_list_init(tb_item_func_t func)
 {
     // check
     tb_assert_and_check_return_val(func.data && func.dupl && func.repl, tb_null);
 
     // done
-    tb_bool_t                       ok = tb_false;
-    gb_mesh_vertex_list_impl_t*     impl = tb_null;
+    tb_bool_t                   ok = tb_false;
+    gb_mesh_face_list_impl_t*   impl = tb_null;
     do
     {
         // make list
-        impl = tb_malloc0_type(gb_mesh_vertex_list_impl_t);
+        impl = tb_malloc0_type(gb_mesh_face_list_impl_t);
         tb_assert_and_check_break(impl);
 
         // init func
         impl->func = func;
 
-        // init pool, item = vertex + data
-        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_VERTEX_LIST_GROW, sizeof(gb_mesh_vertex_t) + func.size, tb_null, gb_mesh_vertex_exit, (tb_cpointer_t)impl);
+        // init pool, item = face + data
+        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_FACE_LIST_GROW, sizeof(gb_mesh_face_t) + func.size, tb_null, gb_mesh_face_exit, (tb_cpointer_t)impl);
         tb_assert_and_check_break(impl->pool);
 
         // init head
-        tb_list_entry_init_(&impl->head, 0, sizeof(gb_mesh_vertex_t) + func.size, tb_null);
+        tb_list_entry_init_(&impl->head, 0, sizeof(gb_mesh_face_t) + func.size, tb_null);
 
         // ok
         ok = tb_true;
@@ -117,21 +117,21 @@ gb_mesh_vertex_list_ref_t gb_mesh_vertex_list_init(tb_item_func_t func)
     if (!ok)
     {
         // exit it
-        if (impl) gb_mesh_vertex_list_exit((gb_mesh_vertex_list_ref_t)impl);
+        if (impl) gb_mesh_face_list_exit((gb_mesh_face_list_ref_t)impl);
         impl = tb_null;
     }
 
     // ok?
-    return (gb_mesh_vertex_list_ref_t)impl;
+    return (gb_mesh_face_list_ref_t)impl;
 }
-tb_void_t gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t list)
+tb_void_t gb_mesh_face_list_exit(gb_mesh_face_list_ref_t list)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
     tb_assert_and_check_return(impl);
    
     // clear it first
-    gb_mesh_vertex_list_clear(list);
+    gb_mesh_face_list_clear(list);
 
     // exit pool
     if (impl->pool) tb_fixed_pool_exit(impl->pool);
@@ -140,10 +140,10 @@ tb_void_t gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t list)
     // exit it
     tb_free(impl);
 }
-tb_void_t gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list)
+tb_void_t gb_mesh_face_list_clear(gb_mesh_face_list_ref_t list)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
     tb_assert_and_check_return(impl);
    
     // clear pool
@@ -152,56 +152,56 @@ tb_void_t gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list)
     // clear head
     tb_list_entry_clear(&impl->head);
 }
-tb_iterator_ref_t gb_mesh_vertex_list_itor(gb_mesh_vertex_list_ref_t list)
+tb_iterator_ref_t gb_mesh_face_list_itor(gb_mesh_face_list_ref_t list)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
     tb_assert_and_check_return_val(impl, tb_null);
    
     // the iterator
     return tb_list_entry_itor(&impl->head);
 }
-tb_size_t gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t list)
+tb_size_t gb_mesh_face_list_size(gb_mesh_face_list_ref_t list)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
     tb_assert_and_check_return_val(impl && impl->pool, 0);
     tb_assert_abort(tb_list_entry_size(&impl->head) == tb_fixed_pool_size(impl->pool));
 
     // the size
     return tb_list_entry_size(&impl->head);
 }
-tb_size_t gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t list)
+tb_size_t gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list)
 {
-    // the vertex maxn
-    return GB_MESH_VERTEX_LIST_MAXN;
+    // the face maxn
+    return GB_MESH_FACE_LIST_MAXN;
 }
-gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
+gb_mesh_face_ref_t gb_mesh_face_list_make(gb_mesh_face_list_ref_t list)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
     tb_assert_and_check_return_val(impl && impl->pool, tb_null);
 
     // make it
-    gb_mesh_vertex_ref_t vertex = (gb_mesh_vertex_ref_t)tb_fixed_pool_malloc0(impl->pool);
-    tb_assert_and_check_return_val(vertex, tb_null);
+    gb_mesh_face_ref_t face = (gb_mesh_face_ref_t)tb_fixed_pool_malloc0(impl->pool);
+    tb_assert_and_check_return_val(face, tb_null);
 
-    // insert to the vertex list
-    tb_list_entry_insert_tail(&impl->head, &vertex->entry);
+    // insert to the face list
+    tb_list_entry_insert_tail(&impl->head, &face->entry);
 
     // ok
-    return vertex;
+    return face;
 }
-tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex)
+tb_void_t gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face)
 {
     // check
-    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
-    tb_assert_and_check_return(impl && impl->pool && vertex);
+    gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
+    tb_assert_and_check_return(impl && impl->pool && face);
 
-    // remove from the vertex list
-    tb_list_entry_remove(&impl->head, &vertex->entry);
+    // remove from the face list
+    tb_list_entry_remove(&impl->head, &face->entry);
 
     // exit it
-    tb_fixed_pool_free(impl->pool, vertex);
+    tb_fixed_pool_free(impl->pool, face);
 }
 

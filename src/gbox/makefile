@@ -14,7 +14,6 @@ gbox_CONFIG 			= y
 gbox_C_FILES 			+= \
 						gbox \
 						core/core \
-						core/mesh \
 						core/path \
 						core/paint \
 						core/shader \
@@ -46,13 +45,16 @@ gbox_C_FILES 			+= \
 						core/impl/cubic \
 						core/impl/float \
 						core/impl/stroker \
-						core/impl/mesh_edge \
-						core/impl/mesh_face \
-						core/impl/mesh_vertex \
 						core/impl/geometry \
 						core/impl/polygon_tesselator \
 						core/impl/polygon_raster 
 
+# base files
+gbox_C_FILES 			+= \
+						base/mesh \
+						base/impl/mesh_edge \
+						base/impl/mesh_face \
+						base/impl/mesh_vertex 
 
 # bitmap device files
 gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_BITMAP) += \
@@ -124,8 +126,9 @@ gbox_INC_FILES 			= \
 						prefix/prefix.h \
 						prefix/config.h \
 						prefix/version.h \
-						ui/ui.h \
-						ui/prefix.h \
+						base/base.h \
+						base/prefix.h \
+						base/mesh.h \
 						core/core.h \
 						core/prefix.h \
 						core/prefix/type.h \
@@ -159,9 +162,7 @@ gbox_INC_FILES 			= \
 						platform/touch.h \
 						platform/event.h \
 						platform/window.h \
-						platform/application.h \
-						game/game.h \
-						game/prefix.h 		
+						platform/application.h 
 
 # demo
 SUB_PROS-$(DEMO) 		+= ../demo

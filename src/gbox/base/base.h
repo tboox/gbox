@@ -18,15 +18,15 @@
  *
  * @author      ruki
  * @file        prefix.h
- * @defgroup    ui
+ * @defgroup    base
  */
-#ifndef GB_UI_H
-#define GB_UI_H
+#ifndef GB_BASE_H
+#define GB_BASE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "mesh.h"
 
 #endif
 

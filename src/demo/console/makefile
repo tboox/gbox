@@ -10,8 +10,8 @@ demo_TYPE 										= BIN
 # files
 demo_C_FILES 									+= \
 												demo \
+												base/mesh \
 												core/path \
-												core/mesh \
 												core/vector \
 												core/bitmap \
 												other/test
@@ -35,9 +35,6 @@ demo_INC_DIRS 									+= ../../
 demo_LIB_DIRS 									+= ../../gbox
 demo_CXFLAGS 									+= -D__tb_prefix__=\"demo\"
 demo_CXFLAGS-$(SDL) 							+= -Dmain=SDL_main
-
-# demo
-SUB_PROS  										+= ../core
 
 # suffix
 include $(PRO_DIR)/suffix.mak

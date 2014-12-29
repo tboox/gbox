@@ -67,7 +67,7 @@ static tb_void_t gb_mesh_demo_vertex_exit(tb_item_func_t* func, tb_pointer_t buf
 /* //////////////////////////////////////////////////////////////////////////////////////
  * main
  */
-tb_int_t gb_demo_core_mesh_main(tb_int_t argc, tb_char_t** argv)
+tb_int_t gb_demo_base_mesh_main(tb_int_t argc, tb_char_t** argv)
 {
     // init mesh
     gb_mesh_ref_t mesh = gb_mesh_init(  tb_item_func_mem(sizeof(gb_mesh_demo_edge_t),   gb_mesh_demo_edge_exit,     tb_null)

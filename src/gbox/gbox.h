@@ -27,9 +27,8 @@
  * includes
  */
 #include "prefix.h"
-#include "ui/ui.h"
+#include "base/base.h"
 #include "core/core.h"
-#include "game/game.h"
 #include "platform/platform.h"
 
 /*! architecture

@@ -41,9 +41,11 @@
 
 // core
 GB_DEMO_MAIN_DECL(core_path);
-GB_DEMO_MAIN_DECL(core_mesh);
 GB_DEMO_MAIN_DECL(core_bitmap);
 GB_DEMO_MAIN_DECL(core_vector);
+
+// base
+GB_DEMO_MAIN_DECL(base_mesh);
 
 // other
 GB_DEMO_MAIN_DECL(other_test);

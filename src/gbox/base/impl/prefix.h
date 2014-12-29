@@ -18,9 +18,10 @@
  *
  * @author      ruki
  * @file        prefix.h
+ *
  */
-#ifndef GB_GAME_PREFIX_H
-#define GB_GAME_PREFIX_H
+#ifndef GB_BASE_IMPL_PREFIX_H
+#define GB_BASE_IMPL_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

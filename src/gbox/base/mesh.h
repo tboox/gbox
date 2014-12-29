@@ -18,11 +18,11 @@
  *
  * @author      ruki
  * @file        mesh.h
- * @ingroup     core
+ * @ingroup     base
  *
  */
-#ifndef GB_CORE_MESH_H
-#define GB_CORE_MESH_H
+#ifndef GB_BASE_MESH_H
+#define GB_BASE_MESH_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
