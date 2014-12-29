@@ -1,457 +1,462 @@
-# ######################################################################################
-# make define
-# #
-
-# append names
-NAMES 			+= $(NAMES-y)
-
-# ccache hook compiler for optimizating make
-ifneq ($(CCACHE),)
-CC 				:= $(CCACHE) $(CC)
-MM 				:= $(CCACHE) $(MM)
-endif
-
-# distcc hook compiler for optimizating make
-ifneq ($(DISTCC),)
-CC 				:= $(DISTCC) $(CC)
-MM 				:= $(DISTCC) $(MM)
-AS 				:= $(DISTCC) $(AS)
-endif
-
-# redirect output
-ifeq ($(OUT),)
-OUT 			:= $(if $(findstring msys,$(HOST)),&>,2>)
-export 			OUT
-endif
-
-# append flags
-CFLAGS 			+= $(CFLAG) $(CFLAGS-y)
-CXFLAGS 		+= $(CXFLAG) $(CXFLAGS-y)
-CCFLAGS 		+= $(CCFLAG) $(CCFLAGS-y)
-MFLAGS 			+= $(MFLAG) $(MFLAGS-y)
-MMFLAGS 		+= $(MMFLAG) $(MMFLAGS-y)
-MXFLAGS 		+= $(MXFLAG) $(MXFLAGS-y)
-LDFLAGS 		+= $(LDFLAG) $(LDFLAGS-y)
-ASFLAGS 		+= $(ASFLAG) $(ASFLAGS-y)
-ARFLAGS 		+= $(ARFLAG) $(ARFLAGS-y)
-SHFLAGS 		+= $(SHFLAG) $(SHFLAGS-y)
-
-# append debug flags
-CFLAGS_DEBUG 	+= $(CFLAGS_DEBUG-y)
-CXFLAGS_DEBUG 	+= $(CXFLAGS_DEBUG-y)
-CCFLAGS_DEBUG 	+= $(CCFLAGS_DEBUG-y)
-MFLAGS_DEBUG 	+= $(MFLAGS_DEBUG-y)
-MMFLAGS_DEBUG 	+= $(MMFLAGS_DEBUG-y)
-MXFLAGS_DEBUG 	+= $(MXFLAGS_DEBUG-y)
-LDFLAGS_DEBUG 	+= $(LDFLAGS_DEBUG-y)
-ASFLAGS_DEBUG 	+= $(ASFLAGS_DEBUG-y)
-ARFLAGS_DEBUG 	+= $(ARFLAGS_DEBUG-y)
-SHFLAGS_DEBUG 	+= $(SHFLAGS_DEBUG-y)
-
-# append release flags
-CFLAGS_RELEASE 	+= $(CFLAGS_RELEASE-y)
-CXFLAGS_RELEASE += $(CXFLAGS_RELEASE-y)
-CCFLAGS_RELEASE += $(CCFLAGS_RELEASE-y)
-MFLAGS_RELEASE 	+= $(MFLAGS_RELEASE-y)
-MMFLAGS_RELEASE += $(MMFLAGS_RELEASE-y)
-MXFLAGS_RELEASE += $(MXFLAGS_RELEASE-y)
-LDFLAGS_RELEASE += $(LDFLAGS_RELEASE-y)
-ASFLAGS_RELEASE += $(ASFLAGS_RELEASE-y)
-ARFLAGS_RELEASE += $(ARFLAGS_RELEASE-y)
-SHFLAGS_RELEASE += $(SHFLAGS_RELEASE-y)
-
-# append projects
-SUB_PROS 		+= $(SUB_PROS-y)
-
-# make suffix
-LIB_SUFFIX 		:= $(DTYPE)$(LIB_SUFFIX)
-DLL_SUFFIX 		:= $(DTYPE)$(DLL_SUFFIX)
-
-# append debug flags
-ifeq ($(DEBUG),y)
-CFLAGS 			+= $(CFLAGS_DEBUG)
-CXFLAGS 		+= $(CXFLAGS_DEBUG)
-CCFLAGS 		+= $(CCFLAGS_DEBUG)
-MFLAGS 			+= $(MFLAGS_DEBUG)
-MMFLAGS 		+= $(MMFLAGS_DEBUG)
-MXFLAGS 		+= $(MXFLAGS_DEBUG)
-LDFLAGS 		+= $(LDFLAGS_DEBUG)
-ASFLAGS 		+= $(ASFLAGS_DEBUG)
-ARFLAGS 		+= $(ARFLAGS_DEBUG)
-SHFLAGS 		+= $(SHFLAGS_DEBUG)
-else
-CFLAGS 			+= $(CFLAGS_RELEASE)
-CXFLAGS 		+= $(CXFLAGS_RELEASE)
-CCFLAGS 		+= $(CCFLAGS_RELEASE)
-MFLAGS 			+= $(MFLAGS_RELEASE)
-MMFLAGS 		+= $(MMFLAGS_RELEASE)
-MXFLAGS 		+= $(MXFLAGS_RELEASE)
-LDFLAGS 		+= $(LDFLAGS_RELEASE)
-ASFLAGS 		+= $(ASFLAGS_RELEASE)
-ARFLAGS 		+= $(ARFLAGS_RELEASE)
-SHFLAGS 		+= $(SHFLAGS_RELEASE)
-endif
-
-# append files-y, dirs-y, pkgs-y
-define APPEND_FILES_AND_DIRS_y
-$(1)_C_FILES 	+= $($(1)_C_FILES-y)
-$(1)_CC_FILES 	+= $($(1)_CC_FILES-y)
-$(1)_CPP_FILES 	+= $($(1)_CPP_FILES-y)
-$(1)_M_FILES 	+= $($(1)_M_FILES-y)
-$(1)_MM_FILES 	+= $($(1)_MM_FILES-y)
-$(1)_ASM_FILES 	+= $($(1)_ASM_FILES-y)
-$(1)_OBJ_FILES 	+= $($(1)_OBJ_FILES-y)
-$(1)_INC_FILES 	+= $($(1)_INC_FILES-y)
-$(1)_INC_DIRS 	+= $($(1)_INC_DIRS-y)
-$(1)_LIB_DIRS 	+= $($(1)_LIB_DIRS-y)
-$(1)_LIBS 		+= $($(1)_LIBS-y)
-$(1)_PKGS 		+= $($(1)_PKGS-y)
-$(1)_PKG_NAME 	:= $(if $($(1)_PKG_NAME),$($(1)_PKG_NAME),$(1))
-endef
-$(foreach name, $(NAMES), $(eval $(call APPEND_FILES_AND_DIRS_y,$(name))))
-
-# the current directory
-CUR_DIR 		:= $(abspath .)
-
-# select package directory
-ifneq ($(PACKAGE),)
-PKG_DIR  		:= $(PACKAGE)
-endif
-
-# append package includes
-define APPEND_PACKAGE_INC_DIRS
-INC_DIRS 		+= $(PKG_DIR)/$(1).pkg/inc/$(PLAT)/$(ARCH) $(PKG_DIR)/$(1).pkg/inc/$(PLAT) $(PKG_DIR)/$(1).pkg/inc $($(1)_INCPATH)
-endef
-$(foreach name, $(PKG_NAMES), $(eval $(call APPEND_PACKAGE_INC_DIRS,$(name))))
-
-# make native directory
-ifeq ($(PLAT),msvc)
-PKG_DIR_DRIVEN 	:= $(word 1,$(subst /, ,$(PKG_DIR)))
-PKG_DIR_NATIVE 	:= $(patsubst /$(PKG_DIR_DRIVEN)/%,$(PKG_DIR_DRIVEN):/%,$(PKG_DIR))
-CUR_DIR_DRIVEN 	:= $(word 1,$(subst /, ,$(CUR_DIR)))
-CUR_DIR_NATIVE 	:= $(patsubst /$(CUR_DIR_DRIVEN)/%,$(CUR_DIR_DRIVEN):/%,$(CUR_DIR))
-else
-PKG_DIR_NATIVE 	:= $(PKG_DIR)
-CUR_DIR_NATIVE 	:= $(CUR_DIR)
-endif
-
-# append package options
-define APPEND_PACKAGE_OPTIONS_FOR_MODULE
-$(1)_LIBS 		+= $($(2)_LIBNAMES)
-$(1)_INC_DIRS 	+= $($(2)_INCPATH)
-$(1)_LIB_DIRS 	+= $($(2)_LIBPATH) $(PKG_DIR_NATIVE)/$(2).pkg/lib/$(PLAT)/$(ARCH)
-$(1)_CXFLAGS 	+= $($(2)_INCFLAGS)
-$(1)_MXFLAGS 	+= $($(2)_INCFLAGS)
-$(1)_LDFLAGS 	+= $($(2)_LIBFLAGS)
-$(1)_SHFLAGS 	+= $($(2)_LIBFLAGS)
-endef
-define APPEND_PACKAGE_OPTIONS
-$(foreach pkg, $($(1)_PKGS), $(eval $(call APPEND_PACKAGE_OPTIONS_FOR_MODULE,$(1),$(pkg))))
-endef
-$(foreach name, $(NAMES), $(eval $(call APPEND_PACKAGE_OPTIONS,$(name))))
-
-# remove repeat files and dirs
-define REMOVE_REPEAT_FILES_AND_DIRS
-$(1)_C_FILES 	:= $(sort $($(1)_C_FILES))
-$(1)_CC_FILES 	:= $(sort $($(1)_CC_FILES))
-$(1)_CPP_FILES 	:= $(sort $($(1)_CPP_FILES))
-$(1)_M_FILES 	:= $(sort $($(1)_M_FILES))
-$(1)_MM_FILES 	:= $(sort $($(1)_MM_FILES))
-$(1)_ASM_FILES 	:= $(sort $($(1)_ASM_FILES))
-$(1)_OBJ_FILES 	:= $(sort $($(1)_OBJ_FILES))
-$(1)_INC_FILES 	:= $(sort $($(1)_INC_FILES))
-$(1)_INC_DIRS 	:= $(sort $($(1)_INC_DIRS))
-$(1)_LIB_DIRS 	:= $(sort $($(1)_LIB_DIRS))
-endef
-$(foreach name, $(NAMES), $(eval $(call REMOVE_REPEAT_FILES_AND_DIRS,$(name))))
-
-# make flags
-define MAKE_FLAGS
-$(1)_CFLAGS 	:= $(CFLAGS) $($(1)_CFLAGS) $($(1)_CFLAGS-y)
-$(1)_CCFLAGS 	:= $(CCFLAGS) $($(1)_CCFLAGS) $($(1)_CCFLAGS-y)
-$(1)_CXFLAGS 	:= $(CXFLAGS) $(addprefix $(CXFLAGS-I), $(INC_DIRS)) $(addprefix $(CXFLAGS-I), $($(1)_INC_DIRS)) $($(1)_CXFLAGS) $($(1)_CXFLAGS-y)
-$(1)_MFLAGS 	:= $(MFLAGS) $($(1)_MFLAGS) $($(1)_MFLAGS-y)
-$(1)_MMFLAGS 	:= $(MMFLAGS) $($(1)_MMFLAGS) $($(1)_MMFLAGS-y)
-$(1)_MXFLAGS 	:= $(MXFLAGS) $(addprefix $(MXFLAGS-I), $(INC_DIRS)) $(addprefix $(MXFLAGS-I), $($(1)_INC_DIRS)) $($(1)_MXFLAGS) $($(1)_MXFLAGS-y)
-$(1)_LDFLAGS 	:= $(LDFLAGS) $(addprefix $(LDFLAGS-L), $(LIB_DIRS)) $(addprefix $(LDFLAGS-L), $($(1)_LIB_DIRS)) $($(1)_LDFLAGS) $($(1)_LDFLAGS-y) $(addsuffix $(LDFLAGS-f), $(addprefix $(LDFLAGS-l), $($(1)_LIBS))) 
-$(1)_ASFLAGS 	:= $(ASFLAGS) $(addprefix $(ASFLAGS-I), $(INC_DIRS)) $(addprefix $(ASFLAGS-I), $($(1)_INC_DIRS)) $($(1)_ASFLAGS) $($(1)_ASFLAGS-y)
-$(1)_ARFLAGS 	:= $(ARFLAGS) $($(1)_ARFLAGS-y)
-$(1)_SHFLAGS 	:= $(SHFLAGS) $(addprefix $(LDFLAGS-L), $(LIB_DIRS)) $(addprefix $(LDFLAGS-L), $($(1)_LIB_DIRS)) $($(1)_SHFLAGS) $($(1)_SHFLAGS-y) $(addsuffix $(LDFLAGS-f), $(addprefix $(LDFLAGS-l), $($(1)_LIBS)))
-endef
-$(foreach name, $(NAMES), $(eval $(call MAKE_FLAGS,$(name))))
-
-# append native flags
-define MAKE_FLAGS_NATIVE
-$(1)_CXFLAGS 	+= -Fd"$(CUR_DIR_NATIVE)/$(1)$(DTYPE).pdb"
-$(1)_LDFLAGS 	+= -pdb:"$(CUR_DIR_NATIVE)/$(1)$(DTYPE).pdb"
-$(1)_ARFLAGS 	+= -pdb:"$(CUR_DIR_NATIVE)/$(1)$(DTYPE).pdb" 
-$(1)_SHFLAGS 	+= -pdb:"$(CUR_DIR_NATIVE)/$(1)$(DTYPE).pdb"
-endef
-ifeq ($(PLAT),msvc)
-$(foreach name, $(NAMES), $(eval $(call MAKE_FLAGS_NATIVE,$(name))))
-endif
-
-# make objects and source files 
-define MAKE_OBJS_AND_SRCS_FILES
-$(1)_OBJS 		:= $(addsuffix $(OBJ_SUFFIX), $($(1)_FILES))
-$(1)_SRCS 		:= $(addsuffix .c, $($(1)_C_FILES)) $(addsuffix .cc, $($(1)_CC_FILES)) $(addsuffix .cpp, $($(1)_CPP_FILES)) $(addsuffix .m, $($(1)_M_FILES)) $(addsuffix .mm, $($(1)_MM_FILES)) $(addsuffix $(ASM_SUFFIX), $($(1)_ASM_FILES))
-endef
-$(foreach name, $(NAMES), $(eval $(name)_FILES := $($(name)_C_FILES) $($(name)_CC_FILES) $($(name)_CPP_FILES) $($(name)_M_FILES) $($(name)_MM_FILES) $($(name)_ASM_FILES)))
-$(foreach name, $(NAMES), $(eval $(call MAKE_OBJS_AND_SRCS_FILES,$(name))))
+# main makefile
 
 # ######################################################################################
-# make all
+# includes
 # #
-
-define MAKE_OBJ_C
-$(1)$(OBJ_SUFFIX) : $(1).c
-	@echo $(CCACHE) $(DISTCC) compile.$(DTYPE) $(1).c
-	@$(CC) $(2) $(3) $(CXFLAGS-o)$(1)$(OBJ_SUFFIX) $(1).c $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_OBJ_CC
-$(1)$(OBJ_SUFFIX) : $(1).cc
-	@echo $(CCACHE) $(DISTCC) compile.$(DTYPE) $(1).cc
-	@$(CC) $(2) $(3) $(CXFLAGS-o)$(1)$(OBJ_SUFFIX) $(1).cc $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_OBJ_CPP
-$(1)$(OBJ_SUFFIX) : $(1).cpp
-	@echo $(CCACHE) $(DISTCC) compile.$(DTYPE) $(1).cpp
-	@$(CC) $(2) $(3) $(CXFLAGS-o)$(1)$(OBJ_SUFFIX) $(1).cpp $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_OBJ_M
-$(1)$(OBJ_SUFFIX) : $(1).m
-	@echo $(CCACHE) $(DISTCC) compile.$(DTYPE) $(1).m
-	@$(MM) -x objective-c $(2) $(3) $(MXFLAGS-o)$(1)$(OBJ_SUFFIX) $(1).m $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_OBJ_MM
-$(1)$(OBJ_SUFFIX) : $(1).mm
-	@echo $(CCACHE) $(DISTCC) compile.$(DTYPE) $(1).mm
-	@$(MM) -x objective-c++ $(2) $(3) $(MXFLAGS-o)$(1)$(OBJ_SUFFIX) $(1).mm $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_OBJ_ASM_WITH_CC
-$(1)$(OBJ_SUFFIX) : $(1)$(ASM_SUFFIX)
-	@echo $(CCACHE) $(DISTCC) compile.$(DTYPE) $(1)$(ASM_SUFFIX)
-	@$(CC) $(2) $(CXFLAGS-o)$(1)$(OBJ_SUFFIX) $(1)$(ASM_SUFFIX) $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_OBJ_ASM_WITH_AS
-$(1)$(OBJ_SUFFIX) : $(1)$(ASM_SUFFIX)
-	@echo compile.$(DTYPE) $(1)$(ASM_SUFFIX)
-	@$(AS) $(2) $(ASFLAGS-o)$(1)$(OBJ_SUFFIX) $(1)$(ASM_SUFFIX) $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-define MAKE_ALL
-$(1)_$(2)_all: $($(2)_PREFIX)$(1)$($(2)_SUFFIX)
-	$($(1)_SUFFIX_CMD1)
-	$($(1)_SUFFIX_CMD2)
-	$($(1)_SUFFIX_CMD3)
-	$($(1)_SUFFIX_CMD4)
-	$($(1)_SUFFIX_CMD5)
-
-$($(2)_PREFIX)$(1)$($(2)_SUFFIX): $($(1)_OBJS) $(addsuffix $(OBJ_SUFFIX), $($(1)_OBJ_FILES))
-$(foreach file, $($(1)_C_FILES), $(eval $(call MAKE_OBJ_C,$(file),$($(1)_CXFLAGS),$($(1)_CFLAGS))))
-$(foreach file, $($(1)_CC_FILES), $(eval $(call MAKE_OBJ_CC,$(file),$($(1)_CXFLAGS),$($(1)_CCFLAGS))))
-$(foreach file, $($(1)_CPP_FILES), $(eval $(call MAKE_OBJ_CPP,$(file),$($(1)_CXFLAGS),$($(1)_CCFLAGS))))
-$(foreach file, $($(1)_M_FILES), $(eval $(call MAKE_OBJ_M,$(file),$($(1)_MXFLAGS),$($(1)_MFLAGS))))
-$(foreach file, $($(1)_MM_FILES), $(eval $(call MAKE_OBJ_MM,$(file),$($(1)_MXFLAGS),$($(1)_MMFLAGS))))
-
-$(if $(AS)
-,$(foreach file, $($(1)_ASM_FILES), $(eval $(call MAKE_OBJ_ASM_WITH_AS,$(file),$($(1)_ASFLAGS))))
-,$(foreach file, $($(1)_ASM_FILES), $(eval $(call MAKE_OBJ_ASM_WITH_CC,$(file),$($(1)_CXFLAGS))))
-)
-
-$(BIN_PREFIX)$(1)$(BIN_SUFFIX): $($(1)_OBJS) $(addsuffix $(OBJ_SUFFIX), $($(1)_OBJ_FILES))
-	@echo link $$@
-	-@$(RM) $$@
-	@$(LD) $(LDFLAGS-o)$$@ $$^ $($(1)_LDFLAGS) $(OUT) /tmp/$(PRO_NAME).out
-
-$(LIB_PREFIX)$(1)$(LIB_SUFFIX): $($(1)_OBJS) $(addsuffix $(OBJ_SUFFIX), $($(1)_OBJ_FILES))
-	@echo link $$@
-	-@$(RM) $$@
-	@$(AR) $($(1)_ARFLAGS) $(ARFLAGS-o)$$@ $$^ $(OUT) /tmp/$(PRO_NAME).out
-	$(if $(RANLIB),@$(RANLIB) $$@,)
-
-$(DLL_PREFIX)$(1)$(DLL_SUFFIX): $($(1)_OBJS) $(addsuffix $(OBJ_SUFFIX), $($(1)_OBJ_FILES))
-	@echo link $$@
-	-@$(RM) $$@
-	@$(LD) $(LDFLAGS-o)$$@ $$^ $($(1)_SHFLAGS) $(OUT) /tmp/$(PRO_NAME).out
-endef
-
-
-define MAKE_ALL_SUB_PROS
-SUB_PROS_$(1)_all:
-	@echo make $(1)
-	@$(MAKE) --no-print-directory -C $(1) 
-endef
-
-all: \
-	$(foreach name, $(NAMES), $(if $($(name)_FILES), $(name)_$($(name)_TYPE)_all, )) \
-	$(foreach pro, $(SUB_PROS), SUB_PROS_$(pro)_all)
-
-$(foreach name, $(NAMES), $(if $($(name)_FILES), $(eval $(call MAKE_ALL,$(name),$($(name)_TYPE))), ))
-$(foreach pro, $(SUB_PROS), $(eval $(call MAKE_ALL_SUB_PROS,$(pro))))
+${shell if [ ! -f ".config.mak" ]; then touch .config.mak; fi }
+include .config.mak
 
 # ######################################################################################
-# make install
+# make shortcut
 # #
+a : all
+f : config
+r : rebuild
+i : install
+c : clean
+u : update
+o : output
+e : error
+w : warning
+d : doc
+h : help
+
+# ######################################################################################
+# make projects
+# #
+ifeq ($(IS_CONFIG), y)
+
+# include prefix
+include prefix.mak
 
 # select install path
 ifneq ($(INSTALL),)
-BIN_DIR  		:= $(INSTALL)
+BIN_DIR := $(INSTALL)
 endif
 
-# expand install files
-define EXPAND_INSTALL_FILES
-$(1)_INC_FILES 	:= $(addprefix $(CUR_DIR)/, $(sort $($(1)_INC_FILES)))
-$(1)_LIB_FILES 	:= $(addprefix $(CUR_DIR)/, $(sort $(if $(findstring LIB,$($(1)_TYPE)),$(LIB_PREFIX)$(1)$(LIB_SUFFIX),)))
-$(1)_DLL_FILES 	:= $(addprefix $(CUR_DIR)/, $(sort $(if $(findstring DLL,$($(1)_TYPE)),$(DLL_PREFIX)$(1)$(DLL_SUFFIX),)))
-$(1)_BIN_FILES 	:= $(addprefix $(CUR_DIR)/, $(sort $(if $(findstring BIN,$($(1)_TYPE)),$(BIN_PREFIX)$(1)$(BIN_SUFFIX),)))
-endef
-$(foreach name, $(NAMES), $(eval $(call EXPAND_INSTALL_FILES,$(name))))
+# make all
+all : .null
+	@echo "" > /tmp/$(PRO_NAME).out
+	@echo make $(PRO_NAME)
+	@$(MAKE) --no-print-directory -C $(SRC_DIR) 
 
-# append native install files
-define EXPAND_INSTALL_FILES_NATIVE
-$(1)_$($(1)_TYPE)_FILES += $(CUR_DIR)/$(1)$(DTYPE).pdb 
-endef
-ifeq ($(PLAT),msvc)
-$(foreach name, $(NAMES), $(eval $(call EXPAND_INSTALL_FILES_NATIVE,$(name))))
-endif
+# make rebuild
+rebuild : .null
+	@$(MAKE) c
+	$(if $(findstring msys,$(HOST)),,-@$(MAKE) -j4)
+	@$(MAKE)
+	@$(MAKE) i
 
-# make include dirs
-define MAKE_INSTALL_INC_DIRS
-$(1)_INC_DIRS_ := $(dir $(patsubst $(SRC_DIR)/$(2)/%,$(BIN_DIR)/$(2).pkg/inc/$(2)/%,$(1)))
-endef
+# make install
+install : .null
+	@echo "" > /tmp/$(PRO_NAME).out
+	@echo install $(PRO_NAME)
+	@$(MAKE) --no-print-directory -C $(SRC_DIR)
+	@$(MAKE) --no-print-directory -C $(SRC_DIR) install
 
-# make library dirs
-define MAKE_INSTALL_LIB_DIRS
-$(1)_LIB_DIRS_ := $(dir $(patsubst $(SRC_DIR)/$(2)/%,$(BIN_DIR)/$(2).pkg/lib/$(PLAT)/$(ARCH)/%,$(1)))
-endef
+# make lipo
+lipo : .null
+	./tool/lipo $(PRO_NAME) $(DEBUG) $(SDK) $(ARCH1) $(ARCH2)
 
-# make dynamic dirs
-define MAKE_INSTALL_DLL_DIRS
-$(1)_DLL_DIRS_ := $(dir $(patsubst $(SRC_DIR)/$(2)/%,$(BIN_DIR)/$(2).pkg/lib/$(PLAT)/$(ARCH)/%,$(1)))
-endef
-
-# make binary dirs
-define MAKE_INSTALL_BIN_DIRS
-$(1)_BIN_DIRS_ := $(dir $(patsubst $(SRC_DIR)/$(2)/%,$(BIN_DIR)/$(2).pkg/bin/$(PLAT)/$(ARCH)/%,$(1)))
-endef
-
-# make install files
-define MAKE_INSTALL_FILES
-$(foreach file, $($(1)_INC_FILES), $(eval $(call MAKE_INSTALL_INC_DIRS,$(file),$($(1)_PKG_NAME))))
-$(foreach file, $($(1)_LIB_FILES), $(eval $(call MAKE_INSTALL_LIB_DIRS,$(file),$($(1)_PKG_NAME))))
-$(foreach file, $($(1)_DLL_FILES), $(eval $(call MAKE_INSTALL_DLL_DIRS,$(file),$($(1)_PKG_NAME))))
-$(foreach file, $($(1)_BIN_FILES), $(eval $(call MAKE_INSTALL_BIN_DIRS,$(file),$($(1)_PKG_NAME))))
-
-INSTALL_FILES 	+= $($(1)_INC_FILES) $($(1)_LIB_FILES) $($(1)_DLL_FILES) $($(1)_BIN_FILES) $(if $(findstring y,$($(1)_CONFIG)),$(CFG_FILE),)
-REMOVED_DIRS 	+= $(BIN_DIR)/$($(1)_PKG_NAME).pkg
-
-$(CFG_FILE)_DIRS_ := $(BIN_DIR)/$($(1)_PKG_NAME).pkg/inc/$(PLAT)/$(ARCH)
-endef
-$(foreach name, $(NAMES), $(eval $(call MAKE_INSTALL_FILES,$(name))))
-
-define MAKE_INSTALL_INC_FILES
-$(1)_install:
-	-@$(MKDIR) $($(1)_INC_DIRS_)
-	-@$(CP) $(1) $($(1)_INC_DIRS_)
-endef
-
-define MAKE_INSTALL_LIB_FILES
-$(1)_install:
-	-@$(MKDIR) $($(1)_LIB_DIRS_)
-	-@$(CP) $(1) $($(1)_LIB_DIRS_)
-endef
-
-define MAKE_INSTALL_DLL_FILES
-$(1)_install:
-	-@$(MKDIR) $($(1)_DLL_DIRS_)
-	-@$(CP) $(1) $($(1)_DLL_DIRS_)
-endef
-
-define MAKE_INSTALL_BIN_FILES
-$(1)_install:
-	-@$(MKDIR) $($(1)_BIN_DIRS_)
-	-@$(CP) $(1) $($(1)_BIN_DIRS_)
-endef
-
-$(CFG_FILE)_install:
-	-@$(MKDIR) $($(CFG_FILE)_DIRS_)
-	-@$(CP) $(CFG_FILE) $($(CFG_FILE)_DIRS_)
-
-# make install 
-define MAKE_INSTALL
-$(foreach file, $($(1)_INC_FILES), $(eval $(call MAKE_INSTALL_INC_FILES,$(file))))
-$(foreach file, $($(1)_LIB_FILES), $(eval $(call MAKE_INSTALL_LIB_FILES,$(file))))
-$(foreach file, $($(1)_DLL_FILES), $(eval $(call MAKE_INSTALL_DLL_FILES,$(file))))
-$(foreach file, $($(1)_BIN_FILES), $(eval $(call MAKE_INSTALL_BIN_FILES,$(file))))
-endef
-$(foreach name, $(NAMES), $(eval $(call MAKE_INSTALL,$(name))))
-
-clean_install:
-	-@$(RMDIR) $(REMOVED_DIRS)
-	
-install: clean_install $(foreach file, $(INSTALL_FILES), $(file)_install) $(foreach pro, $(SUB_PROS), SUB_PROS_$(pro)_install)
-	$(INSTALL_SUFFIX_CMD1)
-	$(INSTALL_SUFFIX_CMD2)
-	$(INSTALL_SUFFIX_CMD3)
-	$(INSTALL_SUFFIX_CMD4)
-	$(INSTALL_SUFFIX_CMD5)
-
-# make sub-projects
-define MAKE_INSTALL_SUB_PROS
-SUB_PROS_$(1)_install:
-	@echo install $(1)
-	@$(MAKE) --no-print-directory -C $(1) install
-endef
-$(foreach pro, $(SUB_PROS), $(eval $(call MAKE_INSTALL_SUB_PROS,$(pro))))
-
-# ######################################################################################
 # make clean
-# #
-define MAKE_CLEAN
-$(1)_$(2)_clean:
-	-@$(RM) $($(2)_PREFIX)$(1)$($(2)_SUFFIX)
-	-@$(RM) $($(1)_OBJS)
-	-@$(RM) *.ilk *.manifest *.pdb *.idb *.dmp
-endef
+clean : .null
+	@echo "" > /tmp/$(PRO_NAME).out
+	@echo clean $(PRO_NAME)
+	@$(MAKE) --no-print-directory -C $(SRC_DIR) clean
 
-define MAKE_CLEAN_SUB_PROS
-SUB_PROS_$(1)_clean:
-	@echo clean $(1)
-	@$(MAKE) --no-print-directory -C $(1) clean
-endef
+# make update
+update : .null
+	@echo "" > /tmp/$(PRO_NAME).out
+	@echo update $(PRO_NAME)
+	@$(MAKE) --no-print-directory -C $(SRC_DIR) update
+	@$(MAKE) --no-print-directory -C $(SRC_DIR)
+	@$(MAKE) --no-print-directory -C $(SRC_DIR) install
 
-clean: \
-	$(foreach name, $(NAMES), $(name)_$($(name)_TYPE)_clean) \
-	$(foreach pro, $(SUB_PROS), SUB_PROS_$(pro)_clean)
+# make output
+output : .null
+	@echo output $(PRO_NAME)
+	@cat /tmp/$(PRO_NAME).out
 
-$(foreach name, $(NAMES), $(eval $(call MAKE_CLEAN,$(name),$($(name)_TYPE))))
-$(foreach pro, $(SUB_PROS), $(eval $(call MAKE_CLEAN_SUB_PROS,$(pro))))
+# make error
+error : .null
+	@echo error $(PRO_NAME)
+	@cat /tmp/$(PRO_NAME).out | egrep -i "error|undefined|cannot|错误" | cat
+
+# make warning
+warning : .null
+	@echo warning $(PRO_NAME)
+	@cat /tmp/$(PRO_NAME).out | egrep warning
+
+# make doc
+doc : .null
+	doxygen ./doc/doxygen/doxygen.conf
+
+else
+
+# include project
+include project.mak
 
 # ######################################################################################
-# make update 
+# no-config
 # #
+all : 
+	make -r f
+	make -r r
 
-define MAKE_UPDATE_SUB_PROS
-SUB_PROS_$(1)_update:
-	@echo update $(1)
-	@$(MAKE) --no-print-directory -C $(1) update
-endef
+rebuild :
+	make -r f
+	make -r r
 
-update: .null $(foreach pro, $(SUB_PROS), SUB_PROS_$(pro)_update)
-	-@$(RM) *.b *.a *.so *.exe *.dll *.lib *.pdb *.ilk
+install :
+	make -r f
+	make -r i
 
-$(foreach pro, $(SUB_PROS), $(eval $(call MAKE_UPDATE_SUB_PROS,$(pro))))
+lipo : help
+clean :
+	make -r f
+	make -r c
+
+update :
+	make -r f
+	make -r u
+
+output :	
+error :		
+warning :	
+doc :
+	make -r f
+	make -r d
+
+endif
 
 # ######################################################################################
 # null
 # #
+
 .null :
 
+# ######################################################################################
+# config
+# #
+
+# host
+HOST 		:=$(if $(HOST),$(HOST),$(if ${shell uname | egrep -i linux},linux,))
+HOST 		:=$(if $(HOST),$(HOST),$(if ${shell uname | egrep -i darwin},mac,))
+HOST 		:=$(if $(HOST),$(HOST),$(if ${shell uname | egrep -i cygwin},cygwin,))
+HOST 		:=$(if $(HOST),$(HOST),$(if ${shell uname | egrep -i mingw},msys,))
+HOST 		:=$(if $(HOST),$(HOST),$(if ${shell uname | egrep -i msvc},msys,))
+HOST 		:=$(if $(HOST),$(HOST),linux)
+
+# platform
+PLAT 		:=$(if $(PLAT),$(PLAT),$(if ${shell uname | egrep -i linux},linux,))
+PLAT 		:=$(if $(PLAT),$(PLAT),$(if ${shell uname | egrep -i darwin},mac,))
+PLAT 		:=$(if $(PLAT),$(PLAT),$(if ${shell uname | egrep -i cygwin},cygwin,))
+PLAT 		:=$(if $(PLAT),$(PLAT),$(if ${shell uname | egrep -i mingw},mingw,))
+PLAT 		:=$(if $(PLAT),$(PLAT),$(if ${shell uname | egrep -i msvc},msvc,))
+PLAT 		:=$(if $(PLAT),$(PLAT),linux)
+
+# architecture
+ifeq ($(ARCH),)
+
+ARCH 		:=$(if $(findstring msvc,$(PLAT)),x86,$(ARCH))
+ARCH 		:=$(if $(findstring mingw,$(PLAT)),x86,$(ARCH))
+ARCH 		:=$(if $(findstring mac,$(PLAT)),x$(shell getconf LONG_BIT),$(ARCH))
+ARCH 		:=$(if $(findstring linux,$(PLAT)),x$(shell getconf LONG_BIT),$(ARCH))
+ARCH 		:=$(if $(findstring x32,$(ARCH)),x86,$(ARCH))
+ARCH 		:=$(if $(findstring ios,$(PLAT)),armv7,$(ARCH))
+ARCH 		:=$(if $(findstring android,$(PLAT)),armv7,$(ARCH))
+
+endif
+
+# debug
+DEBUG 		:=$(if $(DEBUG),$(DEBUG),y)
+
+# debug type
+DTYPE 		:=$(if $(findstring y,$(DEBUG)),d,r)
+
+# small
+SMALL 		:=$(if $(SMALL),$(SMALL),n)
+SMALL 		:=$(if $(findstring ios,$(PLAT)),y,$(SMALL))
+SMALL 		:=$(if $(findstring android,$(PLAT)),y,$(SMALL))
+
+# demo
+DEMO 		:=$(if $(DEMO),$(DEMO),y)
+
+# profile
+PROF 		:=$(if $(PROF),$(PROF),n)
+
+# arm
+ARM 		:=$(if $(findstring arm,$(ARCH)),y,n)
+
+# x86
+x86 		:=$(if $(findstring x86,$(ARCH)),y,n)
+
+# x64
+x64 		:=$(if $(findstring x64,$(ARCH)),y,n)
+
+# sh4
+SH4 		:=$(if $(findstring sh4,$(ARCH)),y,n)
+
+# mips
+MIPS 		:=$(if $(findstring mips,$(ARCH)),y,n)
+
+# sparc
+SPARC 		:=$(if $(findstring sparc,$(ARCH)),y,n)
+
+# the project directory
+PRO_DIR		:=$(abspath .)
+
+# the package directory
+PKG_DIR 	:= $(if $(PACKAGE),$(PACKAGE),$(PRO_DIR)/pkg)
+
+# the tool directory
+TOOL_DIR 	:= $(PRO_DIR)/tool
+
+# flag
+CXFLAG		:= $(if $(CXFLAG),$(CXFLAG),)
+
+# ccache
+ifeq ($(CCACHE),n)
+CCACHE		:= 
+else
+CCACHE		:=$(shell if [ -f "/usr/bin/ccache" ]; then echo "ccache"; elif [ -f "/usr/local/bin/ccache" ]; then echo "ccache"; else echo ""; fi )
+endif
+
+# distcc
+ifeq ($(DISTCC),y)
+DISTCC		:=$(shell if [ -f "/usr/bin/distcc" ]; then echo "distcc"; elif [ -f "/usr/local/bin/distcc" ]; then echo "distcc"; else echo ""; fi )
+else
+DISTCC		:= 
+endif
+
+# sed
+ifeq ($(HOST),mac)
+#SED			:= sed -i ''
+SED			:= perl -pi -e
+else
+SED			:= sed -i
+endif
+
+# echo
+ifeq ($(HOST),msys)
+ECHO 		:= echo -e
+else
+ECHO 		:= echo
+endif
+
+# make upper 
+ifeq ($(HOST),mac)
+define MAKE_UPPER
+${shell echo $(1) | perl -p -e "s/(.*)/\U\1/g"}
+endef
+else
+define MAKE_UPPER
+${shell echo $(1) | sed "s/\(.*\)/\U\1/g"}
+endef
+endif
+
+# select package directory
+ifneq ($(PACKAGE),)
+PKG_DIR 	:= $(PACKAGE)
+endif
+
+# make upper package name
+define MAKE_UPPER_PACKAGE_NAME
+$(1)_upper 	:= $(call MAKE_UPPER,$(1))
+endef
+$(foreach name, $(PKG_NAMES), $(eval $(call MAKE_UPPER_PACKAGE_NAME,$(name))))
+
+# probe packages
+define PROBE_PACKAGE
+$($(1)_upper) :=$(if $($($(1)_upper)),$($($(1)_upper)),\
+				$(shell if [ -d "$(PKG_DIR)/$(1).pkg/lib/$(PLAT)/$(ARCH)" ]; then \
+					echo "y"; \
+				elif [ -z "`$(TOOL_DIR)/jcat/jcat --filter=.compiler.$(PLAT).$(ARCH).$(if $(findstring y,$(DEBUG)),debug,release) $(PKG_DIR)/$(1).pkg/manifest.json`" ]; then \
+					echo "n"; \
+				else \
+					echo "y"; \
+				fi ))
+endef
+$(foreach name, $(PKG_NAMES), $(eval $(call PROBE_PACKAGE,$(name))))
+
+# make package info
+define MAKE_PACKAGE_INFO
+"   "$(1)":\t\t"$($($(1)_upper))"\n"
+endef
+define MAKE_PACKAGE_INFO_
+$(if $(findstring y,$($(1))),__autoconf_head_$(PRO_PREFIX)CONFIG_PACKAGE_HAVE_$(1)_autoconf_tail__,)
+endef
+
+# load package options
+define LOAD_PACKAGE_OPTIONS
+$(if $(findstring y,$($($(1)_upper))),\
+	"$($(1)_upper) ="$($($(1)_upper))"\n" \
+	"$(1)_INCPATH ="$(shell echo `$(TOOL_DIR)/jcat/jcat --filter=.compiler.$(PLAT).$(ARCH).$(if $(findstring y,$(DEBUG)),debug,release).incpath $(PKG_DIR)/$(1).pkg/manifest.json` )"\n" \
+	"$(1)_LIBPATH ="$(shell echo `$(TOOL_DIR)/jcat/jcat --filter=.compiler.$(PLAT).$(ARCH).$(if $(findstring y,$(DEBUG)),debug,release).libpath $(PKG_DIR)/$(1).pkg/manifest.json` )"\n" \
+	"$(1)_INCFLAGS ="$(shell echo `$(TOOL_DIR)/jcat/jcat --filter=.compiler.$(PLAT).$(ARCH).$(if $(findstring y,$(DEBUG)),debug,release).incflags $(PKG_DIR)/$(1).pkg/manifest.json` )"\n" \
+	"$(1)_LIBFLAGS ="$(shell echo `$(TOOL_DIR)/jcat/jcat --filter=.compiler.$(PLAT).$(ARCH).$(if $(findstring y,$(DEBUG)),debug,release).libflags $(PKG_DIR)/$(1).pkg/manifest.json` )"\n" \
+	"$(1)_LIBNAMES ="$(shell if [ -f $(PKG_DIR)/$(1).pkg/manifest.json ]; then echo `$(TOOL_DIR)/jcat/jcat --filter=.compiler.$(PLAT).$(ARCH).$(if $(findstring y,$(DEBUG)),debug,release).libs $(PKG_DIR)/$(1).pkg/manifest.json`; else echo $(1)$(DTYPE); fi)"\n" \
+	"export "$($(1)_upper)"\n" \
+	"export "$(1)_INCPATH"\n" \
+	"export "$(1)_LIBPATH"\n" \
+	"export "$(1)_LIBNAMES"\n" \
+	"export "$(1)_INCFLAGS"\n" \
+	"export "$(1)_LIBFLAGS"\n\n" \
+,\
+	"$($(1)_upper) ="$($($(1)_upper))"\n" \
+	"export "$($(1)_upper)"\n\n")
+endef
+
+# config
+config : .null
+	-@cp $(PRO_DIR)/plat/$(PLAT)/config.h $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\[major\]/$(PRO_VERSION_MAJOR)/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\[minor\]/$(PRO_VERSION_MINOR)/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\[alter\]/$(PRO_VERSION_ALTER)/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\[build\]/`date +%Y%m%d%H%M`/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\[debug\]/\($(if $(findstring y,$(DEBUG)),1,0)\)/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\[small\]/\($(if $(findstring y,$(SMALL)),1,0)\)/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/\/\/.*\[packages\]/$(foreach name, $(PKG_NAMES), $(call MAKE_PACKAGE_INFO_,$($(name)_upper)))/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/__autoconf_head_/\#define /g" $(PRO_DIR)/$(PRO_NAME).config.h
+	-@$(SED) "s/_autoconf_tail__\s*/\n/g" $(PRO_DIR)/$(PRO_NAME).config.h
+	@$(ECHO) ""
+	@$(ECHO) "============================================================================="
+	@$(ECHO) "compile:"
+	@$(ECHO) "    plat:\t\t"$(PLAT)
+	@$(ECHO) "    arch:\t\t"$(ARCH)
+	@$(ECHO) "    host:\t\t"$(HOST)
+	@$(ECHO) "    demo:\t\t"$(DEMO)
+	@$(ECHO) "    prof:\t\t"$(PROF)
+	@$(ECHO) "    debug:\t\t"$(DEBUG)
+	@$(ECHO) "    small:\t\t"$(SMALL)
+	@$(ECHO) "    ccache:\t\t"$(CCACHE)
+	@$(ECHO) "    distcc:\t\t"$(DISTCC)
+	@$(ECHO) ""
+	@$(ECHO) "packages:"
+	@$(ECHO) ""$(foreach name, $(PKG_NAMES), $(call MAKE_PACKAGE_INFO,$(name)))
+	@$(ECHO) ""
+	@$(ECHO) "directories:"
+	@$(ECHO) "    install:\t\t"$(abspath $(INSTALL))
+	@$(ECHO) "    package:\t\t"$(PACKAGE)
+	@$(ECHO) ""
+	@$(ECHO) "toolchains:"
+	@$(ECHO) "    bin:\t\t"$(BIN)
+	@$(ECHO) "    pre:\t\t"$(PRE)
+	@$(ECHO) "    sdk:\t\t"$(SDK)
+	@$(ECHO) ""
+	@$(ECHO) "flags:"
+	@$(ECHO) "    cflag:\t\t"$(CFLAG)
+	@$(ECHO) "    ccflag:\t\t"$(CCFLAG)
+	@$(ECHO) "    cxflag:\t\t"$(CXFLAG)
+	@$(ECHO) "    mflag:\t\t"$(MFLAG)
+	@$(ECHO) "    mmflag:\t\t"$(MMFLAG)
+	@$(ECHO) "    mxflag:\t\t"$(MXFLAG)
+	@$(ECHO) "    ldflag:\t\t"$(LDFLAG)
+	@$(ECHO) "    asflag:\t\t"$(ASFLAG)
+	@$(ECHO) "    arflag:\t\t"$(ARFLAG)
+	@$(ECHO) "    shflag:\t\t"$(SHFLAG)
+	@$(ECHO) ""
+	@$(ECHO) "# config"									> .config.mak
+	@$(ECHO) "IS_CONFIG =y"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# project"								>> .config.mak
+	@$(ECHO) "PRO_DIR ="$(PRO_DIR)						>> .config.mak
+	@$(ECHO) "export PRO_DIR"							>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# profile"								>> .config.mak
+	@$(ECHO) "PROF ="$(PROF)							>> .config.mak
+	@$(ECHO) "export PROF"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# debug"									>> .config.mak
+	@$(ECHO) "DEBUG ="$(DEBUG)							>> .config.mak
+	@$(ECHO) "DTYPE ="$(DTYPE)							>> .config.mak
+	@$(ECHO) "export DEBUG"								>> .config.mak
+	@$(ECHO) "export DTYPE"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# small"									>> .config.mak
+	@$(ECHO) "SMALL ="$(SMALL)							>> .config.mak
+	@$(ECHO) "export SMALL"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# host"									>> .config.mak
+	@$(ECHO) "HOST ="$(HOST)							>> .config.mak
+	@$(ECHO) "export HOST"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# install"								>> .config.mak
+	@$(ECHO) "INSTALL ="$(abspath $(INSTALL))			>> .config.mak
+	@$(ECHO) "export INSTALL"							>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# flags"									>> .config.mak
+	@$(ECHO) "CFLAG ="$(CFLAG)							>> .config.mak
+	@$(ECHO) "CCFLAG ="$(CCFLAG)						>> .config.mak
+	@$(ECHO) "CXFLAG ="$(CXFLAG)						>> .config.mak
+	@$(ECHO) "MFLAG ="$(MFLAG)							>> .config.mak
+	@$(ECHO) "MMFLAG ="$(MMFLAG)						>> .config.mak
+	@$(ECHO) "MXFLAG ="$(MXFLAG)						>> .config.mak
+	@$(ECHO) "LDFLAG ="$(LDFLAG)						>> .config.mak
+	@$(ECHO) "ASFLAG ="$(ASFLAG)						>> .config.mak
+	@$(ECHO) "ARFLAG ="$(ARFLAG)						>> .config.mak
+	@$(ECHO) "SHFLAG ="$(SHFLAG)						>> .config.mak
+	@$(ECHO) "export CFLAG"								>> .config.mak
+	@$(ECHO) "export CCFLAG"							>> .config.mak
+	@$(ECHO) "export CXFLAG"							>> .config.mak
+	@$(ECHO) "export MFLAG"								>> .config.mak
+	@$(ECHO) "export MMFLAG"							>> .config.mak
+	@$(ECHO) "export MXFLAG"							>> .config.mak
+	@$(ECHO) "export LDFLAG"							>> .config.mak
+	@$(ECHO) "export ASFLAG"							>> .config.mak
+	@$(ECHO) "export ARFLAG"							>> .config.mak
+	@$(ECHO) "export SHFLAG"							>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# platform"								>> .config.mak
+	@$(ECHO) "PLAT ="$(PLAT)							>> .config.mak
+	@$(ECHO) ""$(call MAKE_UPPER,$(PLAT))" =y" 			>> .config.mak
+	@$(ECHO) "export PLAT"								>> .config.mak
+	@$(ECHO) "export "$(call MAKE_UPPER,$(PLAT)) 		>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# architecture"							>> .config.mak
+	@$(ECHO) "ARCH ="$(ARCH)							>> .config.mak
+	@$(ECHO) "ARM ="$(ARM)								>> .config.mak
+	@$(ECHO) "x86 ="$(x86)								>> .config.mak
+	@$(ECHO) "x64 ="$(x64)								>> .config.mak
+	@$(ECHO) "SH4 ="$(SH4)								>> .config.mak
+	@$(ECHO) "MIPS ="$(MIPS)							>> .config.mak
+	@$(ECHO) "SPARC ="$(SPARC)							>> .config.mak
+	@$(ECHO) "export ARCH"								>> .config.mak
+	@$(ECHO) "export ARM"								>> .config.mak
+	@$(ECHO) "export x86"								>> .config.mak
+	@$(ECHO) "export x64"								>> .config.mak
+	@$(ECHO) "export SH4"								>> .config.mak
+	@$(ECHO) "export MIPS"								>> .config.mak
+	@$(ECHO) "export SPARC"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# demo"									>> .config.mak
+	@$(ECHO) "DEMO ="$(DEMO)							>> .config.mak
+	@$(ECHO) "export DEMO"								>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# toolchain"								>> .config.mak
+	@$(ECHO) "SDK ="$(SDK)								>> .config.mak
+	@$(ECHO) "BIN ="$(BIN)								>> .config.mak
+	@$(ECHO) "PRE ="$(PRE)								>> .config.mak
+	@$(ECHO) "CCACHE ="$(CCACHE)						>> .config.mak
+	@$(ECHO) "DISTCC ="$(DISTCC)						>> .config.mak
+	@$(ECHO) "export SDK"								>> .config.mak
+	@$(ECHO) "export BIN"								>> .config.mak
+	@$(ECHO) "export PRE"								>> .config.mak
+	@$(ECHO) "export CCACHE"							>> .config.mak
+	@$(ECHO) "export DISTCC"							>> .config.mak
+	@$(ECHO) ""											>> .config.mak
+	@$(ECHO) "# packages"								>> .config.mak
+	@$(ECHO) "PACKAGE ="$(PACKAGE)						>> .config.mak
+	@$(ECHO) "PKG_DIR ="$(PKG_DIR)						>> .config.mak
+	@$(ECHO) "export PACKAGE"							>> .config.mak
+	@$(ECHO) "export PKG_DIR"							>> .config.mak
+	@$(ECHO) $(foreach name, $(PKG_NAMES), $(call LOAD_PACKAGE_OPTIONS,$(name))) >> .config.mak
+
+# ######################################################################################
+# help
+# #
+
+# make help
+help : .null
+	@cat $(PRO_DIR)/INSTALL
 
