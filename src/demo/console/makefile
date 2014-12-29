@@ -10,10 +10,10 @@ demo_TYPE 										= BIN
 # files
 demo_C_FILES 									+= \
 												demo \
-												base/mesh \
 												core/path \
 												core/vector \
 												core/bitmap \
+												utils/mesh \
 												other/test
 
 # packages

@@ -20,8 +20,8 @@
  * @file        prefix.h
  *
  */
-#ifndef GB_BASE_IMPL_PREFIX_H
-#define GB_BASE_IMPL_PREFIX_H
+#ifndef GB_UTILS_IMPL_PREFIX_H
+#define GB_UTILS_IMPL_PREFIX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes

@@ -49,12 +49,12 @@ gbox_C_FILES 			+= \
 						core/impl/polygon_tesselator \
 						core/impl/polygon_raster 
 
-# base files
+# utils files
 gbox_C_FILES 			+= \
-						base/mesh \
-						base/impl/mesh_edge \
-						base/impl/mesh_face \
-						base/impl/mesh_vertex 
+						utils/mesh \
+						utils/impl/mesh_edge \
+						utils/impl/mesh_face \
+						utils/impl/mesh_vertex 
 
 # bitmap device files
 gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_BITMAP) += \
@@ -128,9 +128,9 @@ gbox_INC_FILES 			= \
 						prefix/version.h \
 						svg/svg.h \
 						svg/prefix.h \
-						base/base.h \
-						base/prefix.h \
-						base/mesh.h \
+						utils/utils.h \
+						utils/prefix.h \
+						utils/mesh.h \
 						core/core.h \
 						core/prefix.h \
 						core/prefix/type.h \

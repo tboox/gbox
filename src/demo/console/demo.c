@@ -37,8 +37,8 @@ static gb_demo_t g_demo[] =
 ,   GB_DEMO_MAIN_ITEM(core_bitmap)
 ,   GB_DEMO_MAIN_ITEM(core_vector)
 
-    // mesh
-,   GB_DEMO_MAIN_ITEM(base_mesh)
+    // utils
+,   GB_DEMO_MAIN_ITEM(utils_mesh)
 
     // ohter
 ,   GB_DEMO_MAIN_ITEM(other_test)

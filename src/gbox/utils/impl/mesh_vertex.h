@@ -17,12 +17,12 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh_edge.h
- * @ingroup     base
+ * @file        mesh_vertex.h
+ * @ingroup     utils
  *
  */
-#ifndef GB_CORE_IMPL_MESH_EDGE_H
-#define GB_CORE_IMPL_MESH_EDGE_H
+#ifndef GB_UTILS_IMPL_MESH_VERTEX_H
+#define GB_UTILS_IMPL_MESH_VERTEX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -36,66 +36,78 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-// the mesh edge list ref type
-typedef struct{}*           gb_mesh_edge_list_ref_t;
+// the mesh vertex list type
+typedef struct{}*           gb_mesh_vertex_list_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
-/* init the mesh edge list 
+/* init the mesh vertex list 
  *
  * @param func              the item func
  *
- * @return                  the edge list
+ * @returned                the vertex list
  */
-gb_mesh_edge_list_ref_t     gb_mesh_edge_list_init(tb_item_func_t func);
+gb_mesh_vertex_list_ref_t   gb_mesh_vertex_list_init(tb_item_func_t func);
 
-/* exit the mesh edge list
+/* exit the mesh vertex list
  *
- * @param list              the edge list
+ * @param list              the vertex list
  */
-tb_void_t                   gb_mesh_edge_list_exit(gb_mesh_edge_list_ref_t list);
+tb_void_t                   gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t list);
 
-/* clear the mesh edge list
+/* clear the mesh vertex list
  *
- * @param list              the edge list
+ * @param list              the vertex list
  */
-tb_void_t                   gb_mesh_edge_list_clear(gb_mesh_edge_list_ref_t list);
+tb_void_t                   gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list);
 
-/*! the mesh edge count
+/*! the mesh vertex iterator
+ *
+ * @param list              the list
+ *
+ * @return                  the mesh vertex iterator
+ */
+tb_iterator_ref_t           gb_mesh_vertex_list_itor(gb_mesh_vertex_list_ref_t list);
+
+/*! the mesh vertex count
  *
  * @param list              the list
  *
  * @return                  the item count
  */
-tb_size_t                   gb_mesh_edge_list_size(gb_mesh_edge_list_ref_t list);
+tb_size_t                   gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t list);
 
-/*! the mesh edge maximum count
+/*! the mesh vertex maximum count
  *
  * @param list              the list
  *
  * @return                  the item max count
  */
-tb_size_t                   gb_mesh_edge_list_maxn(gb_mesh_edge_list_ref_t list);
+tb_size_t                   gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t list);
 
-/*! make a bare and unconnected edge
+/*! make a bare vertex without edges
  *
  * @param list              the list
  *
- * @return                  the new edge
+ * @return                  the new vertex
  */
-gb_mesh_edge_ref_t          gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list);
+gb_mesh_vertex_ref_t        gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list);
 
-/*! kill the edge, release the storage
+/*! kill the vertex, release the storage
  *
  * @param list              the list
- * @param edge              the edge
+ * @param vertex            the vertex
  */
-tb_void_t                   gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge);
+tb_void_t                   gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

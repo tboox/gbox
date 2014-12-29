@@ -18,11 +18,11 @@
  *
  * @author      ruki
  * @file        mesh_face.h
- * @ingroup     base
+ * @ingroup     utils
  *
  */
-#ifndef GB_CORE_IMPL_MESH_FACE_H
-#define GB_CORE_IMPL_MESH_FACE_H
+#ifndef GB_UTILS_IMPL_MESH_FACE_H
+#define GB_UTILS_IMPL_MESH_FACE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
