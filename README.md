@@ -6,11 +6,25 @@ GBOX is a mutli-platform c graphic library, ui and game engine for unix, windows
 contact
 -------
 
-- email:   	    waruqi@gmail.com
-- source:  	    https://github.com/waruqi/gbox
-- website: 	    http://www.tboox.org or http://www.tboox.net
-- download:     https://github.com/waruqi/gbox/archive/master.zip
-- qq(group):    343118190
+- email:   	    
+	- waruqi@gmail.com
+	- waruqi@126.com
+- source:  	    
+	- [github](https://github.com/waruqi/gbox)
+	- [coding](https://coding.net/u/waruqi/p/gbox/git)
+	- [osc@git](http://git.oschina.net/tboox/gbox)
+- website: 	    
+	- http://www.tboox.org
+	- http://www.tboox.net
+- download:
+ 	- [github](https://github.com/waruqi/gbox/archive/master.zip)
+ 	- [coding](https://coding.net/u/waruqi/p/gbox/git/archive/master)
+ 	- [osc@git](http://git.oschina.net/tboox/gbox/repository/archive?ref=master)
+- document:
+	- [github](https://github.com/waruqi/gbox/wiki/)
+	- [osc@git](http://git.oschina.net/tboox/gbox/wikis/home)
+- qq(group):    
+	- 343118190
 
 donate
 ------
