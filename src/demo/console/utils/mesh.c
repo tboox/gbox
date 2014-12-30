@@ -92,13 +92,13 @@ tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
              *           v3 <-------------- v2
              */
             gb_mesh_vertex_ref_t vertex0 = gb_mesh_edge_dst(edge);
-            gb_mesh_vertex_ref_t vertex1 = gb_mesh_edge_dst(gb_mesh_make_vertex_edge(mesh, vertex0, lface, rface));
-            gb_mesh_vertex_ref_t vertex2 = gb_mesh_edge_dst(gb_mesh_make_vertex_edge(mesh, vertex1, lface, rface));
-            gb_mesh_vertex_ref_t vertex3 = gb_mesh_edge_dst(gb_mesh_make_vertex_edge(mesh, vertex2, lface, rface));
+            gb_mesh_vertex_ref_t vertex1 = gb_mesh_make_vertex_edge(mesh, vertex0, lface, rface, tb_null);
+            gb_mesh_vertex_ref_t vertex2 = gb_mesh_make_vertex_edge(mesh, vertex1, lface, rface, tb_null);
+            gb_mesh_vertex_ref_t vertex3 = gb_mesh_make_vertex_edge(mesh, vertex2, lface, rface, tb_null);
 
             // make a tetrahedron
-            gb_mesh_make_face_edge(mesh, lface, vertex1, vertex3);
-            gb_mesh_make_face_edge(mesh, rface, vertex0, vertex2);
+            gb_mesh_make_face_edge(mesh, lface, vertex1, vertex3, tb_null);
+            gb_mesh_make_face_edge(mesh, rface, vertex0, vertex2, tb_null);
         }
 
 #if 0

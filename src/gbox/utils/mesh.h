@@ -37,7 +37,7 @@
 #define gb_mesh_face_edge(face)                 (tb_assert(face), (face)->edge)
 
 /// set the face edge
-#define gb_mesh_face_edge_set(face, val)        (tb_assert(face), (face)->edge = (val))
+#define gb_mesh_face_edge_set(face, val)        do { tb_assert(face); (face)->edge = (val); } while (0)
 
 /// get the face private data for user
 #define gb_mesh_face_priv(face)                 (tb_assert(face), (gb_mesh_face_ref_t)(face) + 1)
@@ -46,7 +46,7 @@
 #define gb_mesh_vertex_edge(vertex)             (tb_assert(vertex), (vertex)->edge)
 
 /// set the vertex edge
-#define gb_mesh_vertex_edge_set(vertex, val)    (tb_assert(vertex), (vertex)->edge = (val))
+#define gb_mesh_vertex_edge_set(vertex, val)    do { tb_assert(vertex); (vertex)->edge = (val); } while (0)
 
 /// get the vertex private data for user
 #define gb_mesh_vertex_priv(face)               ((gb_mesh_vertex_ref_t)(vertex) + 1)
@@ -55,79 +55,79 @@
 #define gb_mesh_edge_sym(edge)                  (tb_assert(edge), (edge)->sym)
 
 /// set the edge sym
-#define gb_mesh_edge_sym_set(edge, val)         (tb_assert(edge), (edge)->sym = (val))
+#define gb_mesh_edge_sym_set(edge, val)         do { tb_assert(edge); (edge)->sym = (val); } while (0)
 
 /// get the edge org
 #define gb_mesh_edge_org(edge)                  (tb_assert(edge), (edge)->org)
 
 /// set the edge org
-#define gb_mesh_edge_org_set(edge, val)         (tb_assert(edge), (edge)->org = (val))
+#define gb_mesh_edge_org_set(edge, val)         do { tb_assert(edge); (edge)->org = (val); gb_mesh_vertex_edge_set(val, edge); } while (0)
 
 /// get the edge dst
 #define gb_mesh_edge_dst(edge)                  (tb_assert((edge) && (edge)->sym), (edge)->sym->org)
 
 /// set the edge dst
-#define gb_mesh_edge_dst_set(edge, val)         (tb_assert((edge) && (edge)->sym), (edge)->sym->org = (val))
+#define gb_mesh_edge_dst_set(edge, val)         do { tb_assert((edge) && (edge)->sym); (edge)->sym->org = (val); gb_mesh_vertex_edge_set(val, (edge)->sym); } while (0)
 
 /// get the edge lface
 #define gb_mesh_edge_lface(edge)                (tb_assert(edge), (edge)->lface)
 
 /// set the edge lface
-#define gb_mesh_edge_lface_set(edge, val)       (tb_assert(edge), (edge)->lface = (val))
+#define gb_mesh_edge_lface_set(edge, val)       do { tb_assert(edge); (edge)->lface = (val); gb_mesh_face_edge_set(val, edge); } while (0)
 
 /// get the edge rface
 #define gb_mesh_edge_rface(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->lface)
 
 /// set the edge lface
-#define gb_mesh_edge_rface_set(edge, val)       (tb_assert((edge) && (edge)->sym), (edge)->sym->lface = (val))
+#define gb_mesh_edge_rface_set(edge, val)       do { tb_assert((edge) && (edge)->sym); (edge)->sym->lface = (val); gb_mesh_face_edge_set(val, (edge)->sym); } while (0)
 
 /// get the edge onext
 #define gb_mesh_edge_onext(edge)                (tb_assert(edge), (edge)->onext)
 
 /// set the edge onext
-#define gb_mesh_edge_onext_set(edge, val)       (tb_assert(edge), (edge)->onext = (val))
+#define gb_mesh_edge_onext_set(edge, val)       do { tb_assert(edge); (edge)->onext = (val); } while (0)
 
 /// get the edge oprev
 #define gb_mesh_edge_oprev(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->lnext)
 
 /// set the edge oprev
-#define gb_mesh_edge_oprev_set(edge, val)       (tb_assert((edge) && (edge)->sym), (edge)->sym->lnext = (val))
+#define gb_mesh_edge_oprev_set(edge, val)       do { tb_assert((edge) && (edge)->sym); (edge)->sym->lnext = (val); } while (0)
 
 /// get the edge lnext
 #define gb_mesh_edge_lnext(edge)                (tb_assert(edge), (edge)->lnext)
 
 /// set the edge lnext
-#define gb_mesh_edge_lnext_set(edge, val)       (tb_assert(edge), (edge)->lnext = (val))
+#define gb_mesh_edge_lnext_set(edge, val)       do { tb_assert(edge); (edge)->lnext = (val); } while (0)
 
 /// get the edge lprev
 #define gb_mesh_edge_lprev(edge)                (tb_assert((edge) && (edge)->onext), (edge)->onext->sym)
 
 /// set the edge lprev
-#define gb_mesh_edge_lprev_set(edge, val)       (tb_assert((edge) && (edge)->onext), (edge)->onext->sym = (val))
+#define gb_mesh_edge_lprev_set(edge, val)       do { tb_assert((edge) && (edge)->onext); (edge)->onext->sym = (val); } while (0)
 
 /// get the edge rnext
 #define gb_mesh_edge_rnext(edge)                (tb_assert(gb_mesh_edge_oprev(edge)), gb_mesh_edge_oprev(edge)->sym)
 
 // set the edge rnext
-#define gb_mesh_edge_rnext_set(edge, val)       (tb_assert(gb_mesh_edge_oprev(edge)), gb_mesh_edge_oprev(edge)->sym = (val))
+#define gb_mesh_edge_rnext_set(edge, val)       do { tb_assert(gb_mesh_edge_oprev(edge)); gb_mesh_edge_oprev(edge)->sym = (val); } while (0)
 
 /// get the edge rprev
 #define gb_mesh_edge_rprev(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->onext)
 
 /// set the edge rprev
-#define gb_mesh_edge_rprev_set(edge, val)       (tb_assert((edge) && (edge)->sym), (edge)->sym->onext = (val))
+#define gb_mesh_edge_rprev_set(edge, val)       do { tb_assert((edge) && (edge)->sym); (edge)->sym->onext = (val); } while (0)
 
 /// get the edge dnext
 #define gb_mesh_edge_dnext(edge)                (tb_assert(gb_mesh_edge_rprev(edge)), gb_mesh_edge_rprev(edge)->sym)
 
 /// set the edge dnext
-#define gb_mesh_edge_dnext_set(edge, val)       (tb_assert(gb_mesh_edge_rprev(edge)), gb_mesh_edge_rprev(edge)->sym = (val))
+#define gb_mesh_edge_dnext_set(edge, val)       do { tb_assert(gb_mesh_edge_rprev(edge)); gb_mesh_edge_rprev(edge)->sym = (val); } while (0)
 
 /// get the edge dprev
 #define gb_mesh_edge_dprev(edge)                (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym)
 
 /// set the edge rprev
-#define gb_mesh_edge_dprev_set(edge, val)       (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym = (val))
+#define gb_mesh_edge_dprev_set(edge, val)       do { tb_assert((edge) && (edge)->lnext); (edge)->lnext->sym = (val); } while (0)
 
 /// get the edge private data for user
 #define gb_mesh_edge_priv(edge)                 (tb_assert(edge), (gb_mesh_edge_ref_t)(edge) + 1)
@@ -371,10 +371,11 @@ gb_mesh_edge_ref_t              gb_mesh_make_root_edge(gb_mesh_ref_t mesh);
  * @param face                  the face to divide to make the new edge, must be non-null
  * @param org                   the origin vertex of the new edge, must be non-null
  * @param dst                   the destinate vertex of the new edge, must be non-null
+ * @param pedge                 the new edge pointer, optional
  *
- * @return                      the new edge
+ * @return                      the new face
  */
-gb_mesh_edge_ref_t              gb_mesh_make_face_edge(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, gb_mesh_vertex_ref_t org, gb_mesh_vertex_ref_t dst);
+gb_mesh_face_ref_t              gb_mesh_make_face_edge(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, gb_mesh_vertex_ref_t org, gb_mesh_vertex_ref_t dst, gb_mesh_edge_ref_t* pedge);
 
 /*! kill the face edge
  *
@@ -399,28 +400,29 @@ tb_void_t                       gb_mesh_kill_face_edge(gb_mesh_ref_t mesh, gb_me
  *
  * <pre>
  * 
- *                                 .   .   .
- *   .    .    .                     . . .
- *     .  .  .                         Vnew(dst)
- *       . .                           .
- * lface  V  rface      =>  lface      .        rface
- *       . .                           .
- *     .     .                        /.\ edge
- *                                     . 
- *                                     .
- *                                     V(org)
- *                                    . .
- *                                  .     . 
+ *                                   .   .   .
+ *     .    .    .                     . . .
+ *       .  .  .                     vertex_new(dst)
+ *         . .                           .
+ * lface  vertex  rface    =>  lface     .        rface
+ *         . .                           .
+ *       .     .                        /.\ edge_new
+ *                                       . 
+ *                                       .
+ *                                    vertex(org)
+ *                                      . .
+ *                                    .     . 
  * </pre>
  *
  * @param mesh                  the mesh
  * @param vertex                the origin vertex of the new edge, must be non-null
  * @param lface                 the left face of the new edge, must be non-null
  * @param rface                 the right face of the new edge, must be non-null
+ * @param pedge                 the new edge pointer, optional
  *
- * @return                      the new edge
+ * @return                      the new vertex
  */
-gb_mesh_edge_ref_t              gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, gb_mesh_face_ref_t lface, gb_mesh_face_ref_t rface);
+gb_mesh_vertex_ref_t            gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, gb_mesh_face_ref_t lface, gb_mesh_face_ref_t rface, gb_mesh_edge_ref_t* pedge);
 
 /*! kill the vertex edge
  *
