@@ -34,103 +34,103 @@
  */
 
 /// get the face edge
-#define gb_mesh_face_edge(face)                 ((face)->edge)
+#define gb_mesh_face_edge(face)                 (tb_assert(face), (face)->edge)
 
 /// set the face edge
-#define gb_mesh_face_edge_set(face, val)        ((face)->edge = (val))
+#define gb_mesh_face_edge_set(face, val)        (tb_assert(face), (face)->edge = (val))
 
 /// get the face private data for user
-#define gb_mesh_face_priv(face)                 ((gb_mesh_face_ref_t)(face) + 1)
+#define gb_mesh_face_priv(face)                 (tb_assert(face), (gb_mesh_face_ref_t)(face) + 1)
 
 /// get the vertex edge
-#define gb_mesh_vertex_edge(vertex)             ((vertex)->edge)
+#define gb_mesh_vertex_edge(vertex)             (tb_assert(vertex), (vertex)->edge)
 
 /// set the vertex edge
-#define gb_mesh_vertex_edge_set(vertex, val)    ((vertex)->edge = (val))
+#define gb_mesh_vertex_edge_set(vertex, val)    (tb_assert(vertex), (vertex)->edge = (val))
 
 /// get the vertex private data for user
 #define gb_mesh_vertex_priv(face)               ((gb_mesh_vertex_ref_t)(vertex) + 1)
 
 /// get the edge sym
-#define gb_mesh_edge_sym(edge)                  ((edge)->sym)
+#define gb_mesh_edge_sym(edge)                  (tb_assert(edge), (edge)->sym)
 
 /// set the edge sym
-#define gb_mesh_edge_sym_set(edge, val)         ((edge)->sym = (val))
+#define gb_mesh_edge_sym_set(edge, val)         (tb_assert(edge), (edge)->sym = (val))
 
 /// get the edge org
-#define gb_mesh_edge_org(edge)                  ((edge)->org)
+#define gb_mesh_edge_org(edge)                  (tb_assert(edge), (edge)->org)
 
 /// set the edge org
-#define gb_mesh_edge_org_set(edge, val)         ((edge)->org = (val))
+#define gb_mesh_edge_org_set(edge, val)         (tb_assert(edge), (edge)->org = (val))
 
 /// get the edge dst
-#define gb_mesh_edge_dst(edge)                  ((edge)->sym->org)
+#define gb_mesh_edge_dst(edge)                  (tb_assert((edge) && (edge)->sym), (edge)->sym->org)
 
 /// set the edge dst
-#define gb_mesh_edge_dst_set(edge, val)         ((edge)->sym->org = (val))
+#define gb_mesh_edge_dst_set(edge, val)         (tb_assert((edge) && (edge)->sym), (edge)->sym->org = (val))
 
 /// get the edge lface
-#define gb_mesh_edge_lface(edge)                ((edge)->lface)
+#define gb_mesh_edge_lface(edge)                (tb_assert(edge), (edge)->lface)
 
 /// set the edge lface
-#define gb_mesh_edge_lface_set(edge, val)       ((edge)->lface = (val))
+#define gb_mesh_edge_lface_set(edge, val)       (tb_assert(edge), (edge)->lface = (val))
 
 /// get the edge rface
-#define gb_mesh_edge_rface(edge)                ((edge)->sym->lface)
+#define gb_mesh_edge_rface(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->lface)
 
 /// set the edge lface
-#define gb_mesh_edge_rface_set(edge, val)       ((edge)->sym->lface = (val))
+#define gb_mesh_edge_rface_set(edge, val)       (tb_assert((edge) && (edge)->sym), (edge)->sym->lface = (val))
 
 /// get the edge onext
-#define gb_mesh_edge_onext(edge)                ((edge)->onext)
+#define gb_mesh_edge_onext(edge)                (tb_assert(edge), (edge)->onext)
 
 /// set the edge onext
-#define gb_mesh_edge_onext_set(edge, val)       ((edge)->onext = (val))
+#define gb_mesh_edge_onext_set(edge, val)       (tb_assert(edge), (edge)->onext = (val))
 
 /// get the edge oprev
-#define gb_mesh_edge_oprev(edge)                ((edge)->sym->lnext)
+#define gb_mesh_edge_oprev(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->lnext)
 
 /// set the edge oprev
-#define gb_mesh_edge_oprev_set(edge, val)       ((edge)->sym->lnext = (val))
+#define gb_mesh_edge_oprev_set(edge, val)       (tb_assert((edge) && (edge)->sym), (edge)->sym->lnext = (val))
 
 /// get the edge lnext
-#define gb_mesh_edge_lnext(edge)                ((edge)->lnext)
+#define gb_mesh_edge_lnext(edge)                (tb_assert(edge), (edge)->lnext)
 
 /// set the edge lnext
-#define gb_mesh_edge_lnext_set(edge, val)       ((edge)->lnext = (val))
+#define gb_mesh_edge_lnext_set(edge, val)       (tb_assert(edge), (edge)->lnext = (val))
 
 /// get the edge lprev
-#define gb_mesh_edge_lprev(edge)                ((edge)->onext->sym)
+#define gb_mesh_edge_lprev(edge)                (tb_assert((edge) && (edge)->onext), (edge)->onext->sym)
 
 /// set the edge lprev
-#define gb_mesh_edge_lprev_set(edge, val)       ((edge)->onext->sym = (val))
+#define gb_mesh_edge_lprev_set(edge, val)       (tb_assert((edge) && (edge)->onext), (edge)->onext->sym = (val))
 
 /// get the edge rnext
-#define gb_mesh_edge_rnext(edge)                (gb_mesh_edge_oprev(edge)->sym)
+#define gb_mesh_edge_rnext(edge)                (tb_assert(gb_mesh_edge_oprev(edge)), gb_mesh_edge_oprev(edge)->sym)
 
 // set the edge rnext
-#define gb_mesh_edge_rnext_set(edge, val)       (gb_mesh_edge_oprev(edge)->sym = (val))
+#define gb_mesh_edge_rnext_set(edge, val)       (tb_assert(gb_mesh_edge_oprev(edge)), gb_mesh_edge_oprev(edge)->sym = (val))
 
 /// get the edge rprev
-#define gb_mesh_edge_rprev(edge)                ((edge)->sym->onext)
+#define gb_mesh_edge_rprev(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->onext)
 
 /// set the edge rprev
-#define gb_mesh_edge_rprev_set(edge, val)       ((edge)->sym->onext = (val))
+#define gb_mesh_edge_rprev_set(edge, val)       (tb_assert((edge) && (edge)->sym), (edge)->sym->onext = (val))
 
 /// get the edge dnext
-#define gb_mesh_edge_dnext(edge)                (gb_mesh_edge_rprev(edge)->sym)
+#define gb_mesh_edge_dnext(edge)                (tb_assert(gb_mesh_edge_rprev(edge)), gb_mesh_edge_rprev(edge)->sym)
 
 /// set the edge dnext
-#define gb_mesh_edge_dnext_set(edge, val)       (gb_mesh_edge_rprev(edge)->sym = (val))
+#define gb_mesh_edge_dnext_set(edge, val)       (tb_assert(gb_mesh_edge_rprev(edge)), gb_mesh_edge_rprev(edge)->sym = (val))
 
 /// get the edge dprev
-#define gb_mesh_edge_dprev(edge)                ((edge)->lnext->sym)
+#define gb_mesh_edge_dprev(edge)                (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym)
 
 /// set the edge rprev
-#define gb_mesh_edge_dprev_set(edge, val)       ((edge)->lnext->sym = (val))
+#define gb_mesh_edge_dprev_set(edge, val)       (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym = (val))
 
 /// get the edge private data for user
-#define gb_mesh_edge_priv(edge)                 ((gb_mesh_edge_ref_t)(edge) + 1)
+#define gb_mesh_edge_priv(edge)                 (tb_assert(edge), (gb_mesh_edge_ref_t)(edge) + 1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
