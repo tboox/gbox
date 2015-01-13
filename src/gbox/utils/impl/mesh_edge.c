@@ -57,6 +57,9 @@
 // the mesh edge list impl type
 typedef struct __gb_mesh_edge_list_impl_t
 {
+    // the iterator
+    tb_iterator_t                   itor;
+
     // the pool
     tb_fixed_pool_ref_t             pool;
 
@@ -172,6 +175,62 @@ static __tb_inline__ tb_void_t gb_mesh_edge_remove(gb_mesh_edge_ref_t edge)
 	edge_next->sym->next = edge_prev_sym;
 	edge_prev_sym->sym->next = edge_next;
 }
+static tb_size_t gb_mesh_edge_itor_size(tb_iterator_ref_t iterator)
+{
+    // the size
+    return gb_mesh_edge_list_size((gb_mesh_edge_list_ref_t)iterator);
+}
+static tb_size_t gb_mesh_edge_itor_head(tb_iterator_ref_t iterator)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)iterator;
+    tb_assert_abort(impl);
+
+    // head
+    return (tb_size_t)impl->head[0].next;
+}
+static tb_size_t gb_mesh_edge_itor_last(tb_iterator_ref_t iterator)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)iterator;
+    tb_assert_abort(impl && impl->head[1].next);
+
+    // last
+    return (tb_size_t)(impl->head[1].next->sym);
+}
+static tb_size_t gb_mesh_edge_itor_tail(tb_iterator_ref_t iterator)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)iterator;
+    tb_assert_abort(impl);
+
+    // tail
+    return (tb_size_t)impl->head;
+}
+static tb_size_t gb_mesh_edge_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
+{
+    // check
+    tb_assert_abort(itor);
+
+    // next
+    return (tb_size_t)(((gb_mesh_edge_ref_t)itor)->next);
+}
+static tb_size_t gb_mesh_edge_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
+{
+    // check
+    tb_assert_abort(itor && ((gb_mesh_edge_ref_t)itor)->sym && ((gb_mesh_edge_ref_t)itor)->sym->next);
+
+    // prev
+    return (tb_size_t)(((gb_mesh_edge_ref_t)itor)->sym->next->sym);
+}
+static tb_pointer_t gb_mesh_edge_itor_item(tb_iterator_ref_t iterator, tb_size_t itor)
+{
+    // check
+    tb_assert_abort(itor);
+
+    // data
+    return (tb_pointer_t)itor;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -195,6 +254,18 @@ gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_item_func_t func)
 
         // init edge size
         impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + func.size);
+
+        // init iterator
+        impl->itor.mode = TB_ITERATOR_MODE_FORWARD | TB_ITERATOR_MODE_REVERSE | TB_ITERATOR_MODE_READONLY;
+        impl->itor.priv = tb_null;
+        impl->itor.step = impl->edge_size << 1;
+        impl->itor.size = gb_mesh_edge_itor_size;
+        impl->itor.head = gb_mesh_edge_itor_head;
+        impl->itor.last = gb_mesh_edge_itor_last;
+        impl->itor.tail = gb_mesh_edge_itor_tail;
+        impl->itor.prev = gb_mesh_edge_itor_prev;
+        impl->itor.next = gb_mesh_edge_itor_next;
+        impl->itor.item = gb_mesh_edge_itor_item;
 
         // init pool, item = (edge + data) + (edge->sym + data)
         impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_EDGE_LIST_GROW, impl->edge_size << 1, tb_null, gb_mesh_edge_exit, (tb_cpointer_t)impl);
@@ -250,6 +321,11 @@ tb_void_t gb_mesh_edge_list_clear(gb_mesh_edge_list_ref_t list)
 
     // clear list
     gb_mesh_edge_init(impl->head);
+}
+tb_iterator_ref_t gb_mesh_edge_list_itor(gb_mesh_edge_list_ref_t list)
+{
+    // the iterator
+    return (tb_iterator_ref_t)list;
 }
 tb_size_t gb_mesh_edge_list_size(gb_mesh_edge_list_ref_t list)
 {

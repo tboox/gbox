@@ -214,7 +214,7 @@ typedef struct __gb_mesh_edge_t
      *
      * <pre>
      * next: edge->next
-     * prev: edge->sym->next
+     * prev: edge->sym->next->sym
      *
      *  head: ..............e.............. : head_sym
      *    |                                     /|\
@@ -314,6 +314,14 @@ tb_void_t                       gb_mesh_exit(gb_mesh_ref_t mesh);
  * @param mesh                  the mesh
  */
 tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
+
+/*! the edge iterator
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the mesh edge iterator
+ */
+tb_iterator_ref_t               gb_mesh_edge_itor(gb_mesh_ref_t mesh);
 
 /*! the face iterator
  *
@@ -464,6 +472,20 @@ gb_mesh_vertex_ref_t            gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_
  * @param edge                  the vertex edge
  */
 tb_void_t                       gb_mesh_kill_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
+
+#ifdef __gb_debug__
+/*! dump mesh
+
+ * @param mesh                  the mesh
+ */
+tb_void_t                       gb_mesh_dump(gb_mesh_ref_t mesh);
+
+/*! check mesh
+
+ * @param mesh                  the mesh
+ */
+tb_void_t                       gb_mesh_check(gb_mesh_ref_t mesh);
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

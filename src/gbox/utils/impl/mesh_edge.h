@@ -66,6 +66,14 @@ tb_void_t                   gb_mesh_edge_list_exit(gb_mesh_edge_list_ref_t list)
  */
 tb_void_t                   gb_mesh_edge_list_clear(gb_mesh_edge_list_ref_t list);
 
+/*! the mesh edge iterator
+ *
+ * @param list              the list
+ *
+ * @return                  the mesh edge iterator
+ */
+tb_iterator_ref_t           gb_mesh_edge_list_itor(gb_mesh_edge_list_ref_t list);
+
 /*! the mesh edge count
  *
  * @param list              the list

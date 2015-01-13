@@ -112,6 +112,14 @@ tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
             tb_trace_i("vertex: id: %lu %{point}", vertex_user->id, &vertex_user->point);
         }
 #endif
+
+#ifdef __gb_debug__
+        // check mesh
+        gb_mesh_check(mesh);
+    
+        // dump mesh
+        gb_mesh_dump(mesh);
+#endif
     
         // exit mesh
         gb_mesh_exit(mesh);
