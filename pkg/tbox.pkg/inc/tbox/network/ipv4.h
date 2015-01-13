@@ -35,17 +35,30 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/// the ipv4 string data maxn
+#define TB_IPV4_CSTR_MAXN           (16)
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-/// the ipv4 type
+/*! the ipv4 type
+ *
+ * xxx.xxx.xxx.xxx
+ */
 typedef union __tb_ipv4_t
 {
-    /// u32 for little endian
-    tb_uint32_t u32;
+    /// u32, little-endian 
+    tb_uint32_t     u32;
 
-    /// bytes
-    tb_uint8_t  u8[4];
+    /// u16
+    tb_uint16_t     u16[2];
+
+    /// u8
+    tb_uint8_t      u8[4];
 
 }tb_ipv4_t, *tb_ipv4_ref_t;
 
@@ -57,18 +70,34 @@ typedef union __tb_ipv4_t
  *
  * @param ipv4      the ipv4
  */
-tb_void_t           tb_ipv4_clr(tb_ipv4_ref_t ipv4);
+tb_void_t           tb_ipv4_clear(tb_ipv4_ref_t ipv4);
 
-/*! set the ipv4 from the ip address
+/*! is any address?
  *
  * @param ipv4      the ipv4
- * @param ip        the ip address
  *
- * @return          the ipv4 value
+ * @return          tb_true or tb_false
  */
-tb_uint32_t         tb_ipv4_set(tb_ipv4_ref_t ipv4, tb_char_t const* ip);
+tb_bool_t           tb_ipv4_is_any(tb_ipv4_ref_t ipv4);
 
-/*! get the ipv4 address
+/*! is loopback address?
+ *
+ * @param ipv4      the ipv4
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           tb_ipv4_is_loopback(tb_ipv4_ref_t ipv4);
+
+/*! is equal?
+ *
+ * @param ipv4      the ipv4
+ * @param other     the other ipv4
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           tb_ipv4_is_equal(tb_ipv4_ref_t ipv4, tb_ipv4_ref_t other);
+
+/*! get the ipv4 string
  *
  * @param ipv4      the ipv4
  * @param data      the ipv4 data
@@ -76,7 +105,16 @@ tb_uint32_t         tb_ipv4_set(tb_ipv4_ref_t ipv4, tb_char_t const* ip);
  *
  * @return          the ipv4 address
  */
-tb_char_t const*    tb_ipv4_get(tb_ipv4_ref_t ipv4, tb_char_t* data, tb_size_t maxn);
+tb_char_t const*    tb_ipv4_cstr(tb_ipv4_ref_t ipv4, tb_char_t* data, tb_size_t maxn);
+
+/*! set the ipv4 from string
+ *
+ * @param ipv4      the ipv4
+ * @param cstr      the ipv4 string 
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           tb_ipv4_cstr_set(tb_ipv4_ref_t ipv4, tb_char_t const* cstr);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

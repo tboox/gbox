@@ -331,12 +331,30 @@ tb_iterator_ref_t               gb_mesh_face_itor(gb_mesh_ref_t mesh);
  */
 tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
 
-/*! make the root edge
+/*! make a unconnected edge
  *
- * clear the mesh first and 
+ * <pre>
+ *
+ *           lface
+ *
+ *         O -----> D
+ *
+ *           lface
+ *          
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the new edge
+ */
+gb_mesh_edge_ref_t              gb_mesh_make_edge(gb_mesh_ref_t mesh);
+
+/*! make a loop edge
+ *
  * create a looping edge that connects to itself at a single vertex
  *
  * <pre>
+ *
  *          -------
  *         |       |
  *         | rface |
@@ -349,9 +367,9 @@ tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
  *
  * @param mesh                  the mesh
  *
- * @return                      the new root edge
+ * @return                      the new edge
  */
-gb_mesh_edge_ref_t              gb_mesh_make_root_edge(gb_mesh_ref_t mesh);
+gb_mesh_edge_ref_t              gb_mesh_make_loop_edge(gb_mesh_ref_t mesh);
 
 /*! make the face edge
  *

@@ -93,7 +93,7 @@ static __tb_inline__ tb_void_t gb_mesh_edge_init(gb_mesh_edge_ref_t edge)
     // check
     tb_assert_abort(edge);
 
-    // the edge sym
+    // the sym edge
     gb_mesh_edge_ref_t edge_sym = edge->sym;
     tb_assert_abort(edge_sym && edge < edge_sym);
 
@@ -113,15 +113,15 @@ static __tb_inline__ tb_void_t gb_mesh_edge_insert_prev(gb_mesh_edge_ref_t edge,
     // check
     tb_assert_abort(edge && edge_next);
 
-    // the edge sym
+    // the sym edge
     gb_mesh_edge_ref_t edge_sym = edge->sym;
     tb_assert_abort(edge_sym && edge < edge_sym);
 
-    // the edge next sym
+    // the next sym edge
     gb_mesh_edge_ref_t edge_next_sym = edge_next->sym;
     tb_assert_abort(edge_next_sym && edge_next < edge_next_sym);
 
-    // the edge prev sym
+    // the prev sym edge
 	gb_mesh_edge_ref_t edge_prev_sym = edge_next_sym->next;
     tb_assert_abort(edge_prev_sym && edge_prev_sym->sym);
 
@@ -146,15 +146,15 @@ static __tb_inline__ tb_void_t gb_mesh_edge_remove(gb_mesh_edge_ref_t edge)
     // check
     tb_assert_abort(edge);
 
-    // the edge sym
+    // the sym edge
     gb_mesh_edge_ref_t edge_sym = edge->sym;
     tb_assert_abort(edge_sym && edge < edge_sym);
 
-    // the edge next
+    // the next edge 
 	gb_mesh_edge_ref_t edge_next = edge->next;
     tb_assert_abort(edge_next && edge_next->sym);
 
-    // the edge prev sym
+    // the prev sym edge
 	gb_mesh_edge_ref_t edge_prev_sym = edge_sym->next;
     tb_assert_abort(edge_prev_sym && edge_prev_sym->sym);
 
@@ -275,18 +275,14 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
     gb_mesh_edge_ref_t edge = (gb_mesh_edge_ref_t)tb_fixed_pool_malloc0(impl->pool);
     tb_assert_and_check_return_val(edge, tb_null);
 
-    // the edge sym
+    // the sym edge
     gb_mesh_edge_ref_t edge_sym = (gb_mesh_edge_ref_t)((tb_byte_t*)edge + impl->edge_size);
 
     // init edge
     edge->sym       = edge_sym;
-    edge->onext     = edge;
-    edge->lnext     = edge;
 
-    // init edge sym
+    // init sym edge
     edge_sym->sym   = edge;
-    edge_sym->onext = edge_sym;
-    edge_sym->lnext = edge_sym;
 
     // insert edge to the tail of list
     gb_mesh_edge_insert_prev(edge, impl->head);

@@ -30,6 +30,13 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * types
+ */
+
+/// the dns looker type
+typedef struct{}*   tb_dns_looker_ref_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
@@ -39,41 +46,41 @@
  *
  * @return          the looker handle
  */
-tb_handle_t         tb_dns_looker_init(tb_char_t const* name);
+tb_dns_looker_ref_t tb_dns_looker_init(tb_char_t const* name);
 
 /*! spak the looker
  *
- * @param handle    the looker handle
- * @param addr      the ipv4 addr
+ * @param looker    the looker 
+ * @param addr      the address
  *
  * @return          1: ok, 0: continue: -1: failed
  */
-tb_long_t           tb_dns_looker_spak(tb_handle_t handle, tb_ipv4_ref_t addr);
+tb_long_t           tb_dns_looker_spak(tb_dns_looker_ref_t looker, tb_ipaddr_ref_t addr);
 
 /*! wait the looker
  *
- * @param handle    the looker handle
+ * @param looker    the looker 
  * @param timeout   the timeout
  *
  * @return          1: ok, 0: continue: -1: failed
  */
-tb_long_t           tb_dns_looker_wait(tb_handle_t handle, tb_long_t timeout);
+tb_long_t           tb_dns_looker_wait(tb_dns_looker_ref_t looker, tb_long_t timeout);
 
 /*! exit the looker
  *
- * @param handle    the looker handle
+ * @param looker    the looker 
  */
-tb_void_t           tb_dns_looker_exit(tb_handle_t handle);
+tb_void_t           tb_dns_looker_exit(tb_dns_looker_ref_t looker);
 
-/*! look ipv4 from the host name, block
+/*! look address from the host name, block
  *
  * try to look it from cache first
  *
  * @param name      the host name
- * @param addr      the ipv4 addr
+ * @param addr      the address
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           tb_dns_looker_done(tb_char_t const* name, tb_ipv4_ref_t addr);
+tb_bool_t           tb_dns_looker_done(tb_char_t const* name, tb_ipaddr_ref_t addr);
 
 #endif

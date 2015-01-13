@@ -27,7 +27,7 @@
  * includes
  */
 #include "../prefix.h"
-#include "../ipv4.h"
+#include "../ipaddr.h"
 #include "../../utils/utils.h"
 #include "../../stream/static_stream.h"
 

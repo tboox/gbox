@@ -75,8 +75,8 @@ tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
                                     ,   tb_item_func_mem(sizeof(gb_mesh_demo_vertex_t), gb_mesh_demo_vertex_exit,   tb_null));
     if (mesh)
     {
-        // make the root edge
-        gb_mesh_edge_ref_t edge = gb_mesh_make_root_edge(mesh);
+        // make a self-loop edge
+        gb_mesh_edge_ref_t edge = gb_mesh_make_loop_edge(mesh);
         if (edge)
         {
             // the left and right face

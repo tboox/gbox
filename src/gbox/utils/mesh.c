@@ -203,7 +203,81 @@ tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
     // the vertex iterator
     return gb_mesh_vertex_list_itor(impl->vertices);
 }
-gb_mesh_edge_ref_t gb_mesh_make_root_edge(gb_mesh_ref_t mesh)
+gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl, tb_null);
+
+    // done
+    tb_bool_t               ok = tb_false;
+    gb_mesh_edge_ref_t      edge = tb_null;
+    gb_mesh_face_ref_t      face = tb_null;
+    gb_mesh_vertex_ref_t    org = tb_null;
+    gb_mesh_vertex_ref_t    dst = tb_null;
+    do
+    {
+        // make the org
+        org = gb_mesh_vertex_list_make(impl->vertices);
+        tb_assert_and_check_break(org);
+
+        // make the dst
+        dst = gb_mesh_vertex_list_make(impl->vertices);
+        tb_assert_and_check_break(dst);
+
+        // make the face
+        face = gb_mesh_face_list_make(impl->faces);
+        tb_assert_and_check_break(face);
+
+        // make the edge
+        edge = gb_mesh_edge_list_make(impl->edges);
+        tb_assert_and_check_break(edge);
+
+        // the sym edge
+        gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
+        tb_assert_and_check_break(edge_sym);
+
+        // init the edge
+        gb_mesh_edge_org_set  (edge, org);
+        gb_mesh_edge_lface_set(edge, face);
+        gb_mesh_edge_onext_set(edge, edge);
+        gb_mesh_edge_lnext_set(edge, edge_sym);
+
+        // init the sym edge
+        gb_mesh_edge_org_set  (edge_sym, dst);
+        gb_mesh_edge_lface_set(edge_sym, face);
+        gb_mesh_edge_onext_set(edge_sym, edge_sym);
+        gb_mesh_edge_lnext_set(edge_sym, edge);
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed?
+    if (!ok)
+    {
+        // kill the org
+        if (org) gb_mesh_vertex_list_kill(impl->vertices, org);
+        org = tb_null;
+
+        // kill the dst
+        if (dst) gb_mesh_vertex_list_kill(impl->vertices, dst);
+        dst = tb_null;
+
+        // kill the face
+        if (face) gb_mesh_face_list_kill(impl->faces, face);
+        face = tb_null;
+
+        // kill the edge
+        if (edge) gb_mesh_edge_list_kill(impl->edges, edge);
+        edge = tb_null;
+    }
+
+    // ok?
+    return edge;
+}
+gb_mesh_edge_ref_t gb_mesh_make_loop_edge(gb_mesh_ref_t mesh)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
@@ -217,9 +291,6 @@ gb_mesh_edge_ref_t gb_mesh_make_root_edge(gb_mesh_ref_t mesh)
     gb_mesh_vertex_ref_t    vertex = tb_null;
     do
     {
-        // clear the mesh first
-        gb_mesh_clear(mesh);
-
         // make the vertex
         vertex = gb_mesh_vertex_list_make(impl->vertices);
         tb_assert_and_check_break(vertex);
@@ -236,20 +307,21 @@ gb_mesh_edge_ref_t gb_mesh_make_root_edge(gb_mesh_ref_t mesh)
         edge = gb_mesh_edge_list_make(impl->edges);
         tb_assert_and_check_break(edge);
 
-        /* create a looping edge that connects to itself at a single vertex
-         *
-         *          -------
-         *         |       |
-         *         | rface |
-         *         |       |
-         *         O/D <---
-         *
-         *           lface
-         */
-        gb_mesh_edge_org_set(edge, vertex);
-        gb_mesh_edge_dst_set(edge, vertex);
+        // the sym edge
+        gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
+        tb_assert_and_check_break(edge_sym);
+
+        // init the edge
+        gb_mesh_edge_org_set  (edge, vertex);
         gb_mesh_edge_lface_set(edge, lface);
-        gb_mesh_edge_rface_set(edge, rface);
+        gb_mesh_edge_onext_set(edge, edge_sym);
+        gb_mesh_edge_lnext_set(edge, edge);
+
+        // init the sym edge
+        gb_mesh_edge_org_set  (edge_sym, vertex);
+        gb_mesh_edge_lface_set(edge_sym, rface);
+        gb_mesh_edge_onext_set(edge_sym, edge);
+        gb_mesh_edge_lnext_set(edge_sym, edge_sym);
 
         // ok
         ok = tb_true;
