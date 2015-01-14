@@ -357,11 +357,13 @@ tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
  */
 gb_mesh_edge_ref_t              gb_mesh_make_edge(gb_mesh_ref_t mesh);
 
-/*! make a loop edge
+/*! make a self-loop edge
  *
  * create a looping edge that connects to itself at a single vertex
  *
  * <pre>
+ *
+ * clockwise:
  *
  *          -------
  *         |       |
@@ -370,14 +372,26 @@ gb_mesh_edge_ref_t              gb_mesh_make_edge(gb_mesh_ref_t mesh);
  *         O/D <---
  *
  *           lface
+ *
+ *
+ * counter-clockwise:
+ *
+ *          -------
+ *         |       |
+ *         | lface |
+ *        \|/      |
+ *         D/O ----
+ *
+ *           rface
  *          
  * </pre>
  *
  * @param mesh                  the mesh
+ * @param is_ccw                is counter-clockwise?
  *
  * @return                      the new edge
  */
-gb_mesh_edge_ref_t              gb_mesh_make_loop_edge(gb_mesh_ref_t mesh);
+gb_mesh_edge_ref_t              gb_mesh_make_loop_edge(gb_mesh_ref_t mesh, tb_bool_t is_ccw);
 
 /*! make the face edge
  *

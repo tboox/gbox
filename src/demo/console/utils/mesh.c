@@ -76,7 +76,7 @@ tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
     if (mesh)
     {
         // make a self-loop edge
-        gb_mesh_edge_ref_t edge = gb_mesh_make_loop_edge(mesh);
+        gb_mesh_edge_ref_t edge = gb_mesh_make_loop_edge(mesh, tb_true);
         if (edge)
         {
             // the left and right face
@@ -85,11 +85,11 @@ tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
 
             /* make a quadrangle
              *
-             *           v0 --------------> v1
+             *           v0 <-------------- v3
              *            |                 |
-             *            |      rface      |      lface
+             *            |      lface      |      rface
              *            |                 |
-             *           v3 <-------------- v2
+             *           v1 --------------> v2
              */
             gb_mesh_vertex_ref_t vertex0 = gb_mesh_edge_dst(edge);
             gb_mesh_vertex_ref_t vertex1 = gb_mesh_make_vertex_edge(mesh, vertex0, lface, rface, tb_null);

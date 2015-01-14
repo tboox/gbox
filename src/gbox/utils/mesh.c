@@ -50,8 +50,7 @@ typedef struct __gb_mesh_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-#if 0
-static tb_void_t gb_mesh_orbit_set_org(gb_mesh_edge_ref_t edge, gb_mesh_vertex_ref_t org)
+static tb_void_t gb_mesh_orbit_org_set(gb_mesh_edge_ref_t edge, gb_mesh_vertex_ref_t org)
 {
     // check
     tb_assert_abort(edge && org);
@@ -68,7 +67,8 @@ static tb_void_t gb_mesh_orbit_set_org(gb_mesh_edge_ref_t edge, gb_mesh_vertex_r
     }
     while (scan != edge);
 }
-static tb_void_t gb_mesh_orbit_set_lface(gb_mesh_edge_ref_t edge, gb_mesh_face_ref_t lface)
+#if 0
+static tb_void_t gb_mesh_orbit_lface_set(gb_mesh_edge_ref_t edge, gb_mesh_face_ref_t lface)
 {
     // check
     tb_assert_abort(edge && lface);
@@ -86,7 +86,7 @@ static tb_void_t gb_mesh_orbit_set_lface(gb_mesh_edge_ref_t edge, gb_mesh_face_r
     while (scan != edge);
 }
 #endif
-static gb_mesh_edge_ref_t gb_mesh_orbit_get_edge(gb_mesh_edge_ref_t edge, gb_mesh_face_ref_t lface)
+static gb_mesh_edge_ref_t gb_mesh_orbit_edge(gb_mesh_edge_ref_t edge, gb_mesh_face_ref_t lface)
 {
     // check
     tb_assert_abort(edge && lface);
@@ -105,6 +105,22 @@ static gb_mesh_edge_ref_t gb_mesh_orbit_get_edge(gb_mesh_edge_ref_t edge, gb_mes
 
     // failed
     return tb_null;
+}
+/* Guibas and Stolfi, simplified since we don't use flips (p98) 
+ */
+static tb_void_t gb_mesh_splice(gb_mesh_edge_ref_t edge1, gb_mesh_edge_ref_t edge2)
+{
+    // check
+    tb_assert_abort(edge1 && edge2);
+
+	gb_mesh_edge_ref_t onext1 = gb_mesh_edge_onext(edge1);
+	gb_mesh_edge_ref_t onext2 = gb_mesh_edge_onext(edge2);
+
+	gb_mesh_edge_oprev_set(onext1, edge2);
+	gb_mesh_edge_oprev_set(onext2, edge1);
+    
+    gb_mesh_edge_onext_set(edge1, onext2);
+	gb_mesh_edge_onext_set(edge2, onext1);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -189,7 +205,7 @@ tb_iterator_ref_t gb_mesh_edge_itor(gb_mesh_ref_t mesh)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->edges, tb_null);
 
     // the edge iterator
     return gb_mesh_edge_list_itor(impl->edges);
@@ -198,7 +214,7 @@ tb_iterator_ref_t gb_mesh_face_itor(gb_mesh_ref_t mesh)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->faces, tb_null);
 
     // the face iterator
     return gb_mesh_face_list_itor(impl->faces);
@@ -207,7 +223,7 @@ tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->vertices, tb_null);
 
     // the vertex iterator
     return gb_mesh_vertex_list_itor(impl->vertices);
@@ -216,7 +232,7 @@ gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_ref_t mesh)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->vertices && impl->faces && impl->edges, tb_null);
 
     // done
     tb_bool_t               ok = tb_false;
@@ -249,14 +265,10 @@ gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_ref_t mesh)
         // init the edge
         gb_mesh_edge_org_set  (edge, org);
         gb_mesh_edge_lface_set(edge, face);
-        gb_mesh_edge_onext_set(edge, edge);
-        gb_mesh_edge_lnext_set(edge, edge_sym);
 
         // init the sym edge
         gb_mesh_edge_org_set  (edge_sym, dst);
         gb_mesh_edge_lface_set(edge_sym, face);
-        gb_mesh_edge_onext_set(edge_sym, edge_sym);
-        gb_mesh_edge_lnext_set(edge_sym, edge);
 
         // ok
         ok = tb_true;
@@ -286,11 +298,11 @@ gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_ref_t mesh)
     // ok?
     return edge;
 }
-gb_mesh_edge_ref_t gb_mesh_make_loop_edge(gb_mesh_ref_t mesh)
+gb_mesh_edge_ref_t gb_mesh_make_loop_edge(gb_mesh_ref_t mesh, tb_bool_t is_ccw)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl, tb_null);
+    tb_assert_and_check_return_val(impl && impl->vertices && impl->faces && impl->edges, tb_null);
 
     // done
     tb_bool_t               ok = tb_false;
@@ -313,7 +325,7 @@ gb_mesh_edge_ref_t gb_mesh_make_loop_edge(gb_mesh_ref_t mesh)
         tb_assert_and_check_break(rface);
 
         // make the edge
-        edge = gb_mesh_edge_list_make(impl->edges);
+        edge = gb_mesh_edge_list_make_loop(impl->edges, is_ccw);
         tb_assert_and_check_break(edge);
 
         // the sym edge
@@ -323,14 +335,10 @@ gb_mesh_edge_ref_t gb_mesh_make_loop_edge(gb_mesh_ref_t mesh)
         // init the edge
         gb_mesh_edge_org_set  (edge, vertex);
         gb_mesh_edge_lface_set(edge, lface);
-        gb_mesh_edge_onext_set(edge, edge_sym);
-        gb_mesh_edge_lnext_set(edge, edge);
 
         // init the sym edge
         gb_mesh_edge_org_set  (edge_sym, vertex);
         gb_mesh_edge_lface_set(edge_sym, rface);
-        gb_mesh_edge_onext_set(edge_sym, edge);
-        gb_mesh_edge_lnext_set(edge_sym, edge_sym);
 
         // ok
         ok = tb_true;
@@ -375,38 +383,104 @@ gb_mesh_vertex_ref_t gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl && vertex && lface && rface, tb_null);
+    tb_assert_and_check_return_val(impl && impl->vertices && impl->edges && vertex && lface && rface, tb_null);
 
-    // get the vertex edge
-    gb_mesh_edge_ref_t edge = gb_mesh_vertex_edge(vertex);
-    tb_assert_abort_and_check_return_val(edge, tb_null);
+    // done
+    tb_bool_t               ok = tb_false;
+    gb_mesh_edge_ref_t      edge_new = tb_null;
+    gb_mesh_vertex_ref_t    vertex_new = tb_null;
+    do
+    {
+        // get the vertex edge
+        gb_mesh_edge_ref_t edge = gb_mesh_vertex_edge(vertex);
+        tb_assert_abort_and_check_break(edge);
 
-    // get the edge with lface
-    gb_mesh_edge_ref_t edge_lf = gb_mesh_orbit_get_edge(edge, lface);
-    tb_assert_abort_and_check_return_val(edge_lf, tb_null);
+        // get the edge with edge.lface == lface
+        gb_mesh_edge_ref_t edge_lf = gb_mesh_orbit_edge(edge, lface);
+        tb_assert_abort_and_check_break(edge_lf);
 
-    // get the edge with rface
-    gb_mesh_edge_ref_t edge_rf = gb_mesh_orbit_get_edge(edge, rface);
-    tb_assert_abort_and_check_return_val(edge_rf, tb_null);
+        // get the edge with edge.lface == rface
+        gb_mesh_edge_ref_t edge_rf = gb_mesh_orbit_edge(edge, rface);
+        tb_assert_abort_and_check_break(edge_rf);
 
-    /* 
-     * 
-     *                                   .   .   .
-     *     .    .    .                     . . .
-     *       .  .  .                     vertex_new(dst)
-     *         . .                           .
-     * lface  vertex  rface    =>  lface     .        rface
-     *         . .                           .
-     *       .     .                        /.\ edge_new
-     *                                       . 
-     *                                       .
-     *                                    vertex(org)
-     *                                      . .
-     *                                    .     . 
-     * 
-     */
+        // make the new vertex
+        vertex_new = gb_mesh_vertex_list_make(impl->vertices);
+        tb_assert_and_check_break(vertex_new);
 
-    return tb_null;
+        // make the new edge
+        edge_new = gb_mesh_edge_list_make_loop(impl->edges, tb_false);
+        tb_assert_and_check_break(edge_new);
+
+        // the new sym edge
+        gb_mesh_edge_ref_t edge_sym_new = gb_mesh_edge_sym(edge_new);
+        tb_assert_and_check_break(edge_sym_new);
+
+
+        /*  
+         * before:
+         *
+         *           v0 <.                       . v2
+         *            |       . edge_lf        .
+         *            |           .          .       rface
+         *            |    lface      .    .
+         *           v1 --------------> vertex <-----------------
+         *                                |    ------------------> edge_rf
+         *                                |
+         *                               \|/
+         *
+         * after:
+         *                                           
+         *                                         . v2
+         *                                      .
+         *                                   .
+         *                   edge_lf      .
+         *           v0 <-------------- vertex_new
+         *            |                  /.\
+         *            |                   .      rface
+         *            |       lface       .
+         *            |                   . edge_new
+         *            |                   .
+         *           v1 --------------> vertex <-----------------
+         *                                |    ------------------> edge_rf
+         *                                |
+         *                               \|/
+         */ 
+#if 1
+        gb_mesh_splice(edge_lf, edge_new);
+        gb_mesh_splice(edge_rf, edge_sym_new);
+#else
+        gb_mesh_splice(edge_lf, edge_rf);
+        gb_mesh_splice(edge_lf, edge_sym_new);
+        gb_mesh_splice(edge_rf, edge_new);
+#endif
+
+        // init the new edge
+        gb_mesh_edge_org_set  (edge_new, vertex);
+        gb_mesh_edge_lface_set(edge_new, lface);
+        gb_mesh_edge_rface_set(edge_new, rface);
+
+        // update origin for all edges leaving the destination orbit of the new edge
+        gb_mesh_orbit_org_set(edge_sym_new, vertex_new);
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed
+    if (!ok)
+    {
+        // kill the new edge
+        if (edge_new) gb_mesh_edge_list_kill(impl->edges, edge_new);
+        edge_new = tb_null;
+
+        // kill the new vertex
+        if (vertex_new) gb_mesh_vertex_list_kill(impl->vertices, vertex_new);
+        vertex_new = tb_null;
+    }
+
+    // ok?
+    return vertex;
 }
 tb_void_t gb_mesh_kill_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
 {
@@ -487,7 +561,7 @@ tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)
         tb_trace_i("    vertex: %p", vertex);
 
         // dump vertex.edges
-        gb_mesh_edge_ref_t head = gb_mesh_face_edge(face);
+        gb_mesh_edge_ref_t head = gb_mesh_vertex_edge(vertex);
         gb_mesh_edge_ref_t edge = head;
         do
         {
@@ -556,7 +630,7 @@ tb_void_t gb_mesh_check(gb_mesh_ref_t mesh)
     tb_for_all_if (gb_mesh_vertex_ref_t, vertex, gb_mesh_vertex_itor(mesh), vertex)
     {
         // check vertex.edges
-        gb_mesh_edge_ref_t head = gb_mesh_face_edge(face);
+        gb_mesh_edge_ref_t head = gb_mesh_vertex_edge(vertex);
         gb_mesh_edge_ref_t edge = head;
         do
         {

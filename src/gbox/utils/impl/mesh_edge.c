@@ -356,15 +356,48 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
 
     // init edge
     edge->sym       = edge_sym;
+    edge->onext     = edge;
+    edge->lnext     = edge_sym;
 
     // init sym edge
     edge_sym->sym   = edge;
+    edge_sym->onext = edge_sym;
+    edge_sym->lnext = edge;
 
     // insert edge to the tail of list
     gb_mesh_edge_insert_prev(edge, impl->head);
 
     // ok
     return edge;
+}
+gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_bool_t is_ccw)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->pool, tb_null);
+
+    // make it
+    gb_mesh_edge_ref_t edge = (gb_mesh_edge_ref_t)tb_fixed_pool_malloc0(impl->pool);
+    tb_assert_and_check_return_val(edge, tb_null);
+
+    // the sym edge
+    gb_mesh_edge_ref_t edge_sym = (gb_mesh_edge_ref_t)((tb_byte_t*)edge + impl->edge_size);
+
+    // init edge
+    edge->sym       = edge_sym;
+    edge->onext     = edge_sym;
+    edge->lnext     = edge;
+
+    // init sym edge
+    edge_sym->sym   = edge;
+    edge_sym->onext = edge;
+    edge_sym->lnext = edge_sym;
+
+    // insert edge to the tail of list
+    gb_mesh_edge_insert_prev(edge, impl->head);
+
+    // clockwise? reverse it
+    return is_ccw? edge : edge_sym;
 }
 tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge)
 {

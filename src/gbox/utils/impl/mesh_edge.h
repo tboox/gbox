@@ -90,13 +90,49 @@ tb_size_t                   gb_mesh_edge_list_size(gb_mesh_edge_list_ref_t list)
  */
 tb_size_t                   gb_mesh_edge_list_maxn(gb_mesh_edge_list_ref_t list);
 
-/*! make a bare and unconnected edge
+/*! make a unconnected edge
+ *
+ * <pre>
+ *
+ *  O -----> D
+ *          
+ * </pre>
  *
  * @param list              the list
  *
  * @return                  the new edge
  */
 gb_mesh_edge_ref_t          gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list);
+
+/*! make a self-loop edge
+ *
+ * create a looping edge that connects to itself at a single vertex
+ *
+ * <pre>
+ *
+ * clockwise:
+ *
+ *          -------
+ *         |       |
+ *         |       |
+ *         |       |
+ *         O/D <---
+ *
+ * counter-clockwise:
+ *
+ *          -------
+ *         |       |
+ *         |       |
+ *        \|/      |
+ *         D/O ----
+ *          
+ * </pre>
+ *
+ * @param list              the list
+ *
+ * @return                  the new edge
+ */
+gb_mesh_edge_ref_t          gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_bool_t is_ccw);
 
 /*! kill the edge, release the storage
  *
