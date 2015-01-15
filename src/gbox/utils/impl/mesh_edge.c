@@ -374,7 +374,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
 
 #ifdef __gb_debug__
     // init id
-    edge->id        = impl->id++;
+    edge->id        = impl->id;
     edge_sym->id    = impl->id++;
 #endif
 
@@ -409,7 +409,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
 
 #ifdef __gb_debug__
     // init id
-    edge->id        = impl->id++;
+    edge->id        = impl->id;
     edge_sym->id    = impl->id++;
 #endif
 
