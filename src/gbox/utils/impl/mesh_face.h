@@ -98,14 +98,14 @@ tb_size_t                   gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list)
  */
 gb_mesh_face_ref_t          gb_mesh_face_list_make(gb_mesh_face_list_ref_t list);
 
-/*! make the face info string
+/*! make the face string
  *
  * @param list              the list
  * @param face              the face
  * @param data              the string data
  * @param maxn              the string maxn
  */
-tb_char_t const*            gb_mesh_face_list_info(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn);
+tb_char_t const*            gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn);
 
 /*! kill the face, release the storage
  *

@@ -205,7 +205,7 @@ gb_mesh_face_ref_t gb_mesh_face_list_make(gb_mesh_face_list_ref_t list)
     // ok
     return face;
 }
-tb_char_t const* gb_mesh_face_list_info(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn)
+tb_char_t const* gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn)
 {
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;

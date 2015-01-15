@@ -109,7 +109,7 @@ gb_mesh_vertex_ref_t        gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t l
  * @param data              the string data
  * @param maxn              the string maxn
  */
-tb_char_t const*            gb_mesh_vertex_list_info(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
+tb_char_t const*            gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
 
 /*! kill the vertex, release the storage
  *

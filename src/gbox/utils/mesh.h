@@ -329,6 +329,15 @@ tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
  */
 tb_iterator_ref_t               gb_mesh_face_itor(gb_mesh_ref_t mesh);
 
+/*! the face string
+ *
+ * @param mesh                  the mesh
+ * @param face                  the face
+ * @param data                  the string data
+ * @param maxn                  the string maxn
+ */
+tb_char_t const*                gb_mesh_face_cstr(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn);
+
 /*! the face user data
  *
  * @param mesh                  the mesh
@@ -354,6 +363,15 @@ tb_void_t                       gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mes
  */
 tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
 
+/*! the vertex string
+ *
+ * @param mesh                  the mesh
+ * @param vertex                the vertex
+ * @param data                  the string data
+ * @param maxn                  the string maxn
+ */
+tb_char_t const*                gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
+
 /*! the vertex user data
  *
  * @param mesh                  the mesh
@@ -378,6 +396,15 @@ tb_void_t                       gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_m
  * @return                      the edge iterator
  */
 tb_iterator_ref_t               gb_mesh_edge_itor(gb_mesh_ref_t mesh);
+
+/*! the edge string
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the edge
+ * @param data                  the string data
+ * @param maxn                  the string maxn
+ */
+tb_char_t const*                gb_mesh_edge_cstr(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn);
 
 /*! the edge user data
  *
