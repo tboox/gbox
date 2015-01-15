@@ -118,7 +118,7 @@ static tb_void_t gb_mesh_splice(gb_mesh_edge_ref_t edge1, gb_mesh_edge_ref_t edg
 
 	gb_mesh_edge_oprev_set(onext1, edge2);
 	gb_mesh_edge_oprev_set(onext2, edge1);
-    
+
     gb_mesh_edge_onext_set(edge1, onext2);
 	gb_mesh_edge_onext_set(edge2, onext1);
 }
@@ -407,7 +407,7 @@ gb_mesh_vertex_ref_t gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex
         vertex_new = gb_mesh_vertex_list_make(impl->vertices);
         tb_assert_and_check_break(vertex_new);
 
-        // make the new edge
+        // make the new clockwise self-loop edge
         edge_new = gb_mesh_edge_list_make_loop(impl->edges, tb_false);
         tb_assert_and_check_break(edge_new);
 
@@ -415,44 +415,66 @@ gb_mesh_vertex_ref_t gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex
         gb_mesh_edge_ref_t edge_sym_new = gb_mesh_edge_sym(edge_new);
         tb_assert_and_check_break(edge_sym_new);
 
-
-        /*  
+        /*    
          * before:
          *
-         *           v0 <.                       . v2
-         *            |       . edge_lf        .
-         *            |           .          .       rface
-         *            |    lface      .    .
-         *           v1 --------------> vertex <-----------------
-         *                                |    ------------------> edge_rf
-         *                                |
-         *                               \|/
+         *        edge_new
+         *          ----
+         *         |    |
+         *          <---
          *
-         * after:
-         *                                           
-         *                                         . v2
-         *                                      .
-         *                                   .
-         *                   edge_lf      .
-         *           v0 <-------------- vertex_new
-         *            |                  /.\
-         *            |                   .      rface
-         *            |       lface       .
-         *            |                   . edge_new
-         *            |                   .
-         *           v1 --------------> vertex <-----------------
-         *                                |    ------------------> edge_rf
-         *                                |
-         *                               \|/
-         */ 
-#if 1
+         *
+         *      .                         lface
+         *          .
+         *              .    
+         *      edge_rf     .               edge_lf
+         *  <----------------- vertex ------------------->
+         *                  .         .        
+         *   rface     .                   . 
+         *         .                            . 
+         *     .                                     .
+         *
+         * splice(edge_lf, edge_new):
+         *
+         *
+         *      .                         lface
+         *          .         edge_new
+         *              .       --->
+         *      edge_rf     .  |    |        edge_lf
+         *  <----------------- vertex ------------------->
+         *                  .         .        
+         *   rface     .                   . 
+         *         .                            . 
+         *     .                                     .
+         *
+         * splice(edge_rf, edge_sym_new):
+         *
+         *
+         *
+         *      .                                     lface
+         *          .              edge_sym_new
+         *              .       <----------------
+         *      edge_rf     .  |                 |           edge_lf
+         *  <----------------- vertex       vertex_new  ------------------->
+         *                  .                           .        
+         *   rface     .                                   . 
+         *         .                                          . 
+         *     .                                                 .
+         *
+         *
+         *
+         *      .                                     lface
+         *          .               
+         *              .        
+         *      edge_rf     .          edge_new                   edge_lf
+         *  <----------------- vertex ----------> vertex_new ------------------->
+         *                  .                                  .        
+         *   rface     .                                          . 
+         *         .                                                 . 
+         *     .                                                        .
+         */       
         gb_mesh_splice(edge_lf, edge_new);
         gb_mesh_splice(edge_rf, edge_sym_new);
-#else
-        gb_mesh_splice(edge_lf, edge_rf);
-        gb_mesh_splice(edge_lf, edge_sym_new);
-        gb_mesh_splice(edge_rf, edge_new);
-#endif
 
         // init the new edge
         gb_mesh_edge_org_set  (edge_new, vertex);
