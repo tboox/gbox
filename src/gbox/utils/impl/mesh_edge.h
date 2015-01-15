@@ -43,7 +43,7 @@ __tb_extern_c_enter__
 typedef struct{}*           gb_mesh_edge_list_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
+ * interedges
  */
 
 /* init the mesh edge list 
@@ -134,12 +134,38 @@ gb_mesh_edge_ref_t          gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
  */
 gb_mesh_edge_ref_t          gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_bool_t is_ccw);
 
+/*! make the edge info string
+ *
+ * @param list              the list
+ * @param edge              the edge
+ * @param data              the string data
+ * @param maxn              the string maxn
+ */
+tb_char_t const*            gb_mesh_edge_list_info(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn);
+
 /*! kill the edge, release the storage
  *
  * @param list              the list
  * @param edge              the edge
  */
 tb_void_t                   gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge);
+
+/*! the user data 
+ *
+ * @param list              the list
+ * @param edge              the edge
+ *
+ * @return                  the user data
+ */
+tb_cpointer_t               gb_mesh_edge_list_data(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge);
+
+/*! set the user private data 
+ *
+ * @param list              the list
+ * @param edge              the edge
+ * @param data              the user data
+ */
+tb_void_t                   gb_mesh_edge_list_data_set(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_cpointer_t data);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

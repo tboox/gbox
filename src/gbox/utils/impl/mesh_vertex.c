@@ -38,17 +38,20 @@
 
 // the mesh vertex list grow
 #ifdef __tb_small__ 
-#   define GB_MESH_VERTEX_LIST_GROW               (128)
+#   define GB_MESH_VERTEX_LIST_GROW                 (128)
 #else
-#   define GB_MESH_VERTEX_LIST_GROW               (256)
+#   define GB_MESH_VERTEX_LIST_GROW                 (256)
 #endif
 
 // the mesh vertex list maxn
 #ifdef __tb_small__
-#   define GB_MESH_VERTEX_LIST_MAXN               (1 << 16)
+#   define GB_MESH_VERTEX_LIST_MAXN                 (1 << 16)
 #else
-#   define GB_MESH_VERTEX_LIST_MAXN               (1 << 30)
+#   define GB_MESH_VERTEX_LIST_MAXN                 (1 << 30)
 #endif
+
+// the vertex user data pointer
+#define gb_mesh_vertex_user(vertex)                 ((gb_mesh_vertex_ref_t)(vertex) + 1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -65,6 +68,11 @@ typedef struct __gb_mesh_vertex_list_impl_t
 
     // the func
     tb_item_func_t              func;
+
+#ifdef __gb_debug__
+    // the id
+    tb_size_t                   id;
+#endif
 
 }gb_mesh_vertex_list_impl_t;
 
@@ -186,11 +194,34 @@ gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
     gb_mesh_vertex_ref_t vertex = (gb_mesh_vertex_ref_t)tb_fixed_pool_malloc0(impl->pool);
     tb_assert_and_check_return_val(vertex, tb_null);
 
+#ifdef __gb_debug__
+    // init id
+    vertex->id = impl->id++;
+#endif
+
     // insert to the vertex list
     tb_list_entry_insert_tail(&impl->head, &vertex->entry);
 
     // ok
     return vertex;
+}
+tb_char_t const* gb_mesh_vertex_list_info(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->func.cstr && vertex && maxn, tb_null);
+  
+    // make it
+    tb_char_t info[256] = {0};
+#ifdef __gb_debug__
+    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s)", vertex->id, impl->func.cstr(&impl->func, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
+#else
+    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s)", vertex, impl->func.cstr(&impl->func, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
+#endif
+    if (size >= 0) data[size] = '\0';
+
+    // ok?
+    return data;
 }
 tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex)
 {
@@ -203,5 +234,23 @@ tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_verte
 
     // exit it
     tb_fixed_pool_free(impl->pool, vertex);
+}
+tb_cpointer_t gb_mesh_vertex_list_data(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->func.data && vertex, tb_null);
+
+    // the user data
+    return impl->func.data(&impl->func, gb_mesh_vertex_user(vertex));
+}
+tb_void_t gb_mesh_vertex_list_data_set(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return(impl && impl->func.dupl && vertex);
+
+    // set the user data
+    impl->func.dupl(&impl->func, gb_mesh_vertex_user(vertex), data);
 }
 

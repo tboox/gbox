@@ -47,7 +47,7 @@ __tb_extern_c_enter__
 typedef struct{}*           gb_mesh_vertex_list_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
+ * intervertexs
  */
 
 /* init the mesh vertex list 
@@ -102,12 +102,38 @@ tb_size_t                   gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t l
  */
 gb_mesh_vertex_ref_t        gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list);
 
+/*! make the vertex info string
+ *
+ * @param list              the list
+ * @param vertex              the vertex
+ * @param data              the string data
+ * @param maxn              the string maxn
+ */
+tb_char_t const*            gb_mesh_vertex_list_info(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
+
 /*! kill the vertex, release the storage
  *
  * @param list              the list
  * @param vertex            the vertex
  */
 tb_void_t                   gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex);
+
+/*! the user data 
+ *
+ * @param list              the list
+ * @param vertex            the vertex
+ *
+ * @return                  the user data
+ */
+tb_cpointer_t               gb_mesh_vertex_list_data(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex);
+
+/*! set the user private data 
+ *
+ * @param list              the list
+ * @param vertex            the vertex
+ * @param data              the user data
+ */
+tb_void_t                   gb_mesh_vertex_list_data_set(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -39,17 +39,11 @@
 /// set the face edge
 #define gb_mesh_face_edge_set(face, val)        do { tb_assert(face); (face)->edge = (val); } while (0)
 
-/// get the face private data for user
-#define gb_mesh_face_priv(face)                 (tb_assert(face), (gb_mesh_face_ref_t)(face) + 1)
-
 /// get the vertex edge
 #define gb_mesh_vertex_edge(vertex)             (tb_assert(vertex), (vertex)->edge)
 
 /// set the vertex edge
 #define gb_mesh_vertex_edge_set(vertex, val)    do { tb_assert(vertex); (vertex)->edge = (val); } while (0)
-
-/// get the vertex private data for user
-#define gb_mesh_vertex_priv(face)               ((gb_mesh_vertex_ref_t)(vertex) + 1)
 
 /// get the edge sym
 #define gb_mesh_edge_sym(edge)                  (tb_assert(edge), (edge)->sym)
@@ -129,9 +123,6 @@
 /// set the edge rprev
 #define gb_mesh_edge_dprev_set(edge, val)       do { tb_assert((edge) && (edge)->lnext); (edge)->lnext->sym = (val); } while (0)
 
-/// get the edge private data for user
-#define gb_mesh_edge_priv(edge)                 (tb_assert(edge), (gb_mesh_edge_ref_t)(edge) + 1)
-
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
@@ -148,10 +139,15 @@ struct __gb_mesh_edge_t;
 typedef struct __gb_mesh_vertex_t
 {
     /// the list entry
-    tb_list_entry_t                 entry;
+    tb_list_entry_t             entry;
 
     /// an arbitrary edge of the vertex
-    struct __gb_mesh_edge_t*        edge;
+    struct __gb_mesh_edge_t*    edge;
+
+#ifdef __gb_debug__
+    /// the id
+    tb_size_t                   id;
+#endif
 
 }gb_mesh_vertex_t, *gb_mesh_vertex_ref_t;
 
@@ -159,10 +155,15 @@ typedef struct __gb_mesh_vertex_t
 typedef struct __gb_mesh_face_t
 {
     /// the list entry
-    tb_list_entry_t                 entry;
+    tb_list_entry_t             entry;
 
     /// an arbitrary edge of the face
-    struct __gb_mesh_edge_t*        edge;
+    struct __gb_mesh_edge_t*    edge;
+
+#ifdef __gb_debug__
+    /// the id
+    tb_size_t                   id;
+#endif
 
 }gb_mesh_face_t, *gb_mesh_face_ref_t;
 
@@ -280,6 +281,11 @@ typedef struct __gb_mesh_edge_t
      */
     gb_mesh_face_ref_t          lface;
 
+#ifdef __gb_debug__
+    /// the id
+    tb_size_t                   id;
+#endif
+
 }gb_mesh_edge_t, *gb_mesh_edge_ref_t;
 
 /*! the mesh ref type 
@@ -315,21 +321,30 @@ tb_void_t                       gb_mesh_exit(gb_mesh_ref_t mesh);
  */
 tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
 
-/*! the edge iterator
- *
- * @param mesh                  the mesh
- *
- * @return                      the mesh edge iterator
- */
-tb_iterator_ref_t               gb_mesh_edge_itor(gb_mesh_ref_t mesh);
-
 /*! the face iterator
  *
  * @param mesh                  the mesh
  *
- * @return                      the mesh face iterator
+ * @return                      the face iterator
  */
 tb_iterator_ref_t               gb_mesh_face_itor(gb_mesh_ref_t mesh);
+
+/*! the face user data
+ *
+ * @param mesh                  the mesh
+ * @param face                  the face
+ *
+ * @return                      the face user data
+ */
+tb_cpointer_t                   gb_mesh_face_data(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face);
+
+/*! set the face user data
+ *
+ * @param mesh                  the mesh
+ * @param face                  the face
+ * @param data                  the face user data
+ */
+tb_void_t                       gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_cpointer_t data);
 
 /*! the vertex iterator
  *
@@ -338,6 +353,48 @@ tb_iterator_ref_t               gb_mesh_face_itor(gb_mesh_ref_t mesh);
  * @return                      the mesh vertex iterator
  */
 tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
+
+/*! the vertex user data
+ *
+ * @param mesh                  the mesh
+ * @param vertex                the vertex
+ *
+ * @return                      the vertex user data
+ */
+tb_cpointer_t                   gb_mesh_vertex_data(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex);
+
+/*! set the vertex user data
+ *
+ * @param mesh                  the mesh
+ * @param vertex                the vertex
+ * @param data                  the vertex user data
+ */
+tb_void_t                       gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
+
+/*! the edge iterator
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the edge iterator
+ */
+tb_iterator_ref_t               gb_mesh_edge_itor(gb_mesh_ref_t mesh);
+
+/*! the edge user data
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the edge
+ *
+ * @return                      the edge user data
+ */
+tb_cpointer_t                   gb_mesh_edge_data(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
+
+/*! set the edge user data
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the edge
+ * @param data                  the edge user data
+ */
+tb_void_t                       gb_mesh_edge_data_set(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_cpointer_t data);
 
 /*! make a unconnected edge
  *

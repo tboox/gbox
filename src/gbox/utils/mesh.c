@@ -201,15 +201,6 @@ tb_void_t gb_mesh_clear(gb_mesh_ref_t mesh)
     // clear vertices
     if (impl->vertices) gb_mesh_vertex_list_clear(impl->vertices);
 }
-tb_iterator_ref_t gb_mesh_edge_itor(gb_mesh_ref_t mesh)
-{
-    // check
-    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl && impl->edges, tb_null);
-
-    // the edge iterator
-    return gb_mesh_edge_list_itor(impl->edges);
-}
 tb_iterator_ref_t gb_mesh_face_itor(gb_mesh_ref_t mesh)
 {
     // check
@@ -219,6 +210,24 @@ tb_iterator_ref_t gb_mesh_face_itor(gb_mesh_ref_t mesh)
     // the face iterator
     return gb_mesh_face_list_itor(impl->faces);
 }
+tb_cpointer_t gb_mesh_face_data(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->faces && face, tb_null);
+
+    // the face data
+    return gb_mesh_face_list_data(impl->faces, face);
+}
+tb_void_t gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_cpointer_t data)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->faces && face);
+
+    // set the face data
+    gb_mesh_face_list_data_set(impl->faces, face, data);
+}
 tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
 {
     // check
@@ -227,6 +236,51 @@ tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
 
     // the vertex iterator
     return gb_mesh_vertex_list_itor(impl->vertices);
+}
+tb_cpointer_t gb_mesh_vertex_data(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->vertices && vertex, tb_null);
+
+    // the vertex data
+    return gb_mesh_vertex_list_data(impl->vertices, vertex);
+}
+tb_void_t gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->vertices && vertex);
+
+    // set the vertex data
+    gb_mesh_vertex_list_data_set(impl->vertices, vertex, data);
+}
+tb_iterator_ref_t gb_mesh_edge_itor(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->edges, tb_null);
+
+    // the edge iterator
+    return gb_mesh_edge_list_itor(impl->edges);
+}
+tb_cpointer_t gb_mesh_edge_data(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->edges && edge, tb_null);
+
+    // the edge data
+    return gb_mesh_edge_list_data(impl->edges, edge);
+}
+tb_void_t gb_mesh_edge_data_set(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_cpointer_t data)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->edges && edge);
+
+    // set the edge data
+    gb_mesh_edge_list_data_set(impl->edges, edge, data);
 }
 gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_ref_t mesh)
 {
@@ -484,6 +538,9 @@ gb_mesh_vertex_ref_t gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex
         // update origin for all edges leaving the destination orbit of the new edge
         gb_mesh_orbit_org_set(edge_sym_new, vertex_new);
 
+        // save edge
+        if (pedge) *pedge = edge_new;
+
         // ok
         ok = tb_true;
 
@@ -502,7 +559,7 @@ gb_mesh_vertex_ref_t gb_mesh_make_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_vertex
     }
 
     // ok?
-    return vertex;
+    return vertex_new;
 }
 tb_void_t gb_mesh_kill_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
 {
@@ -510,31 +567,22 @@ tb_void_t gb_mesh_kill_vertex_edge(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
 #ifdef __gb_debug__
 tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)
 {
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->vertices && impl->edges && impl->faces);
+
     // trace
     tb_trace_i("");
     tb_trace_i("edges:");
 
     // dump edges
+    tb_char_t data[8192];
     tb_for_all_if (gb_mesh_edge_ref_t, edge, gb_mesh_edge_itor(mesh), edge)
     {
-        // the sym edge
-        gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
-
         // trace
-        tb_trace_i("    edge: %p",                  edge);
-        tb_trace_i("        org: %p, dst: %p",      gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge));
-        tb_trace_i("        onext: %p, oprev: %p",  gb_mesh_edge_onext(edge), gb_mesh_edge_oprev(edge));
-        tb_trace_i("        lnext: %p, lprev: %p",  gb_mesh_edge_lnext(edge), gb_mesh_edge_lprev(edge));
-        tb_trace_i("        rnext: %p, rprev: %p",  gb_mesh_edge_rnext(edge), gb_mesh_edge_rprev(edge));
-
-        // trace
-        tb_trace_i("    edge_sym: %p",              edge_sym);
-        tb_trace_i("        org: %p, dst: %p",      gb_mesh_edge_org(edge_sym), gb_mesh_edge_dst(edge_sym));
-        tb_trace_i("        onext: %p, oprev: %p",  gb_mesh_edge_onext(edge_sym), gb_mesh_edge_oprev(edge_sym));
-        tb_trace_i("        lnext: %p, lprev: %p",  gb_mesh_edge_lnext(edge_sym), gb_mesh_edge_lprev(edge_sym));
-        tb_trace_i("        rnext: %p, rprev: %p",  gb_mesh_edge_rnext(edge_sym), gb_mesh_edge_rprev(edge_sym));
-        tb_trace_i("");
+        tb_trace_i("    %s", gb_mesh_edge_list_info(impl->edges, edge, data, sizeof(data)));
     }
+
     // trace
     tb_trace_i("faces:");
 
@@ -542,30 +590,15 @@ tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)
     tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(mesh), face)
     {
         // trace
-        tb_trace_i("    face: %p", face);
+        tb_trace_i("    face: %s", gb_mesh_face_list_info(impl->faces, face, data, sizeof(data)));
 
         // dump face.edges
         gb_mesh_edge_ref_t head = gb_mesh_face_edge(face);
         gb_mesh_edge_ref_t edge = head;
         do
         {
-            // the sym edge
-            gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
-
             // trace
-            tb_trace_i("        edge: %p",                  edge);
-            tb_trace_i("            org: %p, dst: %p",      gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge));
-            tb_trace_i("            onext: %p, oprev: %p",  gb_mesh_edge_onext(edge), gb_mesh_edge_oprev(edge));
-            tb_trace_i("            lnext: %p, lprev: %p",  gb_mesh_edge_lnext(edge), gb_mesh_edge_lprev(edge));
-            tb_trace_i("            rnext: %p, rprev: %p",  gb_mesh_edge_rnext(edge), gb_mesh_edge_rprev(edge));
-
-            // trace
-            tb_trace_i("        edge_sym: %p",              edge_sym);
-            tb_trace_i("            org: %p, dst: %p",      gb_mesh_edge_org(edge_sym), gb_mesh_edge_dst(edge_sym));
-            tb_trace_i("            onext: %p, oprev: %p",  gb_mesh_edge_onext(edge_sym), gb_mesh_edge_oprev(edge_sym));
-            tb_trace_i("            lnext: %p, lprev: %p",  gb_mesh_edge_lnext(edge_sym), gb_mesh_edge_lprev(edge_sym));
-            tb_trace_i("            rnext: %p, rprev: %p",  gb_mesh_edge_rnext(edge_sym), gb_mesh_edge_rprev(edge_sym));
-            tb_trace_i("");
+            tb_trace_i("        %s", gb_mesh_edge_list_info(impl->edges, edge, data, sizeof(data)));
 
             // the next edge
             edge = gb_mesh_edge_lnext(edge);
@@ -580,30 +613,15 @@ tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)
     tb_for_all_if (gb_mesh_vertex_ref_t, vertex, gb_mesh_vertex_itor(mesh), vertex)
     {
         // trace
-        tb_trace_i("    vertex: %p", vertex);
+        tb_trace_i("    vertex: %s", gb_mesh_vertex_list_info(impl->vertices, vertex, data, sizeof(data)));
 
         // dump vertex.edges
         gb_mesh_edge_ref_t head = gb_mesh_vertex_edge(vertex);
         gb_mesh_edge_ref_t edge = head;
         do
         {
-            // the sym edge
-            gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
-
             // trace
-            tb_trace_i("        edge: %p",                  edge);
-            tb_trace_i("            org: %p, dst: %p",      gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge));
-            tb_trace_i("            onext: %p, oprev: %p",  gb_mesh_edge_onext(edge), gb_mesh_edge_oprev(edge));
-            tb_trace_i("            lnext: %p, lprev: %p",  gb_mesh_edge_lnext(edge), gb_mesh_edge_lprev(edge));
-            tb_trace_i("            rnext: %p, rprev: %p",  gb_mesh_edge_rnext(edge), gb_mesh_edge_rprev(edge));
-
-            // trace
-            tb_trace_i("        edge_sym: %p",              edge_sym);
-            tb_trace_i("            org: %p, dst: %p",      gb_mesh_edge_org(edge_sym), gb_mesh_edge_dst(edge_sym));
-            tb_trace_i("            onext: %p, oprev: %p",  gb_mesh_edge_onext(edge_sym), gb_mesh_edge_oprev(edge_sym));
-            tb_trace_i("            lnext: %p, lprev: %p",  gb_mesh_edge_lnext(edge_sym), gb_mesh_edge_lprev(edge_sym));
-            tb_trace_i("            rnext: %p, rprev: %p",  gb_mesh_edge_rnext(edge_sym), gb_mesh_edge_rprev(edge_sym));
-            tb_trace_i("");
+            tb_trace_i("        %s", gb_mesh_edge_list_info(impl->edges, edge, data, sizeof(data)));
 
             // the next edge
             edge = gb_mesh_edge_onext(edge);

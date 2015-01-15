@@ -90,7 +90,7 @@ tb_size_t                   gb_mesh_face_list_size(gb_mesh_face_list_ref_t list)
  */
 tb_size_t                   gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list);
 
-/*! make a bare face without edges
+/*! make a bare face without faces
  *
  * @param list              the list
  *
@@ -98,12 +98,38 @@ tb_size_t                   gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list)
  */
 gb_mesh_face_ref_t          gb_mesh_face_list_make(gb_mesh_face_list_ref_t list);
 
+/*! make the face info string
+ *
+ * @param list              the list
+ * @param face              the face
+ * @param data              the string data
+ * @param maxn              the string maxn
+ */
+tb_char_t const*            gb_mesh_face_list_info(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn);
+
 /*! kill the face, release the storage
  *
  * @param list              the list
  * @param face              the face
  */
 tb_void_t                   gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face);
+
+/*! the user data 
+ *
+ * @param list              the list
+ * @param face              the face
+ *
+ * @return                  the user data
+ */
+tb_cpointer_t               gb_mesh_face_list_data(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face);
+
+/*! set the user private data 
+ *
+ * @param list              the list
+ * @param face              the face
+ * @param data              the user data
+ */
+tb_void_t                   gb_mesh_face_list_data_set(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_cpointer_t data);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

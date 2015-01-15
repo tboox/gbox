@@ -50,6 +50,9 @@
 #   define GB_MESH_EDGE_LIST_MAXN               (1 << 30)
 #endif
 
+// the edge user data pointer
+#define gb_mesh_edge_user(edge)                 ((gb_mesh_edge_ref_t)(edge) + 1)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
@@ -71,6 +74,11 @@ typedef struct __gb_mesh_edge_list_impl_t
 
     // the func
     tb_item_func_t                  func;
+
+#ifdef __gb_debug__
+    // the id
+    tb_size_t                       id;
+#endif
 
 }gb_mesh_edge_list_impl_t;
 
@@ -364,6 +372,12 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
     edge_sym->onext = edge_sym;
     edge_sym->lnext = edge;
 
+#ifdef __gb_debug__
+    // init id
+    edge->id        = impl->id++;
+    edge_sym->id    = impl->id++;
+#endif
+
     // insert edge to the tail of list
     gb_mesh_edge_insert_prev(edge, impl->head);
 
@@ -393,11 +407,45 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
     edge_sym->onext = edge;
     edge_sym->lnext = edge_sym;
 
+#ifdef __gb_debug__
+    // init id
+    edge->id        = impl->id++;
+    edge_sym->id    = impl->id++;
+#endif
+
     // insert edge to the tail of list
     gb_mesh_edge_insert_prev(edge, impl->head);
 
     // clockwise? reverse it
     return is_ccw? edge : edge_sym;
+}
+tb_char_t const* gb_mesh_edge_list_info(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->func.cstr && edge && maxn, tb_null);
+  
+    // make sure the edge points to the first half-edge
+    if (edge->sym < edge) edge = edge->sym;
+
+    // make the edge info
+    tb_char_t edge_info[4096] = {0};
+    tb_char_t const* pedge_info = impl->func.cstr(&impl->func, gb_mesh_edge_list_data(list, edge), edge_info, sizeof(edge_info));
+
+    // make the sym edge info
+    tb_char_t edge_sym_info[4096] = {0};
+    tb_char_t const* pedge_sym_info = impl->func.cstr(&impl->func, gb_mesh_edge_list_data(list, edge->sym), edge_sym_info, sizeof(edge_sym_info));
+
+    // make it
+#ifdef __gb_debug__
+    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s, %lu: %s)", edge->id, pedge_info, edge->sym->id, pedge_sym_info);
+#else
+    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s, %p: %s)", edge, pedge_info, edge->sym, pedge_sym_info);
+#endif
+    if (size >= 0) data[size] = '\0';
+
+    // ok?
+    return data;
 }
 tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge)
 {
@@ -413,5 +461,23 @@ tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_
 
     // exit it
     tb_fixed_pool_free(impl->pool, edge);
+}
+tb_cpointer_t gb_mesh_edge_list_data(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl && impl->func.data && edge, tb_null);
+
+    // the user data
+    return impl->func.data(&impl->func, gb_mesh_edge_user(edge));
+}
+tb_void_t gb_mesh_edge_list_data_set(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_cpointer_t data)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return(impl && impl->func.dupl && edge);
+
+    // set the user data
+    impl->func.dupl(&impl->func, gb_mesh_edge_user(edge), data);
 }
 
