@@ -477,7 +477,7 @@ gb_mesh_edge_ref_t              gb_mesh_edge_make(gb_mesh_ref_t mesh);
  */
 gb_mesh_edge_ref_t              gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bool_t is_ccw);
 
-/*! make the face edge
+/*! make the edge at face
  *
  * <pre>
  *            . dst                        . dst
@@ -501,7 +501,7 @@ gb_mesh_edge_ref_t              gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bo
  */
 gb_mesh_face_ref_t              gb_mesh_edge_make_at_face(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, gb_mesh_vertex_ref_t org, gb_mesh_vertex_ref_t dst, gb_mesh_edge_ref_t* pedge);
 
-/*! kill the face edge
+/*! kill the edge at face
  *
  * <pre>
  *            . dst                        . dst
@@ -520,7 +520,7 @@ gb_mesh_face_ref_t              gb_mesh_edge_make_at_face(gb_mesh_ref_t mesh, gb
  */
 tb_void_t                       gb_mesh_edge_kill_at_face(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
 
-/*! make the vertex edge
+/*! make the edge at vertex
  *
  * <pre>
  * 
@@ -548,7 +548,7 @@ tb_void_t                       gb_mesh_edge_kill_at_face(gb_mesh_ref_t mesh, gb
  */
 gb_mesh_vertex_ref_t            gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, gb_mesh_face_ref_t lface, gb_mesh_face_ref_t rface, gb_mesh_edge_ref_t* pedge);
 
-/*! kill the vertex edge
+/*! kill the edge at vertex
  *
  * <pre>
  * 

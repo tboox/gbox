@@ -424,9 +424,6 @@ tb_char_t const* gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_ed
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
     tb_assert_and_check_return_val(impl && impl->func.cstr && edge && maxn, tb_null);
-  
-    // make sure the edge points to the first half-edge
-    if (edge->sym < edge) edge = edge->sym;
 
     // make the edge info
     tb_char_t edge_info[4096] = {0};
@@ -438,9 +435,9 @@ tb_char_t const* gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_ed
 
     // make it
 #ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s, %lu: %s)", edge->id, pedge_info, edge->sym->id, pedge_sym_info);
+    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s => %lu: %s)", edge->id, pedge_info, edge->sym->id, pedge_sym_info);
 #else
-    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s, %p: %s)", edge, pedge_info, edge->sym, pedge_sym_info);
+    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s => %p: %s)", edge, pedge_info, edge->sym, pedge_sym_info);
 #endif
     if (size >= 0) data[size] = '\0';
 
