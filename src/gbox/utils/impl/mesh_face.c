@@ -196,7 +196,7 @@ gb_mesh_face_ref_t gb_mesh_face_list_make(gb_mesh_face_list_ref_t list)
 
 #ifdef __gb_debug__
     // init id
-    face->id = impl->id++;
+    face->id = ++impl->id;
 #endif
 
     // insert to the face list
@@ -228,6 +228,14 @@ tb_void_t gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
     tb_assert_and_check_return(impl && impl->pool && face);
+
+#ifdef __gb_debug__
+    // check
+    tb_assert_abort(face->id);
+
+    // clear id
+    face->id = 0;
+#endif
 
     // remove from the face list
     tb_list_entry_remove(&impl->head, &face->entry);

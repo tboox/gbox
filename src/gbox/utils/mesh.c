@@ -30,6 +30,21 @@
 #include "impl/mesh_vertex.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// check
+#ifdef __gb_debug__
+#   define gb_mesh_check_vertex(vertex)         tb_assertf_abort((vertex) && (vertex)->id && (vertex)->edge, "invalid vertex: %p, id: %lu", vertex, (vertex)? (vertex)->id : 0)
+#   define gb_mesh_check_face(face)             tb_assertf_abort((face) && (face)->id && (face)->edge, "invalid face: %p, id: %lu", face, (face)? (face)->id : 0)
+#   define gb_mesh_check_edge(edge)             do { tb_assertf_abort((edge) && (edge)->sym && (edge)->id && (edge)->sym->id, "invalid edge: %p => %p, id: %lu => %lu", edge, (edge)? (edge)->sym : tb_null, (edge)? (edge)->id : 0, (edge)->sym? (edge)->sym->id : 0); gb_mesh_check_face((edge)->lface); gb_mesh_check_face((edge)->org); } while (0)
+#else
+#   define gb_mesh_check_vertex(vertex)
+#   define gb_mesh_check_face(face)
+#   define gb_mesh_check_edge(edge)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
@@ -521,6 +536,11 @@ gb_mesh_vertex_ref_t gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, gb_mesh_ver
     gb_mesh_vertex_ref_t    vertex_new = tb_null;
     do
     {
+        // check
+        gb_mesh_check_face(lface);
+        gb_mesh_check_face(rface);
+        gb_mesh_check_vertex(vertex);
+
         // get the vertex edge
         gb_mesh_edge_ref_t edge = gb_mesh_vertex_edge(vertex);
         tb_assert_abort_and_check_break(edge);
@@ -643,6 +663,9 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
     tb_assert_and_check_return(impl && impl->vertices && impl->edges && edge);
+
+    // check
+    gb_mesh_check_edge(edge);
 
     // isolated edge? kill it directly
     if (gb_mesh_kill_isolated_edge(impl, edge)) return ;
@@ -811,7 +834,7 @@ tb_void_t gb_mesh_check(gb_mesh_ref_t mesh)
     tb_for_all_if (gb_mesh_edge_ref_t, edge, gb_mesh_edge_itor(mesh), edge)
     {
         // check edge
-        tb_assert_abort(edge);
+        gb_mesh_check_edge(edge);
         tb_assert_abort(gb_mesh_edge_sym(edge) != edge);
         tb_assert_abort(gb_mesh_edge_sym(gb_mesh_edge_sym(edge)) == edge);
         tb_assert_abort(gb_mesh_edge_org(edge));
@@ -823,13 +846,16 @@ tb_void_t gb_mesh_check(gb_mesh_ref_t mesh)
     // check faces
     tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(mesh), face)
     {
+        // check face
+        gb_mesh_check_face(face);
+
         // check face.edges
         gb_mesh_edge_ref_t head = gb_mesh_face_edge(face);
         gb_mesh_edge_ref_t edge = head;
         do
         {
             // check edge
-            tb_assert_abort(edge);
+            gb_mesh_check_edge(edge);
             tb_assert_abort(gb_mesh_edge_sym(edge) != edge);
             tb_assert_abort(gb_mesh_edge_sym(gb_mesh_edge_sym(edge)) == edge);
             tb_assert_abort(gb_mesh_edge_sym(gb_mesh_edge_onext(gb_mesh_edge_lnext(edge))) == edge);
@@ -845,13 +871,16 @@ tb_void_t gb_mesh_check(gb_mesh_ref_t mesh)
     // check vertices
     tb_for_all_if (gb_mesh_vertex_ref_t, vertex, gb_mesh_vertex_itor(mesh), vertex)
     {
+        // check vertex
+        gb_mesh_check_vertex(vertex);
+
         // check vertex.edges
         gb_mesh_edge_ref_t head = gb_mesh_vertex_edge(vertex);
         gb_mesh_edge_ref_t edge = head;
         do
         {
             // check edge
-            tb_assert_abort(edge);
+            gb_mesh_check_edge(edge);
             tb_assert_abort(gb_mesh_edge_sym(edge) != edge);
             tb_assert_abort(gb_mesh_edge_sym(gb_mesh_edge_sym(edge)) == edge);
             tb_assert_abort(gb_mesh_edge_sym(gb_mesh_edge_onext(gb_mesh_edge_lnext(edge))) == edge);

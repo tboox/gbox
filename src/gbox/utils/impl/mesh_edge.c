@@ -374,8 +374,8 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
 
 #ifdef __gb_debug__
     // init id
-    edge->id        = impl->id++;
-    edge_sym->id    = impl->id++;
+    edge->id        = ++impl->id;
+    edge_sym->id    = ++impl->id;
 #endif
 
     // insert edge to the tail of list
@@ -409,8 +409,8 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
 
 #ifdef __gb_debug__
     // init id
-    edge->id        = impl->id++;
-    edge_sym->id    = impl->id++;
+    edge->id        = ++impl->id;
+    edge_sym->id    = ++impl->id;
 #endif
 
     // insert edge to the tail of list
@@ -452,6 +452,15 @@ tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_
 
     // make sure the edge points to the first half-edge
     if (edge->sym < edge) edge = edge->sym;
+
+#ifdef __gb_debug__
+    // check
+    tb_assert_abort(edge->id && edge->sym->id);
+
+    // clear id
+    edge->id        = 0;
+    edge->sym->id   = 0;
+#endif
 
     // remove it from the list
     gb_mesh_edge_remove(edge);

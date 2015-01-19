@@ -196,7 +196,7 @@ gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
 
 #ifdef __gb_debug__
     // init id
-    vertex->id = impl->id++;
+    vertex->id = ++impl->id;
 #endif
 
     // insert to the vertex list
@@ -228,6 +228,14 @@ tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_verte
     // check
     gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
     tb_assert_and_check_return(impl && impl->pool && vertex);
+
+#ifdef __gb_debug__
+    // check
+    tb_assert_abort(vertex->id);
+
+    // clear id
+    vertex->id = 0;
+#endif
 
     // remove from the vertex list
     tb_list_entry_remove(&impl->head, &vertex->entry);
