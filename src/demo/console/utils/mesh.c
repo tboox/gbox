@@ -218,7 +218,6 @@ static tb_void_t gb_demo_utils_mesh_test_quadrangle()
             // kill all edges
             gb_mesh_edge_kill_at_vertex(mesh, edge2);
             gb_mesh_edge_kill_at_vertex(mesh, edge3);
-            gb_mesh_edge_kill_at_vertex(mesh, edge0);
             gb_mesh_edge_kill_at_vertex(mesh, edge1);
 
 #ifdef __gb_debug__

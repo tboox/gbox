@@ -108,7 +108,7 @@ static gb_mesh_edge_ref_t gb_mesh_orbit_edge(gb_mesh_edge_ref_t edge, gb_mesh_fa
 }
 /* Guibas and Stolfi, simplified since we don't use flips (p98) 
  */
-static tb_void_t gb_mesh_splice(gb_mesh_edge_ref_t edge_rf, gb_mesh_edge_ref_t edge_lf)
+static tb_void_t gb_mesh_splice_edge(gb_mesh_edge_ref_t edge_rf, gb_mesh_edge_ref_t edge_lf)
 {
     // check
     tb_assert_abort(edge_rf && edge_lf);
@@ -121,6 +121,55 @@ static tb_void_t gb_mesh_splice(gb_mesh_edge_ref_t edge_rf, gb_mesh_edge_ref_t e
 
     gb_mesh_edge_onext_set(edge_rf, onext2);
 	gb_mesh_edge_onext_set(edge_lf, onext1);
+}
+static tb_bool_t gb_mesh_kill_isolated_edge(gb_mesh_impl_t* impl, gb_mesh_edge_ref_t edge)
+{
+    // check
+    tb_assert_and_check_return_val(impl && impl->vertices && impl->edges && impl->faces && edge, tb_false);
+
+    // is isolated edge?
+    if (gb_mesh_edge_is_isolated(edge))
+    {
+        // check
+        tb_assert_abort(gb_mesh_edge_org(edge) != gb_mesh_edge_dst(edge));
+        tb_assert_abort(gb_mesh_edge_lface(edge) == gb_mesh_edge_rface(edge));
+
+        // kill the origin and destination vertices
+        gb_mesh_vertex_list_kill(impl->vertices, gb_mesh_edge_org(edge));
+        gb_mesh_vertex_list_kill(impl->vertices, gb_mesh_edge_dst(edge));
+
+        // kill the face
+        gb_mesh_face_list_kill(impl->faces, gb_mesh_edge_lface(edge));
+
+        // kill the edge
+        gb_mesh_edge_list_kill(impl->edges, edge);
+
+        // ok
+        return tb_true;
+    }
+    // is isolated loop edge?
+    else if (gb_mesh_edge_is_isolated_loop(edge))
+    {
+        // check
+        tb_assert_abort(gb_mesh_edge_org(edge) == gb_mesh_edge_dst(edge));
+        tb_assert_abort(gb_mesh_edge_lface(edge) != gb_mesh_edge_rface(edge));
+
+        // kill the vertex
+        gb_mesh_vertex_list_kill(impl->vertices, gb_mesh_edge_org(edge));
+
+        // kill the left and right face
+        gb_mesh_face_list_kill(impl->faces, gb_mesh_edge_lface(edge));
+        gb_mesh_face_list_kill(impl->faces, gb_mesh_edge_rface(edge));
+
+        // kill the edge
+        gb_mesh_edge_list_kill(impl->edges, edge);
+
+        // ok
+        return tb_true;
+    }
+
+    // no isolated
+    return tb_false;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -555,8 +604,8 @@ gb_mesh_vertex_ref_t gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, gb_mesh_ver
          *         .                                                 . 
          *     .                                                        .
          */       
-        gb_mesh_splice(edge_lf, edge_new);
-        gb_mesh_splice(edge_rf, edge_sym_new);
+        gb_mesh_splice_edge(edge_lf, edge_new);
+        gb_mesh_splice_edge(edge_rf, edge_sym_new);
 
         // init the new edge
         gb_mesh_edge_org_set  (edge_new, vertex);
@@ -595,6 +644,9 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
     tb_assert_and_check_return(impl && impl->vertices && impl->edges && edge);
 
+    // isolated edge? kill it directly
+    if (gb_mesh_kill_isolated_edge(impl, edge)) return ;
+
     // get the edge with edge.lface == lface
     gb_mesh_edge_ref_t edge_lf = gb_mesh_edge_lnext(edge);
     tb_assert_abort_and_check_return(edge_lf);
@@ -613,17 +665,16 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
      *
      *      .                           lface  
      *          .               
-     *              .        
-     *                 .         edge             
+     *              .            edge_lf'
+     *                 .       <---------        
      *  <----------------- org ----------> dst 
-     *                  .                         
+     *                  .         edge            
      *             .                              
      *         . edge_rf        rface                
      *     .  edge_lf                                 
      *
      *
      */
-    // TODO why edge_sym?
     if (edge_lf == edge_sym) edge_lf = edge_rf;
 
     /* kill edge at vertex
@@ -641,7 +692,7 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
      *     .                                            .
      *
      *
-     * gb_mesh_splice(edge_rf, edge_sym):
+     * gb_mesh_splice_edge(edge_rf, edge_sym):
      *
      *      .                                 lface  
      *          .               
@@ -665,7 +716,7 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
      *     .                                  .
      *
      *
-     * gb_mesh_splice(edge_lf, edge):
+     * gb_mesh_splice_edge(edge_lf, edge):
      *
      *      .                                 lface  
      *          .               
@@ -678,8 +729,8 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
      *     .                                  .
      *
      */       
-    gb_mesh_splice(edge_rf, edge_sym);
-    gb_mesh_splice(edge_lf, edge);
+    gb_mesh_splice_edge(edge_rf, edge_sym);
+    gb_mesh_splice_edge(edge_lf, edge);
 
     // update origin for all edges leaving the destination orbit of the deleted edge
     gb_mesh_orbit_org_set(edge_lf, gb_mesh_edge_org(edge_rf));

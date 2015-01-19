@@ -123,6 +123,12 @@
 /// set the edge rprev
 #define gb_mesh_edge_dprev_set(edge, val)       do { tb_assert((edge) && (edge)->lnext); (edge)->lnext->sym = (val); } while (0)
 
+/// the edge is isolated?
+#define gb_mesh_edge_is_isolated(edge)          (tb_assert((edge) && (edge->sym)), (edge)->onext == (edge) && (edge)->sym->onext == (edge)->sym && (edge)->lnext == (edge->sym) && (edge)->sym->lnext == (edge))
+
+/// the edge is isolated loop?
+#define gb_mesh_edge_is_isolated_loop(edge)     (tb_assert((edge) && (edge->sym)), (edge)->onext == (edge)->sym && (edge)->sym->onext == (edge) && (edge)->lnext == (edge) && (edge)->sym->lnext == (edge)->sym)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */
