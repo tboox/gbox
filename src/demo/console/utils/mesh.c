@@ -277,7 +277,6 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
             gb_mesh_vertex_ref_t    vertex1 = gb_mesh_edge_make_at_vertex(mesh, vertex0, lface, rface, &edge1);
             gb_mesh_vertex_ref_t    vertex2 = gb_mesh_edge_make_at_vertex(mesh, vertex1, lface, rface, &edge2);
             gb_mesh_vertex_ref_t    vertex3 = gb_mesh_edge_make_at_vertex(mesh, vertex2, lface, rface, &edge3);
-            gb_mesh_dump(mesh);
 
             gb_mesh_face_ref_t      face0 = gb_mesh_edge_make_at_face(mesh, lface, vertex1, vertex3, &edge4);
             gb_mesh_face_ref_t      face1 = gb_mesh_edge_make_at_face(mesh, rface, vertex0, vertex2, &edge5);

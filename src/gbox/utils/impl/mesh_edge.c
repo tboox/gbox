@@ -435,9 +435,9 @@ tb_char_t const* gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_ed
 
     // make it
 #ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s => %lu: %s)", edge->id, pedge_info, edge->sym->id, pedge_sym_info);
+    tb_long_t size = tb_snprintf(data, maxn, "(%lu.%lu: %s => %lu.%lu: %s)", edge->id, edge->org->id, pedge_info, edge->sym->id, edge->sym->org->id, pedge_sym_info);
 #else
-    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s => %p: %s)", edge, pedge_info, edge->sym, pedge_sym_info);
+    tb_long_t size = tb_snprintf(data, maxn, "(%p.%p: %s => %p.%p: %s)", edge, edge->org, pedge_info, edge->sym, edge->sym->org, pedge_sym_info);
 #endif
     if (size >= 0) data[size] = '\0';
 

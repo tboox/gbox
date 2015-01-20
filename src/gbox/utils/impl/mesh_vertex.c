@@ -214,9 +214,9 @@ tb_char_t const* gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mes
     // make it
     tb_char_t info[256] = {0};
 #ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s)", vertex->id, impl->func.cstr(&impl->func, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
+    tb_long_t size = tb_snprintf(data, maxn, "(%lu.%lu: %s)", vertex->id, vertex->edge->id, impl->func.cstr(&impl->func, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
 #else
-    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s)", vertex, impl->func.cstr(&impl->func, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
+    tb_long_t size = tb_snprintf(data, maxn, "(%p.%p: %s)", vertex, vertex->edge, impl->func.cstr(&impl->func, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
 #endif
     if (size >= 0) data[size] = '\0';
 

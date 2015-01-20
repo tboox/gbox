@@ -37,7 +37,7 @@
 #ifdef __gb_debug__
 #   define gb_mesh_check_vertex(vertex)         tb_assertf_abort((vertex) && (vertex)->id && (vertex)->edge, "invalid vertex: %p, id: %lu", vertex, (vertex)? (vertex)->id : 0)
 #   define gb_mesh_check_face(face)             tb_assertf_abort((face) && (face)->id && (face)->edge, "invalid face: %p, id: %lu", face, (face)? (face)->id : 0)
-#   define gb_mesh_check_edge(edge)             do { tb_assertf_abort((edge) && (edge)->sym && (edge)->id && (edge)->sym->id, "invalid edge: %p => %p, id: %lu => %lu", edge, (edge)? (edge)->sym : tb_null, (edge)? (edge)->id : 0, (edge)->sym? (edge)->sym->id : 0); gb_mesh_check_face((edge)->lface); gb_mesh_check_face((edge)->org); } while (0)
+#   define gb_mesh_check_edge(edge)             do { tb_assertf_abort((edge) && (edge)->sym && (edge)->id && (edge)->sym->id, "invalid edge: %p => %p, id: %lu => %lu", edge, (edge)? (edge)->sym : tb_null, (edge)? (edge)->id : 0, (edge)->sym? (edge)->sym->id : 0); gb_mesh_check_face((edge)->lface); gb_mesh_check_vertex((edge)->org); } while (0)
 #else
 #   define gb_mesh_check_vertex(vertex)
 #   define gb_mesh_check_face(face)
@@ -95,7 +95,7 @@ static tb_void_t gb_mesh_orbit_edge_set_lface(gb_mesh_edge_ref_t edge, gb_mesh_f
         gb_mesh_edge_lface_set(scan, lface);
 
         // the next edge
-        scan = gb_mesh_edge_onext(scan);
+        scan = gb_mesh_edge_lnext(scan);
     }
     while (scan != edge);
 }
@@ -132,7 +132,7 @@ static gb_mesh_edge_ref_t gb_mesh_orbit_edge_with_org(gb_mesh_edge_ref_t edge, g
         if (gb_mesh_edge_org(scan) == org) return scan;
 
         // the next edge
-        scan = gb_mesh_edge_onext(scan);
+        scan = gb_mesh_edge_lnext(scan);
     }
     while (scan != edge);
 
@@ -646,6 +646,78 @@ gb_mesh_face_ref_t gb_mesh_edge_make_at_face(gb_mesh_ref_t mesh, gb_mesh_face_re
 }
 tb_void_t gb_mesh_edge_kill_at_face(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
 {
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->faces && impl->edges && edge);
+
+    // check
+    gb_mesh_check_edge(edge);
+
+    // isolated edge? kill it directly
+    if (gb_mesh_kill_isolated_edge(impl, edge)) return ;
+
+    // get the edge with edge.org == org
+    gb_mesh_edge_ref_t edge_org = gb_mesh_edge_oprev(edge);
+    tb_assert_abort_and_check_return(edge_org);
+
+    // get the edge with edge.dst == dst
+    gb_mesh_edge_ref_t edge_dst = gb_mesh_edge_lnext(edge);
+    tb_assert_abort_and_check_return(edge_dst);
+
+    // the sym edge
+    gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
+    tb_assert_and_check_return(edge_sym);
+
+    /* use edge_org for edge_dst if the right face is inside a loop
+     *
+     * before
+     *         
+     *            
+     *          org  
+     *           |  .    edge_dst'              
+     * edge_org  | rface    e    lface    
+     * edge_dst \|/                .      
+     *            <------------------- dst
+     *                            
+     *
+     */
+    if (edge_org == edge_sym) edge_org = edge_dst;
+
+    /* kill edge at face
+     *
+     * before:
+     *         
+     *            
+     *          org -------------------->
+     *           |  .                   /|\
+     * edge_org  | rface    e    lface   | edge_dst
+     *          \|/                .     |
+     *            <------------------- dst
+     *                            
+     * after:
+     *            
+     *          org -------------------->
+     *           |                      /|\
+     * edge_org  |         lface         | edge_dst
+     *          \|/                      |
+     *            <------------------- dst
+     *                            
+     * TODO
+     */
+    gb_mesh_splice_edge(edge_dst, edge_sym);
+    gb_mesh_splice_edge(edge_org, edge);
+
+    // update left face for all edges leaving the right orbit of the deleted edge
+    gb_mesh_orbit_edge_set_lface(edge_org, gb_mesh_edge_lface(edge_dst));
+
+    // update the reference edge, the old reference edge may have been deleted
+    gb_mesh_vertex_edge_set(gb_mesh_edge_org(edge_org),     edge_org);
+    gb_mesh_vertex_edge_set(gb_mesh_edge_org(edge_dst),     edge_dst);
+    gb_mesh_face_edge_set  (gb_mesh_edge_lface(edge_dst),   edge_dst);
+
+    // kill the edge and the right face of the edge
+    gb_mesh_face_list_kill(impl->faces, gb_mesh_edge_rface(edge));
+    gb_mesh_edge_list_kill(impl->edges, edge);
 }
 gb_mesh_vertex_ref_t gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, gb_mesh_face_ref_t lface, gb_mesh_face_ref_t rface, gb_mesh_edge_ref_t* pedge)
 {
@@ -887,8 +959,8 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
     gb_mesh_face_edge_set   (gb_mesh_edge_lface(edge_lf),   edge_lf);
 
     // kill the edge and the destination vertex of the edge
-    gb_mesh_edge_list_kill(impl->edges, edge);
     gb_mesh_vertex_list_kill(impl->vertices, gb_mesh_edge_dst(edge));
+    gb_mesh_edge_list_kill(impl->edges, edge);
 }
 #ifdef __gb_debug__
 tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)
