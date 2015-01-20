@@ -672,13 +672,12 @@ tb_void_t gb_mesh_edge_kill_at_face(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
      *
      * before
      *         
-     *            
-     *          org  
-     *           |  .    edge_dst'              
-     * edge_org  | rface    e    lface    
-     * edge_dst \|/                .      
-     *            <------------------- dst
-     *                            
+     *  --> dst/org -------------------->          
+     * |  rface |  .
+     *  --------      .
+     *  edge_org'        . edge_dst
+     *             edge_org .
+     *                         .
      *
      */
     if (edge_org == edge_sym) edge_org = edge_dst;
@@ -694,15 +693,28 @@ tb_void_t gb_mesh_edge_kill_at_face(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
      *          \|/                .     |
      *            <------------------- dst
      *                            
-     * after:
+     * gb_mesh_splice_edge(edge_dst, edge_sym):
+     *
+     * 
+     *          org -------------------->
+     *           |  .                   /|\
+     * edge_org  | rface    e    lface   | edge_dst
+     *          \|/                .     |
+     *            <------------------X dst
+     *
+     * gb_mesh_splice_edge(edge_org, edge):
      *            
+     *          org -------------------->
+     *           |  X                   /|\
+     * edge_org  | rface    e    lface   | edge_dst
+     *          \|/                X     |
+     *            <------------------- dst
+     *
      *          org -------------------->
      *           |                      /|\
      * edge_org  |         lface         | edge_dst
      *          \|/                      |
      *            <------------------- dst
-     *                            
-     * TODO
      */
     gb_mesh_splice_edge(edge_dst, edge_sym);
     gb_mesh_splice_edge(edge_org, edge);
