@@ -139,21 +139,97 @@ static gb_mesh_edge_ref_t gb_mesh_orbit_edge_with_org(gb_mesh_edge_ref_t edge, g
     // failed
     return tb_null;
 }
-/* Guibas and Stolfi, simplified since we don't use flips (p98) 
+/* splice(a, b)
+ *
+ * refer to the paper of Guibas and Stolfi, simplified since we don't use flips (p98) 
+ *     - Primitives for the Manipulation of General Subdivisions and the Computation of Voronoi Diagrams
+ *
+ * This operation affects the two edge rings a Org and b Org and, independently, 
+ * the two edge rings a Left and b Left. In each case,
+ *     - if the two rings are distinct, Splice will combine them into one;
+ *     - if the two are exactly the same ring, Splice will break it in two separate pieces;
+ *     - if the two are the same ring taken with opposite orientations, 
+ *       Splice will Flip (and reverse the order) of a segment of that ring.
+ *
+ * c = a.onext.rot 
+ * d = b.onext.rot
+ *
+ * a.onext' = b.onext
+ * b.onext' = a.onext
+ *
+ * c.onext' = d.onext
+ * d.onext' = c.onext
+ *
+ * =>
+ *
+ * x = a.onext
+ * y = b.onext
+ *
+ * c = x.rot 
+ * d = y.rot
+ *
+ * a.onext' = b.onext = y
+ * b.onext' = a.onext = x
+ *
+ * x.rot.onext' = d.onext = y.rot.onext
+ * y.rot.onext' = c.onext = x.rot.onext
+ *
+ * =>
+ *
+ * x = a.onext
+ * y = b.onext
+ *
+ * a.onext' = y
+ * b.onext' = x
+ *
+ * x.rot.onext' = b.onext.rot.onext
+ * y.rot.onext' = a.onext.rot.onext
+ *
+ * TODO
+ * why ?=>
+ *
+ * x = a.onext
+ * y = b.onext
+ *
+ * a.onext' = y
+ * b.onext' = x
+ *
+ * x.rot.onext'.rot = b.onext.rot.onext.rot
+ * y.rot.onext'.rot = a.onext.rot.onext.rot
+ *
+ * => 
+ *
+ * x = a.onext
+ * y = b.onext
+ *
+ * a.onext' = y
+ * b.onext' = x
+ *
+ * x.oprev' = b
+ * y.oprev' = a
  */
-static tb_void_t gb_mesh_splice_edge(gb_mesh_edge_ref_t edge_rf, gb_mesh_edge_ref_t edge_lf)
+static tb_void_t gb_mesh_splice_edge(gb_mesh_edge_ref_t a, gb_mesh_edge_ref_t b)
 {
     // check
-    tb_assert_abort(edge_rf && edge_lf);
+    tb_assert_abort(a && b);
 
-	gb_mesh_edge_ref_t onext1 = gb_mesh_edge_onext(edge_rf);
-	gb_mesh_edge_ref_t onext2 = gb_mesh_edge_onext(edge_lf);
+    /* x = a.onext
+     * y = b.onext
+     */
+	gb_mesh_edge_ref_t x = gb_mesh_edge_onext(a);
+	gb_mesh_edge_ref_t y = gb_mesh_edge_onext(b);
 
-	gb_mesh_edge_oprev_set(onext1, edge_lf);
-	gb_mesh_edge_oprev_set(onext2, edge_rf);
+    /* a.onext' = y
+     * b.onext' = x
+     */
+    gb_mesh_edge_onext_set(a, y);
+	gb_mesh_edge_onext_set(b, x);
 
-    gb_mesh_edge_onext_set(edge_rf, onext2);
-	gb_mesh_edge_onext_set(edge_lf, onext1);
+    /* x.oprev' = b
+     * y.oprev' = a
+     */
+	gb_mesh_edge_oprev_set(x, b);
+	gb_mesh_edge_oprev_set(y, a);
 }
 static tb_bool_t gb_mesh_kill_isolated_edge(gb_mesh_impl_t* impl, gb_mesh_edge_ref_t edge)
 {
