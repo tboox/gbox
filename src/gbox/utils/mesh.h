@@ -595,30 +595,32 @@ tb_void_t                       gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, 
  * .        .        .                        .        .        .
  *   .      .      .                            .      .      .
  *     .    .    .                                .    .    .
- *   e1  .  .  .                                 e1 .  .  .  
+ *    o  .  .  .                                  o .  .  .  
  *         ...                                        ...
- *          .                             e1.lface     .       e2.lface
- *                                                   .   .
- * e1.lface     e2.lface                           .       .
- *          .                                    .           . e2
- *        .   .                                                .
- *      .       .                                                .
- *    .           . e2                                             .
+ *          . o.org             |          o.lface     . o.org      d.lface
+ *                              |                    .   .
+ *        o.lface               |                  .       .
+ *                              |                .           .
+ *          . d.org            \ /             .               . d
+ *        .   .                                                  .
+ *      .       .                                                  .
+ *    .           . d                                                .
  *                  .
  *                    .
+ *                        
+ *                         <= splice =>
  *
- *                             splice
- * e1.lface == e2.lface         <=>            e1.lface != e2.lface
+ * the d.org and d.lface will be inserted or removed
  *          
  * </pre>
  *
  * @param mesh                  the mesh
- * @param edge1                 the edge1
- * @param edge2                 the edge2
+ * @param edge_org              the original edge
+ * @param edge_dst              the destinate edge
  *
  * @return                      tb_true or tb_false
  */
-tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge1, gb_mesh_edge_ref_t edge2);
+tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
 
 #ifdef __gb_debug__
 /*! dump mesh

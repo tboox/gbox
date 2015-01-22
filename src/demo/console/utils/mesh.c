@@ -6,6 +6,93 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * test
  */
+static tb_void_t gb_demo_utils_mesh_test_splice()
+{
+    // init mesh
+    gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
+    if (mesh)
+    {
+        /* make a edge
+         *
+         *           lface
+         *
+         *         O -----> D
+         *
+         *           lface
+         */
+        gb_mesh_edge_ref_t edge = gb_mesh_edge_make(mesh);
+        if (edge)
+        {
+            // save face name
+            gb_mesh_face_data_set(mesh, gb_mesh_edge_lface(edge), "lface");
+
+            // save vertex name
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_org(edge), "org");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge), "dst");
+
+#ifdef __gb_debug__
+            // trace
+            tb_trace_i("");
+            tb_trace_i("splice: make");
+
+            // check mesh
+            gb_mesh_check(mesh);
+        
+            // dump mesh
+            gb_mesh_dump(mesh);
+#endif
+
+            /* splice
+             * 
+             *          -------
+             *         |       |
+             *         | rface |
+             *         |       |
+             *         O/D <---
+             *
+             *           lface
+             * 
+             */
+            gb_mesh_edge_splice(mesh, edge, gb_mesh_edge_sym(edge));
+
+#ifdef __gb_debug__
+            // trace
+            tb_trace_i("splice: done");
+
+            // check mesh
+            gb_mesh_check(mesh);
+        
+            // dump mesh
+            gb_mesh_dump(mesh);
+#endif
+
+            /* splice
+             * 
+             *           lface
+             *
+             *         O -----> D
+             *
+             *           lface
+             * 
+             */
+            gb_mesh_edge_splice(mesh, edge, gb_mesh_edge_sym(edge));
+
+#ifdef __gb_debug__
+            // trace
+            tb_trace_i("splice: done");
+
+            // check mesh
+            gb_mesh_check(mesh);
+        
+            // dump mesh
+            gb_mesh_dump(mesh);
+#endif
+        }
+
+        // exit mesh
+        gb_mesh_exit(mesh);
+    }
+}
 static tb_void_t gb_demo_utils_mesh_test_radiation()
 {
     // init mesh
@@ -330,6 +417,9 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
  */
 tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
 {
+    // test splice
+    gb_demo_utils_mesh_test_splice();
+
     // test radiation
     gb_demo_utils_mesh_test_radiation();
 

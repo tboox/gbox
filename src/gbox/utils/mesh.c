@@ -1086,30 +1086,79 @@ tb_void_t gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
     // kill the edge 
     gb_mesh_kill_edge(impl, edge);
 }
-tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge1, gb_mesh_edge_ref_t edge2)
+tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl && impl->vertices && impl->faces && edge1 && edge2, tb_false);
+    tb_assert_and_check_return_val(impl && impl->vertices && impl->faces && edge_org && edge_dst, tb_false);
 
     // check edges
-    gb_mesh_check_edge(edge1);
-    gb_mesh_check_edge(edge2);
+    gb_mesh_check_edge(edge_org);
+    gb_mesh_check_edge(edge_dst);
 
     // done
     tb_bool_t ok = tb_false;
-//    tb_bool_t joining_faces = tb_false;
-//    tb_bool_t joining_vertices = tb_false;
+    tb_bool_t joining_faces = tb_false;
+    tb_bool_t joining_vertices = tb_false;
     do
     {
         // is same? ok
-        tb_check_break_state(edge1 != edge2, ok, tb_true);
+        tb_check_break_state(edge_org != edge_dst, ok, tb_true);
 
+        // two vertices are disjoint? 
+        if (gb_mesh_edge_org(edge_org) != gb_mesh_edge_org(edge_dst))
+        {
+            // joins the two vertices
+            joining_vertices = tb_true;
+
+            // remove the edge_dst.org first
+		    gb_mesh_kill_vertex_at_orbit(impl, gb_mesh_edge_org(edge_dst), gb_mesh_edge_org(edge_org));
+        }
     
+        // two faces are disjoint? 
+        if (gb_mesh_edge_lface(edge_org) != gb_mesh_edge_lface(edge_dst))
+        {
+            // joins the two faces
+            joining_faces = tb_true;
+
+            // remove the edge_dst.lface first
+		    gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
+        }
+
+        // splice two edges
+        gb_mesh_splice_edge(edge_dst, edge_org);
+
+        // two vertices are disjoint?
+        if (!joining_vertices) 
+        {
+            /* make new vertex at edge_dst.org
+             * and update origin for all edges leaving the origin orbit of the edge_dst
+             */
+            if (!gb_mesh_make_vertex_at_orbit(impl, edge_dst)) break;
+
+            // update the reference edge, the old reference edge may have been deleted
+            gb_mesh_vertex_edge_set(gb_mesh_edge_org(edge_org), edge_org);
+        }
+
+        // two faces are disjoint? 
+        if (!joining_faces)
+        {
+            /* make new face at edge_dst.lface
+             * and update lface for all edges leaving the left orbit of the edge_dst
+             */
+            if (!gb_mesh_make_face_at_orbit(impl, edge_dst)) break;
+
+            // update the reference edge, the old reference edge may have been deleted
+            gb_mesh_face_edge_set(gb_mesh_edge_lface(edge_org), edge_org);
+        }
+
         // ok
         ok = tb_true;
 
     } while (0);
+
+    // check
+    tb_assert_abort(ok);
 
     // ok?
     return ok;
