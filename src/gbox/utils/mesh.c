@@ -151,62 +151,24 @@ static gb_mesh_edge_ref_t gb_mesh_orbit_edge_with_org(gb_mesh_edge_ref_t edge, g
  *     - if the two are the same ring taken with opposite orientations, 
  *       Splice will Flip (and reverse the order) of a segment of that ring.
  *
- * c = a.onext.rot 
- * d = b.onext.rot
+ *          .                                          .
+ * .        .        .                        .        .        .
+ *   .      .      .                            .      .      .
+ *     .    .    .                                .    .    .
+ *    a  .  .  . x                               a  .  .  . x
+ *         ...                                        ...
+ *          .                              a.lface     .       b.lface
+ *                                                y  .   .
+ *  a.lface      b.lface                           .       .
+ *          .                                    .           . b
+ *     y  .   .                                                .
+ *      .       .                                                .
+ *    .           . b                                              .
+ *                  .
+ *                    .
  *
- * a.onext' = b.onext
- * b.onext' = a.onext
- *
- * c.onext' = d.onext
- * d.onext' = c.onext
- *
- * =>
- *
- * x = a.onext
- * y = b.onext
- *
- * c = x.rot 
- * d = y.rot
- *
- * a.onext' = b.onext = y
- * b.onext' = a.onext = x
- *
- * x.rot.onext' = d.onext = y.rot.onext
- * y.rot.onext' = c.onext = x.rot.onext
- *
- * =>
- *
- * x = a.onext
- * y = b.onext
- *
- * a.onext' = y
- * b.onext' = x
- *
- * x.rot.onext' = b.onext.rot.onext
- * y.rot.onext' = a.onext.rot.onext
- *
- * TODO
- * why ?=>
- *
- * x = a.onext
- * y = b.onext
- *
- * a.onext' = y
- * b.onext' = x
- *
- * x.rot.onext'.rot = b.onext.rot.onext.rot
- * y.rot.onext'.rot = a.onext.rot.onext.rot
- *
- * => 
- *
- * x = a.onext
- * y = b.onext
- *
- * a.onext' = y
- * b.onext' = x
- *
- * x.oprev' = b
- * y.oprev' = a
+ *                             splice
+ *  a.lface == b.lface          <=>             a.lface != b.lface
  */
 static tb_void_t gb_mesh_splice_edge(gb_mesh_edge_ref_t a, gb_mesh_edge_ref_t b)
 {
