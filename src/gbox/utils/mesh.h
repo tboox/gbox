@@ -327,6 +327,14 @@ tb_void_t                       gb_mesh_exit(gb_mesh_ref_t mesh);
  */
 tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
 
+/*! is empty? 
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      tb_true or tb_false
+ */
+tb_bool_t                       gb_mesh_is_empty(gb_mesh_ref_t mesh);
+
 /*! the face iterator
  *
  * @param mesh                  the mesh
@@ -576,6 +584,41 @@ gb_mesh_vertex_ref_t            gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, 
  * @param edge                  the vertex edge
  */
 tb_void_t                       gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
+
+/*! splice edge
+ *
+ * refer to the paper of Guibas and Stolfi, simplified since we don't use flips (p98) 
+ *
+ * <pre>
+ *
+ *          .                                          .
+ * .        .        .                        .        .        .
+ *   .      .      .                            .      .      .
+ *     .    .    .                                .    .    .
+ *   e1  .  .  .                                 e1 .  .  .  
+ *         ...                                        ...
+ *          .                             e1.lface     .       e2.lface
+ *                                                   .   .
+ * e1.lface     e2.lface                           .       .
+ *          .                                    .           . e2
+ *        .   .                                                .
+ *      .       .                                                .
+ *    .           . e2                                             .
+ *                  .
+ *                    .
+ *
+ *                             splice
+ * e1.lface == e2.lface         <=>            e1.lface != e2.lface
+ *          
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ * @param edge1                 the edge1
+ * @param edge2                 the edge2
+ *
+ * @return                      tb_true or tb_false
+ */
+tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge1, gb_mesh_edge_ref_t edge2);
 
 #ifdef __gb_debug__
 /*! dump mesh

@@ -68,7 +68,7 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
 #ifdef __gb_debug__
             // trace
             tb_trace_i("");
-            tb_trace_i("make radiation");
+            tb_trace_i("radiation: make");
 
             // check mesh
             gb_mesh_check(mesh);
@@ -101,7 +101,7 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
 
 #ifdef __gb_debug__
             // trace
-            tb_trace_i("kill one");
+            tb_trace_i("radiation: kill");
 
             // check mesh
             gb_mesh_check(mesh);
@@ -115,16 +115,8 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
             gb_mesh_edge_kill_at_vertex(mesh, edge3);
             gb_mesh_edge_kill_at_vertex(mesh, edge4);
 
-#ifdef __gb_debug__
-            // trace
-            tb_trace_i("kill all");
-
-            // check mesh
-            gb_mesh_check(mesh);
-        
-            // dump mesh
-            gb_mesh_dump(mesh);
-#endif
+            // check
+            tb_assert_abort(gb_mesh_is_empty(mesh));
         }
 
         // exit mesh
@@ -183,7 +175,7 @@ static tb_void_t gb_demo_utils_mesh_test_quadrangle()
 #ifdef __gb_debug__
             // trace
             tb_trace_i("");
-            tb_trace_i("make quadrangle");
+            tb_trace_i("quadrangle: make");
 
             // check mesh
             gb_mesh_check(mesh);
@@ -206,7 +198,7 @@ static tb_void_t gb_demo_utils_mesh_test_quadrangle()
 
 #ifdef __gb_debug__
             // trace
-            tb_trace_i("kill one");
+            tb_trace_i("quadrangle: kill");
 
             // check mesh
             gb_mesh_check(mesh);
@@ -220,16 +212,8 @@ static tb_void_t gb_demo_utils_mesh_test_quadrangle()
             gb_mesh_edge_kill_at_vertex(mesh, edge3);
             gb_mesh_edge_kill_at_vertex(mesh, edge1);
 
-#ifdef __gb_debug__
-            // trace
-            tb_trace_i("kill all");
-
-            // check mesh
-            gb_mesh_check(mesh);
-        
-            // dump mesh
-            gb_mesh_dump(mesh);
-#endif
+            // check
+            tb_assert_abort(gb_mesh_is_empty(mesh));
         }
 
     
@@ -302,7 +286,7 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
 #ifdef __gb_debug__
             // trace
             tb_trace_i("");
-            tb_trace_i("make tetrahedron");
+            tb_trace_i("tetrahedron: make");
 
             // check mesh
             gb_mesh_check(mesh);
@@ -317,7 +301,7 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
 
 #ifdef __gb_debug__
             // trace
-            tb_trace_i("kill two");
+            tb_trace_i("tetrahedron: kill");
 
             // check mesh
             gb_mesh_check(mesh);
@@ -332,16 +316,8 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
             gb_mesh_edge_kill_at_vertex(mesh, edge0);
             gb_mesh_edge_kill_at_vertex(mesh, edge1);
 
-#ifdef __gb_debug__
-            // trace
-            tb_trace_i("kill all");
-
-            // check mesh
-            gb_mesh_check(mesh);
-        
-            // dump mesh
-            gb_mesh_dump(mesh);
-#endif
+            // check
+            tb_assert_abort(gb_mesh_is_empty(mesh));
         }
     
         // exit mesh
