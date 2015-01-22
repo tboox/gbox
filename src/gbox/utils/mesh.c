@@ -1090,7 +1090,7 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl && impl->vertices && impl->faces && edge_org && edge_dst, tb_false);
+    tb_assert_and_check_return_val(impl && edge_org && edge_dst, tb_false);
 
     // check edges
     gb_mesh_check_edge(edge_org);
@@ -1162,6 +1162,30 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
 
     // ok?
     return ok;
+}
+gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && edge_org && edge_dst, tb_null);
+
+    // check edges
+    gb_mesh_check_edge(edge_org);
+    gb_mesh_check_edge(edge_dst);
+
+    // done
+    tb_bool_t           ok = tb_false;
+    gb_mesh_edge_ref_t  edge_new = tb_null;
+    do
+    {
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // ok?
+    return edge_new;
 }
 #ifdef __gb_debug__
 tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)
