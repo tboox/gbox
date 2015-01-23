@@ -752,7 +752,7 @@ gb_mesh_face_ref_t gb_mesh_edge_make_at_face(gb_mesh_ref_t mesh, gb_mesh_face_re
     if (!ok)
     {
         // kill the new edge
-        if (edge_new) gb_mesh_edge_list_kill(impl->edges, edge_new);
+        if (edge_new) gb_mesh_kill_edge(impl, edge_new);
         edge_new = tb_null;
     }
 
@@ -969,7 +969,7 @@ gb_mesh_vertex_ref_t gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, gb_mesh_ver
     if (!ok)
     {
         // kill the new edge
-        if (edge_new) gb_mesh_edge_list_kill(impl->edges, edge_new);
+        if (edge_new) gb_mesh_kill_edge(impl, edge_new);
         edge_new = tb_null;
     }
 
@@ -1176,13 +1176,96 @@ gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t e
     // done
     tb_bool_t           ok = tb_false;
     gb_mesh_edge_ref_t  edge_new = tb_null;
+    tb_bool_t           joining_faces = tb_false;
     do
     {
+        // make the new non-loop edge
+        edge_new = gb_mesh_make_edge(impl, tb_false, tb_false);
+        tb_assert_and_check_break(edge_new);
+
+        // the new sym edge
+        gb_mesh_edge_ref_t edge_sym_new = gb_mesh_edge_sym(edge_new);
+        tb_assert_and_check_break(edge_sym_new);
+
+        // two faces are disjoint? 
+        if (gb_mesh_edge_lface(edge_org) != gb_mesh_edge_lface(edge_dst))
+        {
+            // joins the two faces
+            joining_faces = tb_true;
+
+            // remove the edge_dst.lface first
+		    gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
+        }
+
+        /* connect edge
+         *
+         * before:
+         *
+         *           face
+         *
+         *         edge_org                           
+         *  ---------------------->             
+         * |                                    edge_new
+         * |         face                  ----------------->
+         * |                                        
+         *  <---------------------                   
+         *         edge_dst                              
+         *
+         * gb_mesh_splice_edge(edge_new, gb_mesh_edge_lnext(edge_org)):
+         *
+         *           face
+         *
+         *         edge_org                           
+         *  ----------------------> ----------------->             
+         * |                            edge_new
+         * |         face                  
+         * |                                        
+         *  <---------------------                   
+         *         edge_dst                              
+         *
+         * gb_mesh_splice_edge(edge_sym_new, edge_dst):
+         *
+         *         edge_org                           
+         *  ---------------------->          
+         * |                       |    
+         * |         face          | edge_new      face_new
+         * |                      \|/                
+         *  <---------------------                   
+         *         edge_dst     
+         */
+        gb_mesh_splice_edge(edge_new, gb_mesh_edge_lnext(edge_org));
+        gb_mesh_splice_edge(edge_sym_new, edge_dst);
+
+        // init the new edge
+        gb_mesh_edge_org_set  (edge_new,        gb_mesh_edge_dst(edge_org));
+        gb_mesh_edge_org_set  (edge_sym_new,    gb_mesh_edge_org(edge_dst));
+        gb_mesh_edge_lface_set(edge_sym_new,    gb_mesh_edge_lface(edge_org));
+        gb_mesh_edge_lface_set(edge_new,        gb_mesh_edge_lface(edge_org));
+
+        // update the reference edge, the old reference edge may have been deleted
+        gb_mesh_face_edge_set(gb_mesh_edge_lface(edge_org), edge_sym_new);
+
+        // two faces are disjoint? 
+        if (!joining_faces)
+        {
+            /* make new face at edge_new.lface
+             * and update lface for all edges leaving the left orbit of the edge_new
+             */
+            if (!gb_mesh_make_face_at_orbit(impl, edge_new)) break;
+        }
 
         // ok
         ok = tb_true;
 
     } while (0);
+
+    // failed
+    if (!ok)
+    {
+        // kill the new edge
+        if (edge_new) gb_mesh_kill_edge(impl, edge_new);
+        edge_new = tb_null;
+    }
 
     // ok?
     return edge_new;

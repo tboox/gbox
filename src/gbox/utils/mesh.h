@@ -630,18 +630,38 @@ tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_
  *
  * <pre>
  *
- *          edge_org                                  edge_org
- *   ---------------------->                   ---------------------->
- *  |                                         |                       |
- *  |                                         |                       |      
- *  |                          => connect =>  |                       | edge_new
- *  |                                         |                       |
- *  |                                         |                      \|/
- *   <---------------------                    <----------------------
- *          edge_dst                                  edge_dst
+ * edge_org.lface == edge_dst.lface? disjoining face
+ *
+ *           face                                    face_new
+ *
+ *         edge_org                                  edge_org
+ *  ---------------------->                   ---------------------->
+ * |                                         |                       |
+ * |                                         |                       |      
+ * |         face             => connect =>  |         face          | edge_new      face_new
+ * |                                         |                       |
+ * |                                         |                      \|/
+ *  <---------------------                    <----------------------
+ *         edge_dst                                  edge_dst
+ *
+ *           face                                    face_new
+ *
+ *
+ * edge_org.lface != edge_dst.lface? joining faces
  *
  * 
- * edge_org.lface = edge_new.lface = edge_dst.lface
+ *         edge_dst                face_org                             edge_dst
+ *  <----------------------                                     <-----------------------. 
+ * |                       |       edge_org                    |            edge_new .  |
+ * |                       |    ------------->                 |     ------------->.    |
+ * |                       |   |              |                |    |   edge_org   |    |
+ * |       face_dst        |   |              | => connect =>  |    |              |    |
+ * |                       |   |              |                |    |              |    |
+ * |                       |    <-------------                 |     <-------------     |
+ * |                       |                                   |        face_org        |
+ *  ---------------------->                                     ----------------------->
+ *
+ * edge_new.lface = edge_org.lface = edge_dst.lface
  *
  * </pre>
  *
