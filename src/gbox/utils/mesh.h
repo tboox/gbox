@@ -36,92 +36,47 @@
 /// get the face edge
 #define gb_mesh_face_edge(face)                 (tb_assert(face), (face)->edge)
 
-/// set the face edge
-#define gb_mesh_face_edge_set(face, val)        do { tb_assert(face); (face)->edge = (val); } while (0)
-
 /// get the vertex edge
 #define gb_mesh_vertex_edge(vertex)             (tb_assert(vertex), (vertex)->edge)
-
-/// set the vertex edge
-#define gb_mesh_vertex_edge_set(vertex, val)    do { tb_assert(vertex); (vertex)->edge = (val); } while (0)
 
 /// get the edge sym
 #define gb_mesh_edge_sym(edge)                  (tb_assert(edge), (edge)->sym)
 
-/// set the edge sym
-#define gb_mesh_edge_sym_set(edge, val)         do { tb_assert(edge); (edge)->sym = (val); } while (0)
-
 /// get the edge org
 #define gb_mesh_edge_org(edge)                  (tb_assert(edge), (edge)->org)
-
-/// set the edge org
-#define gb_mesh_edge_org_set(edge, val)         do { tb_assert(edge); (edge)->org = (val); gb_mesh_vertex_edge_set(val, edge); } while (0)
 
 /// get the edge dst
 #define gb_mesh_edge_dst(edge)                  (tb_assert((edge) && (edge)->sym), (edge)->sym->org)
 
-/// set the edge dst
-#define gb_mesh_edge_dst_set(edge, val)         do { tb_assert((edge) && (edge)->sym); (edge)->sym->org = (val); gb_mesh_vertex_edge_set(val, (edge)->sym); } while (0)
-
 /// get the edge lface
 #define gb_mesh_edge_lface(edge)                (tb_assert(edge), (edge)->lface)
-
-/// set the edge lface
-#define gb_mesh_edge_lface_set(edge, val)       do { tb_assert(edge); (edge)->lface = (val); gb_mesh_face_edge_set(val, edge); } while (0)
 
 /// get the edge rface
 #define gb_mesh_edge_rface(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->lface)
 
-/// set the edge lface
-#define gb_mesh_edge_rface_set(edge, val)       do { tb_assert((edge) && (edge)->sym); (edge)->sym->lface = (val); gb_mesh_face_edge_set(val, (edge)->sym); } while (0)
-
 /// get the edge onext
 #define gb_mesh_edge_onext(edge)                (tb_assert(edge), (edge)->onext)
-
-/// set the edge onext
-#define gb_mesh_edge_onext_set(edge, val)       do { tb_assert(edge); (edge)->onext = (val); } while (0)
 
 /// get the edge oprev
 #define gb_mesh_edge_oprev(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->lnext)
 
-/// set the edge oprev
-#define gb_mesh_edge_oprev_set(edge, val)       do { tb_assert((edge) && (edge)->sym); (edge)->sym->lnext = (val); } while (0)
-
 /// get the edge lnext
 #define gb_mesh_edge_lnext(edge)                (tb_assert(edge), (edge)->lnext)
-
-/// set the edge lnext
-#define gb_mesh_edge_lnext_set(edge, val)       do { tb_assert(edge); (edge)->lnext = (val); } while (0)
 
 /// get the edge lprev
 #define gb_mesh_edge_lprev(edge)                (tb_assert((edge) && (edge)->onext), (edge)->onext->sym)
 
-/// set the edge lprev
-#define gb_mesh_edge_lprev_set(edge, val)       do { tb_assert((edge) && (edge)->onext); (edge)->onext->sym = (val); } while (0)
-
 /// get the edge rnext
 #define gb_mesh_edge_rnext(edge)                (tb_assert(gb_mesh_edge_oprev(edge)), gb_mesh_edge_oprev(edge)->sym)
-
-// set the edge rnext
-#define gb_mesh_edge_rnext_set(edge, val)       do { tb_assert(gb_mesh_edge_oprev(edge)); gb_mesh_edge_oprev(edge)->sym = (val); } while (0)
 
 /// get the edge rprev
 #define gb_mesh_edge_rprev(edge)                (tb_assert((edge) && (edge)->sym), (edge)->sym->onext)
 
-/// set the edge rprev
-#define gb_mesh_edge_rprev_set(edge, val)       do { tb_assert((edge) && (edge)->sym); (edge)->sym->onext = (val); } while (0)
-
 /// get the edge dnext
 #define gb_mesh_edge_dnext(edge)                (tb_assert(gb_mesh_edge_rprev(edge)), gb_mesh_edge_rprev(edge)->sym)
 
-/// set the edge dnext
-#define gb_mesh_edge_dnext_set(edge, val)       do { tb_assert(gb_mesh_edge_rprev(edge)); gb_mesh_edge_rprev(edge)->sym = (val); } while (0)
-
 /// get the edge dprev
 #define gb_mesh_edge_dprev(edge)                (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym)
-
-/// set the edge rprev
-#define gb_mesh_edge_dprev_set(edge, val)       do { tb_assert((edge) && (edge)->lnext); (edge)->lnext->sym = (val); } while (0)
 
 /// the edge is isolated?
 #define gb_mesh_edge_is_isolated(edge)          (tb_assert((edge) && (edge->sym)), (edge)->onext == (edge) && (edge)->sym->onext == (edge)->sym && (edge)->lnext == (edge->sym) && (edge)->sym->lnext == (edge))
@@ -661,7 +616,7 @@ tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_
  * |                       |                                   |        face_org        |
  *  ---------------------->                                     ----------------------->
  *
- * edge_new.lface = edge_org.lface = edge_dst.lface
+ * after: edge_new.lface == edge_org.lface == edge_dst.lface
  *
  * </pre>
  *
@@ -672,6 +627,57 @@ tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_
  * @return                      the new edge
  */
 gb_mesh_edge_ref_t              gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
+
+/*! delete edge
+ *
+ * The operation will disconnect the edge e from the rest of the structure 
+ * (this may cause the rest of the structure to fall apart in two separate components). 
+ *
+ * In a sense, DeleteEdge is the inverse of ConnectEdge. 
+ *
+ * <pre>
+ *
+ * before: edge_del.lface == edge_org.lface == edge_dst.lface
+ *
+ * edge_del.lface != edge_del.rface? joining faces
+ *
+ *           face                                    face_del
+ *
+ *         edge_org                                  edge_org
+ *  ---------------------->                   ---------------------->
+ * |                                         |                       |
+ * |                                         |                       |      
+ * |         face             <= delete <=   |         face          | edge_del      face_del
+ * |                                         |                       |
+ * |                                         |                      \|/
+ *  <---------------------                    <----------------------
+ *         edge_dst                                  edge_dst
+ *
+ *           face                                    face_del
+ *
+ *
+ * edge_del.lface == edge_del.rface? disjoining face
+ *
+ * 
+ *         edge_dst                                                     edge_dst
+ *  <----------------------                                     <-----------------------. 
+ * |                       |       edge_org                    |            edge_del .  |
+ * |                       |    ------------->                 |     ------------->.    |
+ * |                       |   |              |                |    |   edge_org   |    |
+ * |       face_new        |   |              | <= delete <=   |    |              |    |
+ * |                       |   |              |                |    |              |    |
+ * |                       |    <-------------                 |     <-------------     |
+ * |                       |       face_org                    |        face_org        |
+ *  ---------------------->                                     ----------------------->
+ *
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the edge
+ *
+ * @return                      tb_true or tb_false
+ */
+tb_bool_t                       gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
 
 #ifdef __gb_debug__
 /*! dump mesh
