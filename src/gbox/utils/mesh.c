@@ -225,20 +225,20 @@ static tb_void_t gb_mesh_splice_edge(gb_mesh_edge_ref_t a, gb_mesh_edge_ref_t b)
     /* x = a.onext
      * y = b.onext
      */
-	gb_mesh_edge_ref_t x = gb_mesh_edge_onext(a);
-	gb_mesh_edge_ref_t y = gb_mesh_edge_onext(b);
+    gb_mesh_edge_ref_t x = gb_mesh_edge_onext(a);
+    gb_mesh_edge_ref_t y = gb_mesh_edge_onext(b);
 
     /* a.onext' = y
      * b.onext' = x
      */
     gb_mesh_edge_onext_set(a, y);
-	gb_mesh_edge_onext_set(b, x);
+    gb_mesh_edge_onext_set(b, x);
 
     /* x.oprev' = b
      * y.oprev' = a
      */
-	gb_mesh_edge_oprev_set(x, b);
-	gb_mesh_edge_oprev_set(y, a);
+    gb_mesh_edge_oprev_set(x, b);
+    gb_mesh_edge_oprev_set(y, a);
 }
 static __tb_inline__ gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_impl_t* impl, tb_bool_t is_loop, tb_bool_t is_ccw)
 {
@@ -1159,7 +1159,7 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
             joining_vertices = tb_true;
 
             // remove the edge_dst.org first
-		    gb_mesh_kill_vertex_at_orbit(impl, gb_mesh_edge_org(edge_dst), gb_mesh_edge_org(edge_org));
+            gb_mesh_kill_vertex_at_orbit(impl, gb_mesh_edge_org(edge_dst), gb_mesh_edge_org(edge_org));
         }
     
         // two faces are disjoint? 
@@ -1169,7 +1169,7 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
             joining_faces = tb_true;
 
             // remove the edge_dst.lface first
-		    gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
+            gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
         }
 
         // splice two edges
@@ -1241,7 +1241,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t e
             joining_faces = tb_true;
 
             // remove the edge_dst.lface first
-		    gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
+            gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
         }
 
         /* connect edge
@@ -1341,7 +1341,7 @@ tb_bool_t gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
             joining_faces = tb_true;
 
             // remove the edge.lface first
-		    gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge), gb_mesh_edge_rface(edge));
+            gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge), gb_mesh_edge_rface(edge));
         }
 
         /* before:
