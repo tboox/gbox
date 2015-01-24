@@ -33,8 +33,6 @@
  * macros
  */
 
-// TODO: remove to set edge automaticlly
-
 // set the face edge
 #define gb_mesh_face_edge_set(face, val)        do { tb_assert(face); (face)->edge = (val); } while (0)
 
@@ -1287,10 +1285,6 @@ gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t e
         gb_mesh_edge_org_set  (edge_new,        gb_mesh_edge_dst(edge_org));
         gb_mesh_edge_org_set  (edge_sym_new,    gb_mesh_edge_org(edge_dst));
         gb_mesh_edge_lface_set(edge_sym_new,    gb_mesh_edge_lface(edge_org));
-        gb_mesh_edge_lface_set(edge_new,        gb_mesh_edge_lface(edge_org));
-
-        // update the reference edge, the old reference edge may have been invalid
-        gb_mesh_face_edge_set(gb_mesh_edge_lface(edge_org), edge_sym_new);
 
         // two faces are disjoint? 
         if (!joining_faces)
@@ -1299,6 +1293,11 @@ gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t e
              * and update lface for all edges leaving the left orbit of the edge_new
              */
             if (!gb_mesh_make_face_at_orbit(impl, edge_new)) break;
+        }
+        else
+        {
+            // init the edge_new.lface
+            gb_mesh_edge_lface_set(edge_new, gb_mesh_edge_lface(edge_org));
         }
 
         // ok

@@ -187,6 +187,39 @@ static tb_void_t gb_demo_utils_mesh_test_connect()
             // dump mesh
             gb_mesh_dump(mesh);
 #endif
+
+            /* delete edge
+             *
+             * <---------------- v0 
+             * v1       e1        | 
+             *                    |
+             *                    |   
+             *          f1        | e2       f1
+             *                    |
+             *                    |
+             *                   \ /
+             *                    v2
+             */    
+            gb_mesh_edge_delete(mesh, edge3);
+
+#ifdef __gb_debug__
+            // trace
+            tb_trace_i("");
+            tb_trace_i("delete: done");
+
+            // check mesh
+            gb_mesh_check(mesh);
+        
+            // dump mesh
+            gb_mesh_dump(mesh);
+#endif
+
+            // delete all
+            gb_mesh_edge_delete(mesh, edge2);
+            gb_mesh_edge_delete(mesh, edge1);
+
+            // check
+            tb_assert_abort(gb_mesh_is_empty(mesh));
         }
 
         // exit mesh
