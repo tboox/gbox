@@ -577,9 +577,88 @@ tb_void_t                       gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, 
  */
 tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
 
+/*! insert edge 
+ *
+ * <pre>
+ *
+ * before:
+ *
+ *        .                         
+ *             .                  edge_dst.lface
+ *                  .    
+ *      edge_org         .        edge_dst
+ *  -----------------> vertex ------------------->
+ *                       .    .        
+ * edge_org.rface     .            . 
+ *                .                     . 
+ *             .                             .
+ *          .
+ *
+ * after:
+ *
+ *        .                         
+ *             .                            edge_dst.lface
+ *                  .    
+ *      edge_org         .       edge_new                       edge_dst
+ *  -----------------> vertex ----------------> vertex_new ------------------->
+ *                                                .    .        
+ *                  edge_org.rface            .             . 
+ *                                        .                      . 
+ *                                    .                               .
+ *                                .
+ *
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ * @param edge_org              the original edge
+ * @param edge_dst              the destinate edge
+ *
+ * @return                      the new edge
+ */
+gb_mesh_edge_ref_t              gb_mesh_edge_insert(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
+
+/*! remove edge
+ *
+ * In a sense, the remove operation is the inverse of the insert operation. 
+ *
+ * <pre>
+ * 
+ * before:
+ *
+ *        .                         
+ *             .                            edge_dst.lface
+ *                  .    
+ *      edge_org         .       edge_del                       edge_dst
+ *  -----------------> vertex ----------------> vertex_del ------------------->
+ *                                                .    .        
+ *                  edge_org.rface            .             . 
+ *                                        .                      . 
+ *                                    .                               .
+ *                                .
+ *
+ * after:
+ *
+ *        .                         
+ *             .                  edge_dst.lface
+ *                  .    
+ *      edge_org         .        edge_dst
+ *  -----------------> vertex ------------------->
+ *                       .    .        
+ * edge_org.rface     .            . 
+ *                .                     . 
+ *             .                             .
+ *          .
+ *
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the edge
+ */
+tb_void_t                       gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
+
 /*! connect edge
  *
- * add a new edge e connecting the destination of edge_org to the origin of edge_dst, 
+ * add a new edge connecting the destination of edge_org to the origin of edge_dst, 
  * in such a way that edge_org.lface = edge_new.lface = edge_dst.lface after the connection is complete. 
  * for added convenience it will also set the org and dst fields of the new edge to edge_org.dst and edge_dst.org.
  *
@@ -633,7 +712,7 @@ gb_mesh_edge_ref_t              gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh
  * The operation will disconnect the edge e from the rest of the structure 
  * (this may cause the rest of the structure to fall apart in two separate components). 
  *
- * In a sense, DeleteEdge is the inverse of ConnectEdge. 
+ * In a sense, the delete operation is the inverse of the connect operation. 
  *
  * <pre>
  *

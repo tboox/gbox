@@ -1208,6 +1208,238 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
     // ok?
     return ok;
 }
+gb_mesh_edge_ref_t gb_mesh_edge_insert(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && edge_org && edge_dst, tb_null);
+
+    // done
+    tb_bool_t           ok = tb_false;
+    gb_mesh_edge_ref_t  edge_new = tb_null;
+    do
+    {
+        // check edges 
+        gb_mesh_check_edge(edge_org);
+        gb_mesh_check_edge(edge_dst);
+
+        // make the new clockwise self-loop edge
+        edge_new = gb_mesh_make_edge(impl, tb_true, tb_false);
+        tb_assert_and_check_break(edge_new);
+
+        // the new sym edge
+        gb_mesh_edge_ref_t edge_sym_new = gb_mesh_edge_sym(edge_new);
+        tb_assert_and_check_break(edge_sym_new);
+
+        /* insert the edge at vertex
+         *
+         * before:
+         *
+         *        edge_new
+         *          ----
+         *         |    |
+         *          <---
+         *
+         *
+         *        .                         
+         *             .                  edge_dst.lface
+         *                  .    
+         *      edge_org         .        edge_dst
+         *  -----------------> vertex ------------------->
+         *                       .    .        
+         * edge_org.rface     .            . 
+         *                .                     . 
+         *             .                             .
+         *          .
+         *
+         * splice(edge_dst, edge_new):
+         *
+         *        .                         
+         *             .          edge_new   edge_dst.lface
+         *                  .       --->
+         *      edge_org         . |    |    edge_dst
+         *  ---------------------> vertex ------------------->
+         *                       .        .        
+         * edge_org.rface     .                . 
+         *                 .                        . 
+         *              .                                .
+         *           .
+         * 
+         * splice(gb_mesh_edge_sym(edge_org), edge_sym_new):
+         *
+         *
+         *
+         *      .                                     edge_dst.lface
+         *          .              edge_sym_new
+         *              .       <----------------
+         *     edge_sym_org .  |                 |           edge_dst
+         *  <----------------- vertex       vertex_new  ------------------->
+         *                                  .           .        
+         *                               .                 . 
+         *          edge_org.rface    .                       . 
+         *                         .                             .
+         *                      .
+         *
+         *
+         *      .                                            edge_dst.lface
+         *          .              
+         *              .      
+         *       edge_org   .         edge_new                   edge_dst
+         *  -----------------> vertex --------> vertex_new  ------------------->
+         *                                    .           .        
+         *                                 .                 . 
+         *          edge_org.rface      .                       . 
+         *                           .                             .
+         *                        .
+         */       
+        gb_mesh_splice_edge(edge_dst, edge_new);
+        gb_mesh_splice_edge(gb_mesh_edge_sym(edge_org), edge_sym_new);
+
+        // init the new edge
+        gb_mesh_edge_org_set  (edge_new, gb_mesh_edge_dst(edge_org));
+        gb_mesh_edge_lface_set(edge_new, gb_mesh_edge_lface(edge_dst));
+        gb_mesh_edge_rface_set(edge_new, gb_mesh_edge_rface(edge_org));
+
+        /* make the new vertex
+         * and update origin for all edges leaving the destination orbit of the new edge
+         */
+        if (!gb_mesh_make_vertex_at_orbit(impl, edge_sym_new)) break;
+
+        // ok
+        ok = tb_true;
+
+    } while (0);
+
+    // failed
+    if (!ok)
+    {
+        // kill the new edge
+        if (edge_new) gb_mesh_kill_edge(impl, edge_new);
+        edge_new = tb_null;
+    }
+
+    // ok?
+    return edge_new;
+}
+tb_void_t gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && edge);
+
+    // check edge
+    gb_mesh_check_edge(edge);
+
+    // isolated edge? kill it directly
+    if (gb_mesh_kill_isolated_edge(impl, edge)) return ;
+
+    // get the destinate edge
+    gb_mesh_edge_ref_t edge_dst = gb_mesh_edge_lnext(edge);
+    tb_assert_abort_and_check_return(edge_dst);
+
+    // get the original sym edge
+    gb_mesh_edge_ref_t edge_sym_org = gb_mesh_edge_oprev(edge);
+    tb_assert_abort_and_check_return(edge_sym_org);
+
+    // the sym edge
+    gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge);
+    tb_assert_and_check_return(edge_sym);
+
+    /* use edge_sym_org for edge_dst if the destination vertex is isolated
+     *
+     * before:
+     *
+     *      .                              
+     *          .               
+     *              .            edge_dst'
+     *                 .       <---------        
+     *  <----------------- org ----------> dst 
+     *      edge_sym_org          edge            
+     *        edge_dst                         
+     *
+     */
+    if (edge_dst == edge_sym) edge_dst = edge_sym_org;
+
+    /* kill the destination vertex of the edge
+     * and update origin for all edges leaving the destination orbit of the deleted edge
+     */
+    gb_mesh_kill_vertex_at_orbit(impl, gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge_sym_org));
+
+    /* remove edge
+     *
+     * before:
+     *
+     *        .                         
+     *             .                            edge_dst.lface
+     *                  .    
+     *      edge_sym_org     .          edge                       edge_dst
+     *  <----------------- vertex ----------------> vertex_del ------------------->
+     *                                                .    .        
+     *                  edge_org.rface            .             . 
+     *                                        .                      . 
+     *                                    .                               .
+     *                                .
+     *
+     * gb_mesh_splice_edge(edge_sym_org, edge_sym):
+     *
+     *        .                         
+     *             .                            edge_dst.lface
+     *                  .    
+     *      edge_sym_org     .        edge_sym                      edge_dst
+     *  <----------------- vertex <---------------- vertex_del ------------------->
+     *                                                .    .        
+     *                  edge_org.rface            .             . 
+     *                                        .                      . 
+     *                                    .                               .
+     *                                .
+     *
+     *        .                         
+     *             .                            edge_dst.lface
+     *                  .    
+     *      edge_sym_org     .  edge_sym           edge_dst
+     *  <----------------- vertex / vertex_del ------------------->
+     *                      |       |  .    .        
+     *     edge_org.rface    <-----.             . 
+     *                         .                      . 
+     *                     .                               .
+     *                 .
+     *
+     * gb_mesh_splice_edge(edge_dst, edge):
+     *
+     *        .                         
+     *             .                            edge_dst.lface
+     *                  .    
+     *      edge_sym_org     .   edge           edge_dst
+     *  <----------------- vertex / vertex_del ------------------->
+     *                      |       |  .    .        
+     *     edge_org.rface    ----->.             . 
+     *                         .                      . 
+     *                     .                               .
+     *                 .
+     *
+     *        .                         
+     *             .                  edge_dst.lface
+     *                  .    
+     *      edge_org         .        edge_dst
+     *  -----------------> vertex ------------------->
+     *                       .    .        
+     * edge_org.rface     .            . 
+     *                .                     . 
+     *             .                             .
+     *          .
+     *
+     */       
+    gb_mesh_splice_edge(edge_sym_org,   edge_sym);
+    gb_mesh_splice_edge(edge_dst,       edge);
+
+    // update the reference edge, the old reference edge may have been deleted
+    gb_mesh_vertex_edge_set(gb_mesh_edge_org(edge_sym_org),     edge_sym_org);
+    gb_mesh_face_edge_set  (gb_mesh_edge_lface(edge_sym_org),   edge_sym_org);
+    gb_mesh_face_edge_set  (gb_mesh_edge_lface(edge_dst),       edge_dst);
+
+    // kill the edge 
+    gb_mesh_kill_edge(impl, edge);
+}
 gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
 {
     // check

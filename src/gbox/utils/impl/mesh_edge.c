@@ -152,7 +152,7 @@ static __tb_inline__ tb_void_t gb_mesh_edge_insert_prev(gb_mesh_edge_ref_t edge,
 	edge->next                  = edge_next;
 	edge_next_sym->next         = edge_sym;
 }
-static __tb_inline__ tb_void_t gb_mesh_edge_remove(gb_mesh_edge_ref_t edge)
+static __tb_inline__ tb_void_t gb_mesh_edge_remove_done(gb_mesh_edge_ref_t edge)
 {
     // check
     tb_assert_abort(edge);
@@ -463,7 +463,7 @@ tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_
 #endif
 
     // remove it from the list
-    gb_mesh_edge_remove(edge);
+    gb_mesh_edge_remove_done(edge);
 
     // exit it
     tb_fixed_pool_free(impl->pool, edge);
