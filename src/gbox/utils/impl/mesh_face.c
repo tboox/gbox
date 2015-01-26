@@ -256,9 +256,9 @@ tb_void_t gb_mesh_face_list_data_set(gb_mesh_face_list_ref_t list, gb_mesh_face_
 {
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
-    tb_assert_and_check_return(impl && impl->func.dupl && face);
+    tb_assert_and_check_return(impl && impl->func.repl && face);
 
     // set the user data
-    impl->func.dupl(&impl->func, gb_mesh_face_user(face), data);
+    impl->func.repl(&impl->func, gb_mesh_face_user(face), data);
 }
 

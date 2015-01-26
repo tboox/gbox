@@ -481,9 +481,9 @@ tb_void_t gb_mesh_edge_list_data_set(gb_mesh_edge_list_ref_t list, gb_mesh_edge_
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
-    tb_assert_and_check_return(impl && impl->func.dupl && edge);
+    tb_assert_and_check_return(impl && impl->func.repl && edge);
 
     // set the user data
-    impl->func.dupl(&impl->func, gb_mesh_edge_user(edge), data);
+    impl->func.repl(&impl->func, gb_mesh_edge_user(edge), data);
 }
 

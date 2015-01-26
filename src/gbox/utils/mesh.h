@@ -446,100 +446,6 @@ gb_mesh_edge_ref_t              gb_mesh_edge_make(gb_mesh_ref_t mesh);
  */
 gb_mesh_edge_ref_t              gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bool_t is_ccw);
 
-/*! make the edge at face
- *
- * <pre>
- *            . dst                        . dst
- *      .       .                     .    .  .
- * .              .              .         .    .
- * .                .            .        /.\     .
- * .       face       .          . face    .        .
- * .                    .    =>  .         . fnew     .
- *    .             .               . edge .      .
- *       .      .                      .   .   .
- *          . org                          . org
- * </pre>
- *
- * @param mesh                  the mesh
- * @param face                  the face to divide to make the new edge, must be non-null
- * @param org                   the origin vertex of the new edge, must be non-null
- * @param dst                   the destinate vertex of the new edge, must be non-null
- * @param pedge                 the new edge pointer, optional
- *
- * @return                      the new face
- */
-gb_mesh_face_ref_t              gb_mesh_edge_make_at_face(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, gb_mesh_vertex_ref_t org, gb_mesh_vertex_ref_t dst, gb_mesh_edge_ref_t* pedge);
-
-/*! kill the edge at face
- *
- * <pre>
- *            . dst                        . dst
- *      .       .                     .    .  .
- * .              .              .         .    .
- * .                .            .        /.\     .
- * .       face       .          . face    .        .
- * .                    .    <=  .         . fnew     .
- *    .             .               . edge .      .
- *       .      .                      .   .   .
- *          . org                          . org
- * </pre>
- *
- * @param mesh                  the mesh
- * @param edge                  the face edge
- */
-tb_void_t                       gb_mesh_edge_kill_at_face(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
-
-/*! make the edge at vertex
- *
- * <pre>
- * 
- *                                   .   .   .
- *     .    .    .                     . . .
- *       .  .  .                     vertex_new(dst)
- *         . .                           .
- * lface  vertex  rface    =>  lface     .        rface
- *         . .                           .
- *       .     .                        /.\ edge_new
- *                                       . 
- *                                       .
- *                                    vertex(org)
- *                                      . .
- *                                    .     . 
- * </pre>
- *
- * @param mesh                  the mesh
- * @param vertex                the origin vertex of the new edge, must be non-null
- * @param lface                 the left face of the new edge, must be non-null
- * @param rface                 the right face of the new edge, must be non-null
- * @param pedge                 the new edge pointer, optional
- *
- * @return                      the new vertex
- */
-gb_mesh_vertex_ref_t            gb_mesh_edge_make_at_vertex(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, gb_mesh_face_ref_t lface, gb_mesh_face_ref_t rface, gb_mesh_edge_ref_t* pedge);
-
-/*! kill the edge at vertex
- *
- * <pre>
- * 
- *                                 .   .   .
- *   .    .    .                     . . .
- *     .  .  .                         Vnew(dst)
- *       . .                           .
- * lface  V  rface      <=  lface      .        rface
- *       . .                           .
- *     .     .                        /.\ edge
- *                                     . 
- *                                     .
- *                                     V(org)
- *                                    . .
- *                                  .     . 
- * </pre>
- *
- * @param mesh                  the mesh
- * @param edge                  the vertex edge
- */
-tb_void_t                       gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
-
 /*! splice edge
  *
  * refer to the paper of Guibas and Stolfi, simplified since we don't use flips (p98) 
@@ -719,9 +625,8 @@ tb_void_t                       gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_
 
 /*! connect edge
  *
- * add a new edge connecting the destination of edge_org to the origin of edge_dst, 
+ * make a new edge connecting the destination of edge_org to the origin of edge_dst, 
  * in such a way that edge_org.lface = edge_new.lface = edge_dst.lface after the connection is complete. 
- * for added convenience it will also set the org and dst fields of the new edge to edge_org.dst and edge_dst.org.
  *
  * <pre>
  *
