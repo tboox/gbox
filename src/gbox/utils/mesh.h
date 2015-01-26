@@ -577,6 +577,46 @@ tb_void_t                       gb_mesh_edge_kill_at_vertex(gb_mesh_ref_t mesh, 
  */
 tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
 
+/*! append edge 
+ *
+ * edge_org and edge_new will have the same left face.
+ *
+ * <pre>
+ *
+ * before:
+ *
+ *                                  
+ *                                lface
+ *                       
+ *       edge_org                    
+ *  -----------------> vertex  
+ *                       .    .        
+ *          rface     .            . 
+ *                .                     . 
+ *             .                             .
+ *          .
+ *
+ * after:
+ *
+ *                                lface
+ *                       
+ *        edge_org                edge_new
+ *  -----------------> vertex ----------------> vertex_new
+ *                       .    .        
+ *          rface     .            . 
+ *                .                     . 
+ *             .                             .
+ *          .
+ *
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the original edge
+ *
+ * @return                      the new edge
+ */
+gb_mesh_edge_ref_t              gb_mesh_edge_append(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org);
+
 /*! insert edge 
  *
  * <pre>
@@ -606,6 +646,16 @@ tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_
  *                                        .                      . 
  *                                    .                               .
  *                                .
+ *
+ *     edge_org                     edge_org           edge_new
+ * --------------->              ----------------> --------------->
+ * <---------------      =>      <---------------- <---------------
+ *     edge_dst                     edge_dst
+ *
+ *     edge_dst                     edge_new           edge_dst
+ * --------------->              ----------------> --------------->
+ * <---------------      =>      <---------------- <---------------
+ *     edge_org                                        edge_org
  *
  * </pre>
  *
@@ -649,12 +699,23 @@ gb_mesh_edge_ref_t              gb_mesh_edge_insert(gb_mesh_ref_t mesh, gb_mesh_
  *             .                             .
  *          .
  *
+ * 
+ *     edge_org                     edge_org           edge_del
+ * --------------->              ----------------> --------------->
+ * <---------------      <=      <---------------- <---------------
+ *     edge_dst                     edge_dst
+ *
+ *     edge_dst                     edge_del           edge_dst
+ * --------------->              ----------------> --------------->
+ * <---------------      <=      <---------------- <---------------
+ *     edge_org                                        edge_org
+ *
  * </pre>
  *
  * @param mesh                  the mesh
- * @param edge                  the edge
+ * @param edge_del              the removed edge
  */
-tb_void_t                       gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
+tb_void_t                       gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del);
 
 /*! connect edge
  *
@@ -752,11 +813,9 @@ gb_mesh_edge_ref_t              gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh
  * </pre>
  *
  * @param mesh                  the mesh
- * @param edge                  the edge
- *
- * @return                      tb_true or tb_false
+ * @param edge_del              the deleted edge
  */
-tb_bool_t                       gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge);
+tb_void_t                       gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del);
 
 #ifdef __gb_debug__
 /*! dump mesh

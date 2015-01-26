@@ -237,9 +237,6 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
     {
         // make a edge
         gb_mesh_edge_ref_t edge1 = gb_mesh_edge_make(mesh);
-        gb_mesh_edge_ref_t edge2 = tb_null;
-        gb_mesh_edge_ref_t edge3 = tb_null;
-        gb_mesh_edge_ref_t edge4 = tb_null;
         if (edge1)
         {
             // the face
@@ -269,11 +266,9 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
              *                   \ /
              *                    v2
              */    
-            gb_mesh_vertex_ref_t vertex0 = gb_mesh_edge_org(edge1);
-            gb_mesh_vertex_ref_t vertex1 = gb_mesh_edge_dst(edge1);
-            gb_mesh_vertex_ref_t vertex2 = gb_mesh_edge_make_at_vertex(mesh, vertex0, face, face, &edge2);
-            gb_mesh_vertex_ref_t vertex3 = gb_mesh_edge_make_at_vertex(mesh, vertex0, face, face, &edge3);
-            gb_mesh_vertex_ref_t vertex4 = gb_mesh_edge_make_at_vertex(mesh, vertex0, face, face, &edge4);
+            gb_mesh_edge_ref_t edge2 = gb_mesh_edge_append(mesh, gb_mesh_edge_sym(edge1));
+            gb_mesh_edge_ref_t edge3 = gb_mesh_edge_append(mesh, gb_mesh_edge_sym(edge1));
+            gb_mesh_edge_ref_t edge4 = gb_mesh_edge_append(mesh, gb_mesh_edge_sym(edge1));
 
             // save edge name
             gb_mesh_edge_data_set(mesh, edge1, "e1");
@@ -282,11 +277,11 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
             gb_mesh_edge_data_set(mesh, edge4, "e4");
 
             // save vertex name
-            gb_mesh_vertex_data_set(mesh, vertex0, "v0");
-            gb_mesh_vertex_data_set(mesh, vertex1, "v1");
-            gb_mesh_vertex_data_set(mesh, vertex2, "v2");
-            gb_mesh_vertex_data_set(mesh, vertex3, "v3");
-            gb_mesh_vertex_data_set(mesh, vertex4, "v4");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_org(edge1), "v0");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge1), "v1");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge2), "v2");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge3), "v3");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge4), "v4");
 
 #ifdef __gb_debug__
             // trace
@@ -300,7 +295,7 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
             gb_mesh_dump(mesh);
 #endif
 
-            /* kill one edge
+            /* remove one 
              *
              *                    v4
              *                   / \
@@ -320,7 +315,7 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
              *                   \ /
              *                    v2
              */    
-            gb_mesh_edge_kill_at_vertex(mesh, edge1);
+            gb_mesh_edge_remove(mesh, edge1);
 
 #ifdef __gb_debug__
             // trace
@@ -334,10 +329,10 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
             gb_mesh_dump(mesh);
 #endif
 
-            // kill all edges
-            gb_mesh_edge_kill_at_vertex(mesh, edge2);
-            gb_mesh_edge_kill_at_vertex(mesh, edge3);
-            gb_mesh_edge_kill_at_vertex(mesh, edge4);
+            // remove all 
+            gb_mesh_edge_remove(mesh, edge2);
+            gb_mesh_edge_remove(mesh, edge3);
+            gb_mesh_edge_remove(mesh, edge4);
 
             // check
             tb_assert_abort(gb_mesh_is_empty(mesh));
