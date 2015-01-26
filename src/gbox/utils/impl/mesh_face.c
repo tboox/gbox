@@ -214,9 +214,9 @@ tb_char_t const* gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_fa
     // make it
     tb_char_t info[256] = {0};
 #ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%lu.%lu: %s)", face->id, face->edge->id, impl->func.cstr(&impl->func, gb_mesh_face_list_data(list, face), info, sizeof(info)));
+    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->func.cstr(&impl->func, gb_mesh_face_list_data(list, face), info, sizeof(info)));
 #else
-    tb_long_t size = tb_snprintf(data, maxn, "(%p.%p: %s)", face, face->edge, impl->func.cstr(&impl->func, gb_mesh_face_list_data(list, face), info, sizeof(info)));
+    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->func.cstr(&impl->func, gb_mesh_face_list_data(list, face), info, sizeof(info)));
 #endif
     if (size >= 0) data[size] = '\0';
 
