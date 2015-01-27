@@ -290,6 +290,40 @@ tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
  */
 tb_bool_t                       gb_mesh_is_empty(gb_mesh_ref_t mesh);
 
+/*! the vertex iterator
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the mesh vertex iterator
+ */
+tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
+
+/*! the vertex string
+ *
+ * @param mesh                  the mesh
+ * @param vertex                the vertex
+ * @param data                  the string data
+ * @param maxn                  the string maxn
+ */
+tb_char_t const*                gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
+
+/*! the vertex user data
+ *
+ * @param mesh                  the mesh
+ * @param vertex                the vertex
+ *
+ * @return                      the vertex user data
+ */
+tb_cpointer_t                   gb_mesh_vertex_data(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex);
+
+/*! set the vertex user data
+ *
+ * @param mesh                  the mesh
+ * @param vertex                the vertex
+ * @param data                  the vertex user data
+ */
+tb_void_t                       gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
+
 /*! the face iterator
  *
  * @param mesh                  the mesh
@@ -324,39 +358,19 @@ tb_cpointer_t                   gb_mesh_face_data(gb_mesh_ref_t mesh, gb_mesh_fa
  */
 tb_void_t                       gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_cpointer_t data);
 
-/*! the vertex iterator
+/*! delete the face
+ *
+ * all edges of the deleted face will have a null pointer as their left face.  
+ * 
+ * any edges which also have a null pointer as their right face 
+ * are deleted entirely (along with any isolated vertices this produces).
+ * 
+ * an entire mesh can be deleted by killing its faces, one at a time, in any order.  
  *
  * @param mesh                  the mesh
- *
- * @return                      the mesh vertex iterator
+ * @param face                  the killed face
  */
-tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
-
-/*! the vertex string
- *
- * @param mesh                  the mesh
- * @param vertex                the vertex
- * @param data                  the string data
- * @param maxn                  the string maxn
- */
-tb_char_t const*                gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
-
-/*! the vertex user data
- *
- * @param mesh                  the mesh
- * @param vertex                the vertex
- *
- * @return                      the vertex user data
- */
-tb_cpointer_t                   gb_mesh_vertex_data(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex);
-
-/*! set the vertex user data
- *
- * @param mesh                  the mesh
- * @param vertex                the vertex
- * @param data                  the vertex user data
- */
-tb_void_t                       gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
+tb_void_t                       gb_mesh_face_delete(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face);
 
 /*! the edge iterator
  *
