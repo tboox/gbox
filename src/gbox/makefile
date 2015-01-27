@@ -46,11 +46,11 @@ gbox_C_FILES 			+= \
 						core/impl/float \
 						core/impl/stroker \
 						core/impl/geometry \
-						core/impl/polygon_tesselator \
 						core/impl/polygon_raster 
 
 # utils files
 gbox_C_FILES 			+= \
+						utils/polygon_tessellator \
 						utils/mesh \
 						utils/impl/mesh_edge \
 						utils/impl/mesh_face \
@@ -131,6 +131,7 @@ gbox_INC_FILES 			= \
 						utils/utils.h \
 						utils/prefix.h \
 						utils/mesh.h \
+						utils/polygon_tessellator.h \
 						core/core.h \
 						core/prefix.h \
 						core/prefix/type.h \

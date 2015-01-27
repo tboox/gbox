@@ -17,12 +17,28 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        polygon_tesselator.c
- * @ingroup     core
+ * @file        polygon_tessellator.h
+ * @ingroup     utils
+ *
  */
+#ifndef GB_UTILS_POLYGON_TESSELLATOR_H
+#define GB_UTILS_POLYGON_TESSELLATOR_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "polygon_tesselator.h"
+#include "prefix.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
+
+#endif
+
 
