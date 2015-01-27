@@ -358,20 +358,6 @@ tb_cpointer_t                   gb_mesh_face_data(gb_mesh_ref_t mesh, gb_mesh_fa
  */
 tb_void_t                       gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_cpointer_t data);
 
-/*! delete the face
- *
- * all edges of the deleted face will have a null pointer as their left face.  
- * 
- * any edges which also have a null pointer as their right face 
- * are deleted entirely (along with any isolated vertices this produces).
- * 
- * an entire mesh can be deleted by killing its faces, one at a time, in any order.  
- *
- * @param mesh                  the mesh
- * @param face                  the killed face
- */
-tb_void_t                       gb_mesh_face_delete(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face);
-
 /*! the edge iterator
  *
  * @param mesh                  the mesh

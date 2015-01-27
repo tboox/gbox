@@ -6,88 +6,6 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * test
  */
-static tb_void_t gb_demo_utils_mesh_test_face()
-{
-    // trace
-    tb_trace_i("==========================================================================");
-
-    // init mesh
-    gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
-    if (mesh)
-    {
-        // make a counter-clockwise self-loop edge
-        gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_true);
-        if (edge0)
-        {
-            /* make a quadrangle
-             *
-             *                     e0
-             *           v0 <-------------- v3
-             *            |                 |
-             *         e1 |      lface      | e3     rface
-             *            |                 |
-             *           v1 --------------> v2
-             *                     e2
-             *
-             */
-            gb_mesh_edge_ref_t edge1 = gb_mesh_edge_insert(mesh, edge0, edge0);
-            gb_mesh_edge_ref_t edge2 = gb_mesh_edge_insert(mesh, edge1, edge0);
-            gb_mesh_edge_ref_t edge3 = gb_mesh_edge_insert(mesh, edge2, edge0);
-
-            // save face name
-            gb_mesh_face_data_set(mesh, gb_mesh_edge_lface(edge0), "lface");
-            gb_mesh_face_data_set(mesh, gb_mesh_edge_rface(edge0), "rface");
-
-            // save edge name
-            gb_mesh_edge_data_set(mesh, edge0, "e0");
-            gb_mesh_edge_data_set(mesh, edge1, "e1");
-            gb_mesh_edge_data_set(mesh, edge2, "e2");
-            gb_mesh_edge_data_set(mesh, edge3, "e3");
-
-            // save vertex name
-            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge0), "v0");
-            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge1), "v1");
-            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge2), "v2");
-            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge3), "v3");
-
-#ifdef __gb_debug__
-            // trace
-            tb_trace_i("");
-            tb_trace_i("face: make");
-
-            // check mesh
-            gb_mesh_check(mesh);
-        
-            // dump mesh
-            gb_mesh_dump(mesh);
-#endif
-
-            // delete lface
-            gb_mesh_face_delete(mesh, gb_mesh_edge_lface(edge0));
-
-#ifdef __gb_debug__
-            // trace
-            tb_trace_i("");
-            tb_trace_i("face: kill");
-
-            // check mesh
-            gb_mesh_check(mesh);
-        
-            // dump mesh
-            gb_mesh_dump(mesh);
-#endif
-
-            // delete rface
-            gb_mesh_face_delete(mesh, gb_mesh_edge_rface(edge0));
-
-            // check
-            tb_assert_abort(gb_mesh_is_empty(mesh));
-        }
-    
-        // exit mesh
-        gb_mesh_exit(mesh);
-    }
-}
 static tb_void_t gb_demo_utils_mesh_test_splice()
 {
     // trace
@@ -493,9 +411,6 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
  */
 tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
 {
-    // test face
-    gb_demo_utils_mesh_test_face();
-
     // test splice
     gb_demo_utils_mesh_test_splice();
 
