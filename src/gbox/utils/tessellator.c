@@ -25,6 +25,7 @@
  * includes
  */
 #include "tessellator.h"
+#include "mesh.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -43,7 +44,64 @@ typedef struct __gb_tessellator_impl_t
     // the user private data
     tb_cpointer_t           priv;
 
+    // the mesh
+    gb_mesh_ref_t           mesh;
+
 }gb_tessellator_impl_t;
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && polygon);
+
+    // clear mesh first
+    gb_mesh_clear(impl->mesh);
+
+    // TODO
+    tb_trace_noimpl();
+    return tb_false;
+}
+static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
+{
+    // check
+    tb_assert_abort(impl && polygon && polygon->convex && bounds);
+
+    // make convex or monotone? done it directly
+    if (impl->mode == GB_TESSELLATOR_MODE_CONVEX || impl->mode == GB_TESSELLATOR_MODE_MONOTONE)
+    {
+        // check
+        tb_assert_abort(impl->func);
+
+        // done it
+        impl->func(polygon, impl->priv);
+
+        // ok
+        return ;
+    }
+
+    // check
+    tb_assert_abort(impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION);
+
+    // make mesh
+    if (!gb_tessellator_mesh_make(impl, polygon)) return ;
+
+    // TODO: make triangulation
+    tb_trace_noimpl();
+}
+static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
+{ 
+    // check
+    tb_assert_abort(impl && polygon && !polygon->convex && bounds);
+
+    // make mesh
+    if (!gb_tessellator_mesh_make(impl, polygon)) return ;
+
+    // TODO
+    tb_trace_noimpl();
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -58,6 +116,10 @@ tb_void_t gb_tessellator_exit(gb_tessellator_ref_t tessellator)
     // check
     gb_tessellator_impl_t* impl = (gb_tessellator_impl_t*)tessellator;
     tb_assert_and_check_return(impl);
+
+    // exit mesh
+    if (impl->mesh) gb_mesh_exit(impl->mesh);
+    impl->mesh = tb_null;
 
     // exit it
     tb_free(impl);
@@ -90,13 +152,36 @@ tb_void_t gb_tessellator_func_set(gb_tessellator_ref_t tessellator, gb_tessellat
     impl->func = func;
     impl->priv = priv;
 }
-tb_bool_t gb_tessellator_done(gb_tessellator_ref_t tessellator, gb_polygon_ref_t polygon)
+tb_void_t gb_tessellator_done(gb_tessellator_ref_t tessellator, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
     gb_tessellator_impl_t* impl = (gb_tessellator_impl_t*)tessellator;
-    tb_assert_and_check_return_val(impl && polygon, tb_false);
+    tb_assert_abort_and_check_return(impl && impl->func && polygon && polygon->points && polygon->counts && bounds);
 
-    // TODO
-    tb_trace_noimpl();
-    return tb_false;
+    // is convex polygon for each contour?
+    if (polygon->convex)
+    {
+        // done
+        tb_size_t       index               = 0;
+        gb_point_ref_t  points              = polygon->points;
+        tb_uint16_t*    counts              = polygon->counts;
+        tb_uint16_t     contour_counts[2]   = {0, 0};
+        gb_polygon_t    contour             = {tb_null, contour_counts, tb_true};
+        while ((contour_counts[0] = *counts++))
+        {
+            // init the polygon for this contour
+            contour.points = points + index;
+
+            // done tessellator for the convex contour, will be faster
+            gb_tessellator_done_convex(impl, &contour, bounds);
+
+            // update the contour index
+            index += contour_counts[0];
+        }
+    }
+    else
+    {
+        // done tessellator for the concave polygon
+        gb_tessellator_done_concave(impl, polygon, bounds);
+    }
 }

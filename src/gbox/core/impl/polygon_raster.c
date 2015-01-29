@@ -270,9 +270,6 @@ static tb_void_t gb_polygon_raster_edge_table_exit(gb_polygon_raster_impl_t* imp
 }
 static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
-    // check
-    tb_assert_abort(impl && polygon && polygon->points && polygon->counts && bounds);
-
     // empty polygon?
     tb_check_return_val(gb_nz(bounds->w) && gb_nz(bounds->h), tb_false);
 
@@ -924,7 +921,7 @@ static tb_void_t gb_polygon_raster_active_sort(gb_polygon_raster_impl_t* impl)
 static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(impl && func);
+    tb_assert_abort(impl && polygon && polygon->convex && bounds);
 
     // init the active edges
     impl->active_edges = 0;
@@ -956,7 +953,7 @@ static tb_void_t gb_polygon_raster_done_convex(gb_polygon_raster_impl_t* impl, g
 static tb_void_t gb_polygon_raster_done_concave(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule, gb_polygon_raster_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(impl && func);
+    tb_assert_abort(impl && polygon && !polygon->convex && bounds);
 
     // init the active edges
     impl->active_edges = 0;
@@ -1022,7 +1019,7 @@ tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_ref_
 {
     // check
     gb_polygon_raster_impl_t* impl = (gb_polygon_raster_impl_t*)raster;
-    tb_assert_abort(impl && polygon && func);
+    tb_assert_abort_and_check_return(impl && polygon && polygon->points && polygon->counts && bounds && func);
 
     // is convex polygon for each contour?
     if (polygon->convex)

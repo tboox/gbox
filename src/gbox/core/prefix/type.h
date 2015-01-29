@@ -262,7 +262,7 @@ typedef struct __gb_arc_t
 typedef struct __gb_polygon_t
 {
     /// the points
-    gb_point_ref_t         points;
+    gb_point_ref_t      points;
 
     /// the counts
     tb_uint16_t*        counts;

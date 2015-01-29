@@ -110,10 +110,9 @@ tb_void_t               gb_tessellator_func_set(gb_tessellator_ref_t tessellator
  *
  * @param tessellator   the tessellator
  * @param polygon       the polygon
- *
- * @return              tb_true or tb_false
+ * @param bounds        the polygon bounds
  */
-tb_bool_t               gb_tessellator_done(gb_tessellator_ref_t tessellator, gb_polygon_ref_t polygon);
+tb_void_t               gb_tessellator_done(gb_tessellator_ref_t tessellator, gb_polygon_ref_t polygon, gb_rect_ref_t bounds);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
