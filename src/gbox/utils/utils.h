@@ -27,7 +27,7 @@
  * includes
  */
 #include "mesh.h"
-#include "polygon_tessellator.h"
+#include "tessellator.h"
 
 #endif
 
