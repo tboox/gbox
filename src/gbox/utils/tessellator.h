@@ -63,10 +63,11 @@ typedef struct{}*       gb_tessellator_ref_t;
 
 /*! the polygon tessellator func type
  *
- * @param polygon       the tessellated polygon 
+ * @param points        the points of the contour
+ * @param count         the points count of the contour
  * @param priv          the user private data
  */
-typedef tb_void_t       (*gb_tessellator_func_t)(gb_polygon_ref_t polygon, tb_cpointer_t priv);
+typedef tb_void_t       (*gb_tessellator_func_t)(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

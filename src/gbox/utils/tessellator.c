@@ -202,10 +202,10 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     if (impl->mode == GB_TESSELLATOR_MODE_CONVEX || impl->mode == GB_TESSELLATOR_MODE_MONOTONE)
     {
         // check
-        tb_assert_abort(impl->func);
+        tb_assert_abort(impl->func && polygon->points && polygon->counts && !polygon->counts[1]);
 
         // done it
-        impl->func(polygon, impl->priv);
+        impl->func(polygon->points, polygon->counts[0], impl->priv);
 
         // ok
         return ;

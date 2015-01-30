@@ -207,7 +207,11 @@ static tb_void_t gb_device_gl_exit(gb_device_impl_t* device)
     // check
     gb_gl_device_ref_t impl = (gb_gl_device_ref_t)device;
     tb_assert_and_check_return(impl);
-    
+     
+    // exit tessellator
+    if (impl->tessellator) gb_tessellator_exit(impl->tessellator);
+    impl->tessellator = tb_null;
+ 
     // exit stroker
     if (impl->stroker) gb_stroker_exit(impl->stroker);
     impl->stroker = tb_null;
@@ -265,6 +269,10 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         // init stroker
         impl->stroker = gb_stroker_init();
         tb_assert_and_check_break(impl->stroker);
+
+        // init tessellator
+        impl->tessellator = gb_tessellator_init();
+        tb_assert_and_check_break(impl->tessellator);
 
         // init version 
         if (!impl->version)

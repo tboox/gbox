@@ -30,6 +30,7 @@
 #include "program.h"
 #include "matrix.h"
 #include "../../impl/stroker.h"
+#include "../../../utils/tessellator.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -64,6 +65,9 @@ typedef struct __gb_gl_device_t
 
     // the program
     gb_gl_program_ref_t         program;
+
+    // the tessellator
+    gb_tessellator_ref_t        tessellator;
 
 }gb_gl_device_t, *gb_gl_device_ref_t;
 
