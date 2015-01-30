@@ -22,6 +22,12 @@
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "tessellator"
+#define TB_TRACE_MODULE_DEBUG           (1)
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "tessellator.h"
@@ -102,6 +108,19 @@ typedef struct __gb_tessellator_impl_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_char_t const* gb_tessellator_vertex_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    gb_tessellator_vertex_ref_t vertex = (gb_tessellator_vertex_ref_t)data;
+    tb_assert_and_check_return_val(vertex, tb_null);
+
+    // make info
+    tb_long_t size = tb_snprintf(cstr, maxn, "%{point}", &vertex->point);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return cstr;
+}
 static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon)
 {
     // check
@@ -115,10 +134,14 @@ static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygo
     // not exists mesh?
     if (!impl->mesh) 
     {
+        // init vertex func
+        tb_item_func_t vertex_func = tb_item_func_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
+        vertex_func.cstr = gb_tessellator_vertex_cstr;
+
         // init mesh
-        impl->mesh = gb_mesh_init(  tb_item_func_mem(sizeof(gb_tessellator_edge_t),     tb_null, tb_null)
-                                ,   tb_item_func_mem(sizeof(gb_tessellator_face_t),     tb_null, tb_null)
-                                ,   tb_item_func_mem(sizeof(gb_tessellator_vertex_t),   tb_null, tb_null));
+        impl->mesh = gb_mesh_init(  tb_item_func_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null)
+                                ,   tb_item_func_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null)
+                                ,   vertex_func);
     }
     tb_assert_abort_and_check_return_val(impl->mesh, tb_false);
 
@@ -185,6 +208,9 @@ static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygo
 #ifdef __gb_debug__
     // check mesh
     gb_mesh_check(impl->mesh);
+
+    // dump mesh
+//    gb_mesh_dump(impl->mesh);
 #endif
 
     // failed? clear mesh
