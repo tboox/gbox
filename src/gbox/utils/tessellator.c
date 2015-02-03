@@ -49,6 +49,12 @@
 // the tessellator face
 #define gb_tessellator_face(mesh, face)                         ((gb_tessellator_face_ref_t)gb_mesh_face_data(mesh, face))
 
+// the tessellator face inside
+#define gb_tessellator_face_inside(mesh, face)                  (gb_tessellator_face(mesh, face)->inside)
+
+// set the tessellator face inside
+#define gb_tessellator_face_inside_set(mesh, face, val)         do { gb_tessellator_face(mesh, face)->inside = (val); } while (0)
+
 // the tessellator vertex
 #define gb_tessellator_vertex(mesh, vertex)                     ((gb_tessellator_vertex_ref_t)gb_mesh_vertex_data(mesh, vertex))
 
@@ -57,6 +63,13 @@
 
 // set the tessellator vertex point
 #define gb_tessellator_vertex_point_set(mesh, vertex, val)      do { gb_tessellator_vertex(mesh, vertex)->point = (val); } while (0)
+
+// the output points grow
+#ifdef __gb_small__
+#   define GB_TESSELLATOR_OUTPUTS_GROW                          (32)
+#else
+#   define GB_TESSELLATOR_OUTPUTS_GROW                          (64)
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
@@ -73,7 +86,8 @@ typedef struct __gb_tessellator_edge_t
 // the tessellator face type
 typedef struct __gb_tessellator_face_t
 {
-    tb_size_t               dumy;
+    // is inside?
+    tb_uint8_t              inside : 1;
 
 }gb_tessellator_face_t, *gb_tessellator_face_ref_t;
 
@@ -102,6 +116,9 @@ typedef struct __gb_tessellator_impl_t
 
     // the mesh
     gb_mesh_ref_t           mesh;
+
+    // the output points
+    tb_vector_ref_t         outputs;
 
 }gb_tessellator_impl_t;
 
@@ -208,9 +225,6 @@ static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygo
 #ifdef __gb_debug__
     // check mesh
     gb_mesh_check(impl->mesh);
-
-    // dump mesh
-//    gb_mesh_dump(impl->mesh);
 #endif
 
     // failed? clear mesh
@@ -218,6 +232,97 @@ static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygo
 
     // ok?
     return ok;
+}
+static tb_bool_t gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+{
+    // check
+    tb_assert_abort(impl && bounds);
+
+    // TODO
+    tb_trace_noimpl();
+
+#ifdef __gb_debug__
+    // check mesh
+    gb_mesh_check(impl->mesh);
+#endif
+
+    // ok
+    return tb_true;
+}
+static tb_bool_t gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+{
+    // check
+    tb_assert_abort(impl && bounds);
+
+    // TODO
+    tb_trace_noimpl();
+
+#ifdef __gb_debug__
+    // check mesh
+    gb_mesh_check(impl->mesh);
+#endif
+
+    // ok
+    return tb_true;
+}
+static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
+{
+    // check
+    gb_mesh_ref_t mesh = impl->mesh;
+    tb_assert_abort(impl && mesh && impl->func);
+
+    // init outputs first
+    if (!impl->outputs) impl->outputs = tb_vector_init(GB_TESSELLATOR_OUTPUTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+
+    // check outputs
+    tb_vector_ref_t outputs = impl->outputs;
+    tb_assert_abort(outputs);
+
+    // done
+    tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(mesh), face)
+    {
+        // is the inside face?
+        if (gb_tessellator_face_inside(mesh, face)) 
+        {
+            // clear outputs
+            tb_vector_clear(outputs);
+
+            // make contour
+            gb_mesh_edge_ref_t  head        = gb_mesh_face_edge(face);
+            gb_mesh_edge_ref_t  edge        = head;
+            gb_point_ref_t      point       = tb_null;
+            gb_point_ref_t      point_first = tb_null;
+            do
+            {
+                // the point
+                point = gb_tessellator_vertex_point(mesh, gb_mesh_edge_org(edge));
+                tb_assert_abort(point);
+
+                // append point
+                tb_vector_insert_tail(outputs, point);
+
+                // save the first point
+                if (!point_first) point_first = point;
+
+                // the next edge
+                edge = gb_mesh_edge_lnext(edge);
+
+            } while (edge != head);
+
+            // exists valid contour?
+            if (tb_vector_size(outputs) > 2)
+            {
+                // check
+                tb_assert_abort(tb_vector_data(outputs));
+
+                // append the first point for closing the contour
+                tb_vector_insert_tail(outputs, point_first);
+
+                // done it
+                impl->func((gb_point_ref_t)tb_vector_data(outputs), tb_vector_size(outputs), impl->priv);
+            }
+        }
+    }
 }
 static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
@@ -246,8 +351,11 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     // check mesh
     tb_check_return(impl->mesh && !gb_mesh_is_empty(impl->mesh));
 
-    // TODO: make triangulation
-    tb_trace_noimpl();
+    // done triangulation
+    if (!gb_tessellator_done_triangulation(impl, bounds)) return ;
+
+    // done output
+    gb_tessellator_done_output(impl);
 }
 static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 { 
@@ -260,8 +368,14 @@ static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_pol
     // check mesh
     tb_check_return(impl->mesh && !gb_mesh_is_empty(impl->mesh));
 
-    // TODO
-    tb_trace_noimpl();
+    // done monotone
+    if (!gb_tessellator_done_monotone(impl, bounds)) return ;
+
+    // done triangulation
+    if (!gb_tessellator_done_triangulation(impl, bounds)) return ;
+
+    // done output
+    gb_tessellator_done_output(impl);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -281,6 +395,10 @@ tb_void_t gb_tessellator_exit(gb_tessellator_ref_t tessellator)
     // exit mesh
     if (impl->mesh) gb_mesh_exit(impl->mesh);
     impl->mesh = tb_null;
+
+    // exit outputs
+    if (impl->outputs) tb_vector_exit(impl->outputs);
+    impl->outputs = tb_null;
 
     // exit it
     tb_free(impl);

@@ -274,6 +274,9 @@ gb_device_ref_t gb_device_init_gl(gb_window_ref_t window)
         impl->tessellator = gb_tessellator_init();
         tb_assert_and_check_break(impl->tessellator);
 
+        // init tessellator mode
+        gb_tessellator_mode_set(impl->tessellator, GB_TESSELLATOR_MODE_CONVEX);
+
         // init version 
         if (!impl->version)
         {
