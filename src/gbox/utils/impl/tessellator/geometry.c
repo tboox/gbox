@@ -26,5 +26,79 @@
  */
 #include "geometry.h"
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+gb_float_t gb_tessellator_distance_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower)
+{
+    // check
+    tb_assert_abort(center && upper && lower);
+
+    // upper <= center <= lower
+    tb_assert_abort(gb_tessellator_vertex_le_h(upper, center));
+    tb_assert_abort(gb_tessellator_vertex_le_h(center, lower));
+
+    // compute the upper and lower XXX
+    gb_float_t yu = center->y - upper->y;
+    gb_float_t yl = lower->y - center->y;
+    tb_assert_abort(!gb_lz(yu) && !gb_lz(yl));
+
+    if (yu + yl > 0)
+    {
+        if (yu < yl)
+        {
+            /*
+             *              upper             
+             *                .                
+             *               .  
+             *              .
+             *             . -------------------- . 
+             *            .                     center
+             *           .
+             *          .          
+             *         .                          
+             *        .                     
+             *       .                       
+             *       lower                     
+             *
+             */
+            return (center->x - upper->x) + (upper->x - lower->x) * (yu / (yu + yl));
+        } 
+        else 
+        {
+            /*
+             *              upper             
+             *                .                
+             *               .  
+             *              .
+             *             .
+             *            .
+             *           .          
+             *          . -------------------- . 
+             *         .                     center     
+             *        .                     
+             *       .                       
+             *       lower                     
+             *
+             */
+            return (center->x - lower->x) + (lower->x - upper->x) * (yl / (yu + yl));
+        }
+    }
+
+    return 0;
+}
+tb_long_t gb_tessellator_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower)
+{
+    return 0;
+}
+gb_float_t gb_tessellator_distance_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
+{
+    return 0;
+}
+tb_long_t gb_tessellator_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
+{
+    return 0;
+}
+
 
 

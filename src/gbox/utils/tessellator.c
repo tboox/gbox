@@ -229,8 +229,7 @@ static tb_bool_t gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl, 
 static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
 {
     // check
-    gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh && impl->func);
+    tb_assert_abort(impl && impl->mesh && impl->func);
 
     // init outputs first
     if (!impl->outputs) impl->outputs = tb_vector_init(GB_TESSELLATOR_OUTPUTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
@@ -240,7 +239,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
     tb_assert_abort(outputs);
 
     // done
-    tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(mesh), face)
+    tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(impl->mesh), face)
     {
         // is the inside face?
         if (gb_tessellator_face_inside(face)) 

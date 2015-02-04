@@ -71,7 +71,7 @@ typedef struct __gb_tessellator_edge_t
     // the winding
     tb_int32_t              winding;
 
-}gb_tessellator_edge_t, *gb_tessellator_edge_ref_t;
+} gb_tessellator_edge_t, *gb_tessellator_edge_ref_t;
 
 // the tessellator face type
 typedef struct __gb_tessellator_face_t
@@ -79,7 +79,7 @@ typedef struct __gb_tessellator_face_t
     // is inside?
     tb_uint8_t              inside : 1;
 
-}gb_tessellator_face_t, *gb_tessellator_face_ref_t;
+} gb_tessellator_face_t, *gb_tessellator_face_ref_t;
 
 // the tessellator vertex type
 typedef struct __gb_tessellator_vertex_t
@@ -87,7 +87,7 @@ typedef struct __gb_tessellator_vertex_t
     // the point
     gb_point_t              point;
 
-}gb_tessellator_vertex_t, *gb_tessellator_vertex_ref_t;
+} gb_tessellator_vertex_t, *gb_tessellator_vertex_ref_t;
 
 #endif
 
