@@ -35,31 +35,31 @@
  */
 
 // the tessellator edge
-#define gb_tessellator_edge(mesh, edge)                         ((gb_tessellator_edge_ref_t)gb_mesh_edge_data(mesh, edge))
+#define gb_tessellator_edge(edge)                       ((gb_tessellator_edge_ref_t)gb_mesh_edge_data_fastly(edge))
 
 // the tessellator edge winding
-#define gb_tessellator_edge_winding(mesh, edge)                 (gb_tessellator_edge(mesh, edge)->winding)
+#define gb_tessellator_edge_winding(edge)               (gb_tessellator_edge(edge)->winding)
 
 // set the tessellator edge winding
-#define gb_tessellator_edge_winding_set(mesh, edge, val)        do { gb_tessellator_edge(mesh, edge)->winding = (val); } while (0)
+#define gb_tessellator_edge_winding_set(edge, val)      do { gb_tessellator_edge(edge)->winding = (val); } while (0)
 
 // the tessellator face
-#define gb_tessellator_face(mesh, face)                         ((gb_tessellator_face_ref_t)gb_mesh_face_data(mesh, face))
+#define gb_tessellator_face(face)                       ((gb_tessellator_face_ref_t)gb_mesh_face_data_fastly(face))
 
 // the tessellator face inside
-#define gb_tessellator_face_inside(mesh, face)                  (gb_tessellator_face(mesh, face)->inside)
+#define gb_tessellator_face_inside(face)                (gb_tessellator_face(face)->inside)
 
 // set the tessellator face inside
-#define gb_tessellator_face_inside_set(mesh, face, val)         do { gb_tessellator_face(mesh, face)->inside = (val); } while (0)
+#define gb_tessellator_face_inside_set(face, val)       do { gb_tessellator_face(face)->inside = (val); } while (0)
 
 // the tessellator vertex
-#define gb_tessellator_vertex(mesh, vertex)                     ((gb_tessellator_vertex_ref_t)gb_mesh_vertex_data(mesh, vertex))
+#define gb_tessellator_vertex(vertex)                   ((gb_tessellator_vertex_ref_t)gb_mesh_vertex_data_fastly(vertex))
 
 // the tessellator vertex point
-#define gb_tessellator_vertex_point(mesh, vertex)               (&(gb_tessellator_vertex(mesh, vertex)->point))
+#define gb_tessellator_vertex_point(vertex)             (&(gb_tessellator_vertex(vertex)->point))
 
 // set the tessellator vertex point
-#define gb_tessellator_vertex_point_set(mesh, vertex, val)      do { gb_tessellator_vertex(mesh, vertex)->point = (val); } while (0)
+#define gb_tessellator_vertex_point_set(vertex, val)    do { gb_tessellator_vertex(vertex)->point = (val); } while (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types

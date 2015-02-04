@@ -36,8 +36,14 @@
 /// get the face edge
 #define gb_mesh_face_edge(face)                 (tb_assert(face), (face)->edge)
 
+/// get the face user data fastly if the item type is tb_item_func_mem()
+#define gb_mesh_face_data_fastly(face)          (tb_assert(face), (tb_cpointer_t)((gb_mesh_face_ref_t)(face) + 1))
+
 /// get the vertex edge
 #define gb_mesh_vertex_edge(vertex)             (tb_assert(vertex), (vertex)->edge)
+
+/// get the vertex user data fastly if the item type is tb_item_func_mem()
+#define gb_mesh_vertex_data_fastly(vertex)      (tb_assert(vertex), (tb_cpointer_t)((gb_mesh_vertex_ref_t)(vertex) + 1))
 
 /// get the edge sym
 #define gb_mesh_edge_sym(edge)                  (tb_assert(edge), (edge)->sym)
@@ -77,6 +83,9 @@
 
 /// get the edge dprev
 #define gb_mesh_edge_dprev(edge)                (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym)
+
+/// get the edge user data fastly if the item type is tb_item_func_mem()
+#define gb_mesh_edge_data_fastly(edge)          (tb_assert(edge), (tb_cpointer_t)((gb_mesh_edge_ref_t)(edge) + 1))
 
 /// the edge is isolated?
 #define gb_mesh_edge_is_isolated(edge)          (tb_assert((edge) && (edge->sym)), (edge)->onext == (edge) && (edge)->sym->onext == (edge)->sym && (edge)->lnext == (edge->sym) && (edge)->sym->lnext == (edge))
@@ -325,6 +334,8 @@ tb_char_t const*                gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_
 
 /*! the vertex user data
  *
+ * @note please uses gb_mesh_vertex_data_fastly to get the user data more fastly if the item type is tb_item_func_mem()
+ *
  * @param mesh                  the mesh
  * @param vertex                the vertex
  *
@@ -375,6 +386,8 @@ tb_char_t const*                gb_mesh_face_cstr(gb_mesh_ref_t mesh, gb_mesh_fa
 
 /*! the face user data
  *
+ * @note please uses gb_mesh_face_data_fastly to get the user data more fastly if the item type is tb_item_func_mem()
+ *
  * @param mesh                  the mesh
  * @param face                  the face
  *
@@ -424,6 +437,8 @@ gb_mesh_edge_ref_t              gb_mesh_edge_last(gb_mesh_ref_t mesh);
 tb_char_t const*                gb_mesh_edge_cstr(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn);
 
 /*! the edge user data
+ *
+ * @note please uses gb_mesh_edge_data_fastly to get the user data more fastly if the item type is tb_item_func_mem()
  *
  * @param mesh                  the mesh
  * @param edge                  the edge

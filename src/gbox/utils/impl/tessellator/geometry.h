@@ -28,6 +28,21 @@
  */
 #include "prefix.h"
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// vertex: a == b?
+#define gb_tessellator_vertex_eq(a, b)  \
+    (   gb_tessellator_vertex_point(a)->x == gb_tessellator_vertex_point(b)->x \
+    &&  gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y)
+
+// vertex: a <= b?
+#define gb_tessellator_vertex_le(a, b)  \
+    (   gb_tessellator_vertex_point(a)->y < gb_tessellator_vertex_point(b)->y \
+    ||  (   gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y \
+        &&  gb_tessellator_vertex_point(a)->x <= gb_tessellator_vertex_point(b)->x))
+   
 #endif
 
 

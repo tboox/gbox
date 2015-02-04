@@ -150,8 +150,8 @@ static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygo
             edge = gb_mesh_edge_connect(mesh, edge, edge_first);
 
             // init face.inside
-            gb_tessellator_face_inside_set(mesh, gb_mesh_edge_lface(edge), 0);
-            gb_tessellator_face_inside_set(mesh, gb_mesh_edge_rface(edge), 0);
+            gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
+            gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge), 0);
         }
         else 
         {
@@ -163,11 +163,11 @@ static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygo
         tb_assert_abort_and_check_break_state(edge, ok, tb_false);
 
         // init edge.winding
-        gb_tessellator_edge_winding_set(mesh, edge, 1);
-        gb_tessellator_edge_winding_set(mesh, gb_mesh_edge_sym(edge), -1);
+        gb_tessellator_edge_winding_set(edge, 1);
+        gb_tessellator_edge_winding_set(gb_mesh_edge_sym(edge), -1);
 
         // init edge.org
-        gb_tessellator_vertex_point_set(mesh, gb_mesh_edge_org(edge), *point);
+        gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge), *point);
 
         // next point
         index++;
@@ -243,7 +243,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
     tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(mesh), face)
     {
         // is the inside face?
-        if (gb_tessellator_face_inside(mesh, face)) 
+        if (gb_tessellator_face_inside(face)) 
         {
             // clear outputs
             tb_vector_clear(outputs);
@@ -256,7 +256,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
             do
             {
                 // the point
-                point = gb_tessellator_vertex_point(mesh, gb_mesh_edge_org(edge));
+                point = gb_tessellator_vertex_point(gb_mesh_edge_org(edge));
                 tb_assert_abort(point);
 
                 // append point
@@ -320,7 +320,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
 
 #if 1
     // TODO
-    gb_tessellator_face_inside_set(mesh, face2, 1);
+    gb_tessellator_face_inside_set(face2, 1);
 #else
     // get the two edges of the face1
     gb_mesh_edge_ref_t edge1 = gb_mesh_face_edge(face1);
@@ -341,9 +341,9 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
      * |                    |
      *  -------------------> point1
      */
-    gb_point_ref_t point1 = gb_tessellator_vertex_point(mesh, gb_mesh_edge_org(edge1));
-    gb_point_ref_t point2 = gb_tessellator_vertex_point(mesh, gb_mesh_edge_org(edge2));
-    gb_point_ref_t point3 = gb_tessellator_vertex_point(mesh, gb_mesh_edge_dst(edge2));
+    gb_point_ref_t point1 = gb_tessellator_vertex_point(gb_mesh_edge_org(edge1));
+    gb_point_ref_t point2 = gb_tessellator_vertex_point(gb_mesh_edge_org(edge2));
+    gb_point_ref_t point3 = gb_tessellator_vertex_point(gb_mesh_edge_dst(edge2));
     tb_assert_abort(point1 && point2 && point3);
 
     // make vectors
