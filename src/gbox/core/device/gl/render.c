@@ -200,6 +200,11 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon
     // check
     tb_assert_abort(device && device->tessellator);
 
+#if 1
+    // set mode
+    gb_tessellator_mode_set(device->tessellator, GB_TESSELLATOR_MODE_TRIANGULATION);
+#endif
+
     // set rule
     gb_tessellator_rule_set(device->tessellator, rule);
 

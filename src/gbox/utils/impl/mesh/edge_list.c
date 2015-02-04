@@ -17,20 +17,20 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh_edge.c
+ * @file        edge_list.c
  * @ingroup     utils
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME                "mesh_edge"
+#define TB_TRACE_MODULE_NAME                "edge_list"
 #define TB_TRACE_MODULE_DEBUG               (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh_edge.h"
+#include "edge_list.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

@@ -17,18 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh_face.h
+ * @file        vertex_list.h
  * @ingroup     utils
  *
  */
-#ifndef GB_UTILS_IMPL_MESH_FACE_H
-#define GB_UTILS_IMPL_MESH_FACE_H
+#ifndef GB_UTILS_IMPL_MESH_VERTEX_LIST_H
+#define GB_UTILS_IMPL_MESH_VERTEX_LIST_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "../mesh.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -36,100 +35,104 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
-// the mesh face list type
-typedef struct{}*           gb_mesh_face_list_ref_t;
+// the mesh vertex list type
+typedef struct{}*           gb_mesh_vertex_list_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
+ * intervertexs
  */
 
-/* init the mesh face list 
+/* init the mesh vertex list 
  *
  * @param func              the item func
  *
- * @return                  the face list
+ * @returned                the vertex list
  */
-gb_mesh_face_list_ref_t     gb_mesh_face_list_init(tb_item_func_t func);
+gb_mesh_vertex_list_ref_t   gb_mesh_vertex_list_init(tb_item_func_t func);
 
-/* exit the mesh face list
+/* exit the mesh vertex list
  *
- * @param list              the face list
+ * @param list              the vertex list
  */
-tb_void_t                   gb_mesh_face_list_exit(gb_mesh_face_list_ref_t list);
+tb_void_t                   gb_mesh_vertex_list_exit(gb_mesh_vertex_list_ref_t list);
 
-/* clear the mesh face list
+/* clear the mesh vertex list
  *
- * @param list              the face list
+ * @param list              the vertex list
  */
-tb_void_t                   gb_mesh_face_list_clear(gb_mesh_face_list_ref_t list);
+tb_void_t                   gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list);
 
-/*! the mesh face iterator
+/*! the mesh vertex iterator
  *
  * @param list              the list
  *
- * @return                  the mesh face iterator
+ * @return                  the mesh vertex iterator
  */
-tb_iterator_ref_t           gb_mesh_face_list_itor(gb_mesh_face_list_ref_t list);
+tb_iterator_ref_t           gb_mesh_vertex_list_itor(gb_mesh_vertex_list_ref_t list);
 
-/*! the mesh face count
+/*! the mesh vertex count
  *
  * @param list              the list
  *
  * @return                  the item count
  */
-tb_size_t                   gb_mesh_face_list_size(gb_mesh_face_list_ref_t list);
+tb_size_t                   gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t list);
 
-/*! the mesh face maximum count
+/*! the mesh vertex maximum count
  *
  * @param list              the list
  *
  * @return                  the item max count
  */
-tb_size_t                   gb_mesh_face_list_maxn(gb_mesh_face_list_ref_t list);
+tb_size_t                   gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t list);
 
-/*! make a bare face without faces
+/*! make a bare vertex without edges
  *
  * @param list              the list
  *
- * @return                  the new face
+ * @return                  the new vertex
  */
-gb_mesh_face_ref_t          gb_mesh_face_list_make(gb_mesh_face_list_ref_t list);
+gb_mesh_vertex_ref_t        gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list);
 
-/*! make the face string
+/*! make the vertex info string
  *
  * @param list              the list
- * @param face              the face
+ * @param vertex              the vertex
  * @param data              the string data
  * @param maxn              the string maxn
  */
-tb_char_t const*            gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn);
+tb_char_t const*            gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
 
-/*! kill the face, release the storage
+/*! kill the vertex, release the storage
  *
  * @param list              the list
- * @param face              the face
+ * @param vertex            the vertex
  */
-tb_void_t                   gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face);
+tb_void_t                   gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex);
 
 /*! the user data 
  *
  * @param list              the list
- * @param face              the face
+ * @param vertex            the vertex
  *
  * @return                  the user data
  */
-tb_cpointer_t               gb_mesh_face_list_data(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face);
+tb_cpointer_t               gb_mesh_vertex_list_data(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex);
 
 /*! set the user private data 
  *
  * @param list              the list
- * @param face              the face
+ * @param vertex            the vertex
  * @param data              the user data
  */
-tb_void_t                   gb_mesh_face_list_data_set(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_cpointer_t data);
+tb_void_t                   gb_mesh_vertex_list_data_set(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

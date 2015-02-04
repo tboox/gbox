@@ -50,11 +50,12 @@ gbox_C_FILES 			+= \
 
 # utils files
 gbox_C_FILES 			+= \
-						utils/tessellator \
 						utils/mesh \
-						utils/impl/mesh_edge \
-						utils/impl/mesh_face \
-						utils/impl/mesh_vertex 
+						utils/tessellator \
+						utils/impl/mesh/edge_list \
+						utils/impl/mesh/face_list \
+						utils/impl/mesh/vertex_list \
+						utils/impl/tessellator/geometry 
 
 # bitmap device files
 gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_BITMAP) += \

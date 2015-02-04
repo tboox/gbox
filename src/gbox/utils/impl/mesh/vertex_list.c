@@ -17,20 +17,20 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh_vertex.c
+ * @file        vertex_list.c
  * @ingroup     utils
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME                "mesh_vertex"
+#define TB_TRACE_MODULE_NAME                "vertex_list"
 #define TB_TRACE_MODULE_DEBUG               (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh_vertex.h"
+#include "vertex_list.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros

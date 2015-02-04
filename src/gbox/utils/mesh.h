@@ -298,6 +298,22 @@ tb_bool_t                       gb_mesh_is_empty(gb_mesh_ref_t mesh);
  */
 tb_iterator_ref_t               gb_mesh_vertex_itor(gb_mesh_ref_t mesh);
 
+/*! the head vertex
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the vertex 
+ */
+gb_mesh_vertex_ref_t            gb_mesh_vertex_head(gb_mesh_ref_t mesh);
+
+/*! the last vertex
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the vertex 
+ */
+gb_mesh_vertex_ref_t            gb_mesh_vertex_last(gb_mesh_ref_t mesh);
+
 /*! the vertex string
  *
  * @param mesh                  the mesh
@@ -332,6 +348,22 @@ tb_void_t                       gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_m
  */
 tb_iterator_ref_t               gb_mesh_face_itor(gb_mesh_ref_t mesh);
 
+/*! the head face
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the face 
+ */
+gb_mesh_face_ref_t              gb_mesh_face_head(gb_mesh_ref_t mesh);
+
+/*! the last face
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the face 
+ */
+gb_mesh_face_ref_t              gb_mesh_face_last(gb_mesh_ref_t mesh);
+
 /*! the face string
  *
  * @param mesh                  the mesh
@@ -365,6 +397,22 @@ tb_void_t                       gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mes
  * @return                      the edge iterator
  */
 tb_iterator_ref_t               gb_mesh_edge_itor(gb_mesh_ref_t mesh);
+
+/*! the head edge
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the edge 
+ */
+gb_mesh_edge_ref_t              gb_mesh_edge_head(gb_mesh_ref_t mesh);
+
+/*! the last edge
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the edge 
+ */
+gb_mesh_edge_ref_t              gb_mesh_edge_last(gb_mesh_ref_t mesh);
 
 /*! the edge string
  *

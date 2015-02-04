@@ -25,9 +25,7 @@
  * includes
  */
 #include "mesh.h"
-#include "impl/mesh_edge.h"
-#include "impl/mesh_face.h"
-#include "impl/mesh_vertex.h"
+#include "impl/mesh/mesh.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -417,6 +415,24 @@ tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
     // the vertex iterator
     return gb_mesh_vertex_list_itor(impl->vertices);
 }
+gb_mesh_vertex_ref_t gb_mesh_vertex_head(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_vertex_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the head vertex
+    return (gb_mesh_vertex_ref_t)tb_iterator_item(iterator, tb_iterator_head(iterator));
+}
+gb_mesh_vertex_ref_t gb_mesh_vertex_last(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_vertex_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the last vertex
+    return (gb_mesh_vertex_ref_t)tb_iterator_item(iterator, tb_iterator_last(iterator));
+}
 tb_char_t const* gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn)
 {
     // check
@@ -453,6 +469,24 @@ tb_iterator_ref_t gb_mesh_face_itor(gb_mesh_ref_t mesh)
     // the face iterator
     return gb_mesh_face_list_itor(impl->faces);
 }
+gb_mesh_face_ref_t gb_mesh_face_head(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_face_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the head face
+    return (gb_mesh_face_ref_t)tb_iterator_item(iterator, tb_iterator_head(iterator));
+}
+gb_mesh_face_ref_t gb_mesh_face_last(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_face_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the last face
+    return (gb_mesh_face_ref_t)tb_iterator_item(iterator, tb_iterator_last(iterator));
+}
 tb_char_t const* gb_mesh_face_cstr(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn)
 {
     // check
@@ -488,6 +522,24 @@ tb_iterator_ref_t gb_mesh_edge_itor(gb_mesh_ref_t mesh)
 
     // the edge iterator
     return gb_mesh_edge_list_itor(impl->edges);
+}
+gb_mesh_edge_ref_t gb_mesh_edge_head(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_edge_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the head edge
+    return (gb_mesh_edge_ref_t)tb_iterator_item(iterator, tb_iterator_head(iterator));
+}
+gb_mesh_edge_ref_t gb_mesh_edge_last(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_edge_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the last edge
+    return (gb_mesh_edge_ref_t)tb_iterator_item(iterator, tb_iterator_last(iterator));
 }
 tb_char_t const* gb_mesh_edge_cstr(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn)
 {

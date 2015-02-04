@@ -17,18 +17,17 @@
  * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        mesh_edge.h
+ * @file        edge_list.h
  * @ingroup     utils
  *
  */
-#ifndef GB_UTILS_IMPL_MESH_EDGE_H
-#define GB_UTILS_IMPL_MESH_EDGE_H
+#ifndef GB_UTILS_IMPL_MESH_EDGE_LIST_H
+#define GB_UTILS_IMPL_MESH_EDGE_LIST_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "prefix.h"
-#include "../mesh.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
