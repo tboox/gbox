@@ -17,19 +17,39 @@
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        tessellator.h
+ * @file        monotone.h
  * @ingroup     utils
  */
-#ifndef GB_UTILS_IMPL_TESSELLATOR_H
-#define GB_UTILS_IMPL_TESSELLATOR_H
+#ifndef GB_UTILS_IMPL_TESSELLATOR_MONOTONE_H
+#define GB_UTILS_IMPL_TESSELLATOR_MONOTONE_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh.h"
-#include "geometry.h"
-#include "monotone.h"
-#include "triangulation.h"
+#include "prefix.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * interfaces
+ */
+
+/* done monotone for mesh
+ *
+ * @param impl      the tessellator impl
+ * @param bounds    the polygon bounds
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
 #endif
 

@@ -29,6 +29,11 @@
 #include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * macros
  */
 
@@ -179,6 +184,11 @@ tb_long_t               gb_tessellator_position_h(gb_point_ref_t center, gb_poin
  * @return              the vertical position
  */
 tb_long_t               gb_tessellator_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
 #endif
 

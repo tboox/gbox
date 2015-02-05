@@ -105,6 +105,14 @@ __tb_extern_c_enter__
 // declaration
 struct __gb_mesh_edge_t;
 
+/// the mesh order enum
+typedef enum __gb_mesh_order_e
+{
+    GB_MESH_ORDER_INSERT_TAIL    = 0 //!< insert new edge/face/vertex to the tail of list
+,   GB_MESH_ORDER_INSERT_HEAD    = 1 //!< insert new edge/face/vertex to the head of list
+
+}gb_mesh_order_e;
+
 /// the mesh vertex type
 typedef struct __gb_mesh_vertex_t
 {
@@ -351,6 +359,21 @@ tb_cpointer_t                   gb_mesh_vertex_data(gb_mesh_ref_t mesh, gb_mesh_
  */
 tb_void_t                       gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
 
+/*! the vertex order
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the order
+ */
+tb_size_t                       gb_mesh_vertex_order(gb_mesh_ref_t mesh);
+
+/*! set vertex order
+ *
+ * @param mesh                  the mesh
+ * @param order                 the order
+ */
+tb_void_t                       gb_mesh_vertex_order_set(gb_mesh_ref_t mesh, tb_size_t order);
+
 /*! the face iterator
  *
  * @param mesh                  the mesh
@@ -403,6 +426,21 @@ tb_cpointer_t                   gb_mesh_face_data(gb_mesh_ref_t mesh, gb_mesh_fa
  */
 tb_void_t                       gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_cpointer_t data);
 
+/*! the face order
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the order
+ */
+tb_size_t                       gb_mesh_face_order(gb_mesh_ref_t mesh);
+
+/*! set face order
+ *
+ * @param mesh                  the mesh
+ * @param order                 the order
+ */
+tb_void_t                       gb_mesh_face_order_set(gb_mesh_ref_t mesh, tb_size_t order);
+
 /*! the edge iterator
  *
  * @param mesh                  the mesh
@@ -454,6 +492,21 @@ tb_cpointer_t                   gb_mesh_edge_data(gb_mesh_ref_t mesh, gb_mesh_ed
  * @param data                  the edge user data
  */
 tb_void_t                       gb_mesh_edge_data_set(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_cpointer_t data);
+
+/*! the edge order
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the order
+ */
+tb_size_t                       gb_mesh_edge_order(gb_mesh_ref_t mesh);
+
+/*! set edge order
+ *
+ * @param mesh                  the mesh
+ * @param order                 the order
+ */
+tb_void_t                       gb_mesh_edge_order_set(gb_mesh_ref_t mesh, tb_size_t order);
 
 /*! make a unconnected edge
  *

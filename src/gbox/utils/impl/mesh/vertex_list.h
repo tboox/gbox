@@ -134,6 +134,21 @@ tb_cpointer_t               gb_mesh_vertex_list_data(gb_mesh_vertex_list_ref_t l
  */
 tb_void_t                   gb_mesh_vertex_list_data_set(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_cpointer_t data);
 
+/*! the list order
+ *
+ * @param list              the list
+ *
+ * @return                  the order
+ */
+tb_size_t                   gb_mesh_vertex_list_order(gb_mesh_vertex_list_ref_t list);
+
+/*! set the list order
+ *
+ * @param list              the list
+ * @param order             the order
+ */
+tb_void_t                   gb_mesh_vertex_list_order_set(gb_mesh_vertex_list_ref_t list, tb_size_t order);
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

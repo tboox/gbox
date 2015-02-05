@@ -89,6 +89,29 @@ typedef struct __gb_tessellator_vertex_t
 
 } gb_tessellator_vertex_t, *gb_tessellator_vertex_ref_t;
 
+// the tessellator impl type
+typedef struct __gb_tessellator_impl_t
+{
+    // the mode
+    tb_size_t               mode;
+
+    // the winding rule
+    tb_size_t               rule;
+
+    // the func
+    gb_tessellator_func_t   func;
+
+    // the user private data
+    tb_cpointer_t           priv;
+
+    // the mesh
+    gb_mesh_ref_t           mesh;
+
+    // the output points
+    tb_vector_ref_t         outputs;
+
+}gb_tessellator_impl_t;
+
 #endif
 
 

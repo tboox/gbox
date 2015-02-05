@@ -17,20 +17,44 @@
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        tessellator.h
+ * @file        monotone.c
  * @ingroup     utils
  */
-#ifndef GB_UTILS_IMPL_TESSELLATOR_H
-#define GB_UTILS_IMPL_TESSELLATOR_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "monotone"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "mesh.h"
-#include "geometry.h"
 #include "monotone.h"
-#include "triangulation.h"
 
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * implementation
+ */
+tb_bool_t gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+{
+    // check
+    gb_mesh_ref_t mesh = impl->mesh;
+    tb_assert_abort(impl && mesh && bounds);
+
+    // TODO
+    tb_trace_noimpl();
+
+#ifdef __gb_debug__
+    // check mesh
+    gb_mesh_check(mesh);
 #endif
+
+    // ok
+    return tb_true;
+}
 
 

@@ -72,6 +72,9 @@ typedef struct __gb_mesh_edge_list_impl_t
     // the edge size
     tb_size_t                       edge_size;
 
+    // the order
+    tb_size_t                       order;
+
     // the func
     tb_item_func_t                  func;
 
@@ -260,6 +263,9 @@ gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_item_func_t func)
         // init func
         impl->func = func;
 
+        // init order
+        impl->order = GB_MESH_ORDER_INSERT_TAIL;
+
         // init edge size
         impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + func.size);
 
@@ -378,8 +384,17 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
     edge_sym->id    = ++impl->id;
 #endif
 
-    // insert edge to the tail of list
-    gb_mesh_edge_insert_prev(edge, impl->head);
+    // insert to the edge list
+    switch (impl->order)
+    {
+    case GB_MESH_ORDER_INSERT_HEAD:
+        gb_mesh_edge_insert_prev(edge, impl->head + 1);
+        break;
+    case GB_MESH_ORDER_INSERT_TAIL:
+    default:
+        gb_mesh_edge_insert_prev(edge, impl->head);
+        break;
+    }
 
     // ok
     return edge;
@@ -413,8 +428,17 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
     edge_sym->id    = ++impl->id;
 #endif
 
-    // insert edge to the tail of list
-    gb_mesh_edge_insert_prev(edge, impl->head);
+    // insert to the edge list
+    switch (impl->order)
+    {
+    case GB_MESH_ORDER_INSERT_HEAD:
+        gb_mesh_edge_insert_prev(edge, impl->head + 1);
+        break;
+    case GB_MESH_ORDER_INSERT_TAIL:
+    default:
+        gb_mesh_edge_insert_prev(edge, impl->head);
+        break;
+    }
 
     // clockwise? reverse it
     return is_ccw? edge : edge_sym;
@@ -486,4 +510,23 @@ tb_void_t gb_mesh_edge_list_data_set(gb_mesh_edge_list_ref_t list, gb_mesh_edge_
     // set the user data
     impl->func.repl(&impl->func, gb_mesh_edge_user(edge), data);
 }
+tb_size_t gb_mesh_edge_list_order(gb_mesh_edge_list_ref_t list)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl, GB_MESH_ORDER_INSERT_TAIL);
+
+    // the order
+    return impl->order;
+}
+tb_void_t gb_mesh_edge_list_order_set(gb_mesh_edge_list_ref_t list, tb_size_t order)
+{
+    // check
+    gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
+    tb_assert_and_check_return(impl);
+
+    // set the order
+    impl->order = order;
+}
+
 

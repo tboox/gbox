@@ -460,6 +460,24 @@ tb_void_t gb_mesh_vertex_data_set(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t verte
     // set the vertex data
     gb_mesh_vertex_list_data_set(impl->vertices, vertex, data);
 }
+tb_size_t gb_mesh_vertex_order(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->vertices, GB_MESH_ORDER_INSERT_TAIL);
+
+    // the vertex order
+    return gb_mesh_vertex_list_order(impl->vertices);
+}
+tb_void_t gb_mesh_vertex_order_set(gb_mesh_ref_t mesh, tb_size_t order)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->vertices);
+
+    // set the vertex order
+    gb_mesh_vertex_list_order_set(impl->vertices, order);
+}
 tb_iterator_ref_t gb_mesh_face_itor(gb_mesh_ref_t mesh)
 {
     // check
@@ -514,6 +532,24 @@ tb_void_t gb_mesh_face_data_set(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_
     // set the face data
     gb_mesh_face_list_data_set(impl->faces, face, data);
 }
+tb_size_t gb_mesh_face_order(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->faces, GB_MESH_ORDER_INSERT_TAIL);
+
+    // the face order
+    return gb_mesh_face_list_order(impl->faces);
+}
+tb_void_t gb_mesh_face_order_set(gb_mesh_ref_t mesh, tb_size_t order)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->faces);
+
+    // set the face order
+    gb_mesh_face_list_order_set(impl->faces, order);
+}
 tb_iterator_ref_t gb_mesh_edge_itor(gb_mesh_ref_t mesh)
 {
     // check
@@ -567,6 +603,24 @@ tb_void_t gb_mesh_edge_data_set(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_
 
     // set the edge data
     gb_mesh_edge_list_data_set(impl->edges, edge, data);
+}
+tb_size_t gb_mesh_edge_order(gb_mesh_ref_t mesh)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && impl->edges, GB_MESH_ORDER_INSERT_TAIL);
+
+    // the edge order
+    return gb_mesh_edge_list_order(impl->edges);
+}
+tb_void_t gb_mesh_edge_order_set(gb_mesh_ref_t mesh, tb_size_t order)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl && impl->edges);
+
+    // set the edge order
+    gb_mesh_edge_list_order_set(impl->edges, order);
 }
 gb_mesh_edge_ref_t gb_mesh_edge_make(gb_mesh_ref_t mesh)
 {

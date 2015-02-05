@@ -69,6 +69,9 @@ typedef struct __gb_mesh_vertex_list_impl_t
     // the func
     tb_item_func_t              func;
 
+    // the order
+    tb_size_t                   order;
+
 #ifdef __gb_debug__
     // the id
     tb_size_t                   id;
@@ -115,6 +118,9 @@ gb_mesh_vertex_list_ref_t gb_mesh_vertex_list_init(tb_item_func_t func)
 
         // init head
         tb_list_entry_init_(&impl->head, 0, sizeof(gb_mesh_vertex_t) + func.size, tb_null);
+
+        // init order
+        impl->order = GB_MESH_ORDER_INSERT_TAIL;
 
         // ok
         ok = tb_true;
@@ -200,7 +206,16 @@ gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
 #endif
 
     // insert to the vertex list
-    tb_list_entry_insert_tail(&impl->head, &vertex->entry);
+    switch (impl->order)
+    {
+    case GB_MESH_ORDER_INSERT_HEAD:
+        tb_list_entry_insert_head(&impl->head, &vertex->entry);
+        break;
+    case GB_MESH_ORDER_INSERT_TAIL:
+    default:
+        tb_list_entry_insert_tail(&impl->head, &vertex->entry);
+        break;
+    }
 
     // ok
     return vertex;
@@ -261,4 +276,23 @@ tb_void_t gb_mesh_vertex_list_data_set(gb_mesh_vertex_list_ref_t list, gb_mesh_v
     // set the user data
     impl->func.repl(&impl->func, gb_mesh_vertex_user(vertex), data);
 }
+tb_size_t gb_mesh_vertex_list_order(gb_mesh_vertex_list_ref_t list)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return_val(impl, GB_MESH_ORDER_INSERT_TAIL);
+
+    // the order
+    return impl->order;
+}
+tb_void_t gb_mesh_vertex_list_order_set(gb_mesh_vertex_list_ref_t list, tb_size_t order)
+{
+    // check
+    gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
+    tb_assert_and_check_return(impl);
+
+    // set the order
+    impl->order = order;
+}
+
 

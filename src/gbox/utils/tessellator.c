@@ -31,7 +31,6 @@
  * includes
  */
 #include "tessellator.h"
-#include "mesh.h"
 #include "impl/tessellator/tessellator.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -46,186 +45,8 @@
 #endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
- */
-
-// the tessellator impl type
-typedef struct __gb_tessellator_impl_t
-{
-    // the mode
-    tb_size_t               mode;
-
-    // the winding rule
-    tb_size_t               rule;
-
-    // the func
-    gb_tessellator_func_t   func;
-
-    // the user private data
-    tb_cpointer_t           priv;
-
-    // the mesh
-    gb_mesh_ref_t           mesh;
-
-    // the output points
-    tb_vector_ref_t         outputs;
-
-}gb_tessellator_impl_t;
-
-/* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_char_t const* gb_tessellator_vertex_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
-{
-    // check
-    gb_tessellator_vertex_ref_t vertex = (gb_tessellator_vertex_ref_t)data;
-    tb_assert_and_check_return_val(vertex, tb_null);
-
-    // make info
-    tb_long_t size = tb_snprintf(cstr, maxn, "%{point}", &vertex->point);
-    if (size >= 0) cstr[size] = '\0';
-
-    // ok?
-    return cstr;
-}
-static tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon)
-{
-    // check
-    tb_assert_abort(impl && polygon);
-
-    // the points
-    gb_point_ref_t      points = polygon->points;
-    tb_uint16_t const*  counts = polygon->counts;
-    tb_assert_abort_and_check_return_val(points && counts, tb_false);
-
-    // not exists mesh?
-    if (!impl->mesh) 
-    {
-        // init vertex func
-        tb_item_func_t vertex_func = tb_item_func_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
-        vertex_func.cstr = gb_tessellator_vertex_cstr;
-
-        // init mesh
-        impl->mesh = gb_mesh_init(  tb_item_func_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null)
-                                ,   tb_item_func_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null)
-                                ,   vertex_func);
-    }
-
-    // check
-    gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort_and_check_return_val(mesh, tb_false);
-
-    // clear mesh first
-    gb_mesh_clear(mesh);
-
-    // done
-    tb_bool_t           ok          = tb_true;
-    gb_point_ref_t      point       = tb_null;
-    gb_point_ref_t      point_first = tb_null;
-    tb_uint16_t         count       = *counts++;
-    tb_size_t           index       = 0;
-    gb_mesh_edge_ref_t  edge        = tb_null;
-    gb_mesh_edge_ref_t  edge_first  = tb_null;
-    while (index < count)
-    {
-        // the point
-        point = points++;
-
-        // first point?
-        if (!index) 
-        {
-            // make a non-loop edge
-            edge = gb_mesh_edge_make(mesh);
-
-            // save the first point
-            point_first = point;
-
-            // save the first edge
-            edge_first = edge;
-        }
-        // closed?
-        else if (index + 1 == count && point_first->x == point->x && point_first->y == point->y)
-        {
-            // connect an edge to the first edge
-            edge = gb_mesh_edge_connect(mesh, edge, edge_first);
-
-            // init face.inside
-            gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
-            gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge), 0);
-        }
-        else 
-        {
-            // append an edge
-            edge = gb_mesh_edge_append(mesh, edge);
-        }
-
-        // check
-        tb_assert_abort_and_check_break_state(edge, ok, tb_false);
-
-        // init edge.winding
-        gb_tessellator_edge_winding_set(edge, 1);
-        gb_tessellator_edge_winding_set(gb_mesh_edge_sym(edge), -1);
-
-        // init edge.org
-        gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge), *point);
-
-        // next point
-        index++;
-
-        // next polygon
-        if (index == count) 
-        {
-            // next
-            count = *counts++;
-            index = 0;
-        }
-    }
-
-#ifdef __gb_debug__
-    // check mesh
-    gb_mesh_check(mesh);
-#endif
-
-    // failed? clear mesh
-    if (!ok) gb_mesh_clear(mesh);
-
-    // ok?
-    return ok && !gb_mesh_is_empty(mesh);
-}
-static tb_bool_t gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
-{
-    // check
-    gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh && bounds);
-
-    // TODO
-    tb_trace_noimpl();
-
-#ifdef __gb_debug__
-    // check mesh
-    gb_mesh_check(mesh);
-#endif
-
-    // ok
-    return tb_true;
-}
-static tb_bool_t gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
-{
-    // check
-    gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh && bounds);
-
-    // TODO
-    tb_trace_noimpl();
-
-#ifdef __gb_debug__
-    // check mesh
-    gb_mesh_check(mesh);
-#endif
-
-    // ok
-    return tb_true;
-}
 static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
 {
     // check
@@ -241,7 +62,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
     // done
     tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(impl->mesh), face)
     {
-        // is the inside face?
+        // the face is inside?
         if (gb_tessellator_face_inside(face)) 
         {
             // clear outputs
@@ -355,7 +176,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
 #endif
 
     // done triangulation
-    if (!gb_tessellator_done_triangulation(impl, bounds)) return ;
+    if (!gb_tessellator_done_triangulation(impl)) return ;
 
     // done output
     gb_tessellator_done_output(impl);
@@ -375,7 +196,7 @@ static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_pol
     if (impl->mode == GB_TESSELLATOR_MODE_CONVEX || impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION)
     {
         // done triangulation
-        if (!gb_tessellator_done_triangulation(impl, bounds)) return ;
+        if (!gb_tessellator_done_triangulation(impl)) return ;
 
         // make convex? 
         if (impl->mode == GB_TESSELLATOR_MODE_CONVEX)
