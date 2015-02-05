@@ -30,6 +30,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
+#include "geometry.h"
 #include "triangulation.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -38,8 +39,77 @@
 static tb_bool_t gb_tessellator_done_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && face);
+    gb_mesh_ref_t mesh = impl->mesh;
+    tb_assert_abort(impl && mesh && face);
 
+    tb_trace_d("before:");
+    gb_mesh_dump(mesh);
+
+    // the face edge
+    gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
+    tb_assert_abort(edge && gb_mesh_edge_lnext(edge) != edge && gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)) != edge);
+
+    // get the rightmost upper edge
+    gb_mesh_edge_ref_t up = edge;
+    while (gb_tessellator_edge_go_left(up)) up = gb_mesh_edge_lprev(up);
+    while (gb_tessellator_edge_go_right(up)) up = gb_mesh_edge_lnext(up);
+
+    // get the rightmost lower edge
+    gb_mesh_edge_ref_t lo = gb_mesh_edge_lprev(up);
+
+    // done
+    while (gb_mesh_edge_lnext(up) != lo) 
+    {
+        if (gb_tessellator_vertex_le_v(gb_mesh_edge_dst(up), gb_mesh_edge_org(lo))) 
+        {
+            while ( gb_mesh_edge_lnext(lo) != up
+                &&  (   gb_tessellator_edge_go_left(gb_mesh_edge_lnext(lo))
+                    ||  gb_tessellator_position_v(gb_mesh_edge_dst(lo), gb_mesh_edge_org(lo), gb_mesh_edge_dst(gb_mesh_edge_lnext(lo))) <= 0)) 
+            {
+                // connect it
+                edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(lo), lo);
+                tb_assert_abort_and_check_return_val(edge, tb_false);
+
+                // update the lower edge
+                lo = gb_mesh_edge_sym(edge);
+            }
+
+            // the next lower edge
+            lo = gb_mesh_edge_lprev(lo);
+        } 
+        else
+        {
+            while ( gb_mesh_edge_lnext(lo) != up
+                && (    gb_tessellator_edge_go_right(gb_mesh_edge_lprev(up))
+                    ||  gb_tessellator_position_v(gb_mesh_edge_org(up), gb_mesh_edge_dst(up), gb_mesh_edge_org(gb_mesh_edge_lprev(up))) >= 0)) 
+            {
+                // connect it
+                edge = gb_mesh_edge_connect(mesh, up, gb_mesh_edge_lprev(up));
+                tb_assert_abort_and_check_return_val(edge, tb_false);
+
+                // update the upper edge
+                up = gb_mesh_edge_sym(edge);
+            }
+
+            // the next upper edge
+            up = gb_mesh_edge_lnext(up);
+        }
+    }
+
+    tb_assert_abort(gb_mesh_edge_lnext(lo) != up);
+
+    while (gb_mesh_edge_lnext(gb_mesh_edge_lnext(lo)) != up) 
+    {
+        // connect it
+        edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(lo), lo);
+        tb_assert_abort_and_check_return_val(edge, tb_false);
+
+        // the next lower edge
+        lo = gb_mesh_edge_lprev(lo);
+    }
+
+    tb_trace_d("after:");
+    gb_mesh_dump(mesh);
 
     // ok
     return tb_true;
@@ -56,9 +126,26 @@ tb_bool_t gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl)
     // the new face must be inserted to the head of faces
     tb_assert_abort(gb_mesh_face_order(impl->mesh) == GB_MESH_ORDER_INSERT_HEAD);
 
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_face_itor(impl->mesh);
+    tb_assert_abort(iterator);
+
     // done
-    tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(impl->mesh), face)
+    tb_size_t           itor = tb_iterator_head(iterator);
+    tb_size_t           tail = tb_iterator_tail(iterator);
+    gb_mesh_face_ref_t  face = tb_null;
+    while (itor != tail)
     {
+        // the face
+        face = tb_iterator_item(iterator, itor);
+        tb_assert_abort(face);
+
+        /* the next face
+         *
+         * @note we don't process the new faces at the head 
+         */
+        itor = tb_iterator_next(iterator, itor);
+
         // the face is inside?
         if (gb_tessellator_face_inside(face)) 
         {

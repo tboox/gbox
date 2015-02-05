@@ -77,6 +77,63 @@ __tb_extern_c_enter__
     ||  (   gb_tessellator_vertex_point(a)->x == gb_tessellator_vertex_point(b)->x \
         &&  gb_tessellator_vertex_point(a)->y <= gb_tessellator_vertex_point(b)->y))
    
+/* the edge goes left?
+ *  __
+ * | .
+ *     .
+ *       .
+ *         .
+ *           .
+ *
+ *           .
+ *         .
+ *       .
+ *     .
+ * | .
+ *  --
+ */
+#define gb_tessellator_edge_go_left(edge)   gb_tessellator_vertex_le_v(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
+  
+/* the edge goes right?
+ *
+ *         __
+ *         . |
+ *       .
+ *     .  
+ *   .      
+ * .     
+ *
+ * .
+ *   .
+ *     .
+ *       .
+ *         . |
+ *         --
+ */
+#define gb_tessellator_edge_go_right(edge)  gb_tessellator_vertex_le_v(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
+ 
+/* the edge goes up?
+ *  __                   __
+ * | .                   . |
+ *     .               .
+ *       .           .
+ *         .       .
+ *           .   .
+ *
+ */
+#define gb_tessellator_edge_go_up(edge)     gb_tessellator_vertex_le_h(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
+
+/* the edge goes down?
+ *
+ *           .   .
+ *         .       .
+ *       .           .
+ *     .               .
+ * | .                   .|
+ *  --                  --
+ */
+#define gb_tessellator_edge_go_down(edge)   gb_tessellator_vertex_le_h(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
@@ -95,13 +152,13 @@ __tb_extern_c_enter__
  *
  * distance = (center - edge(upper, lower)).x
  *
- * @param center        the center point
- * @param upper         the upper point of the edge
- * @param lower         the lower point of the edge
+ * @param center        the center vertex
+ * @param upper         the upper vertex of the edge
+ * @param lower         the lower vertex of the edge
  *
  * @return              the horizontal distance
  */
-gb_float_t              gb_tessellator_distance_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
+gb_float_t              gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
 
 /* compute the vertex-to-edge vertical distance
  *
@@ -123,13 +180,13 @@ gb_float_t              gb_tessellator_distance_h(gb_point_ref_t center, gb_poin
  *
  * distance = (center - edge(left, right)).y
  *
- * @param center        the center point
- * @param left          the left point of the edge
- * @param right         the right point of the edge
+ * @param center        the center vertex
+ * @param left          the left vertex of the edge
+ * @param right         the right vertex of the edge
  *
  * @return              the vertical distance
  */
-gb_float_t              gb_tessellator_distance_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
+gb_float_t              gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
 
 /* compute the vertex-to-edge horizontal position
  *
@@ -147,13 +204,13 @@ gb_float_t              gb_tessellator_distance_v(gb_point_ref_t center, gb_poin
  *
  * position = sign((center - edge(upper, lower)).x)
  *
- * @param center        the center point
- * @param upper         the upper point of the edge
- * @param lower         the lower point of the edge
+ * @param center        the center vertex
+ * @param upper         the upper vertex of the edge
+ * @param lower         the lower vertex of the edge
  *
  * @return              the horizontal position
  */
-tb_long_t               gb_tessellator_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
+tb_long_t               gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
 
 /* compute the vertex-to-edge vertical position
  *
@@ -177,13 +234,13 @@ tb_long_t               gb_tessellator_position_h(gb_point_ref_t center, gb_poin
  *
  * position = sign((center - edge(left, right)).y)
  *
- * @param center        the center point
- * @param left          the left point of the edge
- * @param right         the right point of the edge
+ * @param center        the center vertex
+ * @param left          the left vertex of the edge
+ * @param right         the right vertex of the edge
  *
  * @return              the vertical position
  */
-tb_long_t               gb_tessellator_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
+tb_long_t               gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

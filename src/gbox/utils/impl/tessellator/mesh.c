@@ -29,6 +29,35 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_char_t const* gb_tessellator_edge_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    gb_tessellator_edge_ref_t edge = (gb_tessellator_edge_ref_t)data;
+    tb_assert_and_check_return_val(edge, tb_null);
+
+    // the edge base
+    gb_mesh_edge_ref_t edge_base = ((gb_mesh_edge_ref_t)edge) - 1;
+
+    // make info
+    tb_long_t size = tb_snprintf(cstr, maxn, "%{point}", gb_tessellator_vertex_point(gb_mesh_edge_org(edge_base)));
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return cstr;
+}
+static tb_char_t const* gb_tessellator_face_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    gb_tessellator_face_ref_t face = (gb_tessellator_face_ref_t)data;
+    tb_assert_and_check_return_val(face, tb_null);
+
+    // make info
+    tb_long_t size = tb_snprintf(cstr, maxn, "inside: %d", face->inside);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return cstr;
+}
 static tb_char_t const* gb_tessellator_vertex_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
@@ -59,17 +88,26 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     // not exists mesh?
     if (!impl->mesh) 
     {
-        // init vertex func
-        tb_item_func_t vertex_func = tb_item_func_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
-        vertex_func.cstr = gb_tessellator_vertex_cstr;
+        // init func
+        tb_item_func_t edge_func    = tb_item_func_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null);
+        tb_item_func_t face_func    = tb_item_func_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null);
+        tb_item_func_t vertex_func  = tb_item_func_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
+
+        // init func cstr
+        edge_func.cstr      = gb_tessellator_edge_cstr;
+        face_func.cstr      = gb_tessellator_face_cstr;
+        vertex_func.cstr    = gb_tessellator_vertex_cstr;
 
         // init mesh
-        impl->mesh = gb_mesh_init(  tb_item_func_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null)
-                                ,   tb_item_func_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null)
-                                ,   vertex_func);
+        impl->mesh = gb_mesh_init(edge_func, face_func, vertex_func);
 
-        // init the face order for triangulation
-        gb_mesh_face_order_set(impl->mesh, GB_MESH_ORDER_INSERT_HEAD);
+        /* init the order
+         *
+         * the new edges/faces/vertice will be inserted to the head of list
+         */
+        gb_mesh_edge_order_set(impl->mesh,      GB_MESH_ORDER_INSERT_HEAD);
+        gb_mesh_face_order_set(impl->mesh,      GB_MESH_ORDER_INSERT_HEAD);
+        gb_mesh_vertex_order_set(impl->mesh,    GB_MESH_ORDER_INSERT_HEAD);
     }
 
     // check

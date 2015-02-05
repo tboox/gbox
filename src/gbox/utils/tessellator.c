@@ -140,7 +140,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
 
 #if 1
     // TODO
-    gb_tessellator_face_inside_set(face2, 1);
+    gb_tessellator_face_inside_set(face1, 1);
 #else
     // get the two edges of the face1
     gb_mesh_edge_ref_t edge1 = gb_mesh_face_edge(face1);

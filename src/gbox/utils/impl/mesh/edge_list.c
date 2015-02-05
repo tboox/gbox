@@ -387,9 +387,12 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
     // insert to the edge list
     switch (impl->order)
     {
+        // FIXME
+#if 0
     case GB_MESH_ORDER_INSERT_HEAD:
         gb_mesh_edge_insert_prev(edge, impl->head + 1);
         break;
+#endif
     case GB_MESH_ORDER_INSERT_TAIL:
     default:
         gb_mesh_edge_insert_prev(edge, impl->head);
@@ -431,9 +434,12 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
     // insert to the edge list
     switch (impl->order)
     {
+        // FIXME
+#if 0
     case GB_MESH_ORDER_INSERT_HEAD:
         gb_mesh_edge_insert_prev(edge, impl->head + 1);
         break;
+#endif
     case GB_MESH_ORDER_INSERT_TAIL:
     default:
         gb_mesh_edge_insert_prev(edge, impl->head);
