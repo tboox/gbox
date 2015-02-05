@@ -108,8 +108,10 @@ static tb_bool_t gb_tessellator_done_triangulation_face(gb_tessellator_impl_t* i
         lo = gb_mesh_edge_lprev(lo);
     }
 
+#if 0
     tb_trace_d("after:");
     gb_mesh_dump(mesh);
+#endif
 
     // ok
     return tb_true;
