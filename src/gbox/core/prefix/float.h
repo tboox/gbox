@@ -117,12 +117,7 @@
 #define gb_exp(x)               tb_fixed_exp(x)
 #define gb_exp1(x)              tb_fixed_exp1(x)
 #define gb_expi(x)              tb_fixed_expi(x)
-
-// comparison
-#define gb_nz(x)                (x)
-#define gb_ez(x)                (!(x))
-#define gb_lz(x)                ((x) < 0)
-#define gb_bz(x)                ((x) > 0)
+#define gb_sign(x)              (x)
 
 #elif defined(TB_CONFIG_TYPE_FLOAT)
 
@@ -206,32 +201,34 @@
 #define gb_exp(x)               tb_expf(x)
 #define gb_exp1(x)              tb_exp1f(x)
 #define gb_expi(x)              tb_expif(x)
-
-// comparison
-#define gb_nz(x)                gb_float_nz(x)
-#define gb_ez(x)                (!gb_nz(x))
-#define gb_lz(x)                (gb_nz(x) < 0)
-#define gb_bz(x)                (gb_nz(x) > 0)
+#define gb_sign(x)              gb_float_sign(x)
 
 #else
 #   error float is not supported.
 #endif
 
+// comparison
+#define gb_nz(x)                gb_sign(x)
+#define gb_ez(x)                (!gb_sign(x))
+#define gb_lz(x)                (gb_sign(x) < 0)
+#define gb_bz(x)                (gb_sign(x) > 0)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * inlines
  */
 #ifdef TB_CONFIG_TYPE_FLOAT
-static __tb_inline__ tb_long_t gb_float_nz(tb_float_t x)
+static __tb_inline__ tb_long_t gb_float_sign(tb_float_t x)
 {
-    tb_int32_t y;
+    // init the float union
     union gb_float_union 
     {
         tb_float_t  f;
         tb_int32_t  i;
     }u;
     u.f = x;
-    y = u.i;
 
+    // get the float sign
+    tb_int32_t y = u.i;
     if (y < 0) 
     {
         y &= 0x7fffffff;

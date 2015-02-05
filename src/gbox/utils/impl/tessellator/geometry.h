@@ -98,30 +98,6 @@
  */
 gb_float_t              gb_tessellator_distance_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
 
-/* compute the vertex-to-edge horizontal position
- *
- * only evaluate the sign of the distance, faster than distance()
- *
- *     upper            upper'
- *       .               .
- *      .    position     .
- *     .   > 0       < 0   .
- *    . -------- . -------- .   
- *   .        center         .
- *  .                         .
- * .                           .
- * lower                       lower'
- *
- * position = sign((center - edge(upper, lower)).x)
- *
- * @param center        the center point
- * @param upper         the upper point of the edge
- * @param lower         the lower point of the edge
- *
- * @return              the horizontal position
- */
-tb_long_t               gb_tessellator_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
-
 /* compute the vertex-to-edge vertical distance
  *
  *                             . right
@@ -149,6 +125,30 @@ tb_long_t               gb_tessellator_position_h(gb_point_ref_t center, gb_poin
  * @return              the vertical distance
  */
 gb_float_t              gb_tessellator_distance_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
+
+/* compute the vertex-to-edge horizontal position
+ *
+ * only evaluate the sign of the distance, faster than distance()
+ *
+ *     upper            upper'
+ *       .               .
+ *      .    position     .
+ *     .   > 0       < 0   .
+ *    . -------- . -------- .   
+ *   .        center         .
+ *  .                         .
+ * .                           .
+ * lower                       lower'
+ *
+ * position = sign((center - edge(upper, lower)).x)
+ *
+ * @param center        the center point
+ * @param upper         the upper point of the edge
+ * @param lower         the lower point of the edge
+ *
+ * @return              the horizontal position
+ */
+tb_long_t               gb_tessellator_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
 
 /* compute the vertex-to-edge vertical position
  *
