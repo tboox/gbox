@@ -922,7 +922,8 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
             /* make new vertex at edge_dst.org
              * and update origin for all edges leaving the origin orbit of the edge_dst
              */
-            if (!gb_mesh_make_vertex_at_orbit(impl, edge_dst)) break;
+            gb_mesh_vertex_ref_t vertex_new = gb_mesh_make_vertex_at_orbit(impl, edge_dst);
+            tb_assert_and_check_break(vertex_new);
 
             // update the reference edge, the old reference edge may have been deleted
             gb_mesh_vertex_edge_set(gb_mesh_edge_org(edge_org), edge_org);
@@ -931,17 +932,14 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
         // two faces are disjoint? 
         if (!joining_faces)
         {
-            // save the old face first, edge_org.lface may have been modified after making new face
-            gb_mesh_face_ref_t face_old = gb_mesh_edge_lface(edge_org);
-
             /* make new face at edge_dst.lface
              * and update lface for all edges leaving the left orbit of the edge_dst
              */
             gb_mesh_face_ref_t face_new = gb_mesh_make_face_at_orbit(impl, edge_dst);
             tb_assert_and_check_break(face_new);
 
-            // post the split event, split(face_old) => (face_old, face_new)
-            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_SPLIT, face_old, face_new);
+            // post the split event, split(edge_org.lface) => (edge_org.lface, face_new)
+            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_SPLIT, gb_mesh_edge_lface(edge_org), face_new);
 
             // update the reference edge, the old reference edge may have been deleted
             gb_mesh_face_edge_set(gb_mesh_edge_lface(edge_org), edge_org);
