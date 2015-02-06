@@ -23,8 +23,8 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     case GB_MESH_EVENT_EDGE_MERGE:
         {
             // the org and dst edge
-            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->e.merge.org;
-            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->e.merge.dst;
+            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->org;
+            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->dst;
 
             // the org and dst cstr
             tb_char_t const* cstr_org = gb_mesh_edge_cstr(mesh, edge_org, data_org, sizeof(data_org));
@@ -37,8 +37,8 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     case GB_MESH_EVENT_FACE_MERGE:
         {
             // the org and dst face
-            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->e.merge.org;
-            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->e.merge.dst;
+            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->org;
+            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->dst;
 
             // the org and dst cstr
             tb_char_t const* cstr_org = gb_mesh_face_cstr(mesh, face_org, data_org, sizeof(data_org));
@@ -51,8 +51,8 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     case GB_MESH_EVENT_VERTEX_MERGE:
         {
             // the org and dst vertex
-            gb_mesh_vertex_ref_t vertex_org = (gb_mesh_vertex_ref_t)event->e.merge.org;
-            gb_mesh_vertex_ref_t vertex_dst = (gb_mesh_vertex_ref_t)event->e.merge.dst;
+            gb_mesh_vertex_ref_t vertex_org = (gb_mesh_vertex_ref_t)event->org;
+            gb_mesh_vertex_ref_t vertex_dst = (gb_mesh_vertex_ref_t)event->dst;
 
             // the org and dst cstr
             tb_char_t const* cstr_org = gb_mesh_vertex_cstr(mesh, vertex_org, data_org, sizeof(data_org));
@@ -65,8 +65,8 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     case GB_MESH_EVENT_EDGE_SPLIT:
         {
             // the org and dst edge
-            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->e.split.org;
-            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->e.split.dst;
+            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->org;
+            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->dst;
 
             // the org and dst cstr
             tb_char_t const* cstr_org = gb_mesh_edge_cstr(mesh, edge_org, data_org, sizeof(data_org));
@@ -79,8 +79,8 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     case GB_MESH_EVENT_FACE_SPLIT:
         {
             // the org and dst face
-            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->e.split.org;
-            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->e.split.dst;
+            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->org;
+            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->dst;
 
             // the org and dst cstr
             tb_char_t const* cstr_org = gb_mesh_face_cstr(mesh, face_org, data_org, sizeof(data_org));
@@ -93,8 +93,8 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     case GB_MESH_EVENT_VERTEX_SPLIT:
         {
             // the org and dst vertex
-            gb_mesh_vertex_ref_t vertex_org = (gb_mesh_vertex_ref_t)event->e.split.org;
-            gb_mesh_vertex_ref_t vertex_dst = (gb_mesh_vertex_ref_t)event->e.split.dst;
+            gb_mesh_vertex_ref_t vertex_org = (gb_mesh_vertex_ref_t)event->org;
+            gb_mesh_vertex_ref_t vertex_dst = (gb_mesh_vertex_ref_t)event->dst;
 
             // the org and dst cstr
             tb_char_t const* cstr_org = gb_mesh_vertex_cstr(mesh, vertex_org, data_org, sizeof(data_org));

@@ -304,81 +304,30 @@ typedef enum __gb_mesh_event_e
 
 }gb_mesh_event_e;
 
-/*! the mesh init event type
+/*! the mesh listener event type
  *
- * init(obj)
- */
-typedef struct __gb_mesh_event_init_t
-{
-    /// the edge/face/vertex object
-    tb_pointer_t                obj;
-
-}gb_mesh_event_init_t;
-
-/*! the mesh exit event type
+ * <pre>
  *
- * exit(obj)
+ * init(org)
+ * exit(org)
+ * merge(org, dst) => dst
+ * split(org) => (org, dst)
+ * 
+ * </pre>
  */
-typedef struct __gb_mesh_event_exit_t
-{
-    /// the edge/face/vertex object
-    tb_pointer_t                obj;
-
-}gb_mesh_event_exit_t;
-
-/*! the mesh merge event type 
- *
- * dst = merge(org, dst)
- */
-typedef struct __gb_mesh_event_merge_t
-{
-    /// the org edge/face/vertex
-    tb_pointer_t                org;
-
-    /// the dst edge/face/vertex
-    tb_pointer_t                dst;
-
-}gb_mesh_event_merge_t;
-
-/*! the mesh split event type
- *
- * (org, dst) = split(org)
- */
-typedef struct __gb_mesh_event_split_t
-{
-    /// the org edge/face/vertex
-    tb_pointer_t                org;
-
-    /// the dst edge/face/vertex
-    tb_pointer_t                dst;
-
-}gb_mesh_event_split_t;
-
-/// the mesh listener event type
 typedef struct __gb_mesh_event_t
 {
     /// the event type
     tb_size_t                   type;
 
+    /// the org edge/face/vertex
+    tb_pointer_t                org;
+
+    /// the dst edge/face/vertex
+    tb_pointer_t                dst;
+
     /// the user private data
     tb_cpointer_t               priv;
-
-    /// the event 
-    union
-    {
-        /// the init event
-        gb_mesh_event_init_t    init;
-
-        /// the exit event
-        gb_mesh_event_exit_t    exit;
-
-        /// the merge event
-        gb_mesh_event_merge_t   merge;
-
-        /// the split event
-        gb_mesh_event_split_t   split;
-    
-    }e;
 
 }gb_mesh_event_t, *gb_mesh_event_ref_t;
 
