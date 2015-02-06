@@ -103,6 +103,15 @@ typedef struct __gb_mesh_impl_t
     // the vertices
     gb_mesh_vertex_list_ref_t       vertices;
 
+    // the listener
+    gb_mesh_listener_t              listener;
+
+    // the user private data of the listener 
+    tb_cpointer_t                   listener_priv;
+
+    // the observed listener events
+    tb_size_t                       listener_events;
+
 }gb_mesh_impl_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -406,6 +415,34 @@ tb_bool_t gb_mesh_is_empty(gb_mesh_ref_t mesh)
     // is empty
     return tb_true;
 }
+tb_void_t gb_mesh_listener_set(gb_mesh_ref_t mesh, gb_mesh_listener_t listener, tb_cpointer_t priv)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl);
+
+    // set listener
+    impl->listener      = listener;
+    impl->listener_priv = priv;
+}
+tb_void_t gb_mesh_listener_event_add(gb_mesh_ref_t mesh, tb_size_t events)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl);
+
+    // add listener events
+    impl->listener_events |= events;
+}
+tb_void_t gb_mesh_listener_event_del(gb_mesh_ref_t mesh, tb_size_t events)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return(impl);
+
+    // delete listener events
+    impl->listener_events &= ~events;
+}
 tb_iterator_ref_t gb_mesh_vertex_itor(gb_mesh_ref_t mesh)
 {
     // check
@@ -649,7 +686,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_make(gb_mesh_ref_t mesh)
         tb_assert_and_check_break(face);
 
         // make the edge
-        edge = gb_mesh_edge_list_make(impl->edges);
+        edge = gb_mesh_make_edge(impl, tb_false, tb_false);
         tb_assert_and_check_break(edge);
 
         // the sym edge
@@ -719,7 +756,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bool_t is_ccw)
         tb_assert_and_check_break(rface);
 
         // make the edge
-        edge = gb_mesh_edge_list_make_loop(impl->edges, is_ccw);
+        edge = gb_mesh_make_edge(impl, tb_true, is_ccw);
         tb_assert_and_check_break(edge);
 
         // the sym edge

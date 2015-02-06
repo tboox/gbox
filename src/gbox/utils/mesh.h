@@ -266,6 +266,128 @@ typedef struct __gb_mesh_edge_t
 
 }gb_mesh_edge_t, *gb_mesh_edge_ref_t;
 
+/// the mesh event enum
+typedef enum __gb_mesh_event_e
+{
+    // none
+    GB_MESH_EVENT_NONE          = 0x0000
+
+    // edge
+,   GB_MESH_EVENT_EDGE_INIT     = 0x0001
+,   GB_MESH_EVENT_EDGE_EXIT     = 0x0002
+,   GB_MESH_EVENT_EDGE_MERGE    = 0x0004
+,   GB_MESH_EVENT_EDGE_SPLIT    = 0x0008
+,   GB_MESH_EVENT_EDGE_ALL      = GB_MESH_EVENT_EDGE_INIT | GB_MESH_EVENT_EDGE_EXIT | GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_EDGE_SPLIT
+
+    // face
+,   GB_MESH_EVENT_FACE_INIT     = 0x0010
+,   GB_MESH_EVENT_FACE_EXIT     = 0x0020
+,   GB_MESH_EVENT_FACE_MERGE    = 0x0040
+,   GB_MESH_EVENT_FACE_SPLIT    = 0x0080
+,   GB_MESH_EVENT_FACE_ALL      = GB_MESH_EVENT_FACE_INIT | GB_MESH_EVENT_FACE_EXIT | GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT
+
+    // vertex
+,   GB_MESH_EVENT_VERTEX_INIT   = 0x0100
+,   GB_MESH_EVENT_VERTEX_EXIT   = 0x0200
+,   GB_MESH_EVENT_VERTEX_MERGE  = 0x0400
+,   GB_MESH_EVENT_VERTEX_SPLIT  = 0x0800
+,   GB_MESH_EVENT_VERTEX_ALL    = GB_MESH_EVENT_VERTEX_INIT | GB_MESH_EVENT_VERTEX_EXIT | GB_MESH_EVENT_VERTEX_MERGE | GB_MESH_EVENT_VERTEX_SPLIT
+
+    // merge all
+,   GB_MESH_EVENT_MERGE_ALL     = GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_VERTEX_MERGE
+
+    // split all
+,   GB_MESH_EVENT_SPLIT_ALL     = GB_MESH_EVENT_EDGE_SPLIT | GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_VERTEX_SPLIT
+
+    // all
+,   GB_MESH_EVENT_ALL           = GB_MESH_EVENT_EDGE_ALL | GB_MESH_EVENT_FACE_ALL | GB_MESH_EVENT_VERTEX_ALL
+
+}gb_mesh_event_e;
+
+/*! the mesh init event type
+ *
+ * init(obj)
+ */
+typedef struct __gb_mesh_event_init_t
+{
+    /// the edge/face/vertex object
+    tb_pointer_t                obj;
+
+}gb_mesh_event_init_t;
+
+/*! the mesh exit event type
+ *
+ * exit(obj)
+ */
+typedef struct __gb_mesh_event_exit_t
+{
+    /// the edge/face/vertex object
+    tb_pointer_t                obj;
+
+}gb_mesh_event_exit_t;
+
+/*! the mesh merge event type 
+ *
+ * dst = merge(org, dst)
+ */
+typedef struct __gb_mesh_event_merge_t
+{
+    /// the org edge/face/vertex
+    tb_pointer_t                org;
+
+    /// the dst edge/face/vertex
+    tb_pointer_t                dst;
+
+}gb_mesh_event_merge_t;
+
+/*! the mesh split event type
+ *
+ * (org, dst) = split(org)
+ */
+typedef struct __gb_mesh_event_split_t
+{
+    /// the org edge/face/vertex
+    tb_pointer_t                org;
+
+    /// the dst edge/face/vertex
+    tb_pointer_t                dst;
+
+}gb_mesh_event_split_t;
+
+/// the mesh listener event type
+typedef struct __gb_mesh_event_t
+{
+    /// the event type
+    tb_size_t                   type;
+
+    /// the user private data
+    tb_cpointer_t               priv;
+
+    /// the event 
+    union
+    {
+        /// the init event
+        gb_mesh_event_init_t    init;
+
+        /// the exit event
+        gb_mesh_event_exit_t    exit;
+
+        /// the merge event
+        gb_mesh_event_merge_t   merge;
+
+        /// the split event
+        gb_mesh_event_split_t   split;
+    
+    }e;
+
+}gb_mesh_event_t, *gb_mesh_event_ref_t;
+
+/*! the mesh listener type
+ * 
+ * @param event                 the listener event
+ */
+typedef tb_void_t               (*gb_mesh_listener_t)(gb_mesh_event_ref_t event);
+
 /*! the mesh ref type 
  *
  * using the doubly connected edge list (DCEL) 
@@ -306,6 +428,28 @@ tb_void_t                       gb_mesh_clear(gb_mesh_ref_t mesh);
  * @return                      tb_true or tb_false
  */
 tb_bool_t                       gb_mesh_is_empty(gb_mesh_ref_t mesh);
+
+/*! set the mesh listener
+ *
+ * @param mesh                  the mesh
+ * @param listener              the listener
+ * @param priv                  the user private data
+ */
+tb_void_t                       gb_mesh_listener_set(gb_mesh_ref_t mesh, gb_mesh_listener_t listener, tb_cpointer_t priv);
+
+/*! add the mesh listener event
+ *
+ * @param mesh                  the mesh
+ * @param events                the observed events
+ */
+tb_void_t                       gb_mesh_listener_event_add(gb_mesh_ref_t mesh, tb_size_t events);
+
+/*! delete the mesh listener event
+ *
+ * @param mesh                  the mesh
+ * @param events                the observed events
+ */
+tb_void_t                       gb_mesh_listener_event_del(gb_mesh_ref_t mesh, tb_size_t events);
 
 /*! the vertex iterator
  *

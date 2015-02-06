@@ -4,9 +4,112 @@
 #include "../demo.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * test
+ * implementation
  */
-static tb_void_t gb_demo_utils_mesh_test_splice()
+static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
+{
+    // check
+    tb_assert_abort(event);
+
+    // the mesh
+    gb_mesh_ref_t mesh = (gb_mesh_ref_t)event->priv;
+    tb_assert_abort(mesh);
+
+    // done
+    tb_char_t data_org[8192];
+    tb_char_t data_dst[8192];
+    switch (event->type)
+    {
+    case GB_MESH_EVENT_EDGE_MERGE:
+        {
+            // the org and dst edge
+            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->e.merge.org;
+            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->e.merge.dst;
+
+            // the org and dst cstr
+            tb_char_t const* cstr_org = gb_mesh_edge_cstr(mesh, edge_org, data_org, sizeof(data_org));
+            tb_char_t const* cstr_dst = gb_mesh_edge_cstr(mesh, edge_dst, data_dst, sizeof(data_dst));
+
+            // trace
+            tb_trace_i("edge.merge(%s, %s) => %s", cstr_org, cstr_dst, cstr_dst);
+        }
+        break;
+    case GB_MESH_EVENT_FACE_MERGE:
+        {
+            // the org and dst face
+            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->e.merge.org;
+            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->e.merge.dst;
+
+            // the org and dst cstr
+            tb_char_t const* cstr_org = gb_mesh_face_cstr(mesh, face_org, data_org, sizeof(data_org));
+            tb_char_t const* cstr_dst = gb_mesh_face_cstr(mesh, face_dst, data_dst, sizeof(data_dst));
+
+            // trace
+            tb_trace_i("face.merge(%s, %s) => %s", cstr_org, cstr_dst, cstr_dst);
+        }
+        break;
+    case GB_MESH_EVENT_VERTEX_MERGE:
+        {
+            // the org and dst vertex
+            gb_mesh_vertex_ref_t vertex_org = (gb_mesh_vertex_ref_t)event->e.merge.org;
+            gb_mesh_vertex_ref_t vertex_dst = (gb_mesh_vertex_ref_t)event->e.merge.dst;
+
+            // the org and dst cstr
+            tb_char_t const* cstr_org = gb_mesh_vertex_cstr(mesh, vertex_org, data_org, sizeof(data_org));
+            tb_char_t const* cstr_dst = gb_mesh_vertex_cstr(mesh, vertex_dst, data_dst, sizeof(data_dst));
+
+            // trace
+            tb_trace_i("vertex.merge(%s, %s) => %s", cstr_org, cstr_dst, cstr_dst);
+        }
+        break;
+    case GB_MESH_EVENT_EDGE_SPLIT:
+        {
+            // the org and dst edge
+            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->e.split.org;
+            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->e.split.dst;
+
+            // the org and dst cstr
+            tb_char_t const* cstr_org = gb_mesh_edge_cstr(mesh, edge_org, data_org, sizeof(data_org));
+            tb_char_t const* cstr_dst = gb_mesh_edge_cstr(mesh, edge_dst, data_dst, sizeof(data_dst));
+
+            // trace
+            tb_trace_i("edge.split(%s) => (%s, %s)", cstr_org, cstr_org, cstr_dst);
+        }
+        break;
+    case GB_MESH_EVENT_FACE_SPLIT:
+        {
+            // the org and dst face
+            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->e.split.org;
+            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->e.split.dst;
+
+            // the org and dst cstr
+            tb_char_t const* cstr_org = gb_mesh_face_cstr(mesh, face_org, data_org, sizeof(data_org));
+            tb_char_t const* cstr_dst = gb_mesh_face_cstr(mesh, face_dst, data_dst, sizeof(data_dst));
+
+            // trace
+            tb_trace_i("face.split(%s) => (%s, %s)", cstr_org, cstr_org, cstr_dst);
+        }
+        break;
+    case GB_MESH_EVENT_VERTEX_SPLIT:
+        {
+            // the org and dst vertex
+            gb_mesh_vertex_ref_t vertex_org = (gb_mesh_vertex_ref_t)event->e.split.org;
+            gb_mesh_vertex_ref_t vertex_dst = (gb_mesh_vertex_ref_t)event->e.split.dst;
+
+            // the org and dst cstr
+            tb_char_t const* cstr_org = gb_mesh_vertex_cstr(mesh, vertex_org, data_org, sizeof(data_org));
+            tb_char_t const* cstr_dst = gb_mesh_vertex_cstr(mesh, vertex_dst, data_dst, sizeof(data_dst));
+
+            // trace
+            tb_trace_i("vertex.split(%s) => (%s, %s)", cstr_org, cstr_org, cstr_dst);
+        }
+        break;
+    default:
+        tb_assert_abort(0);
+        break;
+    }
+}
+static tb_void_t gb_demo_utils_mesh_splice()
 {
     // trace
     tb_trace_i("==========================================================================");
@@ -15,6 +118,10 @@ static tb_void_t gb_demo_utils_mesh_test_splice()
     gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
     if (mesh)
     {
+        // init listener
+        gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_MERGE_ALL | GB_MESH_EVENT_SPLIT_ALL);
+
         /* make a edge
          *
          *           lface
@@ -98,7 +205,7 @@ static tb_void_t gb_demo_utils_mesh_test_splice()
         gb_mesh_exit(mesh);
     }
 }
-static tb_void_t gb_demo_utils_mesh_test_radiation()
+static tb_void_t gb_demo_utils_mesh_radiation()
 {
     // trace
     tb_trace_i("==========================================================================");
@@ -107,6 +214,10 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
     gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
     if (mesh)
     {
+        // init listener
+        gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_MERGE_ALL | GB_MESH_EVENT_SPLIT_ALL);
+
         // make a edge
         gb_mesh_edge_ref_t edge1 = gb_mesh_edge_make(mesh);
         if (edge1)
@@ -214,7 +325,7 @@ static tb_void_t gb_demo_utils_mesh_test_radiation()
         gb_mesh_exit(mesh);
     }
 }
-static tb_void_t gb_demo_utils_mesh_test_quadrangle()
+static tb_void_t gb_demo_utils_mesh_quadrangle()
 {
     // trace
     tb_trace_i("==========================================================================");
@@ -223,6 +334,10 @@ static tb_void_t gb_demo_utils_mesh_test_quadrangle()
     gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
     if (mesh)
     {
+        // init listener
+        gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_MERGE_ALL | GB_MESH_EVENT_SPLIT_ALL);
+
         // make a counter-clockwise self-loop edge
         gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_true);
         if (edge0)
@@ -308,7 +423,7 @@ static tb_void_t gb_demo_utils_mesh_test_quadrangle()
         gb_mesh_exit(mesh);
     }
 }
-static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
+static tb_void_t gb_demo_utils_mesh_tetrahedron()
 {
     // trace
     tb_trace_i("==========================================================================");
@@ -317,6 +432,10 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
     gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
     if (mesh)
     {
+        // init listener
+        gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_MERGE_ALL | GB_MESH_EVENT_SPLIT_ALL);
+
         // make a clockwise self-loop edge
         gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_false);
         if (edge0)
@@ -412,16 +531,16 @@ static tb_void_t gb_demo_utils_mesh_test_tetrahedron()
 tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
 {
     // test splice
-    gb_demo_utils_mesh_test_splice();
+    gb_demo_utils_mesh_splice();
 
     // test radiation
-    gb_demo_utils_mesh_test_radiation();
+    gb_demo_utils_mesh_radiation();
 
     // test quadrangle
-    gb_demo_utils_mesh_test_quadrangle();
+    gb_demo_utils_mesh_quadrangle();
 
     // test tetrahedron
-    gb_demo_utils_mesh_test_tetrahedron();
+    gb_demo_utils_mesh_tetrahedron();
 
     return 0;
 }
