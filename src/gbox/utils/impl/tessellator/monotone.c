@@ -48,6 +48,9 @@ tb_bool_t gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_
     // TODO
     tb_trace_noimpl();
 
+    // for testing single contour first
+    gb_tessellator_face_inside_set(gb_mesh_face_head(mesh), 1);
+
 #ifdef __gb_debug__
     // check mesh
     gb_mesh_check(mesh);

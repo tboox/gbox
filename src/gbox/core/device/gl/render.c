@@ -34,7 +34,7 @@
 #include "render.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * types
+ * macros
  */
 
 // the vertex type
@@ -45,6 +45,9 @@
 #else
 #   define GB_GL_VERTEX_TYPE            GB_GL_FLOAT
 #endif
+
+// test tessellator
+#define GB_GL_TESSELLATOR_TEST_ENABLE   
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -173,26 +176,36 @@ static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t cou
     // apply it
     gb_gl_render_apply_vertices((gb_gl_device_ref_t)priv, points);
 
-#if 1
+#ifndef GB_GL_TESSELLATOR_TEST_ENABLE
     // draw it
     gb_glDrawArrays(GB_GL_TRIANGLE_FAN, 0, (gb_GLint_t)count);
 #else
     // the device 
     gb_gl_device_ref_t device = (gb_gl_device_ref_t)priv;
 
+    // make crc32
+    tb_uint32_t crc32 = 0xffffffff ^ tb_crc_encode(TB_CRC_MODE_32_IEEE_LE, 0xffffffff, (tb_byte_t const*)points, count * sizeof(gb_point_t));
+
     // make color
     gb_color_t color;
-    color.r = (tb_byte_t)(gb_float_to_long(gb_avg(points[0].x, points[count >> 1].x)));
-    color.g = (tb_byte_t)(gb_float_to_long(gb_avg(points[0].y, points[count >> 1].y)));
-    color.b = (tb_byte_t)count;
-    color.a = 0xff;
+    color.r = (tb_byte_t)crc32;
+    color.g = (tb_byte_t)(crc32 >> 8);
+    color.b = (tb_byte_t)(crc32 >> 16);
+    color.a = 128;
+
+    // enable blend
+    gb_glEnable(GB_GL_BLEND);
+    gb_glBlendFunc(GB_GL_SRC_ALPHA, GB_GL_ONE_MINUS_SRC_ALPHA);
 
     // apply color
     if (device->version >= 0x20) gb_glVertexAttrib4f(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_COLORS), (gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
     else gb_glColor4f((gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
 
     // draw the edges of the filled contour
-    gb_glDrawArrays(GB_GL_LINE_STRIP, 0, (gb_GLint_t)count);
+    gb_glDrawArrays(GB_GL_TRIANGLE_FAN, 0, (gb_GLint_t)count);
+
+    // disable blend
+    gb_glEnable(GB_GL_BLEND);
 #endif
 }
 static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule)
@@ -200,7 +213,7 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon
     // check
     tb_assert_abort(device && device->tessellator);
 
-#if 1
+#ifdef GB_GL_TESSELLATOR_TEST_ENABLE
     // set mode
     gb_tessellator_mode_set(device->tessellator, GB_TESSELLATOR_MODE_TRIANGULATION);
 #endif

@@ -133,47 +133,8 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     gb_mesh_ref_t mesh = impl->mesh;
     tb_assert_abort(mesh && tb_iterator_size(gb_mesh_face_itor(mesh)) == 2);
 
-    // get the two faces
-    gb_mesh_face_ref_t face1 = gb_mesh_face_head(mesh);
-    gb_mesh_face_ref_t face2 = gb_mesh_face_last(mesh);
-    tb_assert_abort(face1 && face2 && face1 != face2);
-
-#if 1
-    // TODO
-    gb_tessellator_face_inside_set(face1, 1);
-#else
-    // get the two edges of the face1
-    gb_mesh_edge_ref_t edge1 = gb_mesh_face_edge(face1);
-    gb_mesh_edge_ref_t edge2 = gb_mesh_edge_lnext(edge1);
-    tb_assert_abort(edge1 != edge2);
-
-    /* get points
-     *
-     *         face2
-     *
-     *        vector2
-     *         edge2
-     *  <------------------- point2
-     * | point3             |
-     * |                    |           |
-     * |       face1        | edge1     | vector1
-     * |                    |          \ /
-     * |                    |
-     *  -------------------> point1
-     */
-    gb_point_ref_t point1 = gb_tessellator_vertex_point(gb_mesh_edge_org(edge1));
-    gb_point_ref_t point2 = gb_tessellator_vertex_point(gb_mesh_edge_org(edge2));
-    gb_point_ref_t point3 = gb_tessellator_vertex_point(gb_mesh_edge_dst(edge2));
-    tb_assert_abort(point1 && point2 && point3);
-
-    // make vectors
-    gb_vector_t vector1;
-    gb_vector_t vector2;
-    gb_vector_make_from_two_points(&vector1, point2, point1);
-    gb_vector_make_from_two_points(&vector2, point2, point3);
-
-//    gb_vector_cross(&vector1, &vector2)
-#endif
+    // the arbitrary face is marked "inside" and the triangulation will be not effected
+    gb_tessellator_face_inside_set(gb_mesh_face_head(mesh), 1);
 
     // done triangulation
     if (!gb_tessellator_done_triangulation(impl)) return ;
