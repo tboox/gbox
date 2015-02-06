@@ -227,7 +227,7 @@ static __tb_inline__ gb_mesh_edge_ref_t gb_mesh_make_edge(gb_mesh_impl_t* impl, 
     tb_assert_and_check_return_val(edge, tb_null);
 
     // post the init event
-    gb_mesh_post_event(impl, GB_MESH_EVENT_EDGE_INIT, (tb_pointer_t)edge, tb_null);
+    gb_mesh_post_event(impl, GB_MESH_EVENT_EDGE_INIT, edge, tb_null);
 
     // ok
     return edge;
@@ -241,7 +241,7 @@ static __tb_inline__ gb_mesh_face_ref_t gb_mesh_make_face(gb_mesh_impl_t* impl)
     gb_mesh_face_ref_t face = gb_mesh_face_list_make(impl->faces);
 
     // post the init event
-    gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_INIT, (tb_pointer_t)face, tb_null);
+    gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_INIT, face, tb_null);
 
     // ok
     return face;
@@ -270,7 +270,7 @@ static __tb_inline__ gb_mesh_vertex_ref_t gb_mesh_make_vertex(gb_mesh_impl_t* im
     gb_mesh_vertex_ref_t vertex = gb_mesh_vertex_list_make(impl->vertices);
 
     // post the init event
-    gb_mesh_post_event(impl, GB_MESH_EVENT_VERTEX_INIT, (tb_pointer_t)vertex, tb_null);
+    gb_mesh_post_event(impl, GB_MESH_EVENT_VERTEX_INIT, vertex, tb_null);
 
     // ok
     return vertex;
@@ -296,7 +296,7 @@ static __tb_inline__ tb_void_t gb_mesh_kill_edge(gb_mesh_impl_t* impl, gb_mesh_e
     tb_assert_and_check_return(impl && impl->edges && edge);
 
     // post the exit event
-    gb_mesh_post_event(impl, GB_MESH_EVENT_EDGE_EXIT, (tb_pointer_t)edge, tb_null);
+    gb_mesh_post_event(impl, GB_MESH_EVENT_EDGE_EXIT, edge, tb_null);
 
     // kill the edge
     gb_mesh_edge_list_kill(impl->edges, edge);
@@ -307,18 +307,18 @@ static __tb_inline__ tb_void_t gb_mesh_kill_face(gb_mesh_impl_t* impl, gb_mesh_f
     tb_assert_and_check_return(impl && impl->faces && face);
 
     // post the exit event
-    gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_EXIT, (tb_pointer_t)face, tb_null);
+    gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_EXIT, face, tb_null);
 
     // kill the face
     gb_mesh_face_list_kill(impl->faces, face);
 }
-static __tb_inline__ tb_void_t gb_mesh_kill_face_at_orbit(gb_mesh_impl_t* impl, gb_mesh_face_ref_t face, gb_mesh_face_ref_t lface_new)
+static __tb_inline__ tb_void_t gb_mesh_kill_face_at_orbit(gb_mesh_impl_t* impl, gb_mesh_face_ref_t face, gb_mesh_face_ref_t face_new)
 {
     // check
     tb_assert_and_check_return(impl && face);
 
     // update lface for all edges leaving the deleted face
-    gb_mesh_save_face_at_orbit(gb_mesh_face_edge(face), lface_new);
+    gb_mesh_save_face_at_orbit(gb_mesh_face_edge(face), face_new);
 
     // kill the face
     gb_mesh_kill_face(impl, face);
@@ -329,7 +329,7 @@ static __tb_inline__ tb_void_t gb_mesh_kill_vertex(gb_mesh_impl_t* impl, gb_mesh
     tb_assert_and_check_return(impl && impl->vertices && vertex);
 
     // post the exit event
-    gb_mesh_post_event(impl, GB_MESH_EVENT_VERTEX_EXIT, (tb_pointer_t)vertex, tb_null);
+    gb_mesh_post_event(impl, GB_MESH_EVENT_VERTEX_EXIT, vertex, tb_null);
 
     // kill the vertex
     gb_mesh_vertex_list_kill(impl->vertices, vertex);
@@ -906,6 +906,9 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
             // joins the two faces
             joining_faces = tb_true;
 
+            // post the merge event, merge(edge_dst.lface, edge_org.lface) => edge_org.lface
+            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_MERGE, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
+
             // remove the edge_dst.lface first
             gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
         }
@@ -928,10 +931,17 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
         // two faces are disjoint? 
         if (!joining_faces)
         {
+            // save the old face first, edge_org.lface may have been modified after making new face
+            gb_mesh_face_ref_t face_old = gb_mesh_edge_lface(edge_org);
+
             /* make new face at edge_dst.lface
              * and update lface for all edges leaving the left orbit of the edge_dst
              */
-            if (!gb_mesh_make_face_at_orbit(impl, edge_dst)) break;
+            gb_mesh_face_ref_t face_new = gb_mesh_make_face_at_orbit(impl, edge_dst);
+            tb_assert_and_check_break(face_new);
+
+            // post the split event, split(face_old) => (face_old, face_new)
+            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_SPLIT, face_old, face_new);
 
             // update the reference edge, the old reference edge may have been deleted
             gb_mesh_face_edge_set(gb_mesh_edge_lface(edge_org), edge_org);
@@ -1304,6 +1314,9 @@ gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t e
             // joins the two faces
             joining_faces = tb_true;
 
+            // post the merge event, merge(edge_dst.lface, edge_org.lface) => edge_org.lface
+            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_MERGE, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
+
             // remove the edge_dst.lface first
             gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_dst), gb_mesh_edge_lface(edge_org));
         }
@@ -1355,10 +1368,17 @@ gb_mesh_edge_ref_t gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t e
         // two faces are disjoint? 
         if (!joining_faces)
         {
+            // save the old face first, edge_org.lface may have been modified after making new face
+            gb_mesh_face_ref_t face_old = gb_mesh_edge_lface(edge_org);
+
             /* make new face at edge_new.lface
              * and update lface for all edges leaving the left orbit of the edge_new
              */
-            if (!gb_mesh_make_face_at_orbit(impl, edge_new)) break;
+            gb_mesh_face_ref_t face_new = gb_mesh_make_face_at_orbit(impl, edge_new);
+            tb_assert_and_check_break(face_new);
+
+            // post the split event, split(edge_org.lface) => (edge_org.lface, face_new)
+            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_SPLIT, face_old, face_new);
         }
         else
         {
@@ -1404,6 +1424,9 @@ tb_void_t gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del)
         {
             // joins the two faces
             joining_faces = tb_true;
+
+            // post the merge event, merge(edge_del.lface, edge_del.rface) => edge_del.rface
+            gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_MERGE, gb_mesh_edge_lface(edge_del), gb_mesh_edge_rface(edge_del));
 
             // remove the edge_del.lface first
             gb_mesh_kill_face_at_orbit(impl, gb_mesh_edge_lface(edge_del), gb_mesh_edge_rface(edge_del));
@@ -1507,10 +1530,17 @@ tb_void_t gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del)
             // two faces are disjoint? 
             if (!joining_faces) 
             {
+                // save the old face first, edge_del.lface may have been modified after making new face
+                gb_mesh_face_ref_t face_old = gb_mesh_edge_lface(edge_del);
+
                 /* make new face at edge_del.lface
                  * and update lface for all edges leaving the left orbit of the edge_del
                  */
-                if (!gb_mesh_make_face_at_orbit(impl, edge_del)) break;
+                gb_mesh_face_ref_t face_new = gb_mesh_make_face_at_orbit(impl, edge_del);
+                tb_assert_and_check_break(face_new);
+
+                // post the split event, split(face_old) => (face_old, face_new)
+                gb_mesh_post_event(impl, GB_MESH_EVENT_FACE_SPLIT, face_old, face_new);
             }
         }
 
