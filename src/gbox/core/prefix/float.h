@@ -49,7 +49,7 @@
 #define GB_ONEOVER_SQRT2        (46341)             //!< 1/sqrt(2)
 #define GB_TAN_PIOVER8          (27146)             //!< tan(pi/8)
 #define GB_SQRT2_OVER2          (46341)             //!< sqrt(2)/2
-#define GB_PIOVER180            (1143)              //<! pi/180
+#define GB_PIOVER180            (1144)              //<! pi/180
 #define GB_180OVERPI            (3754936)           //!< 180/pi
 #define GB_DEGREE_45            (2949120)
 #define GB_DEGREE_90            (5898240)

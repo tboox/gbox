@@ -179,17 +179,17 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
          *   .             .             .     sweep_y > 0
          *
          */
-        if (gb_ez(sweep_y))
+        if (sweep_abs_y <= GB_NEAR0)
         {
-            // check
+            // cos(sweep_angle) must be -1
             tb_assert_abort(gb_fabs(sweep_x + GB_ONE) <= GB_NEAR0);
 
             // 180 degrees
             count += 8;
         }
-        else if (gb_ez(sweep_x))
+        else if (sweep_abs_x <= GB_NEAR0)
         {
-            // check
+            // sin(sweep_angle) must be 1 or -1
             tb_assert_abort(sweep_abs_y - GB_ONE <= GB_NEAR0);
 
             // 90 or 270 degrees
@@ -220,8 +220,8 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         tb_memcpy(points, g_quad_points_of_unit_circle, count * sizeof(gb_point_t));
 
         // patch the last quadratic curve
-        if (    gb_nz(sweep_abs_x)
-            &&  gb_nz(sweep_abs_y)
+        if (    sweep_abs_x <= GB_NEAR0
+            &&  sweep_abs_y <= GB_NEAR0
             &&  sweep_abs_x != GB_SQRT2_OVER2
             &&  sweep_abs_y != GB_SQRT2_OVER2)
         {

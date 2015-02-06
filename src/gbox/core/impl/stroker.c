@@ -35,7 +35,7 @@
  * types
  */
 
-// cos(179.55): -0.9999691576f
+// cos(179.55c): -0.9999691576f
 #ifdef GB_CONFIG_FLOAT_FIXED
 #   define GB_STROKER_TOO_SHARP_LIMIT       (-65534)
 #else
