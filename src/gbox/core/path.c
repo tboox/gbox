@@ -570,8 +570,8 @@ static tb_void_t gb_path_make_quad_for_arc_to(gb_point_ref_t ctrl, gb_point_ref_
     // check
     tb_assert_abort(priv && point);
 
-    // append point
-    ctrl? gb_path_quad_to((gb_path_ref_t)priv, ctrl, point) : gb_path_line_to((gb_path_ref_t)priv, point);
+    // append point and skip the first point which the ctrl point is null
+    if (ctrl) gb_path_quad_to((gb_path_ref_t)priv, ctrl, point);
 }
 static tb_void_t gb_path_make_quad_for_add_arc(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
 {
