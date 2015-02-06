@@ -22,6 +22,12 @@
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "tessellator_mesh"
+#define TB_TRACE_MODULE_DEBUG           (1)
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
 #include "mesh.h"
@@ -118,9 +124,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     gb_mesh_clear(mesh);
 
     // done
-    tb_bool_t           ok          = tb_true;
     gb_point_ref_t      point       = tb_null;
-    gb_point_ref_t      point_first = tb_null;
     tb_uint16_t         count       = *counts++;
     tb_size_t           index       = 0;
     gb_mesh_edge_ref_t  edge        = tb_null;
@@ -133,40 +137,70 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
         // first point?
         if (!index) 
         {
-            // make a non-loop edge
-            edge = gb_mesh_edge_make(mesh);
+            // not closed contour? skip it
+            if (!gb_point_eq(point, point + count - 1))
+            {
+                // trace
+                tb_assertf_abort(0, "this contour(%lu: %{point} => %{point}) is not closed!", count, point, point + count - 1);
 
-            // save the first point
-            point_first = point;
+                // seek to the next contour
+                points = point + count;
+                count = *counts++;
 
-            // save the first edge
-            edge_first = edge;
+                // continue 
+                continue ;
+            }
+
+            // trace
+            tb_trace_d("move_to: %{point}", point);
         }
         // closed?
-        else if (index + 1 == count && point_first->x == point->x && point_first->y == point->y)
+        else if (index + 1 == count)
         {
+            // trace
+            tb_trace_d("closed: %{point}", point);
+
             // connect an edge to the first edge
             edge = gb_mesh_edge_connect(mesh, edge, edge_first);
 
             // init face.inside
             gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
             gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge), 0);
+
+            // clear the first edge
+            edge_first = tb_null;
         }
         else 
         {
-            // append an edge
-            edge = gb_mesh_edge_append(mesh, edge);
+            // trace
+            tb_trace_d("line_to: %{point}", point);
+
+            // exists the first edge?
+            if (edge_first)
+            {
+                // append an edge
+                edge = gb_mesh_edge_append(mesh, edge);
+            }
+            else
+            {
+                // make a new non-loop edge
+                edge = gb_mesh_edge_make(mesh);
+
+                // save the first edge
+                edge_first = edge;
+            }
         }
 
-        // check
-        tb_assert_abort_and_check_break_state(edge, ok, tb_false);
+        // has new edge?
+        if (edge)
+        {
+            // init edge.winding
+            gb_tessellator_edge_winding_set(edge, 1);
+            gb_tessellator_edge_winding_set(gb_mesh_edge_sym(edge), -1);
 
-        // init edge.winding
-        gb_tessellator_edge_winding_set(edge, 1);
-        gb_tessellator_edge_winding_set(gb_mesh_edge_sym(edge), -1);
-
-        // init edge.org
-        gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge), *point);
+            // init edge.dst
+            gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), *point);
+        }
 
         // next point
         index++;
@@ -185,11 +219,8 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     gb_mesh_check(mesh);
 #endif
 
-    // failed? clear mesh
-    if (!ok) gb_mesh_clear(mesh);
-
     // ok?
-    return ok && !gb_mesh_is_empty(mesh);
+    return !gb_mesh_is_empty(mesh);
 }
 
 
