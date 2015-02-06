@@ -77,7 +77,36 @@ static tb_char_t const* gb_tessellator_vertex_cstr(tb_item_func_t* func, tb_cpoi
     // ok?
     return cstr;
 }
+static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
+{
+    // check
+    tb_assert_abort(event);
 
+    // the mesh
+    gb_mesh_ref_t mesh = (gb_mesh_ref_t)event->priv;
+    tb_assert_abort(mesh);
+
+    // done
+    switch (event->type)
+    {
+    case GB_MESH_EVENT_FACE_SPLIT:
+        {
+            // the org and dst face
+            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->org;
+            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->dst;
+
+            /* split(face_org) => (face_org, face_dst)
+             *
+             * the new face will inherit the inside attribute of the old face
+             */
+            gb_tessellator_face_inside_set(face_dst, gb_tessellator_face_inside(face_org));
+        }
+        break;
+    default:
+        tb_assertf_abort(0, "unknown listener event: %lx", event->type);
+        break;
+    }
+}
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
@@ -114,6 +143,10 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
         gb_mesh_edge_order_set(impl->mesh,      GB_MESH_ORDER_INSERT_HEAD);
         gb_mesh_face_order_set(impl->mesh,      GB_MESH_ORDER_INSERT_HEAD);
         gb_mesh_vertex_order_set(impl->mesh,    GB_MESH_ORDER_INSERT_HEAD);
+
+        // init listener
+        gb_mesh_listener_set(impl->mesh, gb_tessellator_listener, impl->mesh);
+        gb_mesh_listener_event_add(impl->mesh, GB_MESH_EVENT_FACE_SPLIT);
     }
 
     // check
