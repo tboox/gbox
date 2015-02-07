@@ -207,10 +207,6 @@
 #   error float is not supported.
 #endif
 
-// comparison
-#define gb_nz(x)                gb_sign(x)
-#define gb_ez(x)                (!gb_sign(x))
-
 /// nearly zero?
 #define gb_near0(x)             (gb_abs(x) <= GB_NEAR0)
 

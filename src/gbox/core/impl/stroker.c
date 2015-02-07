@@ -584,7 +584,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
          * if (M = L / R >= sqrt(2)) miter
          * if (1 / m <= 1 / sqrt(2)) miter
          */
-        if (gb_ez(cos_angle) && miter_invert <= GB_ONEOVER_SQRT2)
+        if (gb_near0(cos_angle) && miter_invert <= GB_ONEOVER_SQRT2)
         {
             gb_vector_make(&miter, gb_mul(before.x + after.x, radius), gb_mul(before.y + after.y, radius));
             break;

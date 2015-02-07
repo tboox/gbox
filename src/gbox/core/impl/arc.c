@@ -103,7 +103,7 @@ tb_void_t gb_arc_make_quad(gb_arc_ref_t arc, gb_arc_quad_func_t func, tb_cpointe
     tb_assert_and_check_return(arc && func);
 
     // done the degenerated arc
-    if (gb_ez(arc->rx) && gb_ez(arc->ry))
+    if (gb_near0(arc->rx) && gb_near0(arc->ry))
     {
         gb_point_t point;
         gb_point_make(&point, arc->c.x, arc->c.y);

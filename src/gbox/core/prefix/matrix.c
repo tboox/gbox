@@ -159,12 +159,15 @@ tb_bool_t gb_matrix_invert(gb_matrix_ref_t matrix)
 
     // no rotate?
     gb_matrix_t mx = *matrix;
-    if (gb_ez(matrix->kx) && gb_ez(matrix->ky))
+    if (0 == matrix->kx && 0 == matrix->ky)
     {
         // invert it if sx != 1.0
         if (GB_ONE != matrix->sx)
         {
-            tb_assert_and_check_return_val(gb_abs(matrix->sx) >= GB_NEAR0, tb_false);
+            // check
+            tb_assert_and_check_return_val(!gb_near0(matrix->sx), tb_false);
+
+            // compute sx and tx
             mx.sx = gb_invert(matrix->sx);
             mx.tx = gb_div(-matrix->tx, matrix->sx);
         }
@@ -172,7 +175,10 @@ tb_bool_t gb_matrix_invert(gb_matrix_ref_t matrix)
         // invert it if sy != 1.0
         if (GB_ONE != matrix->sy)
         {
-            tb_assert_and_check_return_val(gb_abs(matrix->sy) > GB_NEAR0, tb_false);
+            // check
+            tb_assert_and_check_return_val(!gb_near0(matrix->sy), tb_false);
+
+            // compute sy and ty
             mx.sy = gb_invert(matrix->sy);
             mx.ty = gb_div(-matrix->ty, matrix->sy);
         }
@@ -222,15 +228,15 @@ tb_bool_t gb_matrix_identity(gb_matrix_ref_t matrix)
     // is identity?
     return (    GB_ONE == matrix->sx
             &&  GB_ONE == matrix->sy
-            &&  gb_ez(matrix->kx)
-            &&  gb_ez(matrix->ky)
-            &&  gb_ez(matrix->tx) 
-            &&  gb_ez(matrix->ty))? tb_true : tb_false;
+            &&  0 == matrix->kx
+            &&  0 == matrix->ky
+            &&  0 == matrix->tx 
+            &&  0 == matrix->ty)? tb_true : tb_false;
 }
 tb_bool_t gb_matrix_rotate(gb_matrix_ref_t matrix, gb_float_t degrees)
 {
     // 0 ?
-    tb_check_return_val(gb_nz(degrees), tb_true);
+    tb_check_return_val(degrees != 0, tb_true);
 
     // rotate
     gb_matrix_t mx;
@@ -240,7 +246,7 @@ tb_bool_t gb_matrix_rotate(gb_matrix_ref_t matrix, gb_float_t degrees)
 tb_bool_t gb_matrix_rotate_lhs(gb_matrix_ref_t matrix, gb_float_t degrees)
 {
     // 0 ?
-    tb_check_return_val(gb_nz(degrees), tb_true);
+    tb_check_return_val(degrees != 0, tb_true);
 
     // rotate
     gb_matrix_t mx;
@@ -250,7 +256,7 @@ tb_bool_t gb_matrix_rotate_lhs(gb_matrix_ref_t matrix, gb_float_t degrees)
 tb_bool_t gb_matrix_rotatep(gb_matrix_ref_t matrix, gb_float_t degrees, gb_float_t px, gb_float_t py)
 {
     // 0 ?
-    tb_check_return_val(gb_nz(degrees), tb_true);
+    tb_check_return_val(degrees != 0, tb_true);
 
     // rotate
     gb_matrix_t mx;
@@ -260,7 +266,7 @@ tb_bool_t gb_matrix_rotatep(gb_matrix_ref_t matrix, gb_float_t degrees, gb_float
 tb_bool_t gb_matrix_rotatep_lhs(gb_matrix_ref_t matrix, gb_float_t degrees, gb_float_t px, gb_float_t py)
 {
     // 0 ?
-    tb_check_return_val(gb_nz(degrees), tb_true);
+    tb_check_return_val(degrees != 0, tb_true);
 
     // rotate
     gb_matrix_t mx;
@@ -326,7 +332,7 @@ tb_bool_t gb_matrix_translate(gb_matrix_ref_t matrix, gb_float_t dx, gb_float_t 
     tb_assert_abort(matrix);
 
     // 0, 0 ?
-    tb_check_return_val(gb_nz(dx) || gb_nz(dy), tb_true);
+    tb_check_return_val(dx != 0 || dy != 0, tb_true);
 
 #if 0
     // translate
@@ -348,7 +354,7 @@ tb_bool_t gb_matrix_translate_lhs(gb_matrix_ref_t matrix, gb_float_t dx, gb_floa
     tb_assert_abort(matrix);
 
     // 0, 0 ?
-    tb_check_return_val(gb_nz(dx) || gb_nz(dy), tb_true);
+    tb_check_return_val(dx != 0 || dy != 0, tb_true);
 
 #if 0
     // translate

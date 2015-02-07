@@ -51,7 +51,7 @@ static tb_bool_t gb_bitmap_render_apply_matrix_for_hint(gb_bitmap_device_ref_t d
     // rect and no rotation?
     if (    hint
         &&  hint->type == GB_SHAPE_TYPE_RECT
-        &&  gb_ez(device->base.matrix->kx) && gb_ez(device->base.matrix->ky))
+        &&  0 == device->base.matrix->kx && 0 == device->base.matrix->ky)
     {
         // apply matrix to rect
         gb_rect_apply2(&hint->u.rect, &output->u.rect, device->base.matrix);

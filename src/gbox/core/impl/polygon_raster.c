@@ -271,7 +271,7 @@ static tb_void_t gb_polygon_raster_edge_table_exit(gb_polygon_raster_impl_t* imp
 static tb_bool_t gb_polygon_raster_edge_table_make(gb_polygon_raster_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // empty polygon?
-    tb_check_return_val(gb_nz(bounds->w) && gb_nz(bounds->h), tb_false);
+    tb_check_return_val(!gb_near0(bounds->w) && !gb_near0(bounds->h), tb_false);
 
     // init the edge pool
     if (!gb_polygon_raster_edge_pool_init(impl)) return tb_false; 

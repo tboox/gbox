@@ -278,7 +278,7 @@ tb_size_t gb_quad_chop_at_max_curvature(gb_point_t const points[3], gb_point_t o
     if (output)
     {
         // chop it
-        if (gb_nz(factor)) gb_quad_chop_at(points, output, factor);
+        if (factor != 0) gb_quad_chop_at(points, output, factor);
         // using the whole curve
         else
         {
@@ -286,7 +286,7 @@ tb_size_t gb_quad_chop_at_max_curvature(gb_point_t const points[3], gb_point_t o
             count = 1;
         }
     }
-    else if (gb_ez(factor)) count = 1;
+    else if (0 == factor) count = 1;
 
     // the sub-curve count
     return count;

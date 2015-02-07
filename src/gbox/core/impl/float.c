@@ -42,7 +42,7 @@ tb_size_t gb_float_unit_divide(gb_float_t numer, gb_float_t denom, gb_float_t* r
     }
 
     // must be valid numerator and denominator
-    if (denom == 0 || numer == 0 || numer >= denom) 
+    if (0 == denom || 0 == numer || numer >= denom) 
         return 0;
 
     // the result: numer / denom
