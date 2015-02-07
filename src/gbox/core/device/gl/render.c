@@ -434,7 +434,7 @@ tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
     }
 
     // stroke it
-    if ((mode & GB_PAINT_MODE_STROKE) && gb_bz(gb_paint_stroke_width(device->base.paint)))
+    if ((mode & GB_PAINT_MODE_STROKE) && (gb_paint_stroke_width(device->base.paint) > 0))
     {
         // only stroke?
         if (gb_gl_render_stroke_only(device)) gb_gl_render_draw_polygon(device, gb_path_polygon(path), gb_path_hint(path), gb_path_bounds(path));
@@ -451,7 +451,7 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // check width
-    tb_check_return(gb_bz(gb_paint_stroke_width(device->base.paint)));
+    tb_check_return((gb_paint_stroke_width(device->base.paint) > 0));
 
     // enter paint
     gb_gl_render_enter_paint(device);
@@ -473,7 +473,7 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // check width
-    tb_check_return(gb_bz(gb_paint_stroke_width(device->base.paint)));
+    tb_check_return((gb_paint_stroke_width(device->base.paint) > 0));
 
     // enter paint
     gb_gl_render_enter_paint(device);
@@ -521,7 +521,7 @@ tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t 
     }
 
     // stroke it
-    if ((mode & GB_PAINT_MODE_STROKE) && gb_bz(gb_paint_stroke_width(device->base.paint)))
+    if ((mode & GB_PAINT_MODE_STROKE) && (gb_paint_stroke_width(device->base.paint) > 0))
     {
         // only stroke?
         if (gb_gl_render_stroke_only(device)) gb_gl_render_stroke_polygon(device, polygon->points, polygon->counts);

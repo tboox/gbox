@@ -53,10 +53,10 @@ gb_float_t gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex
     // compute the upper and lower y-distances
     gb_float_t yu = pc->y - pu->y;
     gb_float_t yl = pl->y - pc->y;
-    tb_assert_abort(!gb_lz(yu) && !gb_lz(yl));
+    tb_assert_abort(yu >= 0 && yl >= 0);
 
     // edge(upper, lower) is not horizontal?
-    if (gb_bz(yu + yl))
+    if (yu + yl > 0)
     {
         // center.y is close to upper.y?
         if (yu < yl)
@@ -185,10 +185,10 @@ gb_float_t gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex
     // compute the left and right x-distances
     gb_float_t xl = pc->x - pl->x;
     gb_float_t xr = pr->x - pc->x;
-    tb_assert_abort(!gb_lz(xl) && !gb_lz(xr));
+    tb_assert_abort(xl >= 0 && xr >= 0);
 
     // edge(left, right) is not vertical?
-    if (gb_bz(xl + xr))
+    if (xl + xr > 0)
     {
         // center.x is close to left.x?
         if (xl < xr)
@@ -227,10 +227,10 @@ tb_long_t gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     // compute the upper and lower y-distances
     gb_float_t yu = pc->y - pu->y;
     gb_float_t yl = pl->y - pc->y;
-    tb_assert_abort(!gb_lz(yu) && !gb_lz(yl));
+    tb_assert_abort(yu >= 0 && yl >= 0);
 
     // edge(upper, lower) is not horizontal?
-    if (gb_bz(yu + yl))
+    if (yu + yl > 0)
     {
         /* compute the position
          * 
@@ -284,10 +284,10 @@ tb_long_t gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     // compute the left and right x-distances
     gb_float_t xl = pc->x - pl->x;
     gb_float_t xr = pr->x - pc->x;
-    tb_assert_abort(!gb_lz(xl) && !gb_lz(xr));
+    tb_assert_abort(xl >= 0 && xr >= 0);
 
     // edge(left, right) is not vertical?
-    if (gb_bz(xl + xr))
+    if (xl + xr > 0)
     {
         // compute the position
 #ifdef GB_CONFIG_FLOAT_FIXED

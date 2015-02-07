@@ -72,14 +72,14 @@ tb_bool_t gb_round_rect_is_rect(gb_round_rect_ref_t rect)
     tb_assert_abort(rect);
 
     // is rect?
-    return (    !gb_bz(rect->radius[0].x)
-            &&  !gb_bz(rect->radius[0].y)
-            &&  !gb_bz(rect->radius[1].x)
-            &&  !gb_bz(rect->radius[1].y)
-            &&  !gb_bz(rect->radius[2].x)
-            &&  !gb_bz(rect->radius[2].y)
-            &&  !gb_bz(rect->radius[3].x)
-            &&  !gb_bz(rect->radius[3].y))? tb_true : tb_false;
+    return (    (rect->radius[0].x <= 0)
+            &&  (rect->radius[0].y <= 0)
+            &&  (rect->radius[1].x <= 0)
+            &&  (rect->radius[1].y <= 0)
+            &&  (rect->radius[2].x <= 0)
+            &&  (rect->radius[2].y <= 0)
+            &&  (rect->radius[3].x <= 0)
+            &&  (rect->radius[3].y <= 0))? tb_true : tb_false;
 }
 tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
 {

@@ -126,7 +126,7 @@ tb_void_t gb_arc_make_quad(gb_arc_ref_t arc, gb_arc_quad_func_t func, tb_cpointe
      *
      * arc = matrix * unit_arc
      */
-    gb_arc_make_quad2(&start, &stop, &matrix, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW, func, priv);
+    gb_arc_make_quad2(&start, &stop, &matrix, (arc->an > 0)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW, func, priv);
 }
 tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_arc_quad_func_t func, tb_cpointer_t priv)
 {
@@ -146,9 +146,9 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
     gb_point_t  points[tb_arrayn(g_quad_points_of_unit_circle)];
 
     // the sweep angle is nearly zero? only one start point 
-    if (    sweep_abs_y <= GB_NEAR0 && gb_bz(sweep_x)
-        &&  (   (!gb_lz(sweep_y) && direction == GB_ROTATE_DIRECTION_CW)
-            ||  (!gb_bz(sweep_y) && direction == GB_ROTATE_DIRECTION_CCW))) 
+    if (    sweep_abs_y <= GB_NEAR0 && sweep_x > 0
+        &&  (   (sweep_y >= 0 && direction == GB_ROTATE_DIRECTION_CW)
+            ||  (sweep_y <= 0 && direction == GB_ROTATE_DIRECTION_CCW))) 
     {
         gb_point_make(&points[count++], GB_ONE, 0);
     } 
@@ -182,7 +182,7 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         if (sweep_abs_y <= GB_NEAR0)
         {
             // cos(sweep_angle) must be -1
-            tb_assert_abort(gb_abs(sweep_x + GB_ONE) <= GB_NEAR0);
+            tb_assert_abort(gb_near0(sweep_x + GB_ONE));
 
             // 180 degrees
             count += 8;
@@ -198,11 +198,11 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         else
         {
             // > 180 degrees
-            if (gb_lz(sweep_y)) count += 8;
+            if (sweep_y < 0) count += 8;
             
             // > 90 or 270 degrees
             tb_long_t same = 1;
-            if ((gb_lz(sweep_x)) != (gb_lz(sweep_y)))
+            if ((sweep_x < 0) != (sweep_y < 0))
             {
                 count += 4;
                 same = 0;

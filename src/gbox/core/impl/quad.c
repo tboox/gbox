@@ -158,7 +158,7 @@ static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
 #endif
    
     // invalid factor?
-    if (gb_lz(factor) || factor >= GB_ONE)
+    if (factor < 0 || factor >= GB_ONE)
     {
         // clear it
         factor = 0;
@@ -208,7 +208,7 @@ tb_size_t gb_quad_divide_line_count(gb_point_t const points[3])
 
     // compute the approximate distance
     gb_float_t distance = gb_quad_near_distance(points);
-    tb_assert_abort(!gb_lz(distance));
+    tb_assert_abort(distance >= 0);
 
     // get the integer distance
     tb_size_t idistance = gb_ceil(distance);

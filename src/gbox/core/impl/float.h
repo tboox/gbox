@@ -39,7 +39,7 @@ __tb_extern_c_enter__
  */
 
 // is in the unit range(0, 1)?
-#define gb_float_in_unit_range(x)       (gb_bz(x) && (x) < GB_ONE)
+#define gb_float_in_unit_range(x)       ((x) > 0 && (x) < GB_ONE)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces

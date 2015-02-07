@@ -142,7 +142,7 @@ tb_size_t gb_cubic_divide_line_count(gb_point_t const points[4])
 
     // compute the approximate distance
     gb_float_t distance = gb_cubic_near_distance(points);
-    tb_assert_abort(!gb_lz(distance));
+    tb_assert_abort(distance >= 0);
 
     // get the integer distance
     tb_size_t idistance = gb_ceil(distance);

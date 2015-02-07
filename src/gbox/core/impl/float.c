@@ -35,14 +35,14 @@ tb_size_t gb_float_unit_divide(gb_float_t numer, gb_float_t denom, gb_float_t* r
     tb_assert_abort(result);
 
     // negate it
-    if (gb_lz(numer)) 
+    if (numer < 0) 
     {
         numer = -numer;
         denom = -denom;
     }
 
     // must be valid numerator and denominator
-    if (gb_ez(denom) || gb_ez(numer) || numer >= denom) 
+    if (denom == 0 || numer == 0 || numer >= denom) 
         return 0;
 
     // the result: numer / denom
@@ -52,10 +52,10 @@ tb_size_t gb_float_unit_divide(gb_float_t numer, gb_float_t denom, gb_float_t* r
     tb_assert_and_check_return_val(gb_isfinite(r), 0);
 
     // must be in range: [0, 1)
-    tb_assert_and_check_return_val(!gb_lz(r) && r < GB_ONE, 0);
+    tb_assert_and_check_return_val(r >= 0 && r < GB_ONE, 0);
 
     // too smaller? not save result
-    tb_check_return_val(gb_nz(r), 0);
+    tb_check_return_val(r != 0, 0);
 
     // save result
     *result = r;

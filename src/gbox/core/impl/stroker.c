@@ -444,7 +444,7 @@ static gb_float_t gb_stroker_joiner_angle(gb_vector_ref_t normal_unit_before, gb
     // compute the angle type
     if (ptype)
     {
-        if (gb_lz(angle)) *ptype = (GB_ONE + angle) <= GB_NEAR0? GB_STROKER_JOINER_ANGLE_NEAR180 : GB_STROKER_JOINER_ANGLE_OBTUSE;
+        if (angle < 0) *ptype = (GB_ONE + angle) <= GB_NEAR0? GB_STROKER_JOINER_ANGLE_NEAR180 : GB_STROKER_JOINER_ANGLE_OBTUSE;
         else *ptype = (GB_ONE - angle) <= GB_NEAR0? GB_STROKER_JOINER_ANGLE_NEAR0 : GB_STROKER_JOINER_ANGLE_SHARP;
     }
 
@@ -784,7 +784,7 @@ static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t a
     tb_assert_abort(before && after && normal_unit);
 
     // the radius
-    tb_assert_and_check_return_val(!normal || gb_bz(radius), tb_false);
+    tb_assert_and_check_return_val(!normal || radius > 0, tb_false);
 
     /* compute the unit normal vector
      *                              
@@ -1131,7 +1131,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
 
     // the radius
     gb_float_t radius = impl->radius;
-    tb_assert_and_check_return_val(gb_bz(radius), tb_false);
+    tb_assert_and_check_return_val(radius > 0, tb_false);
 
     // compute the normal and unit normal vectors
     if (!gb_stroker_normals_make(&impl->point_prev, point, radius, normal, normal_unit)) 
@@ -1394,7 +1394,7 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
 
     // the width
     gb_float_t width = gb_paint_stroke_width(paint);
-    tb_assert_abort(!gb_lz(width));
+    tb_assert_abort(width >= 0);
 
     // the miter
     gb_float_t miter = gb_paint_stroke_miter(paint);
@@ -1546,7 +1546,7 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
             if (gb_stroker_normals_too_sharp(&normal_unit_01, &normal_unit_12))
             {
                 // check
-                tb_assert_abort(impl->path_inner && impl->path_outer && impl->path_other && gb_bz(impl->radius));
+                tb_assert_abort(impl->path_inner && impl->path_outer && impl->path_other && impl->radius > 0);
 
                 // compute the normal of (p1, p2)
                 gb_vector_scale2(&normal_unit_12, &normal_12, impl->radius);
@@ -1700,7 +1700,7 @@ tb_void_t gb_stroker_add_rect(gb_stroker_ref_t stroker, gb_rect_ref_t rect)
 
     // the radius
     gb_float_t radius = impl->radius;
-    tb_check_return(gb_bz(radius));
+    tb_check_return(radius > 0);
 
     // the width
     gb_float_t width = gb_lsh(radius, 1);
@@ -1806,7 +1806,7 @@ tb_void_t gb_stroker_add_ellipse(gb_stroker_ref_t stroker, gb_ellipse_ref_t elli
 
     // the radius
     gb_float_t radius = impl->radius;
-    tb_check_return(gb_bz(radius));
+    tb_check_return(radius > 0);
 
     // init the inner ellipse
     gb_ellipse_t ellipse_inner = *ellipse;
@@ -1851,7 +1851,7 @@ tb_void_t gb_stroker_add_points(gb_stroker_ref_t stroker, gb_point_ref_t points,
 
     // the radius
     gb_float_t radius = impl->radius;
-    tb_check_return(gb_bz(radius));
+    tb_check_return(radius > 0);
 
     // make the stroked path
     switch (impl->cap)

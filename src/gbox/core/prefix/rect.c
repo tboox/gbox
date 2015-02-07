@@ -65,7 +65,7 @@ tb_void_t gb_rect_apply2(gb_rect_ref_t rect, gb_rect_ref_t applied, gb_matrix_re
 tb_void_t gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 {
     // check
-    tb_assert_abort(rect && gb_bz(dx) && gb_bz(dy));
+    tb_assert_abort(rect && dx > 0 && dy > 0);
 
     // inflate it
     rect->x -= dx;
@@ -76,7 +76,7 @@ tb_void_t gb_rect_inflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 tb_void_t gb_rect_deflate(gb_rect_ref_t rect, gb_float_t dx, gb_float_t dy)
 {
     // check
-    tb_assert_abort(rect && gb_bz(dx) && gb_bz(dy));
+    tb_assert_abort(rect && dx > 0 && dy > 0);
     tb_assert_abort(rect->w >= gb_lsh(dx, 1) && rect->h >= gb_lsh(dy, 1));
 
     // deflate it

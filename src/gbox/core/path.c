@@ -1574,7 +1574,7 @@ tb_void_t gb_path_add_arc(gb_path_ref_t path, gb_arc_ref_t arc)
         gb_ellipse_make(&ellipse, arc->c.x, arc->c.y, arc->rx, arc->ry);
 
         // add ellipse
-        gb_path_add_ellipse(path, &ellipse, gb_bz(arc->an)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW);
+        gb_path_add_ellipse(path, &ellipse, (arc->an > 0)? GB_ROTATE_DIRECTION_CW : GB_ROTATE_DIRECTION_CCW);
         return ;
     }
 

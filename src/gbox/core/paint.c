@@ -261,7 +261,7 @@ tb_void_t gb_paint_stroke_width_set(gb_paint_ref_t paint, gb_float_t width)
 {
     // check
     gb_paint_impl_t* impl = (gb_paint_impl_t*)paint;
-    tb_assert_and_check_return(impl && !gb_lz(width));
+    tb_assert_and_check_return(impl && width >= 0);
 
     // done
     impl->width = width;

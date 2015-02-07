@@ -246,7 +246,7 @@ tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_
     }
 
     // stroke it
-    if ((mode & GB_PAINT_MODE_STROKE) && gb_bz(gb_paint_stroke_width(device->base.paint)))
+    if ((mode & GB_PAINT_MODE_STROKE) && (gb_paint_stroke_width(device->base.paint) > 0))
     {
         // only stroke?
         if (gb_bitmap_render_stroke_only(device))
@@ -266,7 +266,7 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // check width
-    tb_check_return(gb_bz(gb_paint_stroke_width(device->base.paint)));
+    tb_check_return((gb_paint_stroke_width(device->base.paint) > 0));
 
     // only stroke?
     if (gb_bitmap_render_stroke_only(device))
@@ -294,7 +294,7 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
 
     // check width
-    tb_check_return(gb_bz(gb_paint_stroke_width(device->base.paint)));
+    tb_check_return((gb_paint_stroke_width(device->base.paint) > 0));
 
     // only stroke?
     if (gb_bitmap_render_stroke_only(device))
@@ -367,7 +367,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
     }
 
     // stroke it
-    if ((mode & GB_PAINT_MODE_STROKE) && gb_bz(gb_paint_stroke_width(device->base.paint)))
+    if ((mode & GB_PAINT_MODE_STROKE) && (gb_paint_stroke_width(device->base.paint) > 0))
     {
         // only stroke?
         if (gb_bitmap_render_stroke_only(device))
