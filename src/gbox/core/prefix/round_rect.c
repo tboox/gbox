@@ -26,6 +26,7 @@
  */
 #include "round_rect.h"
 #include "rect.h"
+#include "float.h"
 #include "matrix.h"
 #include "../impl/bounds.h"
 

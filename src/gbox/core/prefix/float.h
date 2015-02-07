@@ -28,6 +28,12 @@
  * includes
  */
 #include "../../prefix.h"
+#include "type.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -92,7 +98,7 @@
 #define gb_interp(x, y, f)      ((x) + gb_mul((y) - (x), (f)))
 
 // functions
-#define gb_abs(x)              tb_fixed_abs(x)
+#define gb_abs(x)               tb_fixed_abs(x)
 #define gb_avg(x, y)            tb_fixed_avg(x, y)
 #define gb_mul(x, y)            tb_fixed_mul(x, y)
 #define gb_div(x, y)            tb_fixed_div(x, y)
@@ -117,7 +123,6 @@
 #define gb_exp(x)               tb_fixed_exp(x)
 #define gb_exp1(x)              tb_fixed_exp1(x)
 #define gb_expi(x)              tb_fixed_expi(x)
-#define gb_sign(x)              (x)
 
 #elif defined(TB_CONFIG_TYPE_FLOAT)
 
@@ -201,7 +206,6 @@
 #define gb_exp(x)               tb_expf(x)
 #define gb_exp1(x)              tb_exp1f(x)
 #define gb_expi(x)              tb_expif(x)
-#define gb_sign(x)              gb_float_sign(x)
 
 #else
 #   error float is not supported.
@@ -214,29 +218,35 @@
 #define gb_near_eq(x, y)        (gb_abs((x) - (y)) <= GB_NEAR0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * inlines
+ * interfaces
  */
-#ifdef TB_CONFIG_TYPE_FLOAT
-static __tb_inline__ tb_long_t gb_float_sign(tb_float_t x)
-{
-    // init the float union
-    union gb_float_union 
-    {
-        tb_float_t  f;
-        tb_int32_t  i;
-    }u;
-    u.f = x;
 
-    // get the float sign
-    tb_int32_t y = u.i;
-    if (y < 0) 
-    {
-        y &= 0x7fffffff;
-        y = -y;
-    }
-    return y;
+/* compute the sign of the float value 
+ *
+ * @param x                     the value
+ *
+ * @return                      -GB_ONE or 0 or GB_ONE
+ */
+static __tb_inline__ gb_float_t  gb_sign(gb_float_t x)
+{
+    return ((x < 0)? -GB_ONE : (x > 0)? GB_ONE : 0);
 }
-#endif
+
+/* compute the sign of the float value to long
+ *
+ * @param x                     the value
+ *
+ * @return                      -1 or 0 or 1
+ */
+static __tb_inline__ tb_long_t  gb_sign_to_long(gb_float_t x)
+{
+    return ((x < 0)? -1 : (x > 0));
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
 #endif
 

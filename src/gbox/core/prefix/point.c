@@ -25,6 +25,7 @@
  * includes
  */
 #include "point.h"
+#include "float.h"
 #include "vector.h"
 #include "matrix.h"
 

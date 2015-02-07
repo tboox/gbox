@@ -259,7 +259,7 @@ tb_long_t gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
 #ifdef GB_CONFIG_FLOAT_FIXED
         return (tb_long_t)((tb_hong_t)(pc->x - pl->x) * yu + (tb_hong_t)(pc->x - pu->x) * yl);
 #else
-        return gb_sign((pc->x - pl->x) * yu + (pc->x - pu->x) * yl);
+        return gb_sign_to_long((pc->x - pl->x) * yu + (pc->x - pu->x) * yl);
 #endif
     }
 
@@ -293,7 +293,7 @@ tb_long_t gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
 #ifdef GB_CONFIG_FLOAT_FIXED
         return (tb_long_t)((tb_hong_t)(pc->y - pr->y) * xl + (tb_hong_t)(pc->y - pl->y) * xr);
 #else
-        return gb_sign((pc->y - pr->y) * xl + (pc->y - pl->y) * xr);
+        return gb_sign_to_long((pc->y - pr->y) * xl + (pc->y - pl->y) * xr);
 #endif
     }
 
