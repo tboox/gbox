@@ -82,10 +82,6 @@ static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
     // check
     tb_assert_abort(event);
 
-    // the mesh
-    gb_mesh_ref_t mesh = (gb_mesh_ref_t)event->priv;
-    tb_assert_abort(mesh);
-
     // done
     switch (event->type)
     {

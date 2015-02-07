@@ -195,8 +195,8 @@ gb_float_t gb_quad_near_distance(gb_point_t const points[3])
      */
     gb_float_t dx = gb_avg(points[0].x, points[2].x) - points[1].x;
     gb_float_t dy = gb_avg(points[0].y, points[2].y) - points[1].y;
-    dx = gb_fabs(dx);
-    dy = gb_fabs(dy);
+    dx = gb_abs(dx);
+    dy = gb_abs(dy);
 
     // compute the more approximate distance
     return (dx > dy)? (dx + gb_half(dy)) : (dy + gb_half(dx));

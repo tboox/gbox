@@ -138,8 +138,8 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
     gb_float_t sweep_y = gb_vector_cross(start, stop);
 
     // the absolute value of the sweep x and y
-    gb_float_t sweep_abs_x = gb_fabs(sweep_x);
-    gb_float_t sweep_abs_y = gb_fabs(sweep_y);
+    gb_float_t sweep_abs_x = gb_abs(sweep_x);
+    gb_float_t sweep_abs_y = gb_abs(sweep_y);
 
     // the points and count
     tb_size_t   count = 0;
@@ -182,7 +182,7 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         if (sweep_abs_y <= GB_NEAR0)
         {
             // cos(sweep_angle) must be -1
-            tb_assert_abort(gb_fabs(sweep_x + GB_ONE) <= GB_NEAR0);
+            tb_assert_abort(gb_abs(sweep_x + GB_ONE) <= GB_NEAR0);
 
             // 180 degrees
             count += 8;

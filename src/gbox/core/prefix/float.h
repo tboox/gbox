@@ -85,6 +85,9 @@
 // nearly equal?
 #define gb_near_eq(x, y)        tb_fixed_near_eq(x, y)
 
+// is nan?
+#define gb_isnan(x)             ((x) == TB_FIXED_NAN)
+
 // is finite?
 #define gb_isfinite(x)          ((x) != TB_FIXED_NAN)
 
@@ -92,7 +95,7 @@
 #define gb_interp(x, y, f)      ((x) + gb_mul((y) - (x), (f)))
 
 // functions
-#define gb_fabs(x)              tb_fixed_abs(x)
+#define gb_abs(x)              tb_fixed_abs(x)
 #define gb_avg(x, y)            tb_fixed_avg(x, y)
 #define gb_mul(x, y)            tb_fixed_mul(x, y)
 #define gb_div(x, y)            tb_fixed_div(x, y)
@@ -169,6 +172,9 @@
 // nearly equal?
 #define gb_near_eq(x, y)        (tb_fabs((x) - (y)) <= GB_NEAR0)
 
+// is nan?
+#define gb_isnan(x)             tb_isnanf(x)
+
 // is finite?
 #define gb_isfinite(x)          tb_isfinf(x)
 
@@ -176,8 +182,8 @@
 #define gb_interp(x, y, f)      ((x) + ((y) - (x)) * (f))
 
 // functions
-#define gb_fabs(x)              tb_fabs(x)
-#define gb_avg(x, y)            (((x) + (y)) * 0.5)
+#define gb_abs(x)              tb_fabs(x)
+#define gb_avg(x, y)            (((x) + (y)) * 0.5f)
 #define gb_lsh(x, y)            ((x) * (tb_float_t)(1 << (y)))
 #define gb_rsh(x, y)            ((x) / (tb_float_t)(1 << (y)))
 #define gb_mul(x, y)            ((x) * (y))
@@ -187,7 +193,7 @@
 #define gb_imuldiv(x, y, z)     (((x) * (tb_float_t)(y)) / (tb_float_t)(z))
 #define gb_imulsub(x, y, z)     (((x) * (tb_float_t)(y)) - (tb_float_t)(z))
 #define gb_invert(x)            (1.0f / (x))
-#define gb_half(x)              ((x) * 0.5)
+#define gb_half(x)              ((x) * 0.5f)
 #define gb_sqre(x)              ((x) * (x))
 #define gb_sqrt(x)              tb_sqrtf(x)
 #define gb_sin(x)               tb_sinf(x)

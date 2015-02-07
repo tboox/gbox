@@ -43,7 +43,7 @@ static tb_bool_t gb_tessellator_done_triangulation_face(gb_tessellator_impl_t* i
     tb_assert_abort(impl && mesh && face);
 
     tb_trace_d("before:");
-    gb_mesh_dump(mesh);
+//    gb_mesh_dump(mesh);
 
     // the face edge
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
@@ -108,7 +108,7 @@ static tb_bool_t gb_tessellator_done_triangulation_face(gb_tessellator_impl_t* i
         lo = gb_mesh_edge_lprev(lo);
     }
 
-#if 1
+#if 0
     tb_trace_d("after:");
     gb_mesh_dump(mesh);
 #endif

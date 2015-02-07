@@ -123,10 +123,10 @@ gb_float_t gb_cubic_near_distance(gb_point_t const points[4])
     gb_float_t dx2 = x03 - points[2].x;
     gb_float_t dy2 = y03 - points[2].y;
 
-    dx1 = gb_fabs(dx1);
-    dy1 = gb_fabs(dy1);
-    dx2 = gb_fabs(dx2);
-    dy2 = gb_fabs(dy2);
+    dx1 = gb_abs(dx1);
+    dy1 = gb_abs(dy1);
+    dx2 = gb_abs(dx2);
+    dy2 = gb_abs(dy2);
 
     // compute the more approximate distance
     gb_float_t d1 = (dx1 > dy1)? (dx1 + gb_half(dy1)) : (dy1 + gb_half(dx1));

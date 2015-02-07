@@ -302,8 +302,8 @@ static __tb_inline__ tb_bool_t gb_gl_render_stroke_only(gb_gl_device_ref_t devic
 
     // width == 1 and solid? only stroke it
     return (    GB_ONE == gb_paint_stroke_width(device->base.paint)
-            &&  GB_ONE == gb_fabs(device->base.matrix->sx)
-            &&  GB_ONE == gb_fabs(device->base.matrix->sy) 
+            &&  GB_ONE == gb_abs(device->base.matrix->sx)
+            &&  GB_ONE == gb_abs(device->base.matrix->sy) 
             &&  !device->shader)? tb_true : tb_false;
 }
 
