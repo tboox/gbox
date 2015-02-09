@@ -1740,10 +1740,10 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
     }
 
     // the bounds
-    gb_float_t x = rect->bounds.x;
-    gb_float_t y = rect->bounds.y;
-    gb_float_t w = rect->bounds.w;
-    gb_float_t h = rect->bounds.h;
+    gb_float_t xl = rect->bounds.x;
+    gb_float_t yt = rect->bounds.y;
+    gb_float_t xr = xl + rect->bounds.w;
+    gb_float_t yb = yt + rect->bounds.h;
 
     // the radius
     gb_float_t rx1 = rect->radius[GB_RECT_CORNER_LT].x;
@@ -1755,30 +1755,119 @@ tb_void_t gb_path_add_round_rect(gb_path_ref_t path, gb_round_rect_ref_t rect, t
     gb_float_t rx4 = rect->radius[GB_RECT_CORNER_LB].x;
     gb_float_t ry4 = rect->radius[GB_RECT_CORNER_LB].y;
 
+    // the centers of the corner
+    gb_float_t cx1 = xl + rx1;
+    gb_float_t cy1 = yt + ry1;
+    gb_float_t cx2 = xr - rx2;
+    gb_float_t cy2 = yt + ry2;
+    gb_float_t cx3 = xr - rx3;
+    gb_float_t cy3 = yb - ry3;
+    gb_float_t cx4 = xl + rx4;
+    gb_float_t cy4 = yb - ry4;
+
+    // the factors of the left-top corner
+    gb_float_t sx1 = gb_mul(rx1, GB_TAN_PIOVER8);
+    gb_float_t sy1 = gb_mul(ry1, GB_TAN_PIOVER8);
+    gb_float_t mx1 = gb_mul(rx1, GB_SQRT2_OVER2);
+    gb_float_t my1 = gb_mul(ry1, GB_SQRT2_OVER2);
+
+    // the factors of the right-top corner
+    gb_float_t sx2 = gb_mul(rx2, GB_TAN_PIOVER8);
+    gb_float_t sy2 = gb_mul(ry2, GB_TAN_PIOVER8);
+    gb_float_t mx2 = gb_mul(rx2, GB_SQRT2_OVER2);
+    gb_float_t my2 = gb_mul(ry2, GB_SQRT2_OVER2);
+
+    // the factors of the right-bottom corner
+    gb_float_t sx3 = gb_mul(rx3, GB_TAN_PIOVER8);
+    gb_float_t sy3 = gb_mul(ry3, GB_TAN_PIOVER8);
+    gb_float_t mx3 = gb_mul(rx3, GB_SQRT2_OVER2);
+    gb_float_t my3 = gb_mul(ry3, GB_SQRT2_OVER2);
+
+    // the factors of the left-bottom corner
+    gb_float_t sx4 = gb_mul(rx4, GB_TAN_PIOVER8);
+    gb_float_t sy4 = gb_mul(ry4, GB_TAN_PIOVER8);
+    gb_float_t mx4 = gb_mul(rx4, GB_SQRT2_OVER2);
+    gb_float_t my4 = gb_mul(ry4, GB_SQRT2_OVER2);
+
+    // move to the first point
+    gb_path_move2_to(path, xl, yt + ry1);
+
+#if 0
     // add the round rect
-    gb_path_move2_to(path, x, y + ry1);
     if (direction == GB_ROTATE_DIRECTION_CW)
     {
-        gb_path_arc2_to(path,   x + rx1,        y + ry1,        rx1, ry1, -GB_DEGREE_180,   GB_DEGREE_90    );
-        gb_path_line2_to(path,  x + w - rx2,    y                                                           );
-        gb_path_arc2_to(path,   x + w - rx2,    y + ry2,        rx2, ry2, -GB_DEGREE_90,    GB_DEGREE_90    );
-        gb_path_line2_to(path,  x + w,          y + h - ry3                                                 );
-        gb_path_arc2_to(path,   x + w - rx2,    y + h - ry3,    rx3, ry3, 0,                GB_DEGREE_90    );
-        gb_path_line2_to(path,  x + rx4,        y + h                                                       );
-        gb_path_arc2_to(path,   x + rx4,        y + h - ry4,    rx4, ry4, GB_DEGREE_90,     GB_DEGREE_90    );
-        gb_path_line2_to(path,  x,              y + ry1                                                     );
+        gb_path_arc2_to(path,   xl + rx1,   yt + ry1, rx1, ry1, -GB_DEGREE_180, GB_DEGREE_90    );
+        gb_path_line2_to(path,  xr - rx2,   yt                                                  );
+        gb_path_arc2_to(path,   xr - rx2,   yt + ry2, rx2, ry2, -GB_DEGREE_90,  GB_DEGREE_90    );
+        gb_path_line2_to(path,  xr,         yb - ry3                                            );
+        gb_path_arc2_to(path,   xr - rx2,   yb - ry3, rx3, ry3, 0,              GB_DEGREE_90    );
+        gb_path_line2_to(path,  xl + rx4,   yb                                                  );
+        gb_path_arc2_to(path,   xl + rx4,   yb - ry4, rx4, ry4, GB_DEGREE_90,   GB_DEGREE_90    );
+        gb_path_line2_to(path,  xl,         yt + ry1                                            );
     }
     else
     {
-        gb_path_line2_to(path,  x,              y + h - ry4                                                 );
-        gb_path_arc2_to(path,   x + rx4,        y + h - ry4,    rx4, ry4, GB_DEGREE_180,    -GB_DEGREE_90   );
-        gb_path_line2_to(path,  x + w - rx3,    y + h                                                       );
-        gb_path_arc2_to(path,   x + w - rx2,    y + h - ry3,    rx3, ry3, GB_DEGREE_90,     -GB_DEGREE_90   );
-        gb_path_line2_to(path,  x + w,          y + ry3                                                     );
-        gb_path_arc2_to(path,   x + w - rx2,    y + ry2,        rx2, ry2, 0,                -GB_DEGREE_90   );
-        gb_path_line2_to(path,  x + rx1,        y                                                           );
-        gb_path_arc2_to(path,   x + rx1,        y + ry1,        rx1, ry1, -GB_DEGREE_90,    -GB_DEGREE_90   );
+        gb_path_line2_to(path,  xl,         yb - ry4                                            );
+        gb_path_arc2_to(path,   xl + rx4,   yb - ry4, rx4, ry4, GB_DEGREE_180,  -GB_DEGREE_90   );
+        gb_path_line2_to(path,  xr - rx3,   yb                                                  );
+        gb_path_arc2_to(path,   xr - rx2,   yb - ry3, rx3, ry3, GB_DEGREE_90,   -GB_DEGREE_90   );
+        gb_path_line2_to(path,  xr,         yt + ry3                                            );
+        gb_path_arc2_to(path,   xr - rx2,   yt + ry2, rx2, ry2, 0,              -GB_DEGREE_90   );
+        gb_path_line2_to(path,  xl + rx1,   yt                                                  );
+        gb_path_arc2_to(path,   xl + rx1,   yt + ry1, rx1, ry1, -GB_DEGREE_90,  -GB_DEGREE_90   );
     }
+#else
+    /* add the round rect
+     *
+     * see gb_path_add_ellipse
+     */
+    if (direction == GB_ROTATE_DIRECTION_CW)
+    {
+        // the left-top corner
+        gb_path_quad2_to(path, xl,          cy1 - sy1,  cx1 - mx1,  cy1 - my1   );
+        gb_path_quad2_to(path, cx1 - sx1,   yt,         cx1,        yt          );
+        gb_path_line2_to(path, cx2,         yt                                  );
+
+        // the right-top corner
+        gb_path_quad2_to(path, cx2 + sx2,   yt,         cx2 + mx2,  cy2 - my2   );
+        gb_path_quad2_to(path, xr,          cy2 - sy2,  xr,         cy2         );
+        gb_path_line2_to(path, xr,          cy3                                 );
+
+        // the right-bottom corner
+        gb_path_quad2_to(path, xr,          cy3 + sy3,  cx3 + mx3,  cy3 + my3   );
+        gb_path_quad2_to(path, cx3 + sx3,   yb,         cx3,        yb          );
+        gb_path_line2_to(path, cx4,         yb                                  );
+
+        // the left-bottom corner
+        gb_path_quad2_to(path, cx4 - sx4,   yb,         cx4 - mx4,  cy4 + my4   );
+        gb_path_quad2_to(path, xl,          cy4 + sy4,  xl,         cy4         );
+        gb_path_line2_to(path, xl,          cy1                                 );
+    }
+    else
+    {
+        // the left-bottom corner
+        gb_path_line2_to(path, xl,          cy4                                 );
+        gb_path_quad2_to(path, cx4 - rx4,   cy4 + sy4,  cx4 - mx4,  cy4 + my4   );
+        gb_path_quad2_to(path, cx4 - sx4,   yb,         cx4,        yb          );
+
+        // the right-bottom corner
+        gb_path_line2_to(path, cx3,         yb                                  );
+        gb_path_quad2_to(path, cx3 + sx3,   yb,         cx3 + mx3,  cy3 + my3   );
+        gb_path_quad2_to(path, xr,          cy3 + sy3,  xr,         cy3         );
+
+        // the right-top corner
+        gb_path_line2_to(path, xr,          cy2                                 );
+        gb_path_quad2_to(path, xr,          cy2 - sy2,  cx2 + mx2,  cy2 - my2   );
+        gb_path_quad2_to(path, cx2 + sx2,   yt,         cx2,        yt          );
+
+        // the left-top corner
+        gb_path_line2_to(path, cx1,         yt                                  );
+        gb_path_quad2_to(path, cx1 - sx1,   yt,         cx1 - mx1,  cy1 - my1   );
+        gb_path_quad2_to(path, xl,          cy1 - sy1,  xl,         cy1         );
+    }
+#endif
+
+    // close path
     gb_path_clos(path);
 
     // hint have been maked? remove dirty
@@ -1891,11 +1980,11 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_s
      *
      * (x1, y1)
      *  ---------------------------
-     * |             |           / |
-     * |             |      p  /   |
-     * |             |      *      * c 
-     * |             |   /         | 
-     * |             |/ 45         |
+     * |             |           . |
+     * |             |      p  .   |
+     * |             |      .      . c 
+     * |             |   .         | 
+     * |             |. 45         |
      * |- - - - - - - - - - - - - -| (move-to)
      * |          (x0, y0)         |
      * |             |             |
@@ -1913,11 +2002,11 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_s
      *
      * (x1, y1)
      *  ------------------------------------------
-     * |                     |           /        |
-     * |                     |      p  /          |
-     * |                     |      *             * c 
-     * |                     |   /                | 
-     * |                     |/ 45                |
+     * |                     |            .       |
+     * |                     |      p  .          |
+     * |                     |      .             . c 
+     * |                     |   .                | 
+     * |                     |. 45                |
      * |- - - - - - - - - - - - - - - - - - - - - | (move-to)
      * |                  (x0, y0)                |
      * |                     |                    |
@@ -1933,26 +2022,42 @@ tb_void_t gb_path_add_ellipse(gb_path_ref_t path, gb_ellipse_ref_t ellipse, tb_s
     gb_path_move2_to(path, x2, y0);
     if (direction == GB_ROTATE_DIRECTION_CW)
     {
+        // the right-bottom corner
         gb_path_quad2_to(path, x2,          y0 + sy,    x0 + mx,    y0 + my );
         gb_path_quad2_to(path, x0 + sx,     y2,         x0,         y2      );
+
+        // the left-bottom corner
         gb_path_quad2_to(path, x0 - sx,     y2,         x0 - mx,    y0 + my );
         gb_path_quad2_to(path, x1,          y0 + sy,    x1,         y0      );
+
+        // the left-top corner
         gb_path_quad2_to(path, x1,          y0 - sy,    x0 - mx,    y0 - my );
         gb_path_quad2_to(path, x0 - sx,     y1,         x0,         y1      );
+
+        // the right-top corner
         gb_path_quad2_to(path, x0 + sx,     y1,         x0 + mx,    y0 - my );
         gb_path_quad2_to(path, x2,          y0 - sy,    x2,         y0      );
     }
     else
     {
+        // the right-top corner
         gb_path_quad2_to(path, x2,          y0 - sy,    x0 + mx,    y0 - my );
         gb_path_quad2_to(path, x0 + sx,     y1,         x0,         y1      );
+
+        // the left-top corner
         gb_path_quad2_to(path, x0 - sx,     y1,         x0 - mx,    y0 - my );
         gb_path_quad2_to(path, x1,          y0 - sy,    x1,         y0      );
+
+        // the left-bottom corner
         gb_path_quad2_to(path, x1,          y0 + sy,    x0 - mx,    y0 + my );
         gb_path_quad2_to(path, x0 - sx,     y2,         x0,         y2      );
+
+        // the right-bottom corner
         gb_path_quad2_to(path, x0 + sx,     y2,         x0 + mx,    y0 + my );
         gb_path_quad2_to(path, x2,          y0 + sy,    x2,         y0      );
     }
+
+    // close path
     gb_path_clos(path);
 
     // hint have been maked? remove dirty
