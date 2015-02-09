@@ -39,7 +39,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+tb_bool_t gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(impl && impl->mesh && bounds);
@@ -48,7 +48,7 @@ tb_bool_t gb_tessellator_done_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_
     tb_trace_noimpl();
 
     // for testing single contour first
-//    gb_tessellator_face_inside_set(gb_mesh_face_head(mesh), 1);
+    gb_tessellator_face_inside_set(gb_mesh_face_head(impl->mesh), 1);
 
 #ifdef __gb_debug__
     // check mesh

@@ -36,82 +36,107 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_bool_t gb_tessellator_done_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
+
+/* make triangulation region 
+ *
+ * the region of this face must be horizontal monotone 
+ *
+ *
+ */
+static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
     gb_mesh_ref_t mesh = impl->mesh;
     tb_assert_abort(impl && mesh && face);
 
-    tb_trace_d("before:");
-//    gb_mesh_dump(mesh);
-
     // the face edge
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
+
+    // must be triangle region at least
     tb_assert_abort(edge && gb_mesh_edge_lnext(edge) != edge && gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)) != edge);
 
-    // get the rightmost upper edge
-    gb_mesh_edge_ref_t up = edge;
-    while (gb_tessellator_edge_go_left(up)) up = gb_mesh_edge_lprev(up);
-    while (gb_tessellator_edge_go_right(up)) up = gb_mesh_edge_lnext(up);
+    /* get the uppermost left edge
+     *  
+     *
+     *          .
+     * left   .   .  right
+     *      .       .
+     *       .        .
+     *        .       .
+     */
+    gb_mesh_edge_ref_t left = edge;
+    while (gb_tessellator_edge_go_down(left)) left = gb_mesh_edge_lprev(left);
+    while (gb_tessellator_edge_go_up(left)) left = gb_mesh_edge_lnext(left);
 
-    // get the rightmost lower edge
-    gb_mesh_edge_ref_t lo = gb_mesh_edge_lprev(up);
+    // get the uppermost right edge
+    gb_mesh_edge_ref_t right = gb_mesh_edge_lprev(left);
 
     // done
-    while (gb_mesh_edge_lnext(up) != lo) 
+    while (gb_mesh_edge_lnext(left) != right) 
     {
-        if (gb_tessellator_vertex_le_v(gb_mesh_edge_dst(up), gb_mesh_edge_org(lo))) 
+        /* 
+         *          .
+         * left   .   .  
+         *      .       .
+         *       .        .
+         *        .       . right
+         *         .      .
+         */
+        if (gb_tessellator_vertex_in_top(gb_mesh_edge_dst(left), gb_mesh_edge_org(right))) 
         {
-            while ( gb_mesh_edge_lnext(lo) != up
-                &&  (   gb_tessellator_edge_go_left(gb_mesh_edge_lnext(lo))
-                    ||  gb_tessellator_position_v(gb_mesh_edge_dst(lo), gb_mesh_edge_org(lo), gb_mesh_edge_dst(gb_mesh_edge_lnext(lo))) <= 0)) 
+            while ( gb_mesh_edge_lnext(right) != left
+                && (    gb_tessellator_edge_go_up(gb_mesh_edge_lprev(left))
+                    ||  gb_tessellator_vertex_in_edge_or_right(gb_mesh_edge_org(left), gb_mesh_edge_dst(left), gb_mesh_edge_org(gb_mesh_edge_lprev(left))))) 
             {
                 // connect it
-                edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(lo), lo);
-                tb_assert_abort_and_check_return_val(edge, tb_false);
-
-                // update the lower edge
-                lo = gb_mesh_edge_sym(edge);
-            }
-
-            // the next lower edge
-            lo = gb_mesh_edge_lprev(lo);
-        } 
-        else
-        {
-            while ( gb_mesh_edge_lnext(lo) != up
-                && (    gb_tessellator_edge_go_right(gb_mesh_edge_lprev(up))
-                    ||  gb_tessellator_position_v(gb_mesh_edge_org(up), gb_mesh_edge_dst(up), gb_mesh_edge_org(gb_mesh_edge_lprev(up))) >= 0)) 
-            {
-                // connect it
-                edge = gb_mesh_edge_connect(mesh, up, gb_mesh_edge_lprev(up));
+                edge = gb_mesh_edge_connect(mesh, left, gb_mesh_edge_lprev(left));
                 tb_assert_abort_and_check_return_val(edge, tb_false);
 
                 // update the upper edge
-                up = gb_mesh_edge_sym(edge);
+                left = gb_mesh_edge_sym(edge);
             }
 
             // the next upper edge
-            up = gb_mesh_edge_lnext(up);
+            left = gb_mesh_edge_lnext(left);
+        } 
+        /* 
+         *          .
+         * left   .   .   
+         *      .       .
+         *    .        .
+         *    .       . right
+         *    .      .
+         */
+        else
+        {
+            while ( gb_mesh_edge_lnext(right) != left
+                &&  (   gb_tessellator_edge_go_down(gb_mesh_edge_lnext(right))
+                    ||  gb_tessellator_vertex_in_edge_or_left(gb_mesh_edge_dst(right), gb_mesh_edge_org(right), gb_mesh_edge_dst(gb_mesh_edge_lnext(right))))) 
+            {
+                // connect it
+                edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(right), right);
+                tb_assert_abort_and_check_return_val(edge, tb_false);
+
+                // update the lower edge
+                right = gb_mesh_edge_sym(edge);
+            }
+
+            // the next lower edge
+            right = gb_mesh_edge_lprev(right);
         }
     }
 
-    tb_assert_abort(gb_mesh_edge_lnext(lo) != up);
+    tb_assert_abort(gb_mesh_edge_lnext(right) != left);
 
-    while (gb_mesh_edge_lnext(gb_mesh_edge_lnext(lo)) != up) 
+    while (gb_mesh_edge_lnext(gb_mesh_edge_lnext(right)) != left) 
     {
         // connect it
-        edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(lo), lo);
+        edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(right), right);
         tb_assert_abort_and_check_return_val(edge, tb_false);
 
         // the next lower edge
-        lo = gb_mesh_edge_lprev(lo);
+        right = gb_mesh_edge_lprev(right);
     }
-
-#if 0
-    tb_trace_d("after:");
-    gb_mesh_dump(mesh);
-#endif
 
     // ok
     return tb_true;
@@ -120,7 +145,7 @@ static tb_bool_t gb_tessellator_done_triangulation_face(gb_tessellator_impl_t* i
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl)
+tb_bool_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
 {
     // check
     tb_assert_abort(impl && impl->mesh);
@@ -151,8 +176,8 @@ tb_bool_t gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl)
         // the face is inside?
         if (gb_tessellator_face_inside(face)) 
         {
-            // done triangulation for the face
-            if (!gb_tessellator_done_triangulation_face(impl, face)) return tb_false;
+            // make triangulation for the face region
+            if (!gb_tessellator_make_triangulation_face(impl, face)) return tb_false;
         }
     }
 

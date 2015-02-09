@@ -37,13 +37,13 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/* done triangulation for each inside region of mesh, the region must be monotone
+/* make triangulation region for each horizontal monotone region
  *
  * @param impl      the tessellator impl
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           gb_tessellator_done_triangulation(gb_tessellator_impl_t* impl);
+tb_bool_t           gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

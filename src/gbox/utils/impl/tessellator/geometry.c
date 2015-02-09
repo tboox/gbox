@@ -41,8 +41,8 @@ gb_float_t gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex
     tb_assert_abort(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assert_abort(gb_tessellator_vertex_le_h(upper, center));
-    tb_assert_abort(gb_tessellator_vertex_le_h(center, lower));
+    tb_assert_abort(gb_tessellator_vertex_in_top(upper, center));
+    tb_assert_abort(gb_tessellator_vertex_in_top(center, lower));
 
     // the points
     gb_point_ref_t pc = gb_tessellator_vertex_point(center);
@@ -173,8 +173,8 @@ gb_float_t gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex
     tb_assert_abort(center && left && right);
 
     // must be left <= center <= right
-    tb_assert_abort(gb_tessellator_vertex_le_v(left, center));
-    tb_assert_abort(gb_tessellator_vertex_le_v(center, right));
+    tb_assert_abort(gb_tessellator_vertex_in_left(left, center));
+    tb_assert_abort(gb_tessellator_vertex_in_left(center, right));
 
     // the points
     gb_point_ref_t pc = gb_tessellator_vertex_point(center);
@@ -215,8 +215,8 @@ tb_long_t gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     tb_assert_abort(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assert_abort(gb_tessellator_vertex_le_h(upper, center));
-    tb_assert_abort(gb_tessellator_vertex_le_h(center, lower));
+    tb_assert_abort(gb_tessellator_vertex_in_top(upper, center));
+    tb_assert_abort(gb_tessellator_vertex_in_top(center, lower));
 
     // the points
     gb_point_ref_t pc = gb_tessellator_vertex_point(center);
@@ -272,8 +272,8 @@ tb_long_t gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     tb_assert_abort(center && left && right);
 
     // must be left <= center <= right
-    tb_assert_abort(gb_tessellator_vertex_le_v(left, center));
-    tb_assert_abort(gb_tessellator_vertex_le_v(center, right));
+    tb_assert_abort(gb_tessellator_vertex_in_left(left, center));
+    tb_assert_abort(gb_tessellator_vertex_in_left(center, right));
 
     // the points
     gb_point_ref_t pc = gb_tessellator_vertex_point(center);
