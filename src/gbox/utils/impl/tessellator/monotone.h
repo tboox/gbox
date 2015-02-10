@@ -38,6 +38,27 @@ __tb_extern_c_enter__
  */
 
 /* make horizontal monotone region for mesh
+ *   
+ * monotone:
+ *
+ *   . . .
+ *  .     .
+ * . ----- .
+ * .      .
+ * . -----  .
+ * .           .
+ * . . . . . . . .
+ *
+ * not monotone:
+ *
+ *   . . .
+ *  .     .
+ * . ----- .
+ * .      .    ........
+ * . -----  .  . ---- .  <= two segments 
+ * .           .      .
+ * .                  .
+ * . . . . . . . . . ..
  *
  * @param impl      the tessellator impl
  * @param bounds    the polygon bounds
