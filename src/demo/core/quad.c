@@ -64,7 +64,7 @@ tb_void_t gb_demo_quad_event(gb_window_ref_t window, gb_event_ref_t event)
 
         // the ctrl x and y
         g_ctrl_x = gb_float_to_long(event->u.mouse.cursor.x) - x0;
-        g_ctrl_y = y0 - gb_float_to_long(event->u.mouse.cursor.y);
+        g_ctrl_y = gb_float_to_long(event->u.mouse.cursor.y) - y0;
     }
 }
 

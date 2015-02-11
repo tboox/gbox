@@ -74,14 +74,14 @@ tb_void_t gb_demo_cubic_event(gb_window_ref_t window, gb_event_ref_t event)
         if (cx < x0)
         {
             g_ctrl_x0 = (cx - x0) >> 1;
-            g_ctrl_y0 = (y0 - cy) >> 1;
+            g_ctrl_y0 = (cy - y0) >> 1;
         }
 
         // the ctrl x1 and y1
         if (cx > x0)
         {
             g_ctrl_x1 = (cx - x0) >> 1;
-            g_ctrl_y1 = (y0 - cy) >> 1;
+            g_ctrl_y1 = (cy - y0) >> 1;
         }
     }
 }

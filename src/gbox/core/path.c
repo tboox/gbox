@@ -371,6 +371,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
         tb_fixed_t      y2 = 0;
         tb_long_t       cross = 0;
         tb_long_t       cross_prev = 0;
+        tb_hong_t       cross_value = 0;
         tb_size_t       point_count = 0;
         tb_size_t       contour_count = 0;
         tb_bool_t       finished = tb_false;
@@ -422,13 +423,16 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     // points enough?
                     if (point_count > 1)
                     {
-                        // compute the sign(cross) of the vectors (p1, p0) and (p1, p2)
-                        cross = (tb_long_t)(((tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1)) >> 48);
+                        // compute the cross value of the vectors (p1, p0) and (p1, p2)
+                        cross_value = (tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1);
+
+                        // compute cross = sign(cross_value)
+                        cross = cross_value < 0? -1 : cross_value > 0;
 
                         // concave contour?
                         if ((cross * cross_prev) < 0)
                         {
-                            impl->flag  &= ~GB_PATH_FLAG_CONVEX;
+                            impl->flag &= ~GB_PATH_FLAG_CONVEX;
                             finished = tb_true;
                             break;
                         }
@@ -462,8 +466,11 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     // points enough?
                     if (point_count > 1)
                     {
-                        // compute the sign(cross) of the vectors (p1, p0) and (p1, p2)
-                        cross = (tb_long_t)(((tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1)) >> 48);
+                        // compute the cross value of the vectors (p1, p0) and (p1, p2)
+                        cross_value = (tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1);
+
+                        // compute cross = sign(cross_value)
+                        cross = cross_value < 0? -1 : cross_value > 0;
 
                         // concave contour?
                         if ((cross * cross_prev) < 0)
@@ -488,13 +495,16 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     x2 = gb_float_to_fixed(item->points[2].x);
                     y2 = gb_float_to_fixed(item->points[2].y);
                    
-                    // compute the sign(cross) of the vectors (p1, p0) and (p1, p2)
-                    cross = (tb_long_t)(((tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1)) >> 48);
+                    // compute the cross value of the vectors (p1, p0) and (p1, p2)
+                    cross_value = (tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1);
+
+                    // compute cross = sign(cross_value)
+                    cross = cross_value < 0? -1 : cross_value > 0;
 
                     // concave contour?
                     if ((cross * cross_prev) < 0)
                     {
-                        impl->flag  &= ~GB_PATH_FLAG_CONVEX;
+                        impl->flag &= ~GB_PATH_FLAG_CONVEX;
                         finished = tb_true;
                         break;
                     }
@@ -540,13 +550,16 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
             // the points are enough?
             tb_check_continue(point_count > 2);
                     
-            // compute the sign(cross) of the vectors (p1, p0) and (p1, p2)
-            cross = (tb_long_t)(((tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1)) >> 48);
+            // compute the cross value of the vectors (p1, p0) and (p1, p2)
+            cross_value = (tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1);
+
+            // compute cross = sign(cross_value)
+            cross = cross_value < 0? -1 : cross_value > 0;
 
             // concave contour?
             if ((cross * cross_prev) < 0)
             {
-                impl->flag  &= ~GB_PATH_FLAG_CONVEX;
+                impl->flag &= ~GB_PATH_FLAG_CONVEX;
                 break;
             }
 

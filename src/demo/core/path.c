@@ -14,7 +14,7 @@
  */
 
 // the path index
-static tb_size_t        g_index = 3;
+static tb_size_t        g_index = 0;
 
 // the path count
 static tb_size_t        g_count = 0;
@@ -225,12 +225,12 @@ tb_void_t gb_demo_path_event(gb_window_ref_t window, gb_event_ref_t event)
                 tb_assert_abort(g_maker);
 
                 // move-to
-                gb_path_move2i_to(g_maker, cx - x0, y0 - cy);
+                gb_path_move2i_to(g_maker, cx - x0, cy - y0);
             }
             else
             {
                 // line-to
-                gb_path_line2i_to(g_maker, cx - x0, y0 - cy);
+                gb_path_line2i_to(g_maker, cx - x0, cy - y0);
             }
         }
     }

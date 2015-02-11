@@ -580,7 +580,7 @@ tb_void_t gb_demo_tiger_init(gb_window_ref_t window)
         {
             gb_matrix_t matrix;
             gb_matrix_init_translate(&matrix, -gb_long_to_float(320), -gb_long_to_float(320));
-            gb_matrix_scale_lhs(&matrix, gb_idiv(w, 640), -gb_idiv(h, 640));
+            gb_matrix_scale_lhs(&matrix, gb_idiv(w, 640), gb_idiv(h, 640));
             gb_path_apply(entry->path, &matrix);
         }
     }
