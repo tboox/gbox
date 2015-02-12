@@ -17,46 +17,39 @@
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        monotone.c
+ * @file        convex.h
  * @ingroup     utils
  */
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * trace
- */
-#define TB_TRACE_MODULE_NAME            "monotone"
-#define TB_TRACE_MODULE_DEBUG           (1)
+#ifndef GB_UTILS_IMPL_TESSELLATOR_CONVEX_H
+#define GB_UTILS_IMPL_TESSELLATOR_CONVEX_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "monotone.h"
+#include "prefix.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * private implementation
+ * extern
  */
+__tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * implementation
+ * interfaces
  */
-tb_bool_t gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
-{
-    // check
-    tb_assert_abort(impl && impl->mesh && bounds);
 
-    // TODO
-    tb_trace_noimpl();
+/* merge triangles to the convex polygon for mesh after triangulation
+ *   
+ * @param impl      the tessellator impl
+ *
+ * @return          tb_true or tb_false
+ */
+tb_bool_t           gb_tessellator_make_convex(gb_tessellator_impl_t* impl);
 
-    // for testing single contour first
-    gb_tessellator_face_inside_set(gb_mesh_face_last(impl->mesh), 1);
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * extern
+ */
+__tb_extern_c_leave__
 
-#ifdef __gb_debug__
-    // check mesh
-    gb_mesh_check(impl->mesh);
 #endif
-
-    // ok
-    return tb_true;
-}
 
 

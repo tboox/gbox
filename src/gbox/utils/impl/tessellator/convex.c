@@ -17,20 +17,20 @@
  * Copyright (C) 2009 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        monotone.c
+ * @file        convex.c
  * @ingroup     utils
  */
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * trace
  */
-#define TB_TRACE_MODULE_NAME            "monotone"
+#define TB_TRACE_MODULE_NAME            "convex"
 #define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "monotone.h"
+#include "convex.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -39,16 +39,14 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+tb_bool_t gb_tessellator_make_convex(gb_tessellator_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && bounds);
+    tb_assert_abort(impl && impl->mesh);
 
     // TODO
     tb_trace_noimpl();
 
-    // for testing single contour first
-    gb_tessellator_face_inside_set(gb_mesh_face_last(impl->mesh), 1);
 
 #ifdef __gb_debug__
     // check mesh

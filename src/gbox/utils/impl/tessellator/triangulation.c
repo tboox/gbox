@@ -39,6 +39,8 @@
 
 /* make triangulation region 
  *
+ * TODO need optimization
+ *
  * the region of this face must be horizontal monotone and counter-clockwise loop
  *                      
  * before:
@@ -108,9 +110,6 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
     gb_mesh_ref_t mesh = impl->mesh;
     tb_assert_abort(impl && mesh && face);
 
-    return tb_true;
-    gb_mesh_dump(impl->mesh);
-
     // the face edge
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
 
@@ -133,15 +132,9 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
     // get the uppermost right edge
     gb_mesh_edge_ref_t right = gb_mesh_edge_lprev(left);
 
-    tb_trace_i("11111");
-        
-    tb_trace_i("left %{point} %{point}", gb_tessellator_vertex_point(gb_mesh_edge_org(left)), gb_tessellator_vertex_point(gb_mesh_edge_dst(left)));
-    tb_trace_i("right %{point} %{point}", gb_tessellator_vertex_point(gb_mesh_edge_org(right)), gb_tessellator_vertex_point(gb_mesh_edge_dst(right)));
-
     // done
     while (gb_mesh_edge_lnext(left) != right) 
     {
-        tb_trace_i("%{point} %{point}", gb_tessellator_vertex_point(gb_mesh_edge_dst(left)), gb_tessellator_vertex_point(gb_mesh_edge_org(right)));
         /* the right edge is too lower? done some left edges
          *
          *          .
@@ -168,14 +161,32 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
              *             L2     .
              *                  . R
              *                .
+             *
+             *
+             * on left? connect it
+             *
+             * TODO: will generate some degenerated triangles
+             *
+             *             .
+             *           . .
+             * on left?. . .
+             *       .     .
+             *     .    .  .
+             *     .       .
+             *   L .  .    . R
+             *     ..      .
+             *     .       .
+             *    .        .
+             *   .         .
+             *             .
+             *             .
              */
             while ( gb_mesh_edge_lnext(right) != left
                 &&  (   gb_tessellator_edge_go_up(gb_mesh_edge_lprev(left))
-                    ||  gb_tessellator_vertex_in_edge_or_right( gb_mesh_edge_org(left)
-                                                            ,   gb_mesh_edge_org(left)
-                                                            ,   gb_mesh_edge_dst(gb_mesh_edge_lprev(left))))) //< FIXME
+                    ||  gb_tessellator_vertex_on_edge_or_left( gb_mesh_edge_org(left)
+                                                            ,   gb_mesh_edge_org(gb_mesh_edge_lprev(left))
+                                                            ,   gb_mesh_edge_dst(left))))
             {
-                tb_trace_i("left");
                 // connect it
                 edge = gb_mesh_edge_connect(mesh, left, gb_mesh_edge_lprev(left));
                 tb_assert_abort_and_check_return_val(edge, tb_false);
@@ -184,7 +195,6 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
                 left = gb_mesh_edge_sym(edge);
             }
 
-                tb_trace_i("left next");
             // the next left edge
             left = gb_mesh_edge_lnext(left);
         } 
@@ -214,14 +224,31 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
              *       . 
              *      L  .
              *           .
+             *
+             * on right? connect it
+             *
+             * TODO: will generate some degenerated triangles
+             *
+             *     . 
+             *     .  .
+             *     .  .  . 
+             *     .   .   .
+             *     .    .    . on right?
+             *     .     .   .
+             *   L .      .  . R
+             *     .       . .
+             *     .         .
+             *     .           . 
+             *     .             .
+             *     .            
+             *     .
              */
             while ( gb_mesh_edge_lnext(right) != left
                 &&  (   gb_tessellator_edge_go_down(gb_mesh_edge_lnext(right))
-                    ||  gb_tessellator_vertex_in_edge_or_left(gb_mesh_edge_dst(right)
-                                                            , gb_mesh_edge_dst(right)
-                                                            , gb_mesh_edge_org(gb_mesh_edge_lnext(right))))) //< FIXME
+                    ||  gb_tessellator_vertex_on_edge_or_right(gb_mesh_edge_dst(right)
+                                                            , gb_mesh_edge_dst(gb_mesh_edge_lnext(right))
+                                                            , gb_mesh_edge_org(right))))
             {
-                tb_trace_i("right");
                 // connect it
                 edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(right), right);
                 tb_assert_abort_and_check_return_val(edge, tb_false);
@@ -230,7 +257,6 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
                 right = gb_mesh_edge_sym(edge);
             }
 
-                tb_trace_i("right next");
             // the next right edge
             right = gb_mesh_edge_lprev(right);
         }
@@ -255,8 +281,8 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
         edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(right), right);
         tb_assert_abort_and_check_return_val(edge, tb_false);
 
-        // the next lower edge
-        right = gb_mesh_edge_lprev(right);
+        // the next edge
+        right = gb_mesh_edge_sym(edge);
     }
 
     // ok

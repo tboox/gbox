@@ -291,7 +291,8 @@ tb_long_t gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     {
         // compute the position
 #ifdef GB_CONFIG_FLOAT_FIXED
-        return (tb_long_t)((tb_hong_t)(pc->y - pr->y) * xl + (tb_hong_t)(pc->y - pl->y) * xr);
+        tb_hong_t position = ((tb_hong_t)(pc->y - pr->y) * xl + (tb_hong_t)(pc->y - pl->y) * xr);
+        return position < 0? -1 : position > 0;
 #else
         return gb_sign_to_long((pc->y - pr->y) * xl + (pc->y - pl->y) * xr);
 #endif

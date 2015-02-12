@@ -79,7 +79,7 @@ __tb_extern_c_enter__
     ||  (   gb_tessellator_vertex_point(a)->x == gb_tessellator_vertex_point(b)->x \
         &&  gb_tessellator_vertex_point(a)->y <= gb_tessellator_vertex_point(b)->y))
     
-/* v is in edge(u, l)'s left
+/* v is on edge(u, l)'s left
  *
  *                      u
  *                      .
@@ -92,9 +92,9 @@ __tb_extern_c_enter__
  *                            l
  *
  */
-#define gb_tessellator_vertex_in_edge_left(v, u, l)     (gb_tessellator_position_h(v, u, l) < 0)
+#define gb_tessellator_vertex_on_edge_left(v, u, l)     (gb_tessellator_position_h(v, u, l) < 0)
  
-/* v is in edge(u, l) or it's left
+/* v is on edge(u, l) or it's left
  *
  *                      u
  *                      .
@@ -107,9 +107,9 @@ __tb_extern_c_enter__
  *                            l
  *
  */
-#define gb_tessellator_vertex_in_edge_or_left(v, u, l)  (gb_tessellator_position_h(v, u, l) <= 0)
+#define gb_tessellator_vertex_on_edge_or_left(v, u, l)  (gb_tessellator_position_h(v, u, l) <= 0)
 
-/* v is in edge(u, l)'s right
+/* v is on edge(u, l)'s right
  *
  *       u
  *       .              
@@ -122,9 +122,9 @@ __tb_extern_c_enter__
  * l
  *
  */
-#define gb_tessellator_vertex_in_edge_right(v, u, l)    (gb_tessellator_position_h(v, u, l) > 0)
+#define gb_tessellator_vertex_on_edge_right(v, u, l)    (gb_tessellator_position_h(v, u, l) > 0)
  
-/* v is in edge(u, l) or it's right
+/* v is on edge(u, l) or it's right
  *
  *       u
  *       .              
@@ -137,9 +137,9 @@ __tb_extern_c_enter__
  * l
  *
  */
-#define gb_tessellator_vertex_in_edge_or_right(v, u, l) (gb_tessellator_position_h(v, u, l) >= 0)
+#define gb_tessellator_vertex_on_edge_or_right(v, u, l) (gb_tessellator_position_h(v, u, l) >= 0)
  
-/* v is in edge(u, l)'s top
+/* v is on edge(u, l)'s top
  *
  *                   . v
  *                   |
@@ -151,9 +151,9 @@ __tb_extern_c_enter__
  *                             . r
  *
  */
-#define gb_tessellator_vertex_in_edge_top(v, l, r)      (gb_tessellator_position_v(v, l, r) < 0)
+#define gb_tessellator_vertex_on_edge_top(v, l, r)      (gb_tessellator_position_v(v, l, r) < 0)
  
-/* v is in edge(u, l) or it's top
+/* v is on edge(u, l) or it's top
  *
  *                   . v
  *                   |
@@ -164,9 +164,9 @@ __tb_extern_c_enter__
  *                   v'   .
  *                             . r
  */
-#define gb_tessellator_vertex_in_edge_or_top(v, l, r)   (gb_tessellator_position_v(v, l, r) <= 0)
+#define gb_tessellator_vertex_on_edge_or_top(v, l, r)   (gb_tessellator_position_v(v, l, r) <= 0)
 
-/* v is in edge(u, l)'s bottom
+/* v is on edge(u, l)'s bottom
  *
  *                             . r
  *                        .
@@ -178,9 +178,9 @@ __tb_extern_c_enter__
  *                   . v
  *
  */
-#define gb_tessellator_vertex_in_edge_bottom(v, l, r)   (gb_tessellator_position_v(v, l, r) > 0)
+#define gb_tessellator_vertex_on_edge_bottom(v, l, r)   (gb_tessellator_position_v(v, l, r) > 0)
  
-/* v is in edge(u, l) or it's bottom
+/* v is on edge(u, l) or it's bottom
  *
  *                             . r
  *                        .
@@ -192,7 +192,7 @@ __tb_extern_c_enter__
  *                   . v
  *
  */
-#define gb_tessellator_vertex_in_edge_or_bottom(v, l, r) (gb_tessellator_position_v(v, l, r) >= 0)
+#define gb_tessellator_vertex_on_edge_or_bottom(v, l, r) (gb_tessellator_position_v(v, l, r) >= 0)
 
 /* the edge goes left?
  *  __

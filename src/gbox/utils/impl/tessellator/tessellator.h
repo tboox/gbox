@@ -27,6 +27,7 @@
  * includes
  */
 #include "mesh.h"
+#include "convex.h"
 #include "geometry.h"
 #include "monotone.h"
 #include "triangulation.h"
