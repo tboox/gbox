@@ -58,7 +58,6 @@ gbox_C_FILES 			+= \
 						utils/impl/mesh/vertex_list \
 						utils/impl/tessellator/mesh \
 						utils/impl/tessellator/convex \
-						utils/impl/tessellator/geometry \
 						utils/impl/tessellator/monotone \
 						utils/impl/tessellator/triangulation
 

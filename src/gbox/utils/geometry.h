@@ -35,6 +35,162 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+/*! a is in b's top?
+ *
+ * sweep direction: horizontal
+ *
+ * v0 -------> v1-----                  
+ * ---> v2 -------> v3                  
+ * v4 ----------------                  
+ * --------> v5 ------                  
+ *
+ * v0 is in v1's top
+ * v1 is in v5's top
+ */
+#define gb_point_in_top(a, b)                   ((a)->y < (b)->y || ((a)->y == (b)->y && (a)->x < (b)->x))
+   
+/// a is in b's top or a == b?
+#define gb_point_in_top_or_eq(a, b)             ((a)->y < (b)->y || ((a)->y == (b)->y && (a)->x <= (b)->x))
+    
+/*! a is in b's left?
+ *
+ * sweep direction: vertical
+ *
+ *  v0    |     v4    |
+ *  |    \ /    |     |
+ *  |     v2    |     |
+ * \ /    |     |    \ /
+ *  v1    |     |     v5
+ *  |    \ /    |     |
+ *  |     v3    |     |
+ *
+ * v0 is in v1's left
+ * v1 is in v5's left
+ */
+#define gb_point_in_left(a, b)                  ((a)->x < (b)->x || ((a)->x == (b)->x && (a)->y < (b)->y))
+    
+/// a is in b's left or a == b?
+#define gb_point_in_left_or_eq(a, b)            ((a)->x < (b)->x || ((a)->x == (b)->x && (a)->y <= (b)->y))
+     
+/*! v is in segment(u, l)'s left?
+ *
+ *                      u
+ *                      .
+ *                       .
+ *                        .
+ *          . ------------ .   
+ *          v               .
+ *                           .
+ *                            .
+ *                            l
+ *
+ */
+#define gb_point_in_segment_left(v, u, l)       (gb_point_to_segment_position_h(v, u, l) < 0)
+ 
+/*! v is on segment(u, l) or it's left?
+ *
+ *                      u
+ *                      .
+ *                       .
+ *                        .
+ *          . ------------ . v'
+ *          v               .
+ *                           .
+ *                            .
+ *                            l
+ *
+ */
+#define gb_point_on_segment_or_left(v, u, l)    (gb_point_to_segment_position_h(v, u, l) <= 0)
+
+/*! v is in segment(u, l)'s right?
+ *
+ *       u
+ *       .              
+ *      .    
+ *     .         
+ *    . -------- . 
+ *   .           v         
+ *  .                         
+ * .                         
+ * l
+ *
+ */
+#define gb_point_in_segment_right(v, u, l)      (gb_point_to_segment_position_h(v, u, l) > 0)
+ 
+/*! v is on segment(u, l) or it's right?
+ *
+ *       u
+ *       .              
+ *      .    
+ *     .      
+ *  v'. -------- . 
+ *   .           v         
+ *  .                         
+ * .                         
+ * l
+ *
+ */
+#define gb_point_on_segment_or_right(v, u, l)   (gb_point_to_segment_position_h(v, u, l) >= 0)
+ 
+/*! v is in segment(u, l)'s top?
+ *
+ *                   . v
+ *                   |
+ *        l          |
+ *         .         | 
+ *              .    |
+ *                   . 
+ *                        .
+ *                             . r
+ *
+ */
+#define gb_point_in_segment_top(v, l, r)        (gb_point_to_segment_position_v(v, l, r) < 0)
+ 
+/*! v is on segment(u, l) or it's top?
+ *
+ *                   . v
+ *                   |
+ *        l          |
+ *         .         | 
+ *              .    |
+ *                   . 
+ *                   v'   .
+ *                             . r
+ */
+#define gb_point_on_segment_or_top(v, l, r)     (gb_point_to_segment_position_v(v, l, r) <= 0)
+
+/*! v is in segment(u, l)'s bottom?
+ *
+ *                             . r
+ *                        .
+ *                   .
+ *              .    |
+ *         .         | 
+ *   l               |
+ *                   |
+ *                   . v
+ *
+ */
+#define gb_point_in_segment_bottom(v, l, r)     (gb_point_to_segment_position_v(v, l, r) > 0)
+ 
+/*! v is on segment(u, l) or it's bottom?
+ *
+ *                             . r
+ *                        .
+ *                   . v'
+ *              .    |
+ *         .         | 
+ *   l               |
+ *                   |
+ *                   . v
+ *
+ */
+#define gb_point_on_segment_or_bottom(v, l, r)  (gb_point_to_segment_position_v(v, l, r) >= 0)
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
 
@@ -55,6 +211,110 @@ __tb_extern_c_enter__
  *
  */
 tb_long_t               gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t p2);
+
+/* compute the point-to-segment horizontal distance
+ *
+ *     upper            upper'
+ *       .               .
+ *      .    distance     .
+ *     .   > 0       < 0   .
+ *    . -------- . -------- .   
+ *   .        center         .
+ *  .                         .
+ * .                           .
+ * lower                       lower'
+ *
+ * distance = (center - segment(upper, lower)).x
+ *
+ * @param center        the center point
+ * @param upper         the upper point of the segment
+ * @param lower         the lower point of the segment
+ *
+ * @return              the horizontal distance
+ */
+gb_float_t              gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
+
+/* compute the point-to-segment vertical distance
+ *
+ *                             . right
+ *                        .
+ *                   .
+ *              .    |
+ *         .         | distance: > 0 
+ *   left            |
+ *                   |
+ *                   . center
+ *                   |
+ *   left'           |
+ *         .         | distance': < 0
+ *              .    |
+ *                   . 
+ *                        .
+ *                             . right'
+ *
+ * distance = (center - segment(left, right)).y
+ *
+ * @param center        the center point
+ * @param left          the left point of the segment
+ * @param right         the right point of the segment
+ *
+ * @return              the vertical distance
+ */
+gb_float_t              gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
+
+/* compute the point-to-segment horizontal position
+ *
+ * only evaluate the sign of the distance, faster than distance()
+ *
+ *     upper            upper'
+ *       .               .
+ *      .    position     .
+ *     .   > 0       < 0   .
+ *    . -------- . -------- .   
+ *   .        center         .
+ *  .                         .
+ * .                           .
+ * lower                       lower'
+ *
+ * position = sign((center - segment(upper, lower)).x)
+ *
+ * @param center        the center point
+ * @param upper         the upper point of the segment
+ * @param lower         the lower point of the segment
+ *
+ * @return              the horizontal position
+ */
+tb_long_t               gb_point_to_segment_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
+
+/* compute the point-to-segment vertical position
+ *
+ * only evaluate the sign of the distance, faster than distance()
+ *
+ *                             . right
+ *                        .
+ *                   .
+ *              .    |
+ *         .         | position: > 0 
+ *   left            |
+ *                   |
+ *                   . center
+ *                   |
+ *   left'           |
+ *         .         | position': < 0
+ *              .    |
+ *                   . 
+ *                        .
+ *                             . right'
+ *
+ * position = sign((center - segment(left, right)).y)
+ *
+ * @param center        the center point
+ * @param left          the left point of the segment
+ * @param right         the right point of the segment
+ *
+ * @return              the vertical position
+ */
+tb_long_t               gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

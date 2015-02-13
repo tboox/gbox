@@ -36,6 +36,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+#if 0
 static tb_size_t gb_tessellator_vertex_count_for_face(gb_mesh_face_ref_t face)
 {
     // check
@@ -61,6 +62,7 @@ static tb_size_t gb_tessellator_vertex_count_for_face(gb_mesh_face_ref_t face)
     // ok?
     return count;
 }
+#endif
 static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check

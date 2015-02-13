@@ -39,161 +39,37 @@ __tb_extern_c_enter__
  */
 
 // vertex: a == b?
-#define gb_tessellator_vertex_eq(a, b)  \
-    (   gb_tessellator_vertex_point(a)->x == gb_tessellator_vertex_point(b)->x \
-    &&  gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y)
+#define gb_tessellator_vertex_eq(a, b)                      gb_point_eq(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
 
-/* a is in b's top (contains a == b)
- *
- * sweep direction: horizontal
- *
- * v0 -------> v1-----                  
- * ---> v2 -------> v3                  
- * v4 ----------------                  
- * --------> v5 ------                  
- *
- * v0 is in v1's top
- * v1 is in v5's top
- */
-#define gb_tessellator_vertex_in_top(a, b)  \
-    (   gb_tessellator_vertex_point(a)->y < gb_tessellator_vertex_point(b)->y \
-    ||  (   gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y \
-        &&  gb_tessellator_vertex_point(a)->x <= gb_tessellator_vertex_point(b)->x))
-   
-/* a is in b's left (contains a == b)
- *
- * sweep direction: vertical
- *
- *  v0    |     v4    |
- *  |    \ /    |     |
- *  |     v2    |     |
- * \ /    |     |    \ /
- *  v1    |     |     v5
- *  |    \ /    |     |
- *  |     v3    |     |
- *
- * v0 is in v1's left
- * v1 is in v5's left
- */
-#define gb_tessellator_vertex_in_left(a, b)  \
-    (   gb_tessellator_vertex_point(a)->x < gb_tessellator_vertex_point(b)->x \
-    ||  (   gb_tessellator_vertex_point(a)->x == gb_tessellator_vertex_point(b)->x \
-        &&  gb_tessellator_vertex_point(a)->y <= gb_tessellator_vertex_point(b)->y))
+// a is in b's top or a == b?
+#define gb_tessellator_vertex_in_top(a, b)                  gb_point_in_top_or_eq(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
+
+// a is in b's left or a == b?
+#define gb_tessellator_vertex_in_left(a, b)                 gb_point_in_left_or_eq(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
     
-/* v is on edge(u, l)'s left
- *
- *                      u
- *                      .
- *                       .
- *                        .
- *          . ------------ .   
- *          v               .
- *                           .
- *                            .
- *                            l
- *
- */
-#define gb_tessellator_vertex_on_edge_left(v, u, l)     (gb_tessellator_vertex_to_edge_position_h(v, u, l) < 0)
+// v is in edge(u, l)'s left?
+#define gb_tessellator_vertex_in_edge_left(v, u, l)         gb_point_in_segment_left(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l))
  
-/* v is on edge(u, l) or it's left
- *
- *                      u
- *                      .
- *                       .
- *                        .
- *          . ------------ . v'
- *          v               .
- *                           .
- *                            .
- *                            l
- *
- */
-#define gb_tessellator_vertex_on_edge_or_left(v, u, l)  (gb_tessellator_vertex_to_edge_position_h(v, u, l) <= 0)
+// v is on edge(u, l) or it's left?
+#define gb_tessellator_vertex_on_edge_or_left(v, u, l)      gb_point_on_segment_or_left(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l))
 
-/* v is on edge(u, l)'s right
- *
- *       u
- *       .              
- *      .    
- *     .         
- *    . -------- . 
- *   .           v         
- *  .                         
- * .                         
- * l
- *
- */
-#define gb_tessellator_vertex_on_edge_right(v, u, l)    (gb_tessellator_vertex_to_edge_position_h(v, u, l) > 0)
+// v is in edge(u, l)'s right?
+#define gb_tessellator_vertex_in_edge_right(v, u, l)        gb_point_in_segment_right(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l))
  
-/* v is on edge(u, l) or it's right
- *
- *       u
- *       .              
- *      .    
- *     .      
- *  v'. -------- . 
- *   .           v         
- *  .                         
- * .                         
- * l
- *
- */
-#define gb_tessellator_vertex_on_edge_or_right(v, u, l) (gb_tessellator_vertex_to_edge_position_h(v, u, l) >= 0)
+// v is on edge(u, l) or it's right?
+#define gb_tessellator_vertex_on_edge_or_right(v, u, l)     gb_point_on_segment_or_right(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l))
  
-/* v is on edge(u, l)'s top
- *
- *                   . v
- *                   |
- *        l          |
- *         .         | 
- *              .    |
- *                   . 
- *                        .
- *                             . r
- *
- */
-#define gb_tessellator_vertex_on_edge_top(v, l, r)      (gb_tessellator_vertex_to_edge_position_v(v, l, r) < 0)
+// v is in edge(u, l)'s top?
+#define gb_tessellator_vertex_in_edge_top(v, l, r)          gb_point_in_segment_top(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(l), gb_tessellator_vertex_point(r))
  
-/* v is on edge(u, l) or it's top
- *
- *                   . v
- *                   |
- *        l          |
- *         .         | 
- *              .    |
- *                   . 
- *                   v'   .
- *                             . r
- */
-#define gb_tessellator_vertex_on_edge_or_top(v, l, r)   (gb_tessellator_vertex_to_edge_position_v(v, l, r) <= 0)
+// v is on edge(u, l) or it's top?
+#define gb_tessellator_vertex_on_edge_or_top(v, l, r)       gb_point_on_segment_or_top(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(l), gb_tessellator_vertex_point(r))
 
-/* v is on edge(u, l)'s bottom
- *
- *                             . r
- *                        .
- *                   .
- *              .    |
- *         .         | 
- *   l               |
- *                   |
- *                   . v
- *
- */
-#define gb_tessellator_vertex_on_edge_bottom(v, l, r)   (gb_tessellator_vertex_to_edge_position_v(v, l, r) > 0)
+// v is in edge(u, l)'s bottom?
+#define gb_tessellator_vertex_in_edge_bottom(v, l, r)       gb_point_in_segment_bottom(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(l), gb_tessellator_vertex_point(r))
  
-/* v is on edge(u, l) or it's bottom
- *
- *                             . r
- *                        .
- *                   . v'
- *              .    |
- *         .         | 
- *   l               |
- *                   |
- *                   . v
- *
- */
-#define gb_tessellator_vertex_on_edge_or_bottom(v, l, r) (gb_tessellator_vertex_to_edge_position_v(v, l, r) >= 0)
+// v is on edge(u, l) or it's bottom?
+#define gb_tessellator_vertex_on_edge_or_bottom(v, l, r)    gb_point_on_segment_or_bottom(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(l), gb_tessellator_vertex_point(r))
 
 /* the edge goes left?
  *  __
@@ -253,115 +129,7 @@ __tb_extern_c_enter__
 #define gb_tessellator_edge_go_down(edge)   gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
 
 // the three vertices are counter-clockwise?
-#define gb_tessellator_vertex_is_ccw(v0, v1, v2) gb_points_is_ccw(gb_tessellator_vertex_point(v0), gb_tessellator_vertex_point(v1), gb_tessellator_vertex_point(v2))
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
- */
-
-/* compute the vertex-to-edge horizontal distance
- *
- *     upper            upper'
- *       .               .
- *      .    distance     .
- *     .   > 0       < 0   .
- *    . -------- . -------- .   
- *   .        center         .
- *  .                         .
- * .                           .
- * lower                       lower'
- *
- * distance = (center - edge(upper, lower)).x
- *
- * @param center        the center vertex
- * @param upper         the upper vertex of the edge
- * @param lower         the lower vertex of the edge
- *
- * @return              the horizontal distance
- */
-gb_float_t              gb_tessellator_vertex_to_edge_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
-
-/* compute the vertex-to-edge vertical distance
- *
- *                             . right
- *                        .
- *                   .
- *              .    |
- *         .         | distance: > 0 
- *   left            |
- *                   |
- *                   . center
- *                   |
- *   left'           |
- *         .         | distance': < 0
- *              .    |
- *                   . 
- *                        .
- *                             . right'
- *
- * distance = (center - edge(left, right)).y
- *
- * @param center        the center vertex
- * @param left          the left vertex of the edge
- * @param right         the right vertex of the edge
- *
- * @return              the vertical distance
- */
-gb_float_t              gb_tessellator_vertex_to_edge_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
-
-/* compute the vertex-to-edge horizontal position
- *
- * only evaluate the sign of the distance, faster than distance()
- *
- *     upper            upper'
- *       .               .
- *      .    position     .
- *     .   > 0       < 0   .
- *    . -------- . -------- .   
- *   .        center         .
- *  .                         .
- * .                           .
- * lower                       lower'
- *
- * position = sign((center - edge(upper, lower)).x)
- *
- * @param center        the center vertex
- * @param upper         the upper vertex of the edge
- * @param lower         the lower vertex of the edge
- *
- * @return              the horizontal position
- */
-tb_long_t               gb_tessellator_vertex_to_edge_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
-
-/* compute the vertex-to-edge vertical position
- *
- * only evaluate the sign of the distance, faster than distance()
- *
- *                             . right
- *                        .
- *                   .
- *              .    |
- *         .         | position: > 0 
- *   left            |
- *                   |
- *                   . center
- *                   |
- *   left'           |
- *         .         | position': < 0
- *              .    |
- *                   . 
- *                        .
- *                             . right'
- *
- * position = sign((center - edge(left, right)).y)
- *
- * @param center        the center vertex
- * @param left          the left vertex of the edge
- * @param right         the right vertex of the edge
- *
- * @return              the vertical position
- */
-tb_long_t               gb_tessellator_vertex_to_edge_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
+#define gb_tessellator_vertex_is_ccw(a, b, c)   gb_points_is_ccw(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b), gb_tessellator_vertex_point(c))
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
