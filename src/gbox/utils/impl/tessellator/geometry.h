@@ -41,12 +41,32 @@ __tb_extern_c_enter__
 // vertex: a == b?
 #define gb_tessellator_vertex_eq(a, b)                      gb_point_eq(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
 
-// a is in b's top or a == b?
-#define gb_tessellator_vertex_in_top(a, b)                  gb_point_in_top_or_eq(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
-
-// a is in b's left or a == b?
-#define gb_tessellator_vertex_in_left(a, b)                 gb_point_in_left_or_eq(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
-    
+/* vertex: a <= b?
+ *
+ * sweep direction: horizontal
+ *
+ * v0 -------> v1-----                  
+ * ---> v2 -------> v3                  
+ * v4 ----------------                  
+ * --------> v5 ------                  
+ *
+ * v0 <= v1 <= v2 <= v3 <= v4 <= v5
+ */
+#define gb_tessellator_vertex_leq(a, b)  \
+    (   gb_tessellator_vertex_point(a)->y < gb_tessellator_vertex_point(b)->y \
+    ||  (   gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y \
+        &&  gb_tessellator_vertex_point(a)->x <= gb_tessellator_vertex_point(b)->x))
+   
+// a is in b's top?
+#if 1
+#   define gb_tessellator_vertex_in_top(a, b)               gb_tessellator_vertex_leq(a, b)
+#else // faster
+#   define gb_tessellator_vertex_in_top(a, b)               gb_point_in_top(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
+#endif
+  
+// the three vertices are counter-clockwise?
+#define gb_tessellator_vertex_is_ccw(a, b, c)               gb_points_is_ccw(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b), gb_tessellator_vertex_point(c))
+ 
 // v is in edge(u, l)'s left?
 #define gb_tessellator_vertex_in_edge_left(v, u, l)         gb_point_in_segment_left(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l))
  
@@ -71,41 +91,6 @@ __tb_extern_c_enter__
 // v is on edge(u, l) or it's bottom?
 #define gb_tessellator_vertex_on_edge_or_bottom(v, l, r)    gb_point_on_segment_or_bottom(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(l), gb_tessellator_vertex_point(r))
 
-/* the edge goes left?
- *  __
- * | .
- *     .
- *       .
- *         .
- *           .
- *
- *           .
- *         .
- *       .
- *     .
- * | .
- *  --
- */
-#define gb_tessellator_edge_go_left(edge)   gb_tessellator_vertex_in_left(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
-  
-/* the edge goes right?
- *
- *         __
- *         . |
- *       .
- *     .  
- *   .      
- * .     
- *
- * .
- *   .
- *     .
- *       .
- *         . |
- *         --
- */
-#define gb_tessellator_edge_go_right(edge)  gb_tessellator_vertex_in_left(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
- 
 /* the edge goes up?
  *  __                   __
  * | .                   . |
@@ -115,7 +100,7 @@ __tb_extern_c_enter__
  *           .   .
  *
  */
-#define gb_tessellator_edge_go_up(edge)     gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
+#define gb_tessellator_edge_go_up(edge)                     gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
 
 /* the edge goes down?
  *
@@ -126,10 +111,7 @@ __tb_extern_c_enter__
  * | .                   .|
  *  --                  --
  */
-#define gb_tessellator_edge_go_down(edge)   gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
-
-// the three vertices are counter-clockwise?
-#define gb_tessellator_vertex_is_ccw(a, b, c)   gb_points_is_ccw(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b), gb_tessellator_vertex_point(c))
+#define gb_tessellator_edge_go_down(edge)                   gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

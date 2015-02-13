@@ -73,6 +73,43 @@ static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
     tb_assert_abort(edge);
 
+#if 0
+    // done
+    gb_mesh_edge_ref_t edge_sym = tb_null;
+    gb_mesh_edge_ref_t edge_next = tb_null;
+    gb_mesh_vertex_ref_t vertex_start = gb_mesh_edge_org(edge);
+    while (1)
+    {
+        edge_next = gb_mesh_edge_lnext(edge);
+        edge_sym = gb_mesh_edge_sym(edge);
+
+        if (edge_sym && gb_mesh_edge_lface(edge_sym) && gb_tessellator_face_inside(gb_mesh_edge_lface(edge_sym)))
+        {
+            tb_long_t vertex_count = gb_tessellator_vertex_count_for_face(face);
+            tb_long_t vertex_count_sym = gb_tessellator_vertex_count_for_face(gb_mesh_edge_lface(edge_sym));
+
+            if ((vertex_count + vertex_count_sym - 2) <= 1024)
+            {
+                if (    gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge))
+                                                    , gb_mesh_edge_org(edge)
+                                                    , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge))))
+                    &&  gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge_sym))
+                                                    , gb_mesh_edge_org(edge_sym)
+                                                    , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)))))
+                {
+                    edge_next = gb_mesh_edge_lnext(edge_sym);
+                    gb_mesh_edge_delete( mesh, edge_sym );
+                    edge = tb_null;
+                }
+            }
+        }
+        
+        if (edge && gb_mesh_edge_org(gb_mesh_edge_lnext(edge)) == vertex_start)
+            break;
+            
+        edge = edge_next;
+    }
+#endif
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

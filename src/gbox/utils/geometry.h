@@ -38,42 +38,17 @@ __tb_extern_c_enter__
  * macros
  */
 
-/*! a is in b's top?
- *
- * sweep direction: horizontal
- *
- * v0 -------> v1-----                  
- * ---> v2 -------> v3                  
- * v4 ----------------                  
- * --------> v5 ------                  
- *
- * v0 is in v1's top
- * v1 is in v5's top
- */
-#define gb_point_in_top(a, b)                   ((a)->y < (b)->y || ((a)->y == (b)->y && (a)->x < (b)->x))
+/// a is in b's top?
+#define gb_point_in_top(a, b)                   ((a)->y < (b)->y)
    
 /// a is in b's top or a == b?
-#define gb_point_in_top_or_eq(a, b)             ((a)->y < (b)->y || ((a)->y == (b)->y && (a)->x <= (b)->x))
+#define gb_point_in_top_or_eq(a, b)             ((a)->y <= (b)->y)
     
-/*! a is in b's left?
- *
- * sweep direction: vertical
- *
- *  v0    |     v4    |
- *  |    \ /    |     |
- *  |     v2    |     |
- * \ /    |     |    \ /
- *  v1    |     |     v5
- *  |    \ /    |     |
- *  |     v3    |     |
- *
- * v0 is in v1's left
- * v1 is in v5's left
- */
-#define gb_point_in_left(a, b)                  ((a)->x < (b)->x || ((a)->x == (b)->x && (a)->y < (b)->y))
+/// a is in b's left?
+#define gb_point_in_left(a, b)                  ((a)->x < (b)->x)
     
 /// a is in b's left or a == b?
-#define gb_point_in_left_or_eq(a, b)            ((a)->x < (b)->x || ((a)->x == (b)->x && (a)->y <= (b)->y))
+#define gb_point_in_left_or_eq(a, b)            ((a)->x <= (b)->x)
      
 /*! v is in segment(u, l)'s left?
  *
