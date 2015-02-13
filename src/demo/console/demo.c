@@ -39,6 +39,7 @@ static gb_demo_t g_demo[] =
 
     // utils
 ,   GB_DEMO_MAIN_ITEM(utils_mesh)
+,   GB_DEMO_MAIN_ITEM(utils_geometry)
 
     // ohter
 ,   GB_DEMO_MAIN_ITEM(other_test)

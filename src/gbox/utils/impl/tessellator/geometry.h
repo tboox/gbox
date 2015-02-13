@@ -27,6 +27,7 @@
  * includes
  */
 #include "prefix.h"
+#include "../../geometry.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
@@ -92,7 +93,7 @@ __tb_extern_c_enter__
  *                            l
  *
  */
-#define gb_tessellator_vertex_on_edge_left(v, u, l)     (gb_tessellator_position_h(v, u, l) < 0)
+#define gb_tessellator_vertex_on_edge_left(v, u, l)     (gb_tessellator_vertex_to_edge_position_h(v, u, l) < 0)
  
 /* v is on edge(u, l) or it's left
  *
@@ -107,7 +108,7 @@ __tb_extern_c_enter__
  *                            l
  *
  */
-#define gb_tessellator_vertex_on_edge_or_left(v, u, l)  (gb_tessellator_position_h(v, u, l) <= 0)
+#define gb_tessellator_vertex_on_edge_or_left(v, u, l)  (gb_tessellator_vertex_to_edge_position_h(v, u, l) <= 0)
 
 /* v is on edge(u, l)'s right
  *
@@ -122,7 +123,7 @@ __tb_extern_c_enter__
  * l
  *
  */
-#define gb_tessellator_vertex_on_edge_right(v, u, l)    (gb_tessellator_position_h(v, u, l) > 0)
+#define gb_tessellator_vertex_on_edge_right(v, u, l)    (gb_tessellator_vertex_to_edge_position_h(v, u, l) > 0)
  
 /* v is on edge(u, l) or it's right
  *
@@ -137,7 +138,7 @@ __tb_extern_c_enter__
  * l
  *
  */
-#define gb_tessellator_vertex_on_edge_or_right(v, u, l) (gb_tessellator_position_h(v, u, l) >= 0)
+#define gb_tessellator_vertex_on_edge_or_right(v, u, l) (gb_tessellator_vertex_to_edge_position_h(v, u, l) >= 0)
  
 /* v is on edge(u, l)'s top
  *
@@ -151,7 +152,7 @@ __tb_extern_c_enter__
  *                             . r
  *
  */
-#define gb_tessellator_vertex_on_edge_top(v, l, r)      (gb_tessellator_position_v(v, l, r) < 0)
+#define gb_tessellator_vertex_on_edge_top(v, l, r)      (gb_tessellator_vertex_to_edge_position_v(v, l, r) < 0)
  
 /* v is on edge(u, l) or it's top
  *
@@ -164,7 +165,7 @@ __tb_extern_c_enter__
  *                   v'   .
  *                             . r
  */
-#define gb_tessellator_vertex_on_edge_or_top(v, l, r)   (gb_tessellator_position_v(v, l, r) <= 0)
+#define gb_tessellator_vertex_on_edge_or_top(v, l, r)   (gb_tessellator_vertex_to_edge_position_v(v, l, r) <= 0)
 
 /* v is on edge(u, l)'s bottom
  *
@@ -178,7 +179,7 @@ __tb_extern_c_enter__
  *                   . v
  *
  */
-#define gb_tessellator_vertex_on_edge_bottom(v, l, r)   (gb_tessellator_position_v(v, l, r) > 0)
+#define gb_tessellator_vertex_on_edge_bottom(v, l, r)   (gb_tessellator_vertex_to_edge_position_v(v, l, r) > 0)
  
 /* v is on edge(u, l) or it's bottom
  *
@@ -192,7 +193,7 @@ __tb_extern_c_enter__
  *                   . v
  *
  */
-#define gb_tessellator_vertex_on_edge_or_bottom(v, l, r) (gb_tessellator_position_v(v, l, r) >= 0)
+#define gb_tessellator_vertex_on_edge_or_bottom(v, l, r) (gb_tessellator_vertex_to_edge_position_v(v, l, r) >= 0)
 
 /* the edge goes left?
  *  __
@@ -251,6 +252,9 @@ __tb_extern_c_enter__
  */
 #define gb_tessellator_edge_go_down(edge)   gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
 
+// the three vertices are counter-clockwise?
+#define gb_tessellator_vertex_is_ccw(v0, v1, v2) gb_points_is_ccw(gb_tessellator_vertex_point(v0), gb_tessellator_vertex_point(v1), gb_tessellator_vertex_point(v2))
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
  */
@@ -275,7 +279,7 @@ __tb_extern_c_enter__
  *
  * @return              the horizontal distance
  */
-gb_float_t              gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
+gb_float_t              gb_tessellator_vertex_to_edge_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
 
 /* compute the vertex-to-edge vertical distance
  *
@@ -303,7 +307,7 @@ gb_float_t              gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, g
  *
  * @return              the vertical distance
  */
-gb_float_t              gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
+gb_float_t              gb_tessellator_vertex_to_edge_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
 
 /* compute the vertex-to-edge horizontal position
  *
@@ -327,7 +331,7 @@ gb_float_t              gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, g
  *
  * @return              the horizontal position
  */
-tb_long_t               gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
+tb_long_t               gb_tessellator_vertex_to_edge_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower);
 
 /* compute the vertex-to-edge vertical position
  *
@@ -357,7 +361,7 @@ tb_long_t               gb_tessellator_position_h(gb_mesh_vertex_ref_t center, g
  *
  * @return              the vertical position
  */
-tb_long_t               gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
+tb_long_t               gb_tessellator_vertex_to_edge_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

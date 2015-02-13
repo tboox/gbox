@@ -14,40 +14,50 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        convex.h
+ * @file        geometry.c
  * @ingroup     utils
  */
-#ifndef GB_UTILS_IMPL_TESSELLATOR_CONVEX_H
-#define GB_UTILS_IMPL_TESSELLATOR_CONVEX_H
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * trace
+ */
+#define TB_TRACE_MODULE_NAME            "geometry"
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
  */
-#include "prefix.h"
+#include "geometry.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
- * extern
+ * implementation
  */
-__tb_extern_c_enter__
+tb_long_t gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t p2)
+{
+    // check
+    tb_assert_abort(p0 && p1 && p2);
 
-/* //////////////////////////////////////////////////////////////////////////////////////
- * interfaces
- */
-
-/* merge triangles to the convex polygon for mesh after triangulation
- *   
- * @param impl      the tessellator impl
- */
-tb_void_t           gb_tessellator_make_convex(gb_tessellator_impl_t* impl);
-
-/* //////////////////////////////////////////////////////////////////////////////////////
- * extern
- */
-__tb_extern_c_leave__
-
-#endif
-
-
+    // the coordinates
+    tb_fixed_t x0 = gb_float_to_fixed(p0->x);
+    tb_fixed_t y0 = gb_float_to_fixed(p0->y);
+    tb_fixed_t x1 = gb_float_to_fixed(p1->x);
+    tb_fixed_t y1 = gb_float_to_fixed(p1->y);
+    tb_fixed_t x2 = gb_float_to_fixed(p2->x);
+    tb_fixed_t y2 = gb_float_to_fixed(p2->y);
+  
+    /* compute the cross value of the vectors (p1, p0) and (p1, p2)
+     *
+     * axis:
+     *         > 0
+     * O --------> 
+     * |
+     * |
+     * | > 0
+     *
+     * cross[(p1, p0), (p1, p2)] > 0
+     */
+    return ((tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1)) > 0;
+}

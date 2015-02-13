@@ -14,14 +14,15 @@
  * along with GBox; 
  * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
  * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2014 - 2015, ruki All rights reserved.
  *
  * @author      ruki
- * @file        convex.h
+ * @file        geometry.h
  * @ingroup     utils
+ *
  */
-#ifndef GB_UTILS_IMPL_TESSELLATOR_CONVEX_H
-#define GB_UTILS_IMPL_TESSELLATOR_CONVEX_H
+#ifndef GB_UTILS_GEOMETRY_H
+#define GB_UTILS_GEOMETRY_H
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -37,11 +38,23 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/* merge triangles to the convex polygon for mesh after triangulation
- *   
- * @param impl      the tessellator impl
+/* the three points are counter-clockwise?
+ *
+ *                   p1
+ *  . <-------------- .
+ * p2                / \
+ *                    |
+ *                    |
+ *                    |
+ *                    .
+ *                   p0
+ *
+ * @param p0            the first point
+ * @param p1            the second point
+ * @param p2            the last point
+ *
  */
-tb_void_t           gb_tessellator_make_convex(gb_tessellator_impl_t* impl);
+tb_long_t               gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t p2);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

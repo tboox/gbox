@@ -14,6 +14,7 @@ demo_C_FILES 									+= \
 												core/vector \
 												core/bitmap \
 												utils/mesh \
+												utils/geometry \
 												other/test
 
 # packages

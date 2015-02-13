@@ -51,6 +51,7 @@ gbox_C_FILES 			+= \
 # utils files
 gbox_C_FILES 			+= \
 						utils/mesh \
+						utils/geometry \
 						utils/tessellator \
 						utils/impl/mesh/edge_list \
 						utils/impl/mesh/face_list \
@@ -137,6 +138,7 @@ gbox_INC_FILES 			= \
 						utils/utils.h \
 						utils/prefix.h \
 						utils/mesh.h \
+						utils/geometry.h \
 						utils/tessellator.h \
 						core/core.h \
 						core/prefix.h \

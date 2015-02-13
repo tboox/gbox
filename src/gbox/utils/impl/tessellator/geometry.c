@@ -35,7 +35,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_float_t gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower)
+gb_float_t gb_tessellator_vertex_to_edge_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower)
 {
     // check
     tb_assert_abort(center && upper && lower);
@@ -167,7 +167,7 @@ gb_float_t gb_tessellator_distance_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex
     // horizontal edge? no distance
     return 0;
 }
-gb_float_t gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right)
+gb_float_t gb_tessellator_vertex_to_edge_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right)
 {
     // check
     tb_assert_abort(center && left && right);
@@ -209,7 +209,7 @@ gb_float_t gb_tessellator_distance_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex
     // vertical edge? no distance
     return 0;
 }
-tb_long_t gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower)
+tb_long_t gb_tessellator_vertex_to_edge_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t upper, gb_mesh_vertex_ref_t lower)
 {
     // check
     tb_assert_abort(center && upper && lower);
@@ -266,7 +266,7 @@ tb_long_t gb_tessellator_position_h(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     // horizontal edge
     return 0;
 }
-tb_long_t gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right)
+tb_long_t gb_tessellator_vertex_to_edge_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_ref_t left, gb_mesh_vertex_ref_t right)
 {
     // check
     tb_assert_abort(center && left && right);
@@ -301,6 +301,4 @@ tb_long_t gb_tessellator_position_v(gb_mesh_vertex_ref_t center, gb_mesh_vertex_
     // vertical edge
     return 0;
 }
-
-
 

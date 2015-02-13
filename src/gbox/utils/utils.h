@@ -27,6 +27,7 @@
  * includes
  */
 #include "mesh.h"
+#include "geometry.h"
 #include "tessellator.h"
 
 #endif

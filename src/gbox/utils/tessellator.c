@@ -163,7 +163,7 @@ static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_pol
         if (impl->mode == GB_TESSELLATOR_MODE_CONVEX)
         {
             // merge triangles to the convex polygon
-            if (!gb_tessellator_make_convex(impl)) return ;
+            gb_tessellator_make_convex(impl);
         }
     }
 

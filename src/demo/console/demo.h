@@ -46,6 +46,7 @@ GB_DEMO_MAIN_DECL(core_vector);
 
 // utils
 GB_DEMO_MAIN_DECL(utils_mesh);
+GB_DEMO_MAIN_DECL(utils_geometry);
 
 // other
 GB_DEMO_MAIN_DECL(other_test);
