@@ -36,33 +36,6 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-#if 0
-static tb_size_t gb_tessellator_vertex_count_for_face(gb_mesh_face_ref_t face)
-{
-    // check
-    tb_assert_abort(face);
-
-    // the face edge
-    gb_mesh_edge_ref_t  edge = gb_mesh_face_edge(face);
-    tb_assert_abort(edge);
-
-    // done
-    tb_size_t           count = 0;
-    gb_mesh_edge_ref_t  scan = edge;
-    do
-    {
-        // update count
-        count++;
-
-        // the next edge
-        scan = gb_mesh_edge_lnext(scan);
-    }
-    while (scan != edge);
-
-    // ok?
-    return count;
-}
-#endif
 static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
@@ -73,43 +46,75 @@ static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
     tb_assert_abort(edge);
 
-#if 0
+    // the first vertex
+    gb_mesh_vertex_ref_t vertex_first = gb_mesh_edge_org(edge);
+    tb_assert_abort(vertex_first);
+
     // done
+    gb_mesh_face_ref_t face_sym = tb_null;
     gb_mesh_edge_ref_t edge_sym = tb_null;
     gb_mesh_edge_ref_t edge_next = tb_null;
-    gb_mesh_vertex_ref_t vertex_start = gb_mesh_edge_org(edge);
     while (1)
     {
+        // save the next edge
         edge_next = gb_mesh_edge_lnext(edge);
+
+        // the sym edge
         edge_sym = gb_mesh_edge_sym(edge);
 
-        if (edge_sym && gb_mesh_edge_lface(edge_sym) && gb_tessellator_face_inside(gb_mesh_edge_lface(edge_sym)))
-        {
-            tb_long_t vertex_count = gb_tessellator_vertex_count_for_face(face);
-            tb_long_t vertex_count_sym = gb_tessellator_vertex_count_for_face(gb_mesh_edge_lface(edge_sym));
+        // the neighbour face
+        face_sym = gb_mesh_edge_lface(edge_sym);
 
-            if ((vertex_count + vertex_count_sym - 2) <= 1024)
+        // the neighbour face is inside too? merge it
+        if (edge_sym && face_sym && gb_tessellator_face_inside(face_sym))
+        {
+            /* merge it if the result region is convex
+             *       
+             *       a
+             *       .
+             *       . .
+             *       .   .
+             *       .     .
+             *       .       .            
+             *       .  face   . 
+             *       .           .
+             *       .    edge ->  . 
+             *     b . . . . . . . . . d
+             *         .   edge_sym  .
+             *           .           .
+             *             . face_sym.
+             *               .       .
+             *                 .     .
+             *                   .   .
+             *                     . .
+             *                       .
+             *                       c
+             *
+             * is_ccw(a, b, c) and is_ccw(c, d, a)? 
+             */
+            if (    gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge))
+                                                , gb_mesh_edge_org(edge)
+                                                , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge_sym))))
+                &&  gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge_sym))
+                                                , gb_mesh_edge_org(edge_sym)
+                                                , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)))))
             {
-                if (    gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge))
-                                                    , gb_mesh_edge_org(edge)
-                                                    , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge))))
-                    &&  gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge_sym))
-                                                    , gb_mesh_edge_org(edge_sym)
-                                                    , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)))))
-                {
-                    edge_next = gb_mesh_edge_lnext(edge_sym);
-                    gb_mesh_edge_delete( mesh, edge_sym );
-                    edge = tb_null;
-                }
+                // save the next edge
+                edge_next = gb_mesh_edge_lnext(edge_sym);
+
+                // delete edge(d, b) and merge two faces
+                gb_mesh_edge_delete(mesh, edge_sym);
+                edge = tb_null;
             }
         }
         
-        if (edge && gb_mesh_edge_org(gb_mesh_edge_lnext(edge)) == vertex_start)
+        // end?
+        if (edge && gb_mesh_edge_org(gb_mesh_edge_lnext(edge)) == vertex_first)
             break;
             
+        // the next edge
         edge = edge_next;
     }
-#endif
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
