@@ -51,6 +51,9 @@ tb_long_t gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t 
     /* compute the cross value of the vectors (p1, p0) and (p1, p2)
      *
      * cross[(p1, p0), (p1, p2)] > 0
+     *
+     *
+     * the result is not reliable for almost-degenerate situations
      */
     return ((tb_hong_t)(x0 - x1) * (y2 - y1) - (tb_hong_t)(y0 - y1) * (x2 - x1)) > 0;
 }

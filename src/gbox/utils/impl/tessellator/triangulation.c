@@ -39,7 +39,7 @@
 
 /* make triangulation region 
  *
- * TODO need optimization
+ * TODO need optimization, maybe generate some degenerated triangles
  *
  * the region of this face must be horizontal monotone and counter-clockwise loop
  *                      

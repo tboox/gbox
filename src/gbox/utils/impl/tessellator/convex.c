@@ -91,13 +91,16 @@ static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb
              *                       c
              *
              * is_ccw(a, b, c) and is_ccw(c, d, a)? 
+             *
+             * some degenerate triangles may be not merged 
+             * because the is_ccw is not reliable for almost-degenerate situations
              */
             if (    gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge))
                                                 , gb_mesh_edge_org(edge)
-                                                , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge_sym))))
+                                                , gb_mesh_edge_dst(gb_mesh_edge_lnext(edge_sym)))
                 &&  gb_tessellator_vertex_is_ccw( gb_mesh_edge_org(gb_mesh_edge_lprev(edge_sym))
                                                 , gb_mesh_edge_org(edge_sym)
-                                                , gb_mesh_edge_org(gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)))))
+                                                , gb_mesh_edge_dst(gb_mesh_edge_lnext(edge))))
             {
                 // save the next edge
                 edge_next = gb_mesh_edge_lnext(edge_sym);

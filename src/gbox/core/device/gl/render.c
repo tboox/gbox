@@ -215,7 +215,7 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon
 
 #ifdef GB_GL_TESSELLATOR_TEST_ENABLE
     // set mode
-    gb_tessellator_mode_set(device->tessellator, GB_TESSELLATOR_MODE_CONVEX);
+    gb_tessellator_mode_set(device->tessellator, GB_TESSELLATOR_MODE_TRIANGULATION);
 #endif
 
     // set rule
