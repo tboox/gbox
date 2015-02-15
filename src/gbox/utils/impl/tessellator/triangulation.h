@@ -40,10 +40,8 @@ __tb_extern_c_enter__
 /* make triangulation region for each horizontal monotone region
  *
  * @param impl      the tessellator impl
- *
- * @return          tb_true or tb_false
  */
-tb_bool_t           gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl);
+tb_void_t           gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

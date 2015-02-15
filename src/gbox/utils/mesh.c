@@ -686,6 +686,15 @@ gb_mesh_edge_ref_t gb_mesh_edge_last(gb_mesh_ref_t mesh)
     // the last edge
     return (gb_mesh_edge_ref_t)tb_iterator_item(iterator, tb_iterator_last(iterator));
 }
+gb_mesh_edge_ref_t gb_mesh_edge_tail(gb_mesh_ref_t mesh)
+{
+    // the iterator
+    tb_iterator_ref_t iterator = gb_mesh_edge_itor(mesh);
+    tb_assert_and_check_return_val(iterator, tb_null);
+
+    // the tail edge
+    return (gb_mesh_edge_ref_t)tb_iterator_item(iterator, tb_iterator_tail(iterator));
+}
 tb_char_t const* gb_mesh_edge_cstr(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn)
 {
     // check
@@ -871,24 +880,23 @@ gb_mesh_edge_ref_t gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bool_t is_ccw)
     // ok?
     return edge;
 }
-tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
+tb_void_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
 {
     // check
     gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
-    tb_assert_and_check_return_val(impl && edge_org && edge_dst, tb_false);
+    tb_assert_and_check_return(impl && edge_org && edge_dst);
 
     // check edges
     gb_mesh_check_edge(edge_org);
     gb_mesh_check_edge(edge_dst);
 
     // done
-    tb_bool_t ok = tb_false;
     tb_bool_t joining_faces = tb_false;
     tb_bool_t joining_vertices = tb_false;
     do
     {
         // is same? ok
-        tb_check_break_state(edge_org != edge_dst, ok, tb_true);
+        tb_check_break(edge_org != edge_dst);
 
         // two vertices are disjoint? 
         if (gb_mesh_edge_org(edge_org) != gb_mesh_edge_org(edge_dst))
@@ -945,16 +953,7 @@ tb_bool_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, g
             gb_mesh_face_edge_set(gb_mesh_edge_lface(edge_org), edge_org);
         }
 
-        // ok
-        ok = tb_true;
-
     } while (0);
-
-    // check
-    tb_assert_abort(ok);
-
-    // ok?
-    return ok;
 }
 gb_mesh_edge_ref_t gb_mesh_edge_append(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org)
 {

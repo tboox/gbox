@@ -54,6 +54,9 @@
 /// get the edge dst
 #define gb_mesh_edge_dst(edge)                  (tb_assert((edge) && (edge)->sym), (edge)->sym->org)
 
+/// get the edge next
+#define gb_mesh_edge_next(edge)                 (tb_assert(edge), (edge)->next)
+
 /// get the edge lface
 #define gb_mesh_edge_lface(edge)                (tb_assert(edge), (edge)->lface)
 
@@ -548,6 +551,22 @@ gb_mesh_edge_ref_t              gb_mesh_edge_head(gb_mesh_ref_t mesh);
  */
 gb_mesh_edge_ref_t              gb_mesh_edge_last(gb_mesh_ref_t mesh);
 
+/*! the tail edge for walking edges more flexible and faster than iterator
+ *
+ * @code
+ * gb_mesh_edge_ref_t edge = gb_mesh_edge_head(mesh);
+ * gb_mesh_edge_ref_t tail = gb_mesh_edge_tail(mesh);
+ * for (; edge != tail; edge = gb_mesh_edge_next(edge)) 
+ * {
+ * }
+ * @endcode
+ *
+ * @param mesh                  the mesh
+ *
+ * @return                      the edge, it's members are invalid and cannot modify them
+ */
+gb_mesh_edge_ref_t              gb_mesh_edge_tail(gb_mesh_ref_t mesh);
+
 /*! the edge string
  *
  * @param mesh                  the mesh
@@ -677,10 +696,8 @@ gb_mesh_edge_ref_t              gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bo
  * @param mesh                  the mesh
  * @param edge_org              the original edge
  * @param edge_dst              the destinate edge
- *
- * @return                      tb_true or tb_false
  */
-tb_bool_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
+tb_void_t                       gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst);
 
 /*! append edge 
  *

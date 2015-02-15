@@ -104,7 +104,7 @@
  *                 12
  *
  */
-static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
+static tb_void_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
     gb_mesh_ref_t mesh = impl->mesh;
@@ -284,15 +284,12 @@ static tb_bool_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
         // the next edge
         right = gb_mesh_edge_sym(edge);
     }
-
-    // ok
-    return tb_true;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
+tb_void_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
 {
     // check
     tb_assert_abort(impl && impl->mesh);
@@ -324,7 +321,7 @@ tb_bool_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
         if (gb_tessellator_face_inside(face)) 
         {
             // make triangulation for the face region
-            if (!gb_tessellator_make_triangulation_face(impl, face)) return tb_false;
+            gb_tessellator_make_triangulation_face(impl, face);
         }
     }
 
@@ -332,9 +329,6 @@ tb_bool_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
     // check mesh
     gb_mesh_check(impl->mesh);
 #endif
-
-    // ok
-    return tb_true;
 }
 
 

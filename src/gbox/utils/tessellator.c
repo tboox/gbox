@@ -137,7 +137,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     gb_tessellator_face_inside_set(gb_mesh_face_head(mesh), 1);
 
     // make triangulation region
-    if (!gb_tessellator_make_triangulation(impl)) return ;
+    gb_tessellator_make_triangulation(impl);
 
     // done output
     gb_tessellator_done_output(impl);
@@ -151,13 +151,13 @@ static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_pol
     if (!gb_tessellator_make_mesh(impl, polygon)) return ;
 
     // make horizontal monotone region
-    if (!gb_tessellator_make_monotone(impl, bounds)) return ;
+    gb_tessellator_make_monotone(impl, bounds);
 
     // need make convex or triangulation polygon?
     if (impl->mode == GB_TESSELLATOR_MODE_CONVEX || impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION)
     {
         // make triangulation region for each horizontal monotone region
-        if (!gb_tessellator_make_triangulation(impl)) return ;
+        gb_tessellator_make_triangulation(impl);
 
         // make convex? 
         if (impl->mode == GB_TESSELLATOR_MODE_CONVEX)
