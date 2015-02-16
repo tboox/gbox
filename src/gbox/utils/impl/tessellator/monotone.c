@@ -110,6 +110,28 @@ static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* i
 }
 static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* impl)
 {
+    // check
+    gb_mesh_ref_t mesh = impl->mesh;
+    tb_assert_abort(impl && mesh);
+
+    // done
+    gb_mesh_edge_ref_t edge = tb_null;
+    tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(mesh), face)
+    {
+        // the edge
+        edge = gb_mesh_face_edge(face);
+        tb_assert_abort(edge && gb_mesh_edge_lnext(edge) != edge);
+
+        // the face is inside and degenerate? only with two edges?
+        if (gb_tessellator_face_inside(face) && gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)) == edge) 
+        {
+            // trace
+            tb_trace_d("remove degenerate face");
+
+            // clear inside
+            gb_tessellator_face_inside_set(face, 0);
+        }
+    }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////

@@ -37,11 +37,17 @@
 // the tessellator edge
 #define gb_tessellator_edge(edge)                       ((gb_tessellator_edge_ref_t)gb_mesh_edge_data_fastly(edge))
 
-// the tessellator edge winding
+// the winding of tessellator edge 
 #define gb_tessellator_edge_winding(edge)               (gb_tessellator_edge(edge)->winding)
 
-// set the tessellator edge winding
+// set the winding of tessellator edge 
 #define gb_tessellator_edge_winding_set(edge, val)      do { gb_tessellator_edge(edge)->winding = (val); } while (0)
+
+// add the winding of tessellator edge 
+#define gb_tessellator_edge_winding_add(edge, val)      do { gb_tessellator_edge(edge)->winding += (val); } while (0)
+
+// merge the winding of two tessellator edges
+#define gb_tessellator_edge_winding_merge(edge, other)  (gb_tessellator_edge_winding_add(edge, gb_tessellator_edge_winding(other)), gb_tessellator_edge_winding_add(gb_mesh_edge_sym(edge), gb_tessellator_edge_winding(gb_mesh_edge_sym(other))))
 
 // the tessellator face
 #define gb_tessellator_face(face)                       ((gb_tessellator_face_ref_t)gb_mesh_face_data_fastly(face))
