@@ -32,6 +32,7 @@
  */
 #include "monotone.h"
 #include "geometry.h"
+#include "event_queue.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -39,9 +40,12 @@
 static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* impl)
 {
     // check
-    gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh);
+    tb_assert_abort(impl);
 
+    // the mesh
+    gb_mesh_ref_t mesh = impl->mesh;
+    tb_assert_abort(mesh);
+ 
     // done
     gb_mesh_edge_ref_t edge_next    = tb_null;
     gb_mesh_edge_ref_t edge_lnext   = tb_null;
@@ -111,8 +115,11 @@ static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* i
 static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* impl)
 {
     // check
+    tb_assert_abort(impl);
+
+    // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh);
+    tb_assert_abort(mesh);
 
     // done
     gb_mesh_edge_ref_t edge = tb_null;
@@ -133,6 +140,14 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
         }
     }
 }
+static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
+{
+    // check
+    tb_assert_abort(impl && event);
+
+    // trace
+    tb_trace_d("event: sweep: %{point}", gb_tessellator_vertex_point(event));
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -140,23 +155,84 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
 tb_void_t gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && bounds);
+    tb_assert_abort(impl && bounds);
+
+    // trace
+    tb_trace_d("bounds: %{rect}", bounds);
+
+    // the mesh
+    gb_mesh_ref_t mesh = impl->mesh;
+    tb_assert_abort(mesh);
 
     // remove degenerate edges
     gb_tessellator_remove_degenerate_edges(impl);
 
-    // TODO
-    tb_trace_noimpl();
+    // make event queue
+    if (!gb_tessellator_make_event_queue(impl)) return ;
 
+    // the event queue
+    tb_priority_queue_ref_t event_queue = impl->event_queue;
+    tb_assert_abort(event_queue);
+
+    // done
+    while (tb_priority_queue_size(event_queue))
+    {
+        // get the minimum vertex event
+        gb_mesh_vertex_ref_t event = tb_priority_queue_get(event_queue);
+        tb_assert_abort(event);
+
+        // pop it from the event queue first
+        tb_priority_queue_pop(event_queue);
+
+        // attempt to merge all vertices at same position as mush as possible
+        while (tb_priority_queue_size(event_queue))
+        {
+            // get the next vertex event
+            gb_mesh_vertex_ref_t event_next = tb_priority_queue_get(event_queue);
+            tb_assert_abort(event_next);
+
+            // two vertices are exactly same?
+            tb_check_break(gb_tessellator_vertex_eq(event, event_next));
+
+            // pop the next event from the event queue
+            tb_priority_queue_pop(event_queue);
+
+            // trace
+            tb_trace_d("event: merge: %{point}", gb_tessellator_vertex_point(event));
+
+            /* merge them if two vertices have same position and remove the next event vertex
+             *
+             * this is more efficient than processing them one at a time
+             * and is also important for correct handling of certain degenerate cases.
+             *
+             * we can merge them safely because all zero-length edges have been removed.
+             *
+             *  .
+             *   .      .
+             *    .   .
+             *     .. merge 
+             *   .   .
+             * .      .
+             *         .
+             */
+            gb_mesh_edge_splice(mesh, gb_mesh_vertex_edge(event), gb_mesh_vertex_edge(event_next));
+        }
+
+        // sweep this event
+        gb_tessellator_sweep_event(impl, event);
+    }
+
+#if 0
     // for testing single contour first
     gb_tessellator_face_inside_set(gb_mesh_face_last(impl->mesh), 1);
+#endif
 
     // remove degenerate faces
     gb_tessellator_remove_degenerate_faces(impl);
 
 #ifdef __gb_debug__
     // check mesh
-    gb_mesh_check(impl->mesh);
+    gb_mesh_check(mesh);
 #endif
 }
 

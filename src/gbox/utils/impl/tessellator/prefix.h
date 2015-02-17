@@ -116,6 +116,9 @@ typedef struct __gb_tessellator_impl_t
     // the output points
     tb_vector_ref_t         outputs;
 
+    // the event queue for vertex
+    tb_priority_queue_ref_t event_queue;
+
 }gb_tessellator_impl_t;
 
 #endif

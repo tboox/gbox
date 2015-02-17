@@ -107,8 +107,11 @@
 static tb_void_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
+    tb_assert_abort(impl && face);
+
+    // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh && face);
+    tb_assert_abort(mesh);
 
     // the face edge
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);

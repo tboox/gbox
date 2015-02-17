@@ -135,13 +135,15 @@ gb_color_t const gb_color_from_name(tb_char_t const* name)
     tb_assert_and_check_return_val(name, GB_COLOR_DEFAULT);
 
     // init iterator
-    tb_iterator_t iterator = tb_iterator_init_mem(g_named_colors, tb_arrayn(g_named_colors), sizeof(gb_named_color_t));
+    tb_array_iterator_t     array_iterator;
+    tb_iterator_ref_t       iterator = tb_iterator_make_for_mem(&array_iterator, g_named_colors, tb_arrayn(g_named_colors), sizeof(gb_named_color_t));
+    tb_assert_abort(iterator);
 
     // find it by the binary search
-    tb_size_t itor = tb_binary_find_all_if(&iterator, gb_named_color_comp, name);
+    tb_size_t itor = tb_binary_find_all_if(iterator, gb_named_color_comp, name);
 
     // the color
-    gb_named_color_t const* color = (itor != tb_iterator_tail(&iterator))? (gb_named_color_t const*)tb_iterator_item(&iterator, itor) : tb_null;
+    gb_named_color_t const* color = (itor != tb_iterator_tail(iterator))? (gb_named_color_t const*)tb_iterator_item(iterator, itor) : tb_null;
 
     // ok?
     return color? color->color : GB_COLOR_DEFAULT;

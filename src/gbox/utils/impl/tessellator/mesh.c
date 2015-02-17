@@ -35,6 +35,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+#ifdef __gb_debug__
 static tb_char_t const* gb_tessellator_edge_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
@@ -77,6 +78,7 @@ static tb_char_t const* gb_tessellator_vertex_cstr(tb_item_func_t* func, tb_cpoi
     // ok?
     return cstr;
 }
+#endif
 static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
 {
     // check
@@ -124,10 +126,12 @@ tb_bool_t gb_tessellator_make_mesh(gb_tessellator_impl_t* impl, gb_polygon_ref_t
         tb_item_func_t face_func    = tb_item_func_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null);
         tb_item_func_t vertex_func  = tb_item_func_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
 
-        // init func cstr
+#ifdef __gb_debug__
+        // init func cstr for gb_mesh_dump
         edge_func.cstr      = gb_tessellator_edge_cstr;
         face_func.cstr      = gb_tessellator_face_cstr;
         vertex_func.cstr    = gb_tessellator_vertex_cstr;
+#endif
 
         // init mesh
         impl->mesh = gb_mesh_init(edge_func, face_func, vertex_func);

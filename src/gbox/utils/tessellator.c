@@ -193,6 +193,10 @@ tb_void_t gb_tessellator_exit(gb_tessellator_ref_t tessellator)
     if (impl->outputs) tb_vector_exit(impl->outputs);
     impl->outputs = tb_null;
 
+    // exit event queue
+    if (impl->event_queue) tb_priority_queue_exit(impl->event_queue);
+    impl->event_queue = tb_null;
+
     // exit it
     tb_free(impl);
 }

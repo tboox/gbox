@@ -59,6 +59,7 @@ gbox_C_FILES 			+= \
 						utils/impl/tessellator/mesh \
 						utils/impl/tessellator/convex \
 						utils/impl/tessellator/monotone \
+						utils/impl/tessellator/event_queue \
 						utils/impl/tessellator/triangulation
 
 
