@@ -36,7 +36,7 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
+static tb_void_t gb_tessellator_convex_make_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
     tb_assert_abort(impl && face);
@@ -126,7 +126,7 @@ static tb_void_t gb_tessellator_make_convex_face(gb_tessellator_impl_t* impl, gb
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_tessellator_make_convex(gb_tessellator_impl_t* impl)
+tb_void_t gb_tessellator_convex_make(gb_tessellator_impl_t* impl)
 {
     // check
     tb_assert_abort(impl && impl->mesh);
@@ -138,7 +138,7 @@ tb_void_t gb_tessellator_make_convex(gb_tessellator_impl_t* impl)
         tb_check_continue(gb_tessellator_face_inside(face));
 
         // make convex region for face
-        gb_tessellator_make_convex_face(impl, face);
+        gb_tessellator_convex_make_face(impl, face);
     }
 
 #ifdef __gb_debug__

@@ -104,7 +104,7 @@
  *                 12
  *
  */
-static tb_void_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
+static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
     tb_assert_abort(impl && face);
@@ -292,7 +292,7 @@ static tb_void_t gb_tessellator_make_triangulation_face(gb_tessellator_impl_t* i
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
+tb_void_t gb_tessellator_triangulation_make(gb_tessellator_impl_t* impl)
 {
     // check
     tb_assert_abort(impl && impl->mesh);
@@ -324,7 +324,7 @@ tb_void_t gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl)
         if (gb_tessellator_face_inside(face)) 
         {
             // make triangulation for the face region
-            gb_tessellator_make_triangulation_face(impl, face);
+            gb_tessellator_triangulation_make_face(impl, face);
         }
     }
 

@@ -37,15 +37,20 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/* make the vertex event queue
- *
- * @note all vertex event will be sorted
+/* make the vertex event queue and all events are sorted
  *   
  * @param impl      the tessellator impl
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           gb_tessellator_make_event_queue(gb_tessellator_impl_t* impl);
+tb_bool_t           gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl);
+
+/* remove the vertex event from queue
+ *
+ * @param impl      the tessellator impl
+ * @param event     the vertex event
+ */
+tb_void_t           gb_tessellator_event_queue_remove(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

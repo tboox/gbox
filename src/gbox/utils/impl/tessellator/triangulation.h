@@ -41,7 +41,7 @@ __tb_extern_c_enter__
  *
  * @param impl      the tessellator impl
  */
-tb_void_t           gb_tessellator_make_triangulation(gb_tessellator_impl_t* impl);
+tb_void_t           gb_tessellator_triangulation_make(gb_tessellator_impl_t* impl);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -40,15 +40,22 @@ static tb_long_t gb_tessellator_event_queue_comp(tb_item_func_t* func, tb_cpoint
 {
     return (!gb_tessellator_vertex_leq((gb_mesh_vertex_ref_t)ldata, (gb_mesh_vertex_ref_t)rdata) << 1) - 1;
 }
+static tb_long_t gb_tessellator_event_queue_find(tb_iterator_ref_t iterator, tb_cpointer_t litem, tb_cpointer_t ritem)
+{
+    return ((tb_size_t)litem < (tb_size_t)ritem)? -1 : ((tb_size_t)litem > (tb_size_t)ritem);
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_make_event_queue(gb_tessellator_impl_t* impl)
+tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
 {
     // check
+    tb_assert_abort(impl);
+
+    // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(impl && mesh);
+    tb_assert_abort(mesh);
 
     // init event queue
     if (!impl->event_queue) 
@@ -76,4 +83,17 @@ tb_bool_t gb_tessellator_make_event_queue(gb_tessellator_impl_t* impl)
 
     // ok
     return tb_priority_queue_size(impl->event_queue);
+}
+tb_void_t gb_tessellator_event_queue_remove(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
+{
+    // check
+    tb_assert_abort(impl && impl->event_queue && event);
+
+    // find it
+    tb_size_t itor = tb_find_all_if(impl->event_queue, gb_tessellator_event_queue_find, event);
+    if (itor != tb_iterator_tail(impl->event_queue))
+    {
+        // remove this event
+        tb_priority_queue_remove(impl->event_queue, itor);
+    }
 }

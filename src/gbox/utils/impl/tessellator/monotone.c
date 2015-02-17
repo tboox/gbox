@@ -33,6 +33,7 @@
 #include "monotone.h"
 #include "geometry.h"
 #include "event_queue.h"
+#include "active_region.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -49,8 +50,8 @@ static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* i
     // done
     gb_mesh_edge_ref_t edge_next    = tb_null;
     gb_mesh_edge_ref_t edge_lnext   = tb_null;
-    gb_mesh_edge_ref_t edge = gb_mesh_edge_head(mesh);
-    gb_mesh_edge_ref_t tail = gb_mesh_edge_tail(mesh);
+    gb_mesh_edge_ref_t edge         = gb_mesh_edge_head(mesh);
+    gb_mesh_edge_ref_t tail         = gb_mesh_edge_tail(mesh);
     for (; edge != tail; edge = edge_next) 
     {
         // the next edge
@@ -152,7 +153,7 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_void_t gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
 {
     // check
     tb_assert_abort(impl && bounds);
@@ -168,7 +169,7 @@ tb_void_t gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_
     gb_tessellator_remove_degenerate_edges(impl);
 
     // make event queue
-    if (!gb_tessellator_make_event_queue(impl)) return ;
+    if (!gb_tessellator_event_queue_make(impl)) return ;
 
     // the event queue
     tb_priority_queue_ref_t event_queue = impl->event_queue;

@@ -108,7 +108,7 @@ static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_make_mesh(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon)
+tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon)
 {
     // check
     tb_assert_abort(impl && polygon);

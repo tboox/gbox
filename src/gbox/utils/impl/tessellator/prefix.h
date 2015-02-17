@@ -119,6 +119,9 @@ typedef struct __gb_tessellator_impl_t
     // the event queue for vertex
     tb_priority_queue_ref_t event_queue;
 
+    // the active regions
+    tb_list_ref_t           active_regions;
+
 }gb_tessellator_impl_t;
 
 #endif

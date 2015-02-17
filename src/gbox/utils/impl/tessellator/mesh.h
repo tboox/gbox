@@ -39,7 +39,7 @@
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           gb_tessellator_make_mesh(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon);
+tb_bool_t           gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon);
 
 #endif
 

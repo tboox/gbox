@@ -127,7 +127,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     tb_assert_abort(impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION);
 
     // make mesh
-    if (!gb_tessellator_make_mesh(impl, polygon)) return ;
+    if (!gb_tessellator_mesh_make(impl, polygon)) return ;
 
     // only two faces
     gb_mesh_ref_t mesh = impl->mesh;
@@ -137,7 +137,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     gb_tessellator_face_inside_set(gb_mesh_face_head(mesh), 1);
 
     // make triangulation region
-    gb_tessellator_make_triangulation(impl);
+    gb_tessellator_triangulation_make(impl);
 
     // done output
     gb_tessellator_done_output(impl);
@@ -148,22 +148,22 @@ static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_pol
     tb_assert_abort(impl && polygon && !polygon->convex && bounds);
 
     // make mesh
-    if (!gb_tessellator_make_mesh(impl, polygon)) return ;
+    if (!gb_tessellator_mesh_make(impl, polygon)) return ;
 
     // make horizontal monotone region
-    gb_tessellator_make_monotone(impl, bounds);
+    gb_tessellator_monotone_make(impl, bounds);
 
     // need make convex or triangulation polygon?
     if (impl->mode == GB_TESSELLATOR_MODE_CONVEX || impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION)
     {
         // make triangulation region for each horizontal monotone region
-        gb_tessellator_make_triangulation(impl);
+        gb_tessellator_triangulation_make(impl);
 
         // make convex? 
         if (impl->mode == GB_TESSELLATOR_MODE_CONVEX)
         {
             // merge triangles to the convex polygon
-            gb_tessellator_make_convex(impl);
+            gb_tessellator_convex_make(impl);
         }
     }
 
@@ -196,6 +196,10 @@ tb_void_t gb_tessellator_exit(gb_tessellator_ref_t tessellator)
     // exit event queue
     if (impl->event_queue) tb_priority_queue_exit(impl->event_queue);
     impl->event_queue = tb_null;
+
+    // exit active regions
+    if (impl->active_regions) tb_list_exit(impl->active_regions);
+    impl->active_regions = tb_null;
 
     // exit it
     tb_free(impl);

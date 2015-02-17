@@ -63,7 +63,7 @@ __tb_extern_c_enter__
  * @param impl      the tessellator impl
  * @param bounds    the polygon bounds
  */
-tb_void_t           gb_tessellator_make_monotone(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds);
+tb_void_t           gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
