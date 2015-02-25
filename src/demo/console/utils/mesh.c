@@ -59,7 +59,7 @@ static tb_void_t gb_demo_utils_mesh_splice()
     tb_trace_i("==========================================================================");
 
     // init mesh
-    gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
+    gb_mesh_ref_t mesh = gb_mesh_init(tb_element_str(tb_true), tb_element_str(tb_true), tb_element_str(tb_true));
     if (mesh)
     {
         // init listener
@@ -155,7 +155,7 @@ static tb_void_t gb_demo_utils_mesh_radiation()
     tb_trace_i("==========================================================================");
 
     // init mesh
-    gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
+    gb_mesh_ref_t mesh = gb_mesh_init(tb_element_str(tb_true), tb_element_str(tb_true), tb_element_str(tb_true));
     if (mesh)
     {
         // init listener
@@ -275,7 +275,7 @@ static tb_void_t gb_demo_utils_mesh_quadrangle()
     tb_trace_i("==========================================================================");
 
     // init mesh
-    gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
+    gb_mesh_ref_t mesh = gb_mesh_init(tb_element_str(tb_true), tb_element_str(tb_true), tb_element_str(tb_true));
     if (mesh)
     {
         // init listener
@@ -373,7 +373,7 @@ static tb_void_t gb_demo_utils_mesh_tetrahedron()
     tb_trace_i("==========================================================================");
 
     // init mesh
-    gb_mesh_ref_t mesh = gb_mesh_init(tb_item_func_str(tb_true), tb_item_func_str(tb_true), tb_item_func_str(tb_true));
+    gb_mesh_ref_t mesh = gb_mesh_init(tb_element_str(tb_true), tb_element_str(tb_true), tb_element_str(tb_true));
     if (mesh)
     {
         // init listener

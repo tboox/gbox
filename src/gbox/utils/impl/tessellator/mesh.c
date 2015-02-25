@@ -36,7 +36,7 @@
  * private implementation
  */
 #ifdef __gb_debug__
-static tb_char_t const* gb_tessellator_edge_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+static tb_char_t const* gb_tessellator_edge_cstr(tb_element_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
     gb_tessellator_edge_ref_t edge = (gb_tessellator_edge_ref_t)data;
@@ -52,7 +52,7 @@ static tb_char_t const* gb_tessellator_edge_cstr(tb_item_func_t* func, tb_cpoint
     // ok?
     return cstr;
 }
-static tb_char_t const* gb_tessellator_face_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+static tb_char_t const* gb_tessellator_face_cstr(tb_element_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
     gb_tessellator_face_ref_t face = (gb_tessellator_face_ref_t)data;
@@ -65,7 +65,7 @@ static tb_char_t const* gb_tessellator_face_cstr(tb_item_func_t* func, tb_cpoint
     // ok?
     return cstr;
 }
-static tb_char_t const* gb_tessellator_vertex_cstr(tb_item_func_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+static tb_char_t const* gb_tessellator_vertex_cstr(tb_element_t* func, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
 {
     // check
     gb_tessellator_vertex_ref_t vertex = (gb_tessellator_vertex_ref_t)data;
@@ -122,9 +122,9 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     if (!impl->mesh) 
     {
         // init func
-        tb_item_func_t edge_func    = tb_item_func_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null);
-        tb_item_func_t face_func    = tb_item_func_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null);
-        tb_item_func_t vertex_func  = tb_item_func_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
+        tb_element_t edge_func    = tb_element_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null);
+        tb_element_t face_func    = tb_element_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null);
+        tb_element_t vertex_func  = tb_element_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
 
 #ifdef __gb_debug__
         // init func cstr for gb_mesh_dump

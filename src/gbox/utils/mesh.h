@@ -36,13 +36,13 @@
 /// get the face edge
 #define gb_mesh_face_edge(face)                 (tb_assert(face), (face)->edge)
 
-/// get the face user data fastly if the item type is tb_item_func_mem()
+/// get the face user data fastly if the item type is tb_element_mem()
 #define gb_mesh_face_data_fastly(face)          (tb_assert(face), (tb_cpointer_t)((gb_mesh_face_ref_t)(face) + 1))
 
 /// get the vertex edge
 #define gb_mesh_vertex_edge(vertex)             (tb_assert(vertex), (vertex)->edge)
 
-/// get the vertex user data fastly if the item type is tb_item_func_mem()
+/// get the vertex user data fastly if the item type is tb_element_mem()
 #define gb_mesh_vertex_data_fastly(vertex)      (tb_assert(vertex), (tb_cpointer_t)((gb_mesh_vertex_ref_t)(vertex) + 1))
 
 /// get the edge sym
@@ -87,7 +87,7 @@
 /// get the edge dprev
 #define gb_mesh_edge_dprev(edge)                (tb_assert((edge) && (edge)->lnext), (edge)->lnext->sym)
 
-/// get the edge user data fastly if the item type is tb_item_func_mem()
+/// get the edge user data fastly if the item type is tb_element_mem()
 #define gb_mesh_edge_data_fastly(edge)          (tb_assert(edge), (tb_cpointer_t)((gb_mesh_edge_ref_t)(edge) + 1))
 
 /// the edge is isolated?
@@ -349,7 +349,7 @@ typedef struct{}*               gb_mesh_ref_t;
  *
  * @return                      the mesh
  */
-gb_mesh_ref_t                   gb_mesh_init(tb_item_func_t edge_func, tb_item_func_t face_func, tb_item_func_t vertex_func);
+gb_mesh_ref_t                   gb_mesh_init(tb_element_t edge_func, tb_element_t face_func, tb_element_t vertex_func);
 
 /*! exit the mesh 
  *
@@ -428,7 +428,7 @@ tb_char_t const*                gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_
 
 /*! the vertex user data
  *
- * @note please uses gb_mesh_vertex_data_fastly to get the user data more fastly if the item type is tb_item_func_mem()
+ * @note please uses gb_mesh_vertex_data_fastly to get the user data more fastly if the item type is tb_element_mem()
  *
  * @param mesh                  the mesh
  * @param vertex                the vertex
@@ -495,7 +495,7 @@ tb_char_t const*                gb_mesh_face_cstr(gb_mesh_ref_t mesh, gb_mesh_fa
 
 /*! the face user data
  *
- * @note please uses gb_mesh_face_data_fastly to get the user data more fastly if the item type is tb_item_func_mem()
+ * @note please uses gb_mesh_face_data_fastly to get the user data more fastly if the item type is tb_element_mem()
  *
  * @param mesh                  the mesh
  * @param face                  the face
@@ -578,7 +578,7 @@ tb_char_t const*                gb_mesh_edge_cstr(gb_mesh_ref_t mesh, gb_mesh_ed
 
 /*! the edge user data
  *
- * @note please uses gb_mesh_edge_data_fastly to get the user data more fastly if the item type is tb_item_func_mem()
+ * @note please uses gb_mesh_edge_data_fastly to get the user data more fastly if the item type is tb_element_mem()
  *
  * @param mesh                  the mesh
  * @param edge                  the edge

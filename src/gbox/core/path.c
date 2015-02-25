@@ -616,14 +616,14 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
     tb_assert_and_check_return_val(impl && impl->codes && impl->points, tb_false);
 
     // make polygon counts
-    if (!impl->polygon_counts) impl->polygon_counts = tb_vector_init(8, tb_item_func_uint16());
+    if (!impl->polygon_counts) impl->polygon_counts = tb_vector_init(8, tb_element_uint16());
     tb_assert_and_check_return_val(impl->polygon_counts, tb_false);
 
     // have curve?
     if (impl->flag & GB_PATH_FLAG_CURVE)
     {
         // make polygon points
-        if (!impl->polygon_points) impl->polygon_points = tb_vector_init(tb_vector_size(impl->points), tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+        if (!impl->polygon_points) impl->polygon_points = tb_vector_init(tb_vector_size(impl->points), tb_element_mem(sizeof(gb_point_t), tb_null, tb_null));
         tb_assert_and_check_return_val(impl->polygon_points, tb_false);
 
         // clear polygon points and counts
@@ -761,11 +761,11 @@ gb_path_ref_t gb_path_init()
         impl->flag = GB_PATH_FLAG_DIRTY_ALL | GB_PATH_FLAG_CLOSED | GB_PATH_FLAG_SINGLE;
 
         // init codes
-        impl->codes = tb_vector_init(GB_PATH_POINTS_GROW >> 1, tb_item_func_uint8());
+        impl->codes = tb_vector_init(GB_PATH_POINTS_GROW >> 1, tb_element_uint8());
         tb_assert_and_check_break(impl->codes);
 
         // init points
-        impl->points = tb_vector_init(GB_PATH_POINTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+        impl->points = tb_vector_init(GB_PATH_POINTS_GROW, tb_element_mem(sizeof(gb_point_t), tb_null, tb_null));
         tb_assert_and_check_break(impl->points);
 
         // init iterator

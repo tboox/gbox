@@ -36,13 +36,13 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_long_t gb_tessellator_event_queue_comp(tb_item_func_t* func, tb_cpointer_t ldata, tb_cpointer_t rdata)
+static tb_long_t gb_tessellator_event_queue_comp(tb_element_ref_t element, tb_cpointer_t ldata, tb_cpointer_t rdata)
 {
     return (!gb_tessellator_vertex_leq((gb_mesh_vertex_ref_t)ldata, (gb_mesh_vertex_ref_t)rdata) << 1) - 1;
 }
-static tb_long_t gb_tessellator_event_queue_find(tb_iterator_ref_t iterator, tb_cpointer_t litem, tb_cpointer_t ritem)
+static tb_bool_t gb_tessellator_event_queue_find(tb_iterator_ref_t iterator, tb_cpointer_t item, tb_cpointer_t value)
 {
-    return ((tb_size_t)litem < (tb_size_t)ritem)? -1 : ((tb_size_t)litem > (tb_size_t)ritem);
+    return item == value;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -60,14 +60,14 @@ tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
     // init event queue
     if (!impl->event_queue) 
     {
-        // make event func
-        tb_item_func_t func = tb_item_func_ptr(tb_null, tb_null);
+        // make event element
+        tb_element_t element = tb_element_ptr(tb_null, tb_null);
 
         // init the comparator for the vertex event
-        func.comp = gb_tessellator_event_queue_comp;
+        element.comp = gb_tessellator_event_queue_comp;
 
         // make event queue
-        impl->event_queue = tb_priority_queue_init(0, func);
+        impl->event_queue = tb_priority_queue_init(0, element);
     }
     tb_assert_abort_and_check_return_val(impl->event_queue, tb_false);
 

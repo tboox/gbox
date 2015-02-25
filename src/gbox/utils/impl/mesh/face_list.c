@@ -66,8 +66,8 @@ typedef struct __gb_mesh_face_list_impl_t
     // the head
     tb_list_entry_head_t        head;
 
-    // the func
-    tb_item_func_t              func;
+    // the element
+    tb_element_t                element;
 
     // the order
     tb_size_t                   order;
@@ -89,16 +89,16 @@ static tb_void_t gb_mesh_face_exit(tb_pointer_t data, tb_cpointer_t priv)
     tb_assert_and_check_return(impl && data);
 
     // exit the user data
-    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_face_ref_t)data + 1));
+    impl->element.free(&impl->element, (tb_pointer_t)((gb_mesh_face_ref_t)data + 1));
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_mesh_face_list_ref_t gb_mesh_face_list_init(tb_item_func_t func)
+gb_mesh_face_list_ref_t gb_mesh_face_list_init(tb_element_t element)
 {
     // check
-    tb_assert_and_check_return_val(func.data && func.dupl && func.repl, tb_null);
+    tb_assert_and_check_return_val(element.data && element.dupl && element.repl, tb_null);
 
     // done
     tb_bool_t                   ok = tb_false;
@@ -109,15 +109,15 @@ gb_mesh_face_list_ref_t gb_mesh_face_list_init(tb_item_func_t func)
         impl = tb_malloc0_type(gb_mesh_face_list_impl_t);
         tb_assert_and_check_break(impl);
 
-        // init func
-        impl->func = func;
+        // init element
+        impl->element = element;
 
         // init pool, item = face + data
-        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_FACE_LIST_GROW, sizeof(gb_mesh_face_t) + func.size, tb_null, gb_mesh_face_exit, (tb_cpointer_t)impl);
+        impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_FACE_LIST_GROW, sizeof(gb_mesh_face_t) + element.size, tb_null, gb_mesh_face_exit, (tb_cpointer_t)impl);
         tb_assert_and_check_break(impl->pool);
 
         // init head
-        tb_list_entry_init_(&impl->head, 0, sizeof(gb_mesh_face_t) + func.size, tb_null);
+        tb_list_entry_init_(&impl->head, 0, sizeof(gb_mesh_face_t) + element.size, tb_null);
 
         // init order
         impl->order = GB_MESH_ORDER_INSERT_TAIL;
@@ -224,14 +224,14 @@ tb_char_t const* gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_fa
 {
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->func.cstr && face && maxn, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.cstr && face && maxn, tb_null);
   
     // make it
     tb_char_t info[256] = {0};
 #ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->func.cstr(&impl->func, gb_mesh_face_list_data(list, face), info, sizeof(info)));
+    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, gb_mesh_face_list_data(list, face), info, sizeof(info)));
 #else
-    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->func.cstr(&impl->func, gb_mesh_face_list_data(list, face), info, sizeof(info)));
+    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, gb_mesh_face_list_data(list, face), info, sizeof(info)));
 #endif
     if (size >= 0) data[size] = '\0';
 
@@ -262,19 +262,19 @@ tb_cpointer_t gb_mesh_face_list_data(gb_mesh_face_list_ref_t list, gb_mesh_face_
 {
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->func.data && face, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.data && face, tb_null);
 
     // the user data
-    return impl->func.data(&impl->func, gb_mesh_face_user(face));
+    return impl->element.data(&impl->element, gb_mesh_face_user(face));
 }
 tb_void_t gb_mesh_face_list_data_set(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_cpointer_t data)
 {
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
-    tb_assert_and_check_return(impl && impl->func.repl && face);
+    tb_assert_and_check_return(impl && impl->element.repl && face);
 
     // set the user data
-    impl->func.repl(&impl->func, gb_mesh_face_user(face), data);
+    impl->element.repl(&impl->element, gb_mesh_face_user(face), data);
 }
 tb_size_t gb_mesh_face_list_order(gb_mesh_face_list_ref_t list)
 {

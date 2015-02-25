@@ -398,7 +398,7 @@ static tb_bool_t gb_mesh_kill_isolated_edge(gb_mesh_impl_t* impl, gb_mesh_edge_r
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_mesh_ref_t gb_mesh_init(tb_item_func_t edge_func, tb_item_func_t face_func, tb_item_func_t vertex_func)
+gb_mesh_ref_t gb_mesh_init(tb_element_t edge_func, tb_element_t face_func, tb_element_t vertex_func)
 {
     // done
     tb_bool_t           ok = tb_false;

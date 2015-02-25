@@ -47,11 +47,11 @@ typedef struct{}*           gb_mesh_face_list_ref_t;
 
 /* init the mesh face list 
  *
- * @param func              the item func
+ * @param element           the element
  *
  * @return                  the face list
  */
-gb_mesh_face_list_ref_t     gb_mesh_face_list_init(tb_item_func_t func);
+gb_mesh_face_list_ref_t     gb_mesh_face_list_init(tb_element_t element);
 
 /* exit the mesh face list
  *

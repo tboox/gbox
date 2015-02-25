@@ -47,11 +47,11 @@ typedef struct{}*           gb_mesh_edge_list_ref_t;
 
 /* init the mesh edge list 
  *
- * @param func              the item func
+ * @param element           the element
  *
  * @return                  the edge list
  */
-gb_mesh_edge_list_ref_t     gb_mesh_edge_list_init(tb_item_func_t func);
+gb_mesh_edge_list_ref_t     gb_mesh_edge_list_init(tb_element_t element);
 
 /* exit the mesh edge list
  *

@@ -87,7 +87,7 @@ gb_canvas_ref_t gb_canvas_init(gb_device_ref_t device)
         gb_matrix_clear(&impl->matrix);
 
         // init matrix stack
-        impl->matrix_stack = tb_stack_init(8, tb_item_func_mem(sizeof(gb_matrix_t), tb_null, tb_null));
+        impl->matrix_stack = tb_stack_init(8, tb_element_mem(sizeof(gb_matrix_t), tb_null, tb_null));
         tb_assert_and_check_break(impl->matrix_stack);
 
         // init path stack

@@ -53,7 +53,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
     tb_assert_abort(impl && impl->mesh && impl->func);
 
     // init outputs first
-    if (!impl->outputs) impl->outputs = tb_vector_init(GB_TESSELLATOR_OUTPUTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+    if (!impl->outputs) impl->outputs = tb_vector_init(GB_TESSELLATOR_OUTPUTS_GROW, tb_element_mem(sizeof(gb_point_t), tb_null, tb_null));
 
     // check outputs
     tb_vector_ref_t outputs = impl->outputs;

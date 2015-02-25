@@ -75,8 +75,8 @@ typedef struct __gb_mesh_edge_list_impl_t
     // the order
     tb_size_t                       order;
 
-    // the func
-    tb_item_func_t                  func;
+    // the element
+    tb_element_t                    element;
 
 #ifdef __gb_debug__
     // the id
@@ -95,8 +95,8 @@ static tb_void_t gb_mesh_edge_exit(tb_pointer_t data, tb_cpointer_t priv)
     tb_assert_and_check_return(impl && data);
 
     // exit the user data
-    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_edge_ref_t)data + 1));
-    impl->func.free(&impl->func, (tb_pointer_t)((gb_mesh_edge_ref_t)((tb_byte_t*)data + impl->edge_size) + 1));
+    impl->element.free(&impl->element, (tb_pointer_t)((gb_mesh_edge_ref_t)data + 1));
+    impl->element.free(&impl->element, (tb_pointer_t)((gb_mesh_edge_ref_t)((tb_byte_t*)data + impl->edge_size) + 1));
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -246,10 +246,10 @@ static tb_pointer_t gb_mesh_edge_itor_item(tb_iterator_ref_t iterator, tb_size_t
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_item_func_t func)
+gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_element_t element)
 {
     // check
-    tb_assert_and_check_return_val(func.data && func.dupl && func.repl, tb_null);
+    tb_assert_and_check_return_val(element.data && element.dupl && element.repl, tb_null);
 
     // done
     tb_bool_t                   ok = tb_false;
@@ -260,14 +260,14 @@ gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_item_func_t func)
         impl = tb_malloc0_type(gb_mesh_edge_list_impl_t);
         tb_assert_and_check_break(impl);
 
-        // init func
-        impl->func = func;
+        // init element
+        impl->element = element;
 
         // init order
         impl->order = GB_MESH_ORDER_INSERT_TAIL;
 
         // init edge size
-        impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + func.size);
+        impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + element.size);
 
         // init iterator
         impl->itor.mode = TB_ITERATOR_MODE_FORWARD | TB_ITERATOR_MODE_REVERSE | TB_ITERATOR_MODE_READONLY;
@@ -447,15 +447,15 @@ tb_char_t const* gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_ed
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->func.cstr && edge && maxn, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.cstr && edge && maxn, tb_null);
 
     // make the edge info
     tb_char_t edge_info[4096] = {0};
-    tb_char_t const* pedge_info = impl->func.cstr(&impl->func, gb_mesh_edge_list_data(list, edge), edge_info, sizeof(edge_info));
+    tb_char_t const* pedge_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge), edge_info, sizeof(edge_info));
 
     // make the sym edge info
     tb_char_t edge_sym_info[4096] = {0};
-    tb_char_t const* pedge_sym_info = impl->func.cstr(&impl->func, gb_mesh_edge_list_data(list, edge->sym), edge_sym_info, sizeof(edge_sym_info));
+    tb_char_t const* pedge_sym_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge->sym), edge_sym_info, sizeof(edge_sym_info));
 
     // make it
 #ifdef __gb_debug__
@@ -496,19 +496,19 @@ tb_cpointer_t gb_mesh_edge_list_data(gb_mesh_edge_list_ref_t list, gb_mesh_edge_
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->func.data && edge, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.data && edge, tb_null);
 
     // the user data
-    return impl->func.data(&impl->func, gb_mesh_edge_user(edge));
+    return impl->element.data(&impl->element, gb_mesh_edge_user(edge));
 }
 tb_void_t gb_mesh_edge_list_data_set(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_cpointer_t data)
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
-    tb_assert_and_check_return(impl && impl->func.repl && edge);
+    tb_assert_and_check_return(impl && impl->element.repl && edge);
 
     // set the user data
-    impl->func.repl(&impl->func, gb_mesh_edge_user(edge), data);
+    impl->element.repl(&impl->element, gb_mesh_edge_user(edge), data);
 }
 tb_size_t gb_mesh_edge_list_order(gb_mesh_edge_list_ref_t list)
 {

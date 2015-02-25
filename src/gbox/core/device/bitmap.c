@@ -246,11 +246,11 @@ gb_device_ref_t gb_device_init_bitmap(gb_bitmap_ref_t bitmap)
         tb_assert_and_check_break(impl->stroker);
 
         // init points
-        impl->points = tb_vector_init(GB_DEVICE_BITMAP_POINTS_GROW, tb_item_func_mem(sizeof(gb_point_t), tb_null, tb_null));
+        impl->points = tb_vector_init(GB_DEVICE_BITMAP_POINTS_GROW, tb_element_mem(sizeof(gb_point_t), tb_null, tb_null));
         tb_assert_and_check_break(impl->points);
 
         // init counts
-        impl->counts = tb_vector_init(8, tb_item_func_uint16());
+        impl->counts = tb_vector_init(8, tb_element_uint16());
         tb_assert_and_check_break(impl->counts);
 
         // ok

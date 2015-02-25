@@ -157,11 +157,11 @@ gb_cache_stack_ref_t gb_cache_stack_init(tb_size_t grow, tb_size_t type)
         impl->cache_size    = grow? grow : 8;
 
         // init cache
-        impl->cache = tb_stack_init(grow, tb_item_func_ptr(tb_null, tb_null));
+        impl->cache = tb_stack_init(grow, tb_element_ptr(tb_null, tb_null));
         tb_assert_and_check_break(impl->cache);
 
         // init stack
-        impl->stack = tb_stack_init(grow, tb_item_func_ptr(tb_null, tb_null));
+        impl->stack = tb_stack_init(grow, tb_element_ptr(tb_null, tb_null));
         tb_assert_and_check_break(impl->stack);
 
         // ok
