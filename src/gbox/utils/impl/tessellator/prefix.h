@@ -113,6 +113,9 @@ typedef struct __gb_tessellator_impl_t
     // the mesh
     gb_mesh_ref_t           mesh;
 
+    // the current sweep event for the active_region.leq
+    gb_mesh_vertex_ref_t    event;
+
     // the output points
     tb_vector_ref_t         outputs;
 

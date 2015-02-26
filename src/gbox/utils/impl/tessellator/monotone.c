@@ -146,6 +146,9 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
     // check
     tb_assert_abort(impl && event);
 
+    // update the current sweep event for the active_region.leq
+    impl->event = event;
+
     // trace
     tb_trace_d("event: sweep: %{point}", gb_tessellator_vertex_point(event));
 }

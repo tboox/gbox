@@ -90,7 +90,10 @@ __tb_extern_c_enter__
  
 // v is on edge(u, l) or it's bottom?
 #define gb_tessellator_vertex_on_edge_or_bottom(v, l, r)    gb_point_on_segment_or_bottom(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(l), gb_tessellator_vertex_point(r))
-
+ 
+// the horizontal distance of v to edge(u, l)
+#define gb_tessellator_vertex_to_edge_distance_h(v, u, l)   gb_point_to_segment_distance_h(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l))
+ 
 /* the edge goes up?
  *  __                   __
  * | .                   . |

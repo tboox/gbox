@@ -39,22 +39,25 @@ __tb_extern_c_enter__
 
 /* the active region type
  *
- *    . . . . . . . 
- *   /.\
- *    .
- *    .
- *    .   region
- *    .
- *    .
- * edge_left
+ *  /.\                                     .              /.\
+ *   .                 .                   .   .            .
+ *   .               .   .                .       .         .
+ *   .  region1    .       .             .           .      .
+ *   .           .           .  region3 .                   .
+ *   . ------- . - region2 --- . ---- event --------------- . ----- sweep line
+ *   .       .                   .     .                    .
+ *   .    edge2                edge3   .    region4         . region5
+ *   .                                 .                    .
+ * edge1                             edge4                edge5
+ *(bound)                                                (bound)
  */
 typedef struct __gb_tessellator_active_region_t
 {
     // the region position
     tb_size_t               position;
 
-    // the left edge and goes up
-    gb_mesh_edge_ref_t      edge_left;
+    // the left edge and it goes up
+    gb_mesh_edge_ref_t      edge;
 
     // the winding
     tb_long_t               winding;
@@ -76,13 +79,13 @@ typedef struct __gb_tessellator_active_region_t
  */
 tb_bool_t                           gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl);
 
-/* insert a new active region
+/* insert a new active region in ascending order
  *
  * @code
     {
         // init region
         gb_tessellator_active_region_t region;
-        region.edge_left    = ...; //< must be initialized
+        region.edge         = ...; //< must be initialized
         region.inside       = 0;
         region.winding      = 0;
         ...
@@ -97,7 +100,7 @@ tb_bool_t                           gb_tessellator_active_regions_make(gb_tessel
  */
 tb_void_t                           gb_tessellator_active_regions_insert(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
 
-/* insert a new active region before the tail region
+/* insert a new active region before the tail region in ascending order
  *
  * r0 <---- r1 <------ r2 <------- r3 <--- ... <---- 
  *                              region_tail
@@ -117,14 +120,23 @@ tb_void_t                           gb_tessellator_active_regions_insert_before(
  */
 tb_void_t                           gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
 
-/* find region with the given left edge from the regions
+/* find the region containing the given edge from the regions
+ *
+ *         =>
+ * .                .
+ * .                .
+ * .     region     .
+ * .                .
+ * .         .      .
+ * .       .        .
+ * .     . edge     .
  *
  * @param impl                      the tessellator impl
- * @param edge_left                 the left edge of the region
+ * @param edge                      the edge
  *
  * @return                          the region
  */
-gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_find(gb_tessellator_impl_t* impl, gb_mesh_edge_ref_t edge_left);
+gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_find(gb_tessellator_impl_t* impl, gb_mesh_edge_ref_t edge);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -36,19 +36,148 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static tb_bool_t gb_tessellator_active_region_leq(gb_mesh_vertex_ref_t event, gb_tessellator_active_region_ref_t lregion, gb_tessellator_active_region_ref_t rregion)
+{
+    // check
+    tb_assert_abort(event && lregion && rregion);
+
+    // the edges
+    gb_mesh_edge_ref_t ledge = lregion->edge;
+    gb_mesh_edge_ref_t redge = rregion->edge;
+    tb_assert_abort(ledge && redge);
+
+    /* two edges must go up
+     *
+     *  / \     / \
+     *   |       |
+     */
+    tb_assert_abort(gb_tessellator_vertex_in_top(gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge)));
+    tb_assert_abort(gb_tessellator_vertex_in_top(gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge)));
+
+    /* 
+     *        event      
+     *         .      
+     * ledge .           
+     *     .                                       
+     *
+     */
+    if (gb_mesh_edge_dst(ledge) == event)
+    {
+        /* 
+         *           event
+         *             .
+         *     ledge .   .
+         *         .       . redge
+         *       .           .
+         *
+         */
+        if (gb_mesh_edge_dst(redge) == event)
+        {
+            /* 
+             *           event
+             *             .
+             *     ledge .   .
+             *         .       . redge
+             *       . --------  .
+             *                     .
+             *                       .
+             *
+             */
+            if (gb_tessellator_vertex_in_top(gb_mesh_edge_org(ledge), gb_mesh_edge_org(redge))) 
+                return gb_tessellator_vertex_on_edge_or_left(gb_mesh_edge_org(ledge), gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
+
+            /* 
+             *         event        
+             *           .                      
+             *         .   . redge      
+             * ledge .       .           
+             *     . --------- .       
+             *   .                                 
+             * .                                         
+             *
+             */
+            return gb_tessellator_vertex_on_edge_or_right(gb_mesh_edge_org(redge), gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge));
+        }
+
+        /* 
+         *         event    .     
+         *           . ------ .              
+         *         .            . redge      
+         * ledge .                .           
+         *     .                    .       
+         *   .                                 
+         * .                                         
+         *
+         */
+        return gb_tessellator_vertex_on_edge_or_left(event, gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
+    }
+    /*  event
+     *     .
+     *       . redge
+     *         .
+     */
+    else if (gb_mesh_edge_dst(redge) == event)
+    {
+        /* 
+         *             .      event        
+         *           . -------- .                      
+         *         .              . redge      
+         * ledge .                  .           
+         *     .                      .       
+         *   .                                 
+         * .                                         
+         *
+         */
+        return gb_tessellator_vertex_on_edge_or_right(event, gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge));
+    }
+
+    /* 
+     *             .              
+     *           .          .                      
+     *         . ld       rd  . redge      
+     * ledge . ------ . ------- .           
+     *     .   > 0 event  < 0     .       
+     *   .                                 
+     * .       
+     *
+     *             .              
+     *           .          .                      
+     *         .              . redge      
+     * ledge . ---------------- . ----------- .          
+     *     .                      .  rd > 0  event
+     *   .                                 
+     * .       |------------------------------|
+     *                      ld > 0
+     *
+     *                         .              
+     *                       .          .                      
+     *        ld < 0       .              . redge      
+     *  . -------- ledge . ---------------- .           
+     * event           .                      .       
+     *               .                                 
+     *             .      
+     *  |-----------------------------------|
+     *                 rd < 0
+     */
+    gb_float_t ld = gb_tessellator_vertex_to_edge_distance_h(event, gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge));
+    gb_float_t rd = gb_tessellator_vertex_to_edge_distance_h(event, gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
+
+    // ledge <= redge?
+    return ld >= rd;
+}
 static tb_long_t gb_tessellator_active_region_comp(tb_element_ref_t element, tb_cpointer_t ldata, tb_cpointer_t rdata)
 {
-    // the regions
-    gb_tessellator_active_region_ref_t lregion = (gb_tessellator_active_region_ref_t)ldata;
-    gb_tessellator_active_region_ref_t rregion = (gb_tessellator_active_region_ref_t)rdata;
-    tb_assert_abort(lregion && rregion);
+    // check
+    gb_tessellator_impl_t* impl = (gb_tessellator_impl_t*)element->priv;
+    tb_assert_abort(impl);
 
-    // TODO
-    return 0;
+    // lregion <= rregion ? -1 : 1
+    return (!gb_tessellator_active_region_leq(impl->event, (gb_tessellator_active_region_ref_t)ldata, (gb_tessellator_active_region_ref_t)rdata) << 1) - 1;
 }
 static tb_bool_t gb_tessellator_active_region_find(tb_iterator_ref_t iterator, tb_cpointer_t item, tb_cpointer_t value)
 {
-    return tb_iterator_comp(iterator, item, value) <= 0;
+    // item <= value? the result is only -1 and 1
+    return tb_iterator_comp(iterator, item, value) < 0;
 }
 #ifdef __gb_debug__
 static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t element, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
@@ -58,14 +187,14 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
     tb_assert_and_check_return_val(region, tb_null);
 
     // the left edge
-    gb_mesh_edge_ref_t edge_left = region->edge_left;
+    gb_mesh_edge_ref_t edge = region->edge;
 
     // make info
     tb_long_t size = tb_snprintf(   cstr
                                 ,   maxn
                                 ,   "(%{point} => %{point}, winding: %ld, inside: %d)"
-                                ,   gb_tessellator_vertex_point(gb_mesh_edge_org(edge_left))
-                                ,   gb_tessellator_vertex_point(gb_mesh_edge_dst(edge_left))
+                                ,   gb_tessellator_vertex_point(gb_mesh_edge_org(edge))
+                                ,   gb_tessellator_vertex_point(gb_mesh_edge_dst(edge))
                                 ,   region->winding
                                 ,   region->inside);
     if (size >= 0) cstr[size] = '\0';
@@ -77,7 +206,7 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
 static tb_void_t gb_tessellator_active_regions_insert_done(gb_tessellator_impl_t* impl, tb_size_t tail, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && region && region->edge_left);
+    tb_assert_abort(impl && impl->active_regions && region && region->edge);
 
     // reverse to find the inserted position
     tb_size_t itor = tb_rfind_if(impl->active_regions, tb_iterator_head(impl->active_regions), tail, gb_tessellator_active_region_find, region);
@@ -110,7 +239,7 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl)
     if (!impl->active_regions) 
     {
         // make active region element
-        tb_element_t element = tb_element_mem(sizeof(gb_tessellator_active_region_t), tb_null, tb_null);
+        tb_element_t element = tb_element_mem(sizeof(gb_tessellator_active_region_t), tb_null, impl);
 
         // init the comparator 
         element.comp = gb_tessellator_active_region_comp;
@@ -162,17 +291,17 @@ tb_void_t gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_t
     // remove it
     tb_list_remove(impl->active_regions, region->position);
 }
-gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessellator_impl_t* impl, gb_mesh_edge_ref_t edge_left)
+gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessellator_impl_t* impl, gb_mesh_edge_ref_t edge)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && edge_left);
+    tb_assert_abort(impl && impl->active_regions && edge);
 
-    // make a temporary region with the given left edge for finding it
+    // make a temporary region with the given edge for finding the real region containing it
     gb_tessellator_active_region_t region_temp;
-    region_temp.edge_left = edge_left;
+    region_temp.edge = edge;
 
     // find it
-    tb_size_t itor = tb_find_all(impl->active_regions, &region_temp);
+    tb_size_t itor = tb_rfind_all_if(impl->active_regions, gb_tessellator_active_region_find, &region_temp);
 
     // get the found item
     return (itor != tb_iterator_tail(impl->active_regions))? (gb_tessellator_active_region_ref_t)tb_iterator_item(impl->active_regions, itor) : tb_null;
