@@ -196,7 +196,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
             // connect an edge to the first edge
             edge = gb_mesh_edge_connect(mesh, edge, edge_first);
 
-            // init face.inside
+            // init edge.faces.inside
             gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
             gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge), 0);
 
@@ -255,6 +255,29 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     // ok?
     return !gb_mesh_is_empty(mesh);
 }
+gb_mesh_edge_ref_t gb_tessellator_mesh_make_edge(gb_tessellator_impl_t* impl, gb_point_ref_t org, gb_point_ref_t dst)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh);
 
+    // make edge
+    gb_mesh_edge_ref_t edge = gb_mesh_edge_make(impl->mesh);
+    tb_assert_and_check_return_val(edge, tb_null);
 
+    // init edge.winding
+    gb_tessellator_edge_winding_set(edge, 0);
+    gb_tessellator_edge_winding_set(gb_mesh_edge_sym(edge), 0);
+
+    // init edge.faces.inside, lface == rface
+    gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
+
+    // init edge.org
+    if (org) gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge), *org);
+
+    // init edge.dst
+    if (dst) gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), *dst);
+
+    // ok
+    return edge;
+}
 

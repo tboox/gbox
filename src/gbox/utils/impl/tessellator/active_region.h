@@ -65,6 +65,9 @@ typedef struct __gb_tessellator_active_region_t
     // is inside?
     tb_uint8_t              inside : 1;
 
+    // is bounds?
+    tb_uint8_t              bounds : 1;
+
 }gb_tessellator_active_region_t, *gb_tessellator_active_region_ref_t;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -74,10 +77,11 @@ typedef struct __gb_tessellator_active_region_t
 /* make the active regions and all regions are sorted
  *
  * @param impl                      the tessellator impl
+ * @param bounds                    the bounds of the polygon
  *
  * @return                          tb_true or tb_false
  */
-tb_bool_t                           gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl);
+tb_bool_t                           gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds);
 
 /* insert a new active region in ascending order
  *

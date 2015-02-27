@@ -174,6 +174,9 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
     // make event queue
     if (!gb_tessellator_event_queue_make(impl)) return ;
 
+    // make active regions
+    if (!gb_tessellator_active_regions_make(impl, bounds)) return ;
+
     // the event queue
     tb_priority_queue_ref_t event_queue = impl->event_queue;
     tb_assert_abort(event_queue);

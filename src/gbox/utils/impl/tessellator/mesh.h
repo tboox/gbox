@@ -41,6 +41,16 @@
  */
 tb_bool_t           gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon);
 
+/* make an empty non-loop edge and initialize it
+ *
+ * @param impl      the tessellator impl
+ * @param org       the original point, do not initialize it if be null
+ * @param dst       the destinate point, do not initialize it if be null
+ *
+ * @return          the edge
+ */
+gb_mesh_edge_ref_t  gb_tessellator_mesh_make_edge(gb_tessellator_impl_t* impl, gb_point_ref_t org, gb_point_ref_t dst);
+
 #endif
 
 

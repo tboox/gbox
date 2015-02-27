@@ -32,6 +32,14 @@
  */
 #include "active_region.h"
 #include "geometry.h"
+#include "mesh.h"
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// enable test?
+#define GB_ACTIVE_REGION_TEST_ENABLE    (0)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -174,11 +182,6 @@ static tb_long_t gb_tessellator_active_region_comp(tb_element_ref_t element, tb_
     // lregion <= rregion ? -1 : 1
     return (!gb_tessellator_active_region_leq(impl->event, (gb_tessellator_active_region_ref_t)ldata, (gb_tessellator_active_region_ref_t)rdata) << 1) - 1;
 }
-static tb_bool_t gb_tessellator_active_region_find(tb_iterator_ref_t iterator, tb_cpointer_t item, tb_cpointer_t value)
-{
-    // item <= value? the result is only -1 and 1
-    return tb_iterator_comp(iterator, item, value) < 0;
-}
 #ifdef __gb_debug__
 static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t element, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
 {
@@ -186,7 +189,7 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
     gb_tessellator_active_region_ref_t region = (gb_tessellator_active_region_ref_t)data;
     tb_assert_and_check_return_val(region, tb_null);
 
-    // the left edge
+    // the edge
     gb_mesh_edge_ref_t edge = region->edge;
 
     // make info
@@ -203,13 +206,23 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
     return cstr;
 }
 #endif
+/* insert region in ascending order and save the region position
+ *
+ * r0 <---- r1 <------ r2 <------- r3 <--- ... <---- 
+ *                              region_tail
+ *                 <----------------|
+ *                      insert
+ */
 static tb_void_t gb_tessellator_active_regions_insert_done(gb_tessellator_impl_t* impl, tb_size_t tail, gb_tessellator_active_region_ref_t region)
 {
     // check
     tb_assert_abort(impl && impl->active_regions && region && region->edge);
 
+    // trace
+    tb_trace_d("insert: %{point} => %{point}", gb_tessellator_vertex_point(gb_mesh_edge_org(region->edge)), gb_tessellator_vertex_point(gb_mesh_edge_dst(region->edge)));
+
     // reverse to find the inserted position
-    tb_size_t itor = tb_rfind_if(impl->active_regions, tb_iterator_head(impl->active_regions), tail, gb_tessellator_active_region_find, region);
+    tb_size_t itor = tb_rfind_if(impl->active_regions, tb_iterator_head(impl->active_regions), tail, tb_predicate_le, region);
 
     // insert the region to the next position
     itor = tb_list_insert_next(impl->active_regions, itor, region);
@@ -223,13 +236,129 @@ static tb_void_t gb_tessellator_active_regions_insert_done(gb_tessellator_impl_t
     region->position = itor;
 }
 
+/* insert region for the bounds in ascending order
+ *
+ * dst(event)
+ * / \
+ *  |  region
+ *  |
+ * org
+ */
+static tb_void_t gb_tessellator_active_regions_insert_bounds(gb_tessellator_impl_t* impl, gb_float_t x, gb_float_t y_org, gb_float_t y_dst)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && impl->active_regions);
+
+    // init two points of the new edge
+    gb_point_t org;
+    gb_point_t dst;
+    gb_point_make(&org, x, y_org);
+    gb_point_make(&dst, x, y_dst);
+
+    // make edge
+    gb_mesh_edge_ref_t edge = gb_tessellator_mesh_make_edge(impl, &org, &dst);
+    tb_assert_abort(edge);
+
+    // update the current sweep event for inserting region in ascending order
+    impl->event = gb_mesh_edge_dst(edge);
+
+    // make region
+    gb_tessellator_active_region_t region;
+    region.edge     = edge;
+    region.winding  = 0;
+    region.inside   = 0;
+    region.bounds   = 1;
+
+    // insert region
+    gb_tessellator_active_regions_insert(impl, &region);
+}
+#if GB_ACTIVE_REGION_TEST_ENABLE && defined(__gb_debug__)
+static tb_void_t gb_tessellator_active_regions_test_insert(gb_tessellator_impl_t* impl, gb_float_t sweep_xb, gb_float_t sweep_xe, gb_float_t sweep_y)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && impl->active_regions);
+
+    // init coordinates
+    tb_long_t xb = tb_random_range(tb_null, gb_float_to_long(sweep_xb), gb_float_to_long(sweep_xe));
+    tb_long_t xe = tb_random_range(tb_null, gb_float_to_long(sweep_xb), gb_float_to_long(sweep_xe));
+    tb_long_t yb = tb_random_range(tb_null, 1, 200);
+    tb_long_t ye = tb_random_range(tb_null, 1, 200);
+
+    // init two points of the new edge
+    gb_point_t org;
+    gb_point_t dst;
+    gb_point_make(&org, gb_long_to_float(xb), sweep_y + gb_long_to_float(yb));
+    gb_point_make(&dst, gb_long_to_float(xe), sweep_y - gb_long_to_float(ye));
+
+    // make edge
+    gb_mesh_edge_ref_t edge = gb_tessellator_mesh_make_edge(impl, &org, &dst);
+    tb_assert_abort(edge);
+
+    // make region
+    gb_tessellator_active_region_t region;
+    region.edge     = edge;
+    region.winding  = 0;
+    region.inside   = 0;
+    region.bounds   = 1;
+
+    // insert region
+    gb_tessellator_active_regions_insert(impl, &region);
+}
+static tb_void_t gb_tessellator_active_regions_test(gb_tessellator_impl_t* impl, gb_float_t sweep_xb, gb_float_t sweep_xe, gb_float_t sweep_y)
+{
+    // check
+    tb_assert_abort(impl && impl->active_regions);
+
+    // make the current sweep event point
+    gb_point_t point;
+    gb_point_make(&point, gb_avg(sweep_xb, sweep_xe), sweep_y);
+
+    // update the current sweep event for inserting region in ascending order
+    tb_byte_t vertex[sizeof(gb_mesh_vertex_t) + sizeof(gb_tessellator_vertex_t)];
+    impl->event = (gb_mesh_vertex_ref_t)vertex;
+    gb_tessellator_vertex_point_set(impl->event, point);
+
+    // insert some regions 
+    __tb_volatile__ tb_size_t count = 20;
+    while (count--) gb_tessellator_active_regions_test_insert(impl, sweep_xb, sweep_xe, sweep_y);
+
+    // make the codes for drawing sweep line
+    tb_printf(  "    gb_canvas_color_set(canvas, GB_COLOR_BLACK);\n");
+    tb_printf(  "    gb_canvas_draw_line2i(canvas, %ld, %ld, %ld, %ld);\n"
+            ,   gb_float_to_long(sweep_xb)
+            ,   gb_float_to_long(sweep_y)
+            ,   gb_float_to_long(sweep_xe)
+            ,   gb_float_to_long(sweep_y));
+
+    // dump the codes for drawing
+    tb_size_t index = 1;
+    tb_for_all_if (gb_tessellator_active_region_ref_t, region, impl->active_regions, region)
+    {
+        // the edge
+        gb_mesh_edge_ref_t edge = region->edge;
+
+        // the points
+        gb_point_ref_t org = gb_tessellator_vertex_point(gb_mesh_edge_org(edge));
+        gb_point_ref_t dst = gb_tessellator_vertex_point(gb_mesh_edge_dst(edge));
+
+        // make the codes
+        tb_printf(  "    gb_canvas_color_set(canvas, gb_color_from_index(%lu));\n", index++);
+        tb_printf(  "    gb_canvas_draw_line2i(canvas, %ld, %ld, %ld, %ld);\n"
+                ,   gb_float_to_long(org->x)
+                ,   gb_float_to_long(org->y)
+                ,   gb_float_to_long(dst->x)
+                ,   gb_float_to_long(dst->y));
+    }
+}
+#endif
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl)
+tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(impl);
+    tb_assert_abort(impl && bounds);
 
     // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
@@ -257,9 +386,26 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl)
     // clear active regions first
     tb_list_clear(impl->active_regions);
 
-    // TODO
-#ifdef __tb_debug__
-    tb_list_dump(impl->active_regions);
+    /* insert two regions for the bounds to avoid special cases
+     *
+     * their coordinates are big enough that they will never be merged with real input features.
+     * 
+     * (xb, yb)
+     *   / \         .        .    .     / \
+     *    |  region    .     .     .      |  region
+     *    |              .  .    .        |
+     *                                 (xe, ye)
+     */
+    gb_float_t xb = bounds->x;
+    gb_float_t yb = bounds->y;
+    gb_float_t xe = bounds->x + bounds->w;
+    gb_float_t ye = bounds->y + bounds->h;
+    gb_tessellator_active_regions_insert_bounds(impl, xb, ye, yb);
+    gb_tessellator_active_regions_insert_bounds(impl, xe, ye, yb);
+
+#if GB_ACTIVE_REGION_TEST_ENABLE && defined(__gb_debug__)
+    // test the active regions
+    gb_tessellator_active_regions_test(impl, xb, xe, gb_avg(yb, ye));
 #endif
 
     // ok
@@ -300,8 +446,23 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessell
     gb_tessellator_active_region_t region_temp;
     region_temp.edge = edge;
 
-    // find it
-    tb_size_t itor = tb_rfind_all_if(impl->active_regions, gb_tessellator_active_region_find, &region_temp);
+    /* reverse to find the region containing the given edge from the regions
+     *
+     * region.edge
+     * |
+     * .                .     .
+     * .                .      .
+     * .     region1    .       .
+     * .                .        . region3
+     * .         .      .         .
+     * .       .        . region2  .
+     * .     . edge     .
+     *          |
+     *        found                <= find direction
+     *
+     *
+     */
+    tb_size_t itor = tb_rfind_all_if(impl->active_regions, tb_predicate_le, &region_temp);
 
     // get the found item
     return (itor != tb_iterator_tail(impl->active_regions))? (gb_tessellator_active_region_ref_t)tb_iterator_item(impl->active_regions, itor) : tb_null;
