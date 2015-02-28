@@ -49,6 +49,12 @@
 // merge the winding of two tessellator edges
 #define gb_tessellator_edge_winding_merge(edge, other)  (gb_tessellator_edge_winding_add(edge, gb_tessellator_edge_winding(other)), gb_tessellator_edge_winding_add(gb_mesh_edge_sym(edge), gb_tessellator_edge_winding(gb_mesh_edge_sym(other))))
 
+// the region of tessellator edge 
+#define gb_tessellator_edge_region(edge)                (gb_tessellator_edge(edge)->region)
+
+// set the region of tessellator edge 
+#define gb_tessellator_edge_region_set(edge, val)       do { gb_tessellator_edge(edge)->region = (val); } while (0)
+
 // the tessellator face
 #define gb_tessellator_face(face)                       ((gb_tessellator_face_ref_t)gb_mesh_face_data_fastly(face))
 
@@ -71,11 +77,47 @@
  * types
  */
 
+/* the active region type
+ *
+ *  /.\                                     .              /.\
+ *   .                 .                   .   .            .
+ *   .               .   .                .       .         .
+ *   .  region1    .       .             .           .      .
+ *   .           .           .  region3 .                   .
+ *   . ------- . - region2 --- . ---- event --------------- . ----- sweep line
+ *   .       .                   .     .                    .
+ *   .    edge2                edge3   .    region4         . region5
+ *   .                                 .                    .
+ * edge1                             edge4                edge5
+ *(bound)                                                (bound)
+ */
+typedef struct __gb_tessellator_active_region_t
+{
+    // the region position
+    tb_size_t                           position;
+
+    // the left edge and it goes up
+    gb_mesh_edge_ref_t                  edge;
+
+    // the winding
+    tb_long_t                           winding;
+
+    // is inside?
+    tb_uint8_t                          inside : 1;
+
+    // is bounds?
+    tb_uint8_t                          bounds : 1;
+
+}gb_tessellator_active_region_t, *gb_tessellator_active_region_ref_t;
+
 // the tessellator edge type
 typedef struct __gb_tessellator_edge_t
 {
     // the winding
-    tb_int32_t              winding;
+    tb_int32_t                          winding;
+
+    // the action region of the edge
+    gb_tessellator_active_region_ref_t  region;
 
 } gb_tessellator_edge_t, *gb_tessellator_edge_ref_t;
 
@@ -83,7 +125,7 @@ typedef struct __gb_tessellator_edge_t
 typedef struct __gb_tessellator_face_t
 {
     // is inside?
-    tb_uint8_t              inside : 1;
+    tb_uint8_t                          inside : 1;
 
 } gb_tessellator_face_t, *gb_tessellator_face_ref_t;
 
@@ -91,7 +133,7 @@ typedef struct __gb_tessellator_face_t
 typedef struct __gb_tessellator_vertex_t
 {
     // the point
-    gb_point_t              point;
+    gb_point_t                          point;
 
 } gb_tessellator_vertex_t, *gb_tessellator_vertex_ref_t;
 
@@ -99,31 +141,31 @@ typedef struct __gb_tessellator_vertex_t
 typedef struct __gb_tessellator_impl_t
 {
     // the mode
-    tb_size_t               mode;
+    tb_size_t                           mode;
 
     // the winding rule
-    tb_size_t               rule;
+    tb_size_t                           rule;
 
     // the func
-    gb_tessellator_func_t   func;
+    gb_tessellator_func_t               func;
 
     // the user private data
-    tb_cpointer_t           priv;
+    tb_cpointer_t                       priv;
 
     // the mesh
-    gb_mesh_ref_t           mesh;
+    gb_mesh_ref_t                       mesh;
 
     // the current sweep event for the active_region.leq
-    gb_mesh_vertex_ref_t    event;
+    gb_mesh_vertex_ref_t                event;
 
     // the output points
-    tb_vector_ref_t         outputs;
+    tb_vector_ref_t                     outputs;
 
     // the event queue for vertex
-    tb_priority_queue_ref_t event_queue;
+    tb_priority_queue_ref_t             event_queue;
 
     // the active regions
-    tb_list_ref_t           active_regions;
+    tb_list_ref_t                       active_regions;
 
 }gb_tessellator_impl_t;
 

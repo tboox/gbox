@@ -151,6 +151,89 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
 
     // trace
     tb_trace_d("event: sweep: %{point}", gb_tessellator_vertex_point(event));
+
+    // find an active region of all edges at this event 
+    gb_mesh_edge_ref_t                  edge = gb_mesh_vertex_edge(event);
+    gb_mesh_edge_ref_t                  scan = edge;
+    gb_tessellator_active_region_ref_t  region = tb_null;
+    while (!(region = gb_tessellator_edge_region(scan)))
+    {
+        // the next edge
+        scan = gb_mesh_edge_onext(scan);
+
+        // end?
+        tb_check_break(scan != edge);
+    }
+
+    /* the active regions of all up-going edges at this event have been not finished.
+     *                                       .
+     *   .                 .               .
+     *    .                  .   region  .
+     *     . region            .       .
+     *      .                    .   .
+     * event . ------------------- . event ------------ sweep line
+     *          .       or       .   .
+     *             .           .       .
+     *                .      .
+     *
+     */
+    if (region)
+    {
+        /* we need close off them first if the left and right edges of these regions terminate 
+         * at this event. 
+         *
+         * then we mark these faces "inside" or "outside" the polygon according 
+         * to their winding number and remove these regions.
+         *
+         *                                       .
+         *                     .    (close it) .
+         *                       .   region  . right
+         *                  left   .       .
+         *                           .   .
+         *     ----------------------- . event ------------ sweep line
+         *                           .   .
+         *                         .       .
+         *                       .
+         *
+         */
+        // TODO
+
+        /* next we process all the down-going edges at this event. 
+         * 
+         * we will create a new active region with new edge
+         * 
+         *   .              
+         *    .               
+         *     . region         
+         *      .              
+         * event . ------------------ sweep line
+         *          .       
+         *             .    
+         *                .    
+         */
+        // TODO
+    }
+    /* the active regions of all up-going edges at this event have been finished.
+     *
+     * so all left edges are new and go down.
+     *
+     *                         .
+     *                           .  finished    .
+     *                             .         .  finished
+     *                               .    .
+     * -------- . event -------------- . event ---------------- sweep line
+     *        . . .                  .   .
+     *      .   .   .              .       .
+     *    .     .          or    .             
+     *  .       .                  
+     *          .                   new edges
+     *                              
+     *       new edges
+     */
+    else
+    {
+        // TODO
+    }
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -228,11 +311,6 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
         // sweep this event
         gb_tessellator_sweep_event(impl, event);
     }
-
-#if 0
-    // for testing single contour first
-    gb_tessellator_face_inside_set(gb_mesh_face_last(impl->mesh), 1);
-#endif
 
     // remove degenerate faces
     gb_tessellator_remove_degenerate_faces(impl);
