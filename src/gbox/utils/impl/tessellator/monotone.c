@@ -36,6 +36,11 @@
 #include "active_region.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * declaration
+ */
+static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event);
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
 static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* impl)
@@ -141,6 +146,144 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
         }
     }
 }
+/* connect this top event to the processed portion of the mesh
+ *
+ * - the normal case:
+ *
+ *   - split this region to two regions by connecting this top event to 
+ *     the lower destinate vertex of the left or right edge 
+ *     if the contained(left) region is marked "inside"
+ *
+ *   - only add all edges to the mesh if the the contained(left) region is not marked "inside"
+ *
+ * - the degenerate case:
+ *
+ */
+static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && impl->active_regions && event);
+
+    // the edge of the event vertex
+    gb_mesh_edge_ref_t edge_event = gb_mesh_vertex_edge(event);
+    tb_assert_abort(edge_event);
+
+    // the going-up edge of the event vertex
+    gb_mesh_edge_ref_t edge_event_up = gb_mesh_edge_sym(edge_event);
+    tb_assert_abort(edge_event_up);
+
+    // get the left region containing this event from the going-up edge
+    gb_tessellator_active_region_ref_t region_left = gb_tessellator_active_regions_find(impl, edge_event_up);
+    tb_assert_abort(region_left);
+
+    // get the right region
+    gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region_left);
+    tb_assert_abort(region_right);
+
+    // the left and right edge containing this event
+    gb_mesh_edge_ref_t edge_left    = region_left->edge;
+    gb_mesh_edge_ref_t edge_right   = region_right->edge;
+    tb_assert_abort(edge_left);
+    tb_assert_abort(edge_right);
+
+    // TODO: done degenerate
+    // ...
+
+    // get the region which edge.dst is lower and we need connect it
+    gb_tessellator_active_region_ref_t region_lower = gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge_left), gb_mesh_edge_dst(edge_right))? region_right : region_left;
+
+    // we need split it if the contained(left) region is marked "inside" 
+    if (region_left->inside)
+    {
+        /* we need connect the top event to it if the destinate vertex of the left edge is lower
+         *
+         *                                                             .
+         *          .                                                    .  
+         *       .                                                         . edge_right
+         *    .                                                            . (upper)
+         *  . edge_left (lower)                                            .
+         *  .   .                                                          .
+         *  .      .                         region_new                    .
+         *  .         .                                                    .
+         *  .            . edge_new                                        .
+         *  . region_left   .                                              .
+         *  .   (inside)       .    (top)                                  .
+         *  .            -------- . event -------------------------------- . ------------------- sweep line      
+         *  .                   . . .                                      .  
+         * /.\                .   .   .                                   /.\
+         *  .               .    /.\                                       .
+         *  .             .       .                                        .  region_right    
+         *  .                     . edge_event_up                          .           
+         *  .                                                              . 
+         *  .                  new edges                                   .
+         *  .                                                              .
+         */
+        gb_mesh_edge_ref_t edge_new = tb_null;
+        if (region_lower == region_left)
+        {
+            // split the left region to two regions by connecting it
+            edge_new = gb_mesh_edge_connect(impl->mesh, edge_event_up, gb_mesh_edge_rnext(edge_left));
+        }
+        /* we need connect the top event to it if the destinate vertex of the right edge is lower
+         *
+         *        .
+         *     .
+         *  . edge_left 
+         *  .  (upper)
+         *  .                                                          .
+         *  .                                                            .  
+         *  .           region_left (inside)                               . edge_right
+         *  .                                                          .   . (lower)
+         *  .                                                     .        .
+         *  .                                     edge_new   .             .
+         *  .                                           .                  .
+         *  .                                      .                       .
+         *  .                                 .             region_new     .
+         *  .                            .                                 .
+         *  .                       (top)                                  .
+         *  .            -------- . event -------------------------------- . ------------------- sweep line      
+         *  .                   . . .                                      .  
+         * /.\                .   .   .                                   /.\
+         *  .               .    /.\                                       .
+         *  .             .       .                                        .  region_right    
+         *  .                     .  edge_event_up                         .           
+         *  .                                                              . 
+         *  .                  new edges                                   .
+         *  .                                                              .
+         */
+        else
+        {
+            // split the left region to two regions by connecting it
+            edge_new = gb_mesh_edge_connect(impl->mesh, edge_event_up, gb_mesh_edge_lnext(edge_right));
+        }
+
+        // check
+        tb_assert_abort(edge_new);
+
+        // TODO compute winding
+        // ...
+
+
+        // TODO
+        gb_tessellator_sweep_event(impl, event);
+    }
+    // only add all edges to the mesh
+    else
+    {
+        // TODO
+    }
+}
+/* process one event vertex at the sweep line
+ *
+ *      event
+ *        . ------------------------ sweep line
+ * . --- . --- . -------------------       
+ *   .  .          . 
+ *     . ------------- . -----------
+ *   .  .               .
+ *  .     .               . --------
+ * . ------ . ----------------------
+ */
 static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
 {
     // check
@@ -187,8 +330,8 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
          *
          *                                       .
          *                     .    (close it) .
-         *                       .   region  . right
-         *                  left   .       .
+         *                       .   region1 . 
+         *                         .       .  region2
          *                           .   .
          *     ----------------------- . event ------------ sweep line
          *                           .   .
@@ -201,39 +344,33 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         /* next we process all the down-going edges at this event. 
          * 
          * we will create a new active region with new edge
-         * 
-         *   .              
-         *    .               
-         *     . region         
-         *      .              
-         * event . ------------------ sweep line
-         *          .       
-         *             .    
-         *                .    
+         *
+         *                     .   (finished)  .
+         *                       .   region1 . 
+         *                         .       . region2
+         *                           .   .
+         *     ----------------------- . event ------------ sweep line
+         *                           .   .
+         *                         .       .
+         *                       .
          */
         // TODO
     }
-    /* the active regions of all up-going edges at this event have been finished.
+    /* all edges are new and go down.
      *
-     * so all left edges are new and go down.
-     *
-     *                         .
-     *                           .  finished    .
-     *                             .         .  finished
-     *                               .    .
-     * -------- . event -------------- . event ---------------- sweep line
-     *        . . .                  .   .
-     *      .   .   .              .       .
-     *    .     .          or    .             
+     * we need connect this top event to the processed portion of the mesh
+     *                           
+     *            (top)           
+     * -------- . event ------------- sweep line
+     *        . . .              
+     *      .   .   .      
+     *    .     .          
      *  .       .                  
-     *          .                   new edges
+     *          .           
      *                              
      *       new edges
      */
-    else
-    {
-        // TODO
-    }
+    else gb_tessellator_connect_top_event(impl, event);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
