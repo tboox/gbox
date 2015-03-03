@@ -72,6 +72,114 @@ static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(g
     // insert region before the right region
     return gb_tessellator_active_regions_insert_before(impl, region_right, &region);
 }
+/* insert the down-going edges from the given range: [head, tail) and new regions
+ * and update winding numbers and mesh connectivity appropriately.
+ *
+ * the origin vertices of all down-going edges must be same.
+ *
+ * the left-top edge must be setted if the event vertex has any up-going edges already processed.
+ *
+ *        .                                                    .
+ *     .                                                         .
+ *  . edge_left                                                    . edge_right
+ *  .                                                              .
+ *  .                                                              .  
+ *  .                                                              .
+ *  .                                                              .
+ *  .     (prev)  .                  .                             .
+ *  . edge_left_top . (finished)  .                                .
+ *  .  (maybe null)   .        .                                   .
+ *  .                   .(top)                                     .
+ *  .            -------- . event -------------------------------- . ------------------- sweep line      
+ *  .                   . . .                                      .  
+ * /.\                .   .   .                                   /.\
+ *  . region_left   .    \./    . region_new2                      .
+ *  .   (prev)    .       .       .                                .  region_right    
+ *  .           .         .                                        .
+ *  .         .           . region_new1                            .
+ *  .       . region_new3 .                                        .
+ *  .                     .                                        .           
+ *  .                 edge_head                                    . 
+ *  .                 edge_tail                                    . 
+ *  .                                                              .
+ *  .                                                              .
+ *  .                 new edges                                    .
+ *  .                                                              .
+ *
+ */
+static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top)
+{
+    // check
+    tb_assert_abort(impl && edge_head && edge_tail);
+
+    // insert the down-going edges from the given range: [head, tail) and new regions
+    gb_mesh_edge_ref_t edge = edge_head;
+    do 
+    {
+        // the edge must be down-going
+        tb_assert_abort(gb_tessellator_edge_go_down(edge));
+
+        // insert a new region with the new edge at the left of the right region
+        gb_tessellator_insert_region_at_left(impl, region_right, gb_mesh_edge_sym(edge));
+
+        // the next inserted edge
+        edge = gb_mesh_edge_onext(edge);
+
+    } while (edge != edge_tail);
+
+    // find it if the left-top edge is null
+    if (!edge_left_top) 
+    {
+        // get the leftmost new region
+        gb_tessellator_active_region_ref_t region_new_leftmost = gb_tessellator_active_regions_right(impl, region_left);
+        tb_assert_abort(region_new_leftmost);
+
+        // get the left-top edge
+        edge_left_top = gb_mesh_edge_lnext(region_new_leftmost->edge);
+    }
+
+    // done
+    gb_tessellator_active_region_ref_t  region_new  = tb_null;
+    gb_tessellator_active_region_ref_t  region_prev = region_left;
+    gb_mesh_edge_ref_t                  edge_new    = tb_null;
+    gb_mesh_edge_ref_t                  edge_prev   = edge_left_top;
+    while (1)
+    {
+        // get the next new region
+        region_new = gb_tessellator_active_regions_right(impl, region_prev);
+        tb_assert_abort(region_new && region_new->edge);
+
+        // get the left down-going edge of the new region
+        edge_new = gb_mesh_edge_sym(region_new->edge);
+
+        // end? the origin vertices of all down-going edges must be same
+        tb_check_break(gb_mesh_edge_org(edge_new) == gb_mesh_edge_org(edge_prev));
+
+        // TODO onext? ...
+        if (gb_mesh_edge_onext(edge_new) != edge_prev)
+        {
+            // ...
+        }
+
+        /* compute the winding of the new region
+         *
+         * region_new.winding = region_prev.winding + region_new.edge.winding
+         *                                       => - region_new.edge.sym.winding
+         *                                       => - edge_new.winding
+         */
+        ;
+
+        // mark it if the new region is inside
+        region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
+
+        // update the previous edge and region 
+        edge_prev   = edge_new;
+        region_prev = region_new;
+    }
+
+    // check winding
+	tb_assert_abort(region_new->winding == region_prev->winding - gb_tessellator_edge_winding(edge_new));
+}
 static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* impl)
 {
     // check
@@ -181,9 +289,9 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
  *
  *   - split this region to two regions by connecting this top event to 
  *     the lower destinate vertex of the left or right edge 
- *     if the contained(left) region is marked "inside"
+ *     if the contained(left) region is inside 
  *
- *   - only add all edges to the mesh if the the contained(left) region is not marked "inside"
+ *   - only add all edges to the mesh if the the contained(left) region is outside 
  *
  * - the degenerate case:
  *
@@ -197,11 +305,11 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     gb_mesh_edge_ref_t edge_event = gb_mesh_vertex_edge(event);
     tb_assert_abort(edge_event);
 
-    // the going-up edge of the event vertex
+    // the up-going edge of the event vertex
     gb_mesh_edge_ref_t edge_event_up = gb_mesh_edge_sym(edge_event);
     tb_assert_abort(edge_event_up);
 
-    // get the left region containing this event from the going-up edge
+    // get the left region containing this event from the up-going edge
     gb_tessellator_active_region_ref_t region_left = gb_tessellator_active_regions_find(impl, edge_event_up);
     tb_assert_abort(region_left);
 
@@ -221,7 +329,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     // get the region which edge.dst is lower and we need connect it
     gb_tessellator_active_region_ref_t region_lower = gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge_left), gb_mesh_edge_dst(edge_right))? region_right : region_left;
 
-    // we need split it if the contained(left) region is marked "inside" 
+    // we need split it if the contained(left) region is inside
     if (region_left->inside)
     {
         /* we need connect the top event to it if the destinate vertex of the left edge is lower
@@ -236,7 +344,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
          *  .         .                                                    .
          *  .            . edge_new                                        .
          *  . region_left   .                                              .
-         *  .   (inside)       .    (top)                                  .
+         *  .   (inside)       .(top)                                      .
          *  .            -------- . event -------------------------------- . ------------------- sweep line      
          *  .                   . . .                                      .  
          * /.\                .   .   .                                   /.\
@@ -251,7 +359,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         if (region_lower == region_left)
         {
             // split the left region to two regions by connecting it
-            edge_new = gb_mesh_edge_connect(impl->mesh, edge_event_up, gb_mesh_edge_rnext(edge_left));
+            edge_new = gb_mesh_edge_connect(impl->mesh, edge_event_up, gb_mesh_edge_rprev(edge_left));
         }
         /* we need connect the top event to it if the destinate vertex of the right edge is lower
          *
@@ -269,7 +377,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
          *  .                                      .                       .
          *  .                                 .             region_new     .
          *  .                            .                                 .
-         *  .                       (top)                                  .
+         *  .                    (top)                                     .
          *  .            -------- . event -------------------------------- . ------------------- sweep line      
          *  .                   . . .                                      .  
          * /.\                .   .   .                                   /.\
@@ -303,16 +411,42 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         // compute the winding of the new region
         region_new->winding = region_left->winding + gb_tessellator_edge_winding(edge_new);
 
-        // mark it if the new region inside the polygon
+        // mark it if the new region is inside
         region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
 
         // TODO
         gb_tessellator_sweep_event(impl, event);
     }
-    // only add all edges to the mesh
+    // only add all edges to the mesh if the the contained(left) region is outside 
     else
     {
-        // TODO
+        /* insert all down-going edges and new regions
+         * and update winding numbers and mesh connectivity appropriately
+         *
+         *        .                                                    .
+         *     .                                                         .
+         *  . edge_left                                                    . edge_right
+         *  .                                                              .
+         *  .                                                              .  
+         *  .           region_left (outside)                              . 
+         *  .                                                              .
+         *  .                                                              .
+         *  .            x (no edge_left_top)                              .
+         *  .              x                                               .
+         *  .                x                                             .
+         *  .                   (top)                                      .
+         *  .            -------- . event -------------------------------- . ------------------- sweep line      
+         *  .                   . . .                                      .  
+         * /.\                .   .   .                                   /.\
+         *  .               .    \./                                       .
+         *  .             .       .                                        .  region_right    
+         *  .                     .  edge_event                            .           
+         *  .                                                              . 
+         *  .                  new edges                                   .
+         *  .                                                              .
+         *
+         */
+        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_event, edge_event, tb_null);
     }
 }
 /* process one event vertex at the sweep line
