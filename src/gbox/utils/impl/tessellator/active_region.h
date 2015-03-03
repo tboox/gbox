@@ -73,6 +73,16 @@ gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_find(gb_tessel
  */
 gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_right(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
 
+/* the region1 is in the left of the region2
+ *
+ * @param impl                      the tessellator impl
+ * @param region1                   the region1
+ * @param region2                   the region2
+ *
+ * @return                          tb_true or tb_false
+ */
+tb_bool_t                           gb_tessellator_active_regions_in_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region1, gb_tessellator_active_region_ref_t region2);
+
 /* remove region from the regions
  *
  * @param impl                      the tessellator impl

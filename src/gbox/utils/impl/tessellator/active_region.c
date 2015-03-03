@@ -461,6 +461,14 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_right(gb_tessel
     // ok
     return (gb_tessellator_active_region_ref_t)tb_iterator_item(impl->active_regions, position);
 }
+tb_bool_t gb_tessellator_active_regions_in_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region1, gb_tessellator_active_region_ref_t region2)
+{
+    // check
+    tb_assert_abort(impl);
+
+    // region1 <= region2
+    return gb_tessellator_active_region_leq(impl->event, region1, region2);
+}
 tb_void_t gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check

@@ -43,6 +43,35 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static __tb_inline__ tb_uint8_t gb_tessellator_winding_is_inside(gb_tessellator_impl_t* impl, tb_int32_t winding)
+{
+    // done
+    switch (impl->rule)
+    {
+        case GB_TESSELLATOR_RULE_ODD:       return (winding & 1);
+        case GB_TESSELLATOR_RULE_NONZERO:   return (winding != 0);
+        default:                            break;
+    }
+
+    // error
+    tb_assert_abort(0);
+    return 0;
+}
+static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_new)
+{
+    // check
+    tb_assert_abort(impl && region_right && edge_new);
+
+    // make region
+    gb_tessellator_active_region_t region;
+    region.edge     = edge_new;
+    region.winding  = 0;
+    region.inside   = 0;
+    region.bounds   = 0;
+
+    // insert region before the right region
+    return gb_tessellator_active_regions_insert_before(impl, region_right, &region);
+}
 static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* impl)
 {
     // check
@@ -260,9 +289,22 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         // check
         tb_assert_abort(edge_new);
 
-        // TODO compute winding
-        // ...
+        // insert a new region with the new edge at the left of the right region
+        gb_tessellator_active_region_ref_t region_new = gb_tessellator_insert_region_at_left(impl, region_right, edge_new);
+        tb_assert_abort(region_new);
 
+        /* check region
+         *
+         * region_left => region_new => region_right
+         */
+        tb_assert_abort(gb_tessellator_active_regions_in_left(impl, region_left, region_new));
+        tb_assert_abort(gb_tessellator_active_regions_in_left(impl, region_new, region_right));
+
+        // compute the winding of the new region
+        region_new->winding = region_left->winding + gb_tessellator_edge_winding(edge_new);
+
+        // mark it if the new region inside the polygon
+        region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
 
         // TODO
         gb_tessellator_sweep_event(impl, event);
