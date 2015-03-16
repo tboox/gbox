@@ -122,19 +122,19 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     if (!impl->mesh) 
     {
         // init func
-        tb_element_t edge_func    = tb_element_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null);
-        tb_element_t face_func    = tb_element_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null);
-        tb_element_t vertex_func  = tb_element_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
+        tb_element_t edge_element    = tb_element_mem(sizeof(gb_tessellator_edge_t), tb_null, tb_null);
+        tb_element_t face_element    = tb_element_mem(sizeof(gb_tessellator_face_t), tb_null, tb_null);
+        tb_element_t vertex_element  = tb_element_mem(sizeof(gb_tessellator_vertex_t), tb_null, tb_null);
 
 #ifdef __gb_debug__
         // init func cstr for gb_mesh_dump
-        edge_func.cstr      = gb_tessellator_edge_cstr;
-        face_func.cstr      = gb_tessellator_face_cstr;
-        vertex_func.cstr    = gb_tessellator_vertex_cstr;
+        edge_element.cstr      = gb_tessellator_edge_cstr;
+        face_element.cstr      = gb_tessellator_face_cstr;
+        vertex_element.cstr    = gb_tessellator_vertex_cstr;
 #endif
 
         // init mesh
-        impl->mesh = gb_mesh_init(edge_func, face_func, vertex_func);
+        impl->mesh = gb_mesh_init(edge_element, face_element, vertex_element);
 
         /* init the order
          *

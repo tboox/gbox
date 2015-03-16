@@ -11,41 +11,19 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
     // check
     tb_assert_abort(event);
 
-    // the mesh
-    gb_mesh_ref_t mesh = (gb_mesh_ref_t)event->priv;
-    tb_assert_abort(mesh);
-
     // done
-    tb_char_t data_org[8192];
-    tb_char_t data_dst[8192];
     switch (event->type)
     {
     case GB_MESH_EVENT_FACE_MERGE:
         {
-            // the org and dst face
-            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->org;
-            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->dst;
-
-            // the org and dst cstr
-            tb_char_t const* cstr_org = gb_mesh_face_cstr(mesh, face_org, data_org, sizeof(data_org));
-            tb_char_t const* cstr_dst = gb_mesh_face_cstr(mesh, face_dst, data_dst, sizeof(data_dst));
-
             // trace
-            tb_trace_i("face.merge(%s, %s) => %s", cstr_org, cstr_dst, cstr_dst);
+            tb_trace_d("face.merge(%{mesh_face}, %{mesh_face}) => %{mesh_face}", event->org, event->dst, event->dst);
         }
         break;
     case GB_MESH_EVENT_FACE_SPLIT:
         {
-            // the org and dst face
-            gb_mesh_face_ref_t face_org = (gb_mesh_face_ref_t)event->org;
-            gb_mesh_face_ref_t face_dst = (gb_mesh_face_ref_t)event->dst;
-
-            // the org and dst cstr
-            tb_char_t const* cstr_org = gb_mesh_face_cstr(mesh, face_org, data_org, sizeof(data_org));
-            tb_char_t const* cstr_dst = gb_mesh_face_cstr(mesh, face_dst, data_dst, sizeof(data_dst));
-
             // trace
-            tb_trace_i("face.split(%s) => (%s, %s)", cstr_org, cstr_org, cstr_dst);
+            tb_trace_d("face.split(%{mesh_face}) => (%{mesh_face}, %{mesh_face})", event->org, event->org, event->dst);
         }
         break;
     default:

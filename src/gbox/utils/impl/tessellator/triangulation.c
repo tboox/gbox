@@ -192,7 +192,7 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
             {
                 // connect it
                 edge = gb_mesh_edge_connect(mesh, left, gb_mesh_edge_lprev(left));
-                tb_assert_abort_and_check_return_val(edge, tb_false);
+                tb_assert_abort_and_check_return(edge);
 
                 // update the left edge
                 left = gb_mesh_edge_sym(edge);
@@ -254,7 +254,7 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
             {
                 // connect it
                 edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(right), right);
-                tb_assert_abort_and_check_return_val(edge, tb_false);
+                tb_assert_abort_and_check_return(edge);
 
                 // update the right edge
                 right = gb_mesh_edge_sym(edge);
@@ -282,7 +282,7 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
     {
         // connect it
         edge = gb_mesh_edge_connect(mesh, gb_mesh_edge_lnext(right), right);
-        tb_assert_abort_and_check_return_val(edge, tb_false);
+        tb_assert_abort_and_check_return(edge);
 
         // the next edge
         right = gb_mesh_edge_sym(edge);

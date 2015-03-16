@@ -382,6 +382,10 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
     // init id
     edge->id        = ++impl->id;
     edge_sym->id    = ++impl->id;
+
+    // save list
+    edge->list      = (tb_pointer_t)list;
+    edge_sym->list  = (tb_pointer_t)list;
 #endif
 
     // insert to the edge list
@@ -426,6 +430,10 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
     // init id
     edge->id        = ++impl->id;
     edge_sym->id    = ++impl->id;
+
+    // save list
+    edge->list      = (tb_pointer_t)list;
+    edge_sym->list  = (tb_pointer_t)list;
 #endif
 
     // insert to the edge list
@@ -443,11 +451,12 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
     // clockwise? reverse it
     return is_ccw? edge : edge_sym;
 }
-tb_char_t const* gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn)
+#ifdef __gb_debug__
+tb_long_t gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn)
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->element.cstr && edge && maxn, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.cstr && edge && maxn, -1);
 
     // make the edge info
     tb_char_t edge_info[4096] = {0};
@@ -458,16 +467,9 @@ tb_char_t const* gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_ed
     tb_char_t const* pedge_sym_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge->sym), edge_sym_info, sizeof(edge_sym_info));
 
     // make it
-#ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s => %lu: %s)", edge->org->id, pedge_info, edge->sym->org->id, pedge_sym_info);
-#else
-    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s => %p: %s)", edge->org, pedge_info, edge->sym->org, pedge_sym_info);
-#endif
-    if (size >= 0) data[size] = '\0';
-
-    // ok?
-    return data;
+    return tb_snprintf(data, maxn, "(%lu: %s => %lu: %s)", edge->org->id, pedge_info, edge->sym->org->id, pedge_sym_info);
 }
+#endif
 tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge)
 {
     // check

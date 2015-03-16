@@ -203,6 +203,9 @@ gb_mesh_face_ref_t gb_mesh_face_list_make(gb_mesh_face_list_ref_t list)
 #ifdef __gb_debug__
     // init id
     face->id = ++impl->id;
+
+    // save list
+    face->list = (tb_pointer_t)list;
 #endif
 
     // insert to the face list
@@ -220,24 +223,18 @@ gb_mesh_face_ref_t gb_mesh_face_list_make(gb_mesh_face_list_ref_t list)
     // ok
     return face;
 }
-tb_char_t const* gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn)
+#ifdef __gb_debug__
+tb_long_t gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn)
 {
     // check
     gb_mesh_face_list_impl_t* impl = (gb_mesh_face_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->element.cstr && face && maxn, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.cstr && face && maxn, -1);
   
     // make it
     tb_char_t info[256] = {0};
-#ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, gb_mesh_face_list_data(list, face), info, sizeof(info)));
-#else
-    tb_long_t size = tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, gb_mesh_face_list_data(list, face), info, sizeof(info)));
-#endif
-    if (size >= 0) data[size] = '\0';
-
-    // ok?
-    return data;
+    return tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, gb_mesh_face_list_data(list, face), info, sizeof(info)));
 }
+#endif
 tb_void_t gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face)
 {
     // check

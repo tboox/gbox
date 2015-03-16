@@ -203,6 +203,9 @@ gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
 #ifdef __gb_debug__
     // init id
     vertex->id = ++impl->id;
+
+    // save list
+    vertex->list = (tb_pointer_t)list;
 #endif
 
     // insert to the vertex list
@@ -220,24 +223,18 @@ gb_mesh_vertex_ref_t gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list)
     // ok
     return vertex;
 }
-tb_char_t const* gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn)
+#ifdef __gb_debug__
+tb_long_t gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn)
 {
     // check
     gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
-    tb_assert_and_check_return_val(impl && impl->element.cstr && vertex && maxn, tb_null);
+    tb_assert_and_check_return_val(impl && impl->element.cstr && vertex && maxn, -1);
   
     // make it
     tb_char_t info[256] = {0};
-#ifdef __gb_debug__
-    tb_long_t size = tb_snprintf(data, maxn, "(%lu: %s)", vertex->id, impl->element.cstr(&impl->element, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
-#else
-    tb_long_t size = tb_snprintf(data, maxn, "(%p: %s)", vertex, impl->element.cstr(&impl->element, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
-#endif
-    if (size >= 0) data[size] = '\0';
-
-    // ok?
-    return data;
+    return tb_snprintf(data, maxn, "(%lu: %s)", vertex->id, impl->element.cstr(&impl->element, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
 }
+#endif
 tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex)
 {
     // check

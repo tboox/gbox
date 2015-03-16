@@ -133,14 +133,18 @@ gb_mesh_edge_ref_t          gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
  */
 gb_mesh_edge_ref_t          gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_bool_t is_ccw);
 
+#ifdef __gb_debug__
 /*! make the edge info string
  *
  * @param list              the list
  * @param edge              the edge
  * @param data              the string data
  * @param maxn              the string maxn
+ *
+ * @return                  the string size
  */
-tb_char_t const*            gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn);
+tb_long_t                   gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn);
+#endif
 
 /*! kill the edge, release the storage
  *

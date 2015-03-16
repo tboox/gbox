@@ -128,6 +128,12 @@ typedef struct __gb_mesh_vertex_t
 #ifdef __gb_debug__
     /// the id
     tb_size_t                   id;
+
+    /*! the vertex list for dumping it in the debug mode
+     *
+     * format: %{mesh_vertex} 
+     */
+    tb_pointer_t                list;
 #endif
 
 }gb_mesh_vertex_t, *gb_mesh_vertex_ref_t;
@@ -144,6 +150,12 @@ typedef struct __gb_mesh_face_t
 #ifdef __gb_debug__
     /// the id
     tb_size_t                   id;
+
+    /*! the face list for dumping it in the debug mode
+     *
+     * format: %{mesh_vertex} 
+     */
+    tb_pointer_t                list;
 #endif
 
 }gb_mesh_face_t, *gb_mesh_face_ref_t;
@@ -265,6 +277,12 @@ typedef struct __gb_mesh_edge_t
 #ifdef __gb_debug__
     /// the id
     tb_size_t                   id;
+
+    /*! the edge list for dumping it in the debug mode
+     *
+     * format: %{mesh_vertex} 
+     */
+    tb_pointer_t                list;
 #endif
 
 }gb_mesh_edge_t, *gb_mesh_edge_ref_t;
@@ -343,13 +361,13 @@ typedef struct{}*               gb_mesh_ref_t;
 
 /*! init the mesh 
  *
- * @param edge_func             the edge func
- * @param face_func             the face func
- * @param vertex_func           the vertex func
+ * @param edge_element          the edge element
+ * @param face_element          the face element
+ * @param vertex_element        the vertex element
  *
  * @return                      the mesh
  */
-gb_mesh_ref_t                   gb_mesh_init(tb_element_t edge_func, tb_element_t face_func, tb_element_t vertex_func);
+gb_mesh_ref_t                   gb_mesh_init(tb_element_t edge_element, tb_element_t face_element, tb_element_t vertex_element);
 
 /*! exit the mesh 
  *
@@ -417,15 +435,6 @@ gb_mesh_vertex_ref_t            gb_mesh_vertex_head(gb_mesh_ref_t mesh);
  */
 gb_mesh_vertex_ref_t            gb_mesh_vertex_last(gb_mesh_ref_t mesh);
 
-/*! the vertex string
- *
- * @param mesh                  the mesh
- * @param vertex                the vertex
- * @param data                  the string data
- * @param maxn                  the string maxn
- */
-tb_char_t const*                gb_mesh_vertex_cstr(gb_mesh_ref_t mesh, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
-
 /*! the vertex user data
  *
  * @note please uses gb_mesh_vertex_data_fastly to get the user data more fastly if the item type is tb_element_mem()
@@ -483,15 +492,6 @@ gb_mesh_face_ref_t              gb_mesh_face_head(gb_mesh_ref_t mesh);
  * @return                      the face 
  */
 gb_mesh_face_ref_t              gb_mesh_face_last(gb_mesh_ref_t mesh);
-
-/*! the face string
- *
- * @param mesh                  the mesh
- * @param face                  the face
- * @param data                  the string data
- * @param maxn                  the string maxn
- */
-tb_char_t const*                gb_mesh_face_cstr(gb_mesh_ref_t mesh, gb_mesh_face_ref_t face, tb_char_t* data, tb_size_t maxn);
 
 /*! the face user data
  *
@@ -566,15 +566,6 @@ gb_mesh_edge_ref_t              gb_mesh_edge_last(gb_mesh_ref_t mesh);
  * @return                      the edge, it's members are invalid and cannot modify them
  */
 gb_mesh_edge_ref_t              gb_mesh_edge_tail(gb_mesh_ref_t mesh);
-
-/*! the edge string
- *
- * @param mesh                  the mesh
- * @param edge                  the edge
- * @param data                  the string data
- * @param maxn                  the string maxn
- */
-tb_char_t const*                gb_mesh_edge_cstr(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge, tb_char_t* data, tb_size_t maxn);
 
 /*! the edge user data
  *

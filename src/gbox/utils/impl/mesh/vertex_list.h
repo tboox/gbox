@@ -101,14 +101,18 @@ tb_size_t                   gb_mesh_vertex_list_maxn(gb_mesh_vertex_list_ref_t l
  */
 gb_mesh_vertex_ref_t        gb_mesh_vertex_list_make(gb_mesh_vertex_list_ref_t list);
 
+#ifdef __gb_debug__
 /*! make the vertex info string
  *
  * @param list              the list
- * @param vertex              the vertex
+ * @param vertex            the vertex
  * @param data              the string data
  * @param maxn              the string maxn
+ *
+ * @return                  the string size
  */
-tb_char_t const*            gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
+tb_long_t                   gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex, tb_char_t* data, tb_size_t maxn);
+#endif
 
 /*! kill the vertex, release the storage
  *

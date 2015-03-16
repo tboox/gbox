@@ -365,10 +365,6 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
     // check
     tb_assert_abort(impl && bounds && bounds->w > 0 && bounds->h > 0);
 
-    // the mesh
-    gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(mesh);
-
     // init active regions
     if (!impl->active_regions) 
     {
