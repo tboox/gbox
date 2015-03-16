@@ -110,7 +110,10 @@ static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(g
 static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top)
 {
     // check
-    tb_assert_abort(impl && edge_head && edge_tail);
+    tb_assert_abort(impl && impl->mesh && edge_head && edge_tail);
+
+    // trace
+    tb_trace_d("insert down-going edges");
 
     // insert the down-going edges from the given range: [head, tail) and new regions
     gb_mesh_edge_ref_t edge = edge_head;
@@ -155,11 +158,63 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
         // end? the origin vertices of all down-going edges must be same
         tb_check_break(gb_mesh_edge_org(edge_new) == gb_mesh_edge_org(edge_prev));
 
-        // TODO onext? ...
-        if (gb_mesh_edge_onext(edge_new) != edge_prev)
+        /* joins the two edges if edge_prev and edge_new are disjoining but the original vertices are same?
+         *
+         * before(edge_prev.org == edge_new.org):
+         *
+         *     . . . . org . . . . . .
+         *          .    
+         *       .      org . . . .
+         *    .           .  .
+         * .               .    .
+         * edge_prev        .
+         *                   .
+         *                  edge_new
+         *
+         *
+         * after:
+         * 
+         *     . . . . org . . . . . .
+         *          .   .
+         *       .       .     . . . .
+         *    .           .      .
+         * .               .        .
+         * edge_prev        .
+         *                   .
+         *                  edge_new
+         */
+        if (gb_mesh_edge_oprev(edge_new) != edge_prev)
         {
-            // ...
+            // trace
+            tb_trace_d("joins edges with the same original vertex");
+
+            /* 
+             *     . . . . org . . . . . .
+             *          .            face 
+             *       .      org     . . . .
+             *    .   face    .       .
+             * .               . face   .
+             * edge_prev        .
+             *                   .
+             *                  edge_new
+             */
+            gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_new), edge_new);
+
+            /* 
+             *     . . . . org . . . . . .
+             *          .   .
+             *       .       .     . . . .
+             *    .           .      .
+             * .               .       .
+             * edge_prev        .
+             *                   .
+             *                  edge_new
+             */
+            gb_mesh_edge_splice(impl->mesh, edge_prev, edge_new);
         }
+
+        // check
+        tb_assert_abort(gb_mesh_edge_oprev(edge_new) == edge_prev);
 
         /* compute the winding of the new region
          *
@@ -167,7 +222,7 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
          *                                       => - region_new.edge.sym.winding
          *                                       => - edge_new.winding
          */
-        ;
+        region_new->winding = region_prev->winding - gb_tessellator_edge_winding(edge_new);
 
         // mark it if the new region is inside
         region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
@@ -301,6 +356,9 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     // check
     tb_assert_abort(impl && impl->mesh && impl->active_regions && event);
 
+    // trace
+    tb_trace_d("connect top event: %{point}", gb_tessellator_vertex_point(event));
+
     // the edge of the event vertex
     gb_mesh_edge_ref_t edge_event = gb_mesh_vertex_edge(event);
     tb_assert_abort(edge_event);
@@ -332,6 +390,9 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     // we need split it if the contained(left) region is inside
     if (region_left->inside)
     {
+        // trace
+        tb_trace_d("split the region");
+
         /* we need connect the top event to it if the destinate vertex of the left edge is lower
          *
          *                                                             .
@@ -414,7 +475,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         // mark it if the new region is inside
         region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
 
-        // TODO
+        // continue to sweep this event for the new region
         gb_tessellator_sweep_event(impl, event);
     }
     // only add all edges to the mesh if the the contained(left) region is outside 
