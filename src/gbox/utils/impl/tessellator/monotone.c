@@ -112,15 +112,15 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
     // check
     tb_assert_abort(impl && impl->mesh && edge_head && edge_tail);
 
-    // trace
-    tb_trace_d("insert down-going edges");
-
     // insert the down-going edges from the given range: [head, tail) and new regions
     gb_mesh_edge_ref_t edge = edge_head;
     do 
     {
         // the edge must be down-going
         tb_assert_abort(gb_tessellator_edge_go_down(edge));
+
+        // trace
+        tb_trace_d("insert down-going edge: %{mesh_edge}", edge);
 
         // insert a new region with the new edge at the left of the right region
         gb_tessellator_insert_region_at_left(impl, region_right, gb_mesh_edge_sym(edge));
@@ -350,6 +350,7 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
  *
  * - the degenerate case:
  *
+ *   - we merge it into that edge chain if the event vertex close enough to the left edge or right edge
  */
 static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
 {
@@ -381,8 +382,31 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     tb_assert_abort(edge_left);
     tb_assert_abort(edge_right);
 
-    // TODO: done degenerate
-    // ...
+    /* we merge it into that edge chain if the event vertex close enough to the left edge 
+     *
+     *        .                                                    .
+     *     .                                                         .
+     *  . edge_left                                                    . edge_right
+     *  .                                                              .
+     *  .                     region_left                              .
+     *  .                      (inside)                                .
+     *  .                                                              . 
+     *  . (top)                                                        .
+     *  . event ------------------------------------------------------ . ------------------ sweep line      
+     *  .  .   .                                                       .  
+     * /.\   .     .                                                  /.\
+     *  .      .       .                                               .
+     *  .        .         .                                           .  region_right    
+     *  .                      .                                       .           
+     *  .          new_edges                                           . 
+     *  .                                                              .
+     *  .                                                              .
+     */
+    if (gb_tessellator_vertex_on_edge(event, gb_mesh_edge_dst(edge_left), gb_mesh_edge_org(edge_left)))
+    {
+        // TODO
+        tb_assert_abort(0);
+    }
 
     // get the region which edge.dst is lower and we need connect it
     gb_tessellator_active_region_ref_t region_lower = gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge_left), gb_mesh_edge_dst(edge_right))? region_right : region_left;
@@ -391,7 +415,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     if (region_left->inside)
     {
         // trace
-        tb_trace_d("split the region");
+        tb_trace_d("split the region: %{tessellator_region}", region_left);
 
         /* we need connect the top event to it if the destinate vertex of the left edge is lower
          *

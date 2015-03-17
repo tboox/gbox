@@ -63,6 +63,9 @@ __tb_extern_c_enter__
 #else // faster
 #   define gb_tessellator_vertex_in_top(a, b)               gb_point_in_top(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
 #endif
+ 
+// v is on edge(u, l)?
+#define gb_tessellator_vertex_on_edge(v, u, l)              (!gb_point_to_segment_position_h(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l)))
   
 // the three vertices are counter-clockwise?
 #define gb_tessellator_vertex_is_ccw(a, b, c)               gb_points_is_ccw(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b), gb_tessellator_vertex_point(c))

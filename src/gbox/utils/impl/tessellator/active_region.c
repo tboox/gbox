@@ -189,23 +189,31 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
     gb_tessellator_active_region_ref_t region = (gb_tessellator_active_region_ref_t)data;
     tb_assert_and_check_return_val(region, tb_null);
 
-    // the edge
-    gb_mesh_edge_ref_t edge = region->edge;
-
     // make info
-    tb_long_t size = tb_snprintf(   cstr
-                                ,   maxn
-                                ,   "(%{point} => %{point}, winding: %ld, inside: %d)"
-                                ,   gb_tessellator_vertex_point(gb_mesh_edge_org(edge))
-                                ,   gb_tessellator_vertex_point(gb_mesh_edge_dst(edge))
-                                ,   region->winding
-                                ,   region->inside);
+    tb_long_t size = tb_snprintf(cstr, maxn, "%{tessellator_region}", region);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
     return cstr;
 }
+static tb_long_t gb_tessellator_active_region_printf(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    tb_assert_and_check_return_val(object && cstr && maxn, -1);
+
+    // the region
+    gb_tessellator_active_region_ref_t region = (gb_tessellator_active_region_ref_t)object;
+
+    // make info
+    return tb_snprintf( cstr
+                    ,   maxn
+                    ,   "(%{mesh_edge}, winding: %ld, inside: %d)"
+                    ,   region->edge
+                    ,   region->winding
+                    ,   region->inside);
+}
 #endif
+
 /* insert region in ascending order and save the region position
  *
  * r0 <---- r1 <------ r2 <------- r3 <--- ... <---- 
@@ -377,6 +385,17 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
 #ifdef __gb_debug__
         // init the c-string function for tb_list_dump
         element.cstr = gb_tessellator_active_region_cstr;
+
+        // register printf("%{tessellator_region}", region);
+        static tb_bool_t s_is_registered = tb_false;
+        if (!s_is_registered)
+        {
+            // register it
+            tb_printf_object_register("tessellator_region", gb_tessellator_active_region_printf);
+
+            // ok
+            s_is_registered = tb_true;
+        }
 #endif
 
         // make active regions

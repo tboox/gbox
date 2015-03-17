@@ -461,9 +461,17 @@ gb_mesh_ref_t gb_mesh_init(tb_element_t edge_element, tb_element_t face_element,
          * register printf("%{mesh_edge}",      edge);
          * register printf("%{mesh_vertex}",    vertex);
          */
-        tb_printf_object_register("mesh_edge",      gb_mesh_printf_edge);
-        tb_printf_object_register("mesh_face",      gb_mesh_printf_face);
-        tb_printf_object_register("mesh_vertex",    gb_mesh_printf_vertex);
+        static tb_bool_t s_is_registered = tb_false;
+        if (!s_is_registered)
+        {
+            // register them
+            tb_printf_object_register("mesh_edge",      gb_mesh_printf_edge);
+            tb_printf_object_register("mesh_face",      gb_mesh_printf_face);
+            tb_printf_object_register("mesh_vertex",    gb_mesh_printf_vertex);
+
+            // ok
+            s_is_registered = tb_true;
+        }
 #endif
 
         // ok
