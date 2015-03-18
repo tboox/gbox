@@ -652,9 +652,19 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
         edge_next = region_next->edge;
         tb_assert_abort(edge_next);
 
+        // end?
+        if (gb_mesh_edge_org(edge_next) != gb_mesh_edge_org(edge))
+        {
+            // finish the top region
+            gb_tessellator_finish_top_region(impl, region);
+
+            // end
+            break;
+        }
+
         // TODO
 
-        // finish the top region, TODO may change region_next->edge
+        // finish the top region
         gb_tessellator_finish_top_region(impl, region);
 
         // update the edge and region
