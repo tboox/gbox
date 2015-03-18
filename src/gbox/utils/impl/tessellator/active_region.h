@@ -64,6 +64,15 @@ tb_bool_t                           gb_tessellator_active_regions_make(gb_tessel
  */
 gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_find(gb_tessellator_impl_t* impl, gb_mesh_edge_ref_t edge);
 
+/* get the left region of the given region
+ *
+ * @param impl                      the tessellator impl
+ * @param region                    the region
+ *
+ * @return                          the left region
+ */
+gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
+
 /* get the right region of the given region
  *
  * @param impl                      the tessellator impl

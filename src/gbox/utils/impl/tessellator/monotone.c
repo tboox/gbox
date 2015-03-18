@@ -57,6 +57,45 @@ static __tb_inline__ tb_uint8_t gb_tessellator_winding_is_inside(gb_tessellator_
     tb_assert_abort(0);
     return 0;
 }
+/* find the left region of the leftmost edge with the same origin(event)
+ *
+ *  . edge_left                                                    . edge_right
+ *  .                                                              .
+ *  .                                                              .
+ *  .          (leftmost)              .                           .
+ *  .          edge_first             .                            .
+ *  .                . region_first  .             . edge_last     .
+ *  .                  .            .  region  .                   .
+ *  . region_left        .         .       .                       . region_right
+ *  .                      .      .    .  region_last              .     
+ * /.\                       .   . .                              /.\
+ *  .  ------------------------ . event -------------------------- . ------- sweep line   
+ *  .                         .   . (org)                          .
+ *  .                       .       .                              .
+ *  .                     .                                        .
+ *  .                                                              .
+ */
+static gb_tessellator_active_region_ref_t gb_tessellator_find_left_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
+{
+    // check
+    tb_assert_abort(impl && region && region->edge);
+
+    // get the origin of the region
+    gb_mesh_vertex_ref_t org = gb_mesh_edge_org(region->edge);
+    tb_assert_abort(org);
+
+    // find the left region of the leftmost edge with the same origin
+    do 
+    {
+        // get the left region
+        region = gb_tessellator_active_regions_left(impl, region);
+        tb_assert_abort(region && region->edge);
+    
+    } while (gb_mesh_edge_org(region->edge) == org);
+
+    // ok?
+    return region;
+}
 static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_new)
 {
     // check
@@ -186,7 +225,7 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
         if (gb_mesh_edge_oprev(edge_new) != edge_prev)
         {
             // trace
-            tb_trace_d("joins edges with the same original vertex");
+            tb_trace_d("joins edges with the same origin");
 
             /* 
              *     . . . . org . . . . . .
@@ -233,7 +272,7 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
     }
 
     // check winding
-	tb_assert_abort(region_new->winding == region_prev->winding - gb_tessellator_edge_winding(edge_new));
+    tb_assert_abort(region_new->winding == region_prev->winding - gb_tessellator_edge_winding(edge_new));
 }
 static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* impl)
 {
@@ -534,6 +573,34 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_event, edge_event, tb_null);
     }
 }
+/* finish all top regions of this event
+ *
+ * we need close off them first if the left and right edges of these regions terminate 
+ * at this event. 
+ *
+ * then we mark these faces "inside" or "outside" the polygon according 
+ * to their winding number and remove these regions.
+ *
+ *  . edge_left                                                    . edge_right
+ *  .                                                              .
+ *  .                                                              .
+ *  .          (leftmost)              .                           .
+ *  .          edge_first             .                            .
+ *  .                . region_first  .             . edge_last     .
+ *  .                  .            .  region  .                   .
+ *  . region_left        .         .       .                       . region_right
+ *  .                      .      .    .  region_last              .     
+ * /.\                       .   . .                              /.\
+ *  .  ------------------------ . event -------------------------- . ------- sweep line   
+ *  .                         .   .                                .
+ *  .                       .       .                              .
+ *  .                     .                                        .
+ *  .                                                              .
+ */
+static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_first, gb_tessellator_active_region_ref_t region_last)
+{
+    return tb_null;
+}
 /* process one event vertex at the sweep line
  *
  *      event
@@ -570,37 +637,44 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
     }
 
     /* the active regions of all up-going edges at this event have been not finished.
-     *                                       .
-     *   .                 .               .
-     *    .                  .   region  .
-     *     . region            .       .
-     *      .                    .   .
-     * event . ------------------- . event ------------ sweep line
-     *          .       or       .   .
-     *             .           .       .
-     *                .      .
+     *
+     *  . edge_left                                                    . edge_right
+     *  .                                                              .
+     *  .                                                              .
+     *  .          (leftmost)              .                           .
+     *  .          edge_first             .                            .
+     *  .                . region_first  .             . edge_last     .
+     *  .                  .            .  region  .                   .
+     *  . region_left        .         .       .                       . region_right
+     *  .                      .      .    .  region_last              .     
+     * /.\                       .   . .                              /.\
+     *  .  ------------------------ . event -------------------------- . ------- sweep line   
+     *  .                         .   .                                .
+     *  .                       .       .                              .
+     *  .                     .                                        .
+     *  .                                                              .
      *
      */
     if (region)
     {
-        /* we need close off them first if the left and right edges of these regions terminate 
-         * at this event. 
+        // find the left region of the leftmost edge with the same origin
+        gb_tessellator_active_region_ref_t region_left = gb_tessellator_find_left_region(impl, region);
+        tb_assert_abort(region_left);
+
+        // get the first(leftmost) top region of this event
+        gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
+        tb_assert_abort(region_first);
+
+        /* finish all top regions of this event
          *
-         * then we mark these faces "inside" or "outside" the polygon according 
-         * to their winding number and remove these regions.
-         *
-         *                                       .
-         *                     .    (close it) .
-         *                       .   region1 . 
-         *                         .       .  region2
-         *                           .   .
-         *     ----------------------- . event ------------ sweep line
-         *                           .   .
-         *                         .       .
-         *                       .
-         *
+         * [region_first, region_last]
          */
-        // TODO
+        gb_mesh_edge_ref_t edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null);
+        tb_assert_abort(edge_last);
+
+        // get the first(leftmost) top edge of this event
+        gb_mesh_edge_ref_t edge_first = region_first->edge;
+        tb_assert_abort(edge_first);
 
         /* next we process all the down-going edges at this event. 
          * 
@@ -608,7 +682,7 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
          *
          *                     .   (finished)  .
          *                       .   region1 . 
-         *                         .       . region2
+         *                         .       . region2(finished)
          *                           .   .
          *     ----------------------- . event ------------ sweep line
          *                           .   .
