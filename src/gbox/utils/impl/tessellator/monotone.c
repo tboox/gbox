@@ -573,7 +573,42 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_event, edge_event, tb_null);
     }
 }
-/* finish all top regions of this event
+/* finish one top region of the current event
+ *
+ * we mark the it's face "inside" if this region is inside
+ * and remove this region.
+ *
+ *       face        .
+ * .               .
+ *   .  region   .
+ *     .       .
+ *  edge .   .
+ *         .
+ */
+static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
+{
+    // check
+    tb_assert_abort(impl && region);
+
+    // get the edge of this region
+    gb_mesh_edge_ref_t edge = region->edge;
+    tb_assert_abort(edge);
+
+    // get the face of this region
+    gb_mesh_face_ref_t face = gb_mesh_edge_rface(edge);
+    tb_assert_abort(face);
+
+    // mark the face "inside" if the region is inside
+    gb_tessellator_face_inside_set(face, region->inside);
+
+    /* TODO optimization for triangulation
+     */
+    // face->edge = edge;
+
+    // remove this region
+    gb_tessellator_active_regions_remove(impl, region);
+}
+/* finish all top regions of the current event
  *
  * we need close off them first if the left and right edges of these regions terminate 
  * at this event. 
@@ -583,7 +618,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
  *
  *  . edge_left                                                    . edge_right
  *  .                                                              .
- *  .                                                              .
+ *  .            (prev)                                            .
  *  .          (leftmost)              .                           .
  *  .          edge_first             .                            .
  *  .                . region_first  .             . edge_last     .
@@ -599,7 +634,36 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
  */
 static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_first, gb_tessellator_active_region_ref_t region_last)
 {
-    return tb_null;
+    // check
+    tb_assert_abort(impl && region_first);
+
+    // we walk as far as possible if region_last is null 
+    gb_mesh_edge_ref_t                  edge            = region_first->edge;
+    gb_mesh_edge_ref_t                  edge_next       = tb_null;
+    gb_tessellator_active_region_ref_t  region          = region_first;
+    gb_tessellator_active_region_ref_t  region_next     = tb_null;
+    while (region != region_last) 
+    {
+        // get the next right region
+        region_next = gb_tessellator_active_regions_right(impl, region);
+        tb_assert_abort(region_next);
+
+        // get the next right edge
+        edge_next = region_next->edge;
+        tb_assert_abort(edge_next);
+
+        // TODO
+
+        // finish the top region, TODO may change region_next->edge
+        gb_tessellator_finish_top_region(impl, region);
+
+        // update the edge and region
+        edge    = region_next->edge;
+        region  = region_next;
+    }
+
+    // return the last edge
+    return edge;
 }
 /* process one event vertex at the sweep line
  *
@@ -667,7 +731,12 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
 
         /* finish all top regions of this event
          *
-         * [region_first, region_last]
+         * we need close off them first if the left and right edges of these regions terminate 
+         * at this event. 
+         *
+         * then we mark these faces "inside" or "outside" the polygon according 
+         * to their winding number and remove these regions.
+         *
          */
         gb_mesh_edge_ref_t edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null);
         tb_assert_abort(edge_last);
