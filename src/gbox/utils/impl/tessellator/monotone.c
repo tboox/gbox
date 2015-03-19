@@ -635,7 +635,7 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
  *  .                     .                                        .
  *  .                                                              .
  */
-static gb_tessellator_active_region_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_first, gb_tessellator_active_region_ref_t region_last)
+static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_first, gb_tessellator_active_region_ref_t region_last, gb_tessellator_active_region_ref_t* pregion_right)
 {
     // check
     tb_assert_abort(impl && region_first);
@@ -738,8 +738,11 @@ static gb_tessellator_active_region_ref_t gb_tessellator_finish_top_regions(gb_t
         region  = region_next;
     }
 
-    // return the last region
-    return region;
+    // save the right region
+    if (pregion_right) *pregion_right = region_next;
+
+    // return the last edge
+    return edge;
 }
 /* process one event vertex at the sweep line
  *
@@ -805,27 +808,23 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
         tb_assert_abort(region_first);
 
-        // finish all top regions of this event and return the last region
-        gb_tessellator_active_region_ref_t region_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null);
-        tb_assert_abort(region_last);
-
-        // get the right region
-        gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region_last);
-        tb_assert_abort(region_right);
+        /* finish all top regions of this event
+         *
+         * return the last edge and right region in the meantime
+         */
+        gb_tessellator_active_region_ref_t  region_right = tb_null;
+        gb_mesh_edge_ref_t                  edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null, &region_right);
+        tb_assert_abort(edge_last && region_right);
 
         // get the first(leftmost) top edge of this event
         gb_mesh_edge_ref_t edge_first = region_first->edge;
         tb_assert_abort(edge_first);
 
-        // get the last(rightmost) top edge of this event
-        gb_mesh_edge_ref_t edge_last = region_last->edge;
-        tb_assert_abort(edge_last);
-
         /* connect the bottom event if no down-going edges
          *
          *          .             .
-         *            .         .
-         *              .     .
+         *            .    .    .
+         *              .  .  .
          * --------------- . ------------------------------------ sweep line
          *               event
          *              (bottom)
