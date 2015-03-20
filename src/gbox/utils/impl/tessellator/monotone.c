@@ -450,7 +450,32 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     // get the region which edge.dst is lower and we need connect it
     gb_tessellator_active_region_ref_t region_lower = gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge_left), gb_mesh_edge_dst(edge_right))? region_right : region_left;
 
-    // we need split it if the contained(left) region is inside
+    /* we need split it if the contained(left) region is inside
+     *
+     * before:
+     *
+     * . . . . . . . . . 
+     * .     inside    .
+     * .               .
+     * .     e . . --- . ---- sweep line
+     * .     .   .     .
+     * .     . . .     .
+     * .               .
+     * .               .
+     * . . . . . . . . .
+     *
+     * after:
+     *
+     * . . . . . . . . . 
+     * . .             .
+     * .   .           .
+     * .     e . . --- . ---- sweep line
+     * .     .   .     .
+     * .     . . .     .
+     * .               .
+     * .               .
+     * . . . . . . . . .
+     */
     if (region_left->inside)
     {
         // trace
@@ -572,6 +597,26 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
          */
         gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_event, edge_event, tb_null);
     }
+}
+/* connect the bottom event if no down-going edges
+ *
+ *  . edge_left                                                    . edge_right
+ *  .                regions have been removed                     .
+ *  .                                                              .
+ *  .          (leftmost)              .                           .
+ *  .          edge_first             .                            .
+ *  .                .               .             . edge_last     .
+ *  .                  .            .          .                   .
+ *  . region_left        .         .       .                       . region_right
+ *  .                      .      .    .                           .     
+ * /.\                       .   . .                              /.\
+ *  .  ------------------------ . event -------------------------- . ------- sweep line   
+ *  .                        (bottom)                              .
+ *  .                                                              .
+ *  .                                                              .
+ */
+static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_mesh_edge_ref_t edge_last)
+{
 }
 /* finish one top region of the current event
  *
@@ -808,7 +853,7 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
         tb_assert_abort(region_first);
 
-        /* finish all top regions of this event
+        /* finish all top regions of this event and remove these regions
          *
          * return the last edge and right region in the meantime
          */
@@ -820,18 +865,27 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         gb_mesh_edge_ref_t edge_first = region_first->edge;
         tb_assert_abort(edge_first);
 
-        /* connect the bottom event if no down-going edges
+        /* no down-going edges?
          *
-         *          .             .
-         *            .    .    .
-         *              .  .  .
-         * --------------- . ------------------------------------ sweep line
-         *               event
-         *              (bottom)
+         *  . edge_left                                                    . edge_right
+         *  .                regions have been removed                     .
+         *  .                                                              .
+         *  .          (leftmost)              .                           .
+         *  .          edge_first             .                            .
+         *  .                .               .             . edge_last     .
+         *  .                  .            .          .                   .
+         *  . region_left        .         .       .                       . region_right
+         *  .                      .      .    .                           .     
+         * /.\                       .   . .                              /.\
+         *  .  ------------------------ . event -------------------------- . ------- sweep line   
+         *  .                        (bottom)                              .
+         *  .                                                              .
+         *  .                                                              .
          */
         if (gb_mesh_edge_onext(edge_first) == edge_last)
         {
-            // TODO
+            // connect the bottom event
+            gb_tessellator_connect_bottom_event(impl, region_left, edge_last);
         }
         // insert all down-going edges at this event and create new active regions
         else gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_first), edge_last, edge_first);
