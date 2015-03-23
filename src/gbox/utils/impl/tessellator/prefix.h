@@ -103,10 +103,16 @@ typedef struct __gb_tessellator_active_region_t
     tb_long_t                           winding;
 
     // is inside?
-    tb_uint8_t                          inside : 1;
+    tb_uint8_t                          inside  : 1;
 
     // is bounds?
-    tb_uint8_t                          bounds : 1;
+    tb_uint8_t                          bounds  : 1;
+
+    /* the left edge need fix?
+     *
+     * see gb_tessellator_connect_bottom_event
+     */
+    tb_uint8_t                          fixedge : 1;
 
 }gb_tessellator_active_region_t, *gb_tessellator_active_region_ref_t;
 

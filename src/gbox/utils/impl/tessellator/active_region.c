@@ -207,10 +207,12 @@ static tb_long_t gb_tessellator_active_region_printf(tb_cpointer_t object, tb_ch
     // make info
     return tb_snprintf( cstr
                     ,   maxn
-                    ,   "(%{mesh_edge}, winding: %ld, inside: %d)"
+                    ,   "(%{mesh_edge}, winding: %ld, inside: %d, fixedge: %d, bounds: %d)"
                     ,   region->edge
                     ,   region->winding
-                    ,   region->inside);
+                    ,   region->inside
+                    ,   region->fixedge
+                    ,   region->bounds);
 }
 #endif
 
@@ -280,6 +282,7 @@ static tb_void_t gb_tessellator_active_regions_insert_bounds(gb_tessellator_impl
     region.edge     = edge;
     region.winding  = 0;
     region.inside   = 0;
+    region.fixedge  = 0;
     region.bounds   = 1;
 
     // insert region
@@ -504,6 +507,9 @@ tb_void_t gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_t
     // check
     tb_assert_abort(impl && impl->active_regions && region && region->edge);
     tb_assert_abort(region->position != tb_iterator_tail(impl->active_regions));
+
+    // it can not be a real edge if the left edge need fix, then we will remove it 
+    tb_assert_abort(!region->fixedge || !gb_tessellator_edge_winding(region->edge));
 
     // clear the region reference for the edge
     gb_tessellator_edge_region_set(region->edge, tb_null);

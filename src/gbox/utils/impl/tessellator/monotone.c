@@ -600,6 +600,78 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
 }
 /* connect the bottom event if no down-going edges
  *
+ * since there are no down-going edges, 
+ * two regions (region_left and region_last) are being merged into one.
+ *
+ * we need add a temporary down-going edge because:
+ * 
+ * - if the two regions (region_left and region_last) being merged are "inside", 
+ *   we must add an edge to keep them separated (the combined region would not be monotone).
+ *
+ *   .e.g
+ *
+ *                   .
+ *                 .   .
+ *               .       .
+ *             .           .
+ *           .               .
+ *         .         .         . 
+ *          .      .   .      .
+ *           .       e ----- . ----- sweep line
+ *            .      *      .
+ *             .     *     . 
+ *              .    *    .
+ *               .   *   .
+ *                .  *  .
+ *                 . * .
+ *                  .*.
+ *                   .
+ *
+ *   
+ * - in any case, we must leave some record of event 
+ *   so that we can merge event with features that we have not seen yet.
+ *
+ *   for example, maybe there is a horizontal edge which passes just to
+ *   the bottom of event; we would like to splice event into this edge.
+ *
+ *   .e.g
+ *
+ *                   .                                                        .
+ *                 .   .                                                    .   .
+ *               .       .                                                .       .
+ *             .           .                                            .           .                      
+ *           .               .                                        .               .
+ *         .         .         .                                    .         .         .
+ *          .      .   .      .                                      .      .   .      .
+ *           .       e ----- . ----- sweep line   ======>             .       e       .
+ *            .      *      .                   after fixing           .     *       .
+ *             .     *     .                                            .   *       .
+ *              .  -----  .                                              . *-----  .
+ *               .  .*.  .                                                .  . .  . 
+ *                .  .  .                                                  .  .  .
+ *                 . * .                                                    .   .
+ *                  .*.                                                      . .
+ *                   .                                                        .
+ *
+ * however, we don't want to connect event to just any vertex.  
+ * (maybe generate new intersections)
+ *
+ * so we connect event to the topmost unprocessed vertex of the combined region.
+ *
+ * but because of unseen vertices with all down-going edges, and also
+ * new vertices which may be created by edge intersections, we don''t
+ * know where that topmost unprocessed vertex is.  
+ *
+ * in the meantime, we connect event to the closest vertex of either chain, 
+ * and mark the region as "fixedge".  
+ *
+ * this flag says to remove and reconnect this edge 
+ * to the next processed vertex on the boundary of the combined region.
+ * 
+ * quite possibly the vertex we connected to will turn out to be the
+ * closest one, in which case we won''t need to make any changes.
+ *
+ *
  *  . edge_left                                                    . edge_right
  *  .                regions have been removed                     .
  *  .                                                              .
@@ -608,12 +680,15 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
  *  .                .               .             . edge_last     .
  *  .                  .            .          .                   .
  *  . region_left        .         .       .                       . region_right
- *  .                      .      .    .                           .     
+ *  .                      .      .    .         region_last       .     
  * /.\                       .   . .                              /.\
  *  .  ------------------------ . event -------------------------- . ------- sweep line   
  *  .                        (bottom)                              .
- *  .                                                              .
- *  .                                                              .
+ *  .               .                                              .
+ *  .       .                                                      .
+ *  .        edge_new                                              .
+ *    .                  region_new(fixedge)                     .
+ *       .                                                     .
  */
 static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_mesh_edge_ref_t edge_last)
 {
