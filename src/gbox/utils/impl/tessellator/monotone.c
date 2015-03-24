@@ -66,14 +66,14 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
     tb_trace_d("fix a temporary edge: %{mesh_edge} => %{mesh_edge}", region->edge, edge);
 
     // remove the temporary edge
-	gb_mesh_edge_delete(impl->mesh, region->edge);
+    gb_mesh_edge_delete(impl->mesh, region->edge);
 
     // replace the new edge
     region->edge = edge;
 
     // clear the "fixedge" mark
-	region->fixedge = 0;
-	
+    region->fixedge = 0;
+    
     // update the region reference to the edge
     gb_tessellator_edge_region_set(edge, region);
 }
@@ -570,7 +570,53 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         // check
         tb_assert_abort(edge_new);
 
-        // we fix it if the connected edge need fix
+        /* we fix it if the connected edge need fix
+         * 
+         * before:
+         *                                                             .
+         *          .                                                    .  
+         *       .                                                         . edge_right
+         *    .                                                            . (upper)
+         *  . edge_left (lower)                                            .
+         *  .   .                                                          .
+         *  .      .                                                       .
+         *  .         .                                                    .
+         *  .            . edge_new                                        .
+         *  . region_left   .                                              .
+         *  .   (inside)       .(top)                                      .
+         *  .            -------- . event -------------------------------- . ------------------- sweep line      
+         *  .                   . . .                                      .  
+         * /.\                .   .   .                                   /.\
+         *  .               .    \./                                       .
+         *  .             .       .                                        .  region_right    
+         *  .                     . edge_event                             .           
+         *  .                                                              . 
+         *  .                  new edges                                   .
+         *  .                                                              .
+         * fixedge
+         *
+         *
+         * after:
+         *                                                             .
+         *          .                                                    .  
+         *       .                                                         . edge_right
+         *    .                                                            . (upper)
+         *  . edge_left (lower)                                            .
+         *      .                                                          .
+         *         .                                                       .
+         *            .                     region_left                    .
+         *               . edge_new                                        .
+         *                  .                                              .
+         *                      .(top)                                     .
+         *               -------- . event -------------------------------- . ------------------- sweep line      
+         *                      . . .                                      .  
+         *                    .   .   .                                   /.\
+         *                  .    \./                                       .
+         *                .       .                                        .  region_right    
+         *                        . edge_event                             .           
+         *                                                                 . 
+         *                     new edges                                   .
+         */
         if (region_lower->fixedge)
         {
             // uses the new edge to fix the connected edge of the lower region 
@@ -773,7 +819,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     // check
     tb_assert_abort(gb_mesh_edge_lprev(edge_first) == gb_mesh_edge_sym(edge_last));
     
-	/* patch a temporary edge connecting to the upper vertex of edge_left.org and edge_right.org
+    /* patch a temporary edge connecting to the upper vertex of edge_left.org and edge_right.org
      * 
      *                   .                                                   .
      *                 .   .                                               .   .
@@ -789,11 +835,11 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      *                  *    .                                           .    .  
      *                      *                                             .   
      *
-	 */
+     */
     gb_mesh_edge_ref_t edge_new = gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right))? gb_mesh_edge_oprev(edge_left) : edge_right;
     edge_new = gb_mesh_edge_connect(impl->mesh, gb_mesh_edge_sym(edge_last), edge_new);
     tb_assert_abort(edge_new && gb_mesh_edge_onext(edge_new) == edge_last);
-	
+    
     // insert this new down-going edges at this event and create new active region
     gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_last, edge_last);
 
