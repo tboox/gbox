@@ -98,23 +98,103 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
 static gb_tessellator_active_region_ref_t gb_tessellator_find_left_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && region && region->edge);
+    tb_assert_abort(impl && impl->mesh && region && region->edge);
 
     // get the origin of the region
     gb_mesh_vertex_ref_t org = gb_mesh_edge_org(region->edge);
     tb_assert_abort(org);
 
     // find the left region of the leftmost edge with the same origin
+    gb_tessellator_active_region_ref_t region_left = region;
     do 
     {
         // get the left region
-        region = gb_tessellator_active_regions_left(impl, region);
-        tb_assert_abort(region && region->edge);
+        region_left = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left && region_left->edge);
     
-    } while (gb_mesh_edge_org(region->edge) == org);
+    } while (gb_mesh_edge_org(region_left->edge) == org);
+
+    /* we fix it if the left edge was a temporary edge
+     *
+     *                           edge_first
+     *  .               .             .
+     *   .              .              .                     .
+     *    .             .               . region_first    .
+     *     .            .                .             .
+     *      .           . region_left     .         .
+     *       .          .                  .    .
+     *        .         .                   .
+     *         .        .                 event
+     *          .       .
+     *              edge_left
+     *               (fixedge)
+     *                       
+     */
+    if (region_left->fixedge)
+    {
+        // trace
+        tb_trace_d("fix the left edge: %{mesh_edge}", region_left->edge);
+
+        // get the first region
+        gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
+        tb_assert_abort(region_first);
+
+        /* create a new edge and connect event to the temporary edge
+         *
+         *                       
+         *                           edge_first
+         *  .               .             .
+         *   .              . *  edge_new  .                     .
+         *    .             .    *          . region_first    .
+         *     .            .       *        .             .
+         *      .           . region_left     .         .
+         *       .          .             *    .    .
+         *        .         .                *  .
+         *         .        .                 event
+         *          .       .
+         *              edge_left
+         *               (fixedge)
+         *                       
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_connect(impl->mesh, gb_mesh_edge_lprev(region_first->edge), gb_mesh_edge_sym(region_left->edge));
+        tb_assert_abort(edge_new);
+
+        /* fix the left edge to the new edge
+         *
+         *                       
+         *                           edge_first
+         *  .               . region_left .
+         *   .                *  edge_new  .                     .
+         *    .                  *          . region_first    .
+         *     .                    *        .             .
+         *      .                      *      .         .
+         *       .                        *    .    .
+         *        .                          *  .
+         *         .                          event
+         *          .        
+         */
+        gb_tessellator_fix_region_edge(impl, region_left, edge_new);
+ 
+        /* get the left region
+         *                       
+         *                   region_first  
+         *  .               .             .
+         *   .                * edge_first .                     .
+         *    .                  *          .                 .
+         *     .                    *        .             .
+         *      . region_left          *      .         .
+         *       .                        *    .    .
+         *        .                          *  .
+         *         .                          event
+         *          .        
+         *       edge_left
+         */
+        region_left = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left && region_left->edge);
+    }
 
     // ok?
-    return region;
+    return region_left;
 }
 static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_new)
 {
@@ -914,7 +994,12 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
 static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_first, gb_tessellator_active_region_ref_t region_last, gb_tessellator_active_region_ref_t* pregion_right)
 {
     // check
-    tb_assert_abort(impl && region_first);
+    tb_assert_abort(impl && impl->mesh && region_first);
+
+    /* the first edge cannot be a temporary edge, 
+     * because we have fixed it after finding the left region
+     */
+    tb_assert_abort(!region_first->fixedge);
 
     // we walk as far as possible if region_last is null 
     gb_mesh_edge_ref_t                  edge            = region_first->edge;
@@ -923,6 +1008,13 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
     gb_tessellator_active_region_ref_t  region_next     = tb_null;
     while (region != region_last) 
     {
+        /* clear the temporary edge mark "fixedge" 
+         *
+         * - the temporary edge have been fixed now if the temporary edge and event are disjoint.
+         * - we only need clear the mark "fixedge" if the temporary edge and event are conjoint.
+         */
+        region->fixedge = 0;
+
         // get the next right region
         region_next = gb_tessellator_active_regions_right(impl, region);
         tb_assert_abort(region_next);
@@ -931,14 +1023,79 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
         edge_next = region_next->edge;
         tb_assert_abort(edge_next);
 
-        // end?
+        // the temporary edge and event are disjoint or end?
         if (gb_mesh_edge_org(edge_next) != gb_mesh_edge_org(edge))
         {
-            // finish the top region
-            gb_tessellator_finish_top_region(impl, region);
+            /* we fix it if the left edge was a temporary edge 
+             *
+             *  edge_first
+             *  .               
+             *   . region_first                                   
+             *    .           .                                  
+             *     .         .            edge                   
+             *      .       .             .              
+             *       .     .          .                 . 
+             *        .   .       .                     .   region_next
+             *         . .   .       region             .
+             *          .                               .
+             *       event                              .
+             *                                      edge_next
+             *                                      (fixedge)
+             *
+             */
+            if (region_next->fixedge)
+            {
+                // trace
+                tb_trace_d("fix the top edge: %{mesh_edge}", edge_next);
 
-            // end
-            break;
+                /* create a new edge and connect the temporary edge to the event
+                 *
+                 *  edge_first
+                 *  .               
+                 *   . region_first                                   
+                 *    .           .                                  
+                 *     .         .            edge                   
+                 *      .       .             .              
+                 *       .     .          .                 . 
+                 *        .   .       .                *    .   region_next
+                 *         . .   .     region  *  edge_new  .
+                 *          .       *                       .
+                 *       event                              .
+                 *                                      edge_next
+                 *                                      (fixedge)
+                 *
+                 */
+                gb_mesh_edge_ref_t edge_new = gb_mesh_edge_connect(impl->mesh, edge_next, gb_mesh_edge_onext(edge));
+                tb_assert_abort(edge_new);
+
+                // reverse the edge
+                edge_new = gb_mesh_edge_sym(edge_new);
+
+                /* fix the next edge to the new edge 
+                 *
+                 *  edge_first
+                 *  .               
+                 *   . region_first                                   
+                 *    .           .                                  
+                 *     .         .            edge                   
+                 *      .       .             .              
+                 *       .     .          .                 . 
+                 *        .   .       .                *        region_next
+                 *         . .   .     region  *  edge_next   
+                 *          .       *                        
+                 *       event                               
+                 */
+                gb_tessellator_fix_region_edge(impl, region_next, edge_new);
+            }
+            // end?
+            else
+            {
+                // finish the last top region
+                gb_tessellator_finish_top_region(impl, region);
+
+                // end
+                break;
+            }
         }
 
         /* joins the two edges if edge and edge_next are disjoining but the original vertices are same
@@ -1009,7 +1166,10 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
         // finish the top region
         gb_tessellator_finish_top_region(impl, region);
 
-        // update the edge and region, region_next->edge may be changed
+        /* update the edge and region
+         *
+         * @note region_next->edge may be changed after fixing the temporary edge
+         */
         edge    = region_next->edge;
         region  = region_next;
     }
