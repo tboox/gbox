@@ -14,7 +14,7 @@
  */
 
 // the path index
-static tb_size_t        g_index = 4;
+static tb_size_t        g_index = 0;
 
 // the path count
 static tb_size_t        g_count = 0;

@@ -996,11 +996,6 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
     // check
     tb_assert_abort(impl && impl->mesh && region_first);
 
-    /* the first edge cannot be a temporary edge, 
-     * because we have fixed it after finding the left region
-     */
-    tb_assert_abort(!region_first->fixedge);
-
     // we walk as far as possible if region_last is null 
     gb_mesh_edge_ref_t                  edge            = region_first->edge;
     gb_mesh_edge_ref_t                  edge_next       = tb_null;
@@ -1244,6 +1239,10 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
         tb_assert_abort(region_first);
 
+        // get the first(leftmost) top edge of this event
+        gb_mesh_edge_ref_t edge_first = region_first->edge;
+        tb_assert_abort(edge_first);
+
         /* finish all top regions of this event and remove these regions
          *
          * return the last edge and right region in the meantime
@@ -1251,10 +1250,6 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         gb_tessellator_active_region_ref_t  region_right = tb_null;
         gb_mesh_edge_ref_t                  edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null, &region_right);
         tb_assert_abort(edge_last && region_right);
-
-        // get the first(leftmost) top edge of this event
-        gb_mesh_edge_ref_t edge_first = region_first->edge;
-        tb_assert_abort(edge_first);
 
         /* no down-going edges?
          *

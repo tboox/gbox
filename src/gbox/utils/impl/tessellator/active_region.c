@@ -419,10 +419,10 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
      *    |              .  .    .        |
      *                                 (xe, ye)
      */
-    gb_float_t xb = bounds->x;
-    gb_float_t yb = bounds->y;
-    gb_float_t xe = bounds->x + bounds->w;
-    gb_float_t ye = bounds->y + bounds->h;
+    gb_float_t xb = bounds->x - GB_ONE;
+    gb_float_t yb = bounds->y - GB_ONE;
+    gb_float_t xe = bounds->x + bounds->w + GB_ONE;
+    gb_float_t ye = bounds->y + bounds->h + GB_ONE;
     gb_tessellator_active_regions_insert_bounds(impl, xb, ye, yb);
     gb_tessellator_active_regions_insert_bounds(impl, xe, ye, yb);
 
