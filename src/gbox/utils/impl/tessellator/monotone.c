@@ -580,7 +580,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     if (region_left->inside || region_lower->fixedge)
     {
         // trace
-        tb_trace_d("split the region: %{tessellator_region}", region_left);
+        tb_trace_d("split the region: %{tess_region}", region_left);
 
         /* we need connect the top event to it if the destinate vertex of the left edge is lower
          *
@@ -947,7 +947,7 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
     tb_assert_abort(impl && region);
 
     // trace
-    tb_trace_d("finish region: %{tessellator_region}", region);
+    tb_trace_d("finish region: %{tess_region}", region);
 
     // get the edge of this region
     gb_mesh_edge_ref_t edge = region->edge;

@@ -190,7 +190,7 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
     tb_assert_and_check_return_val(region, tb_null);
 
     // make info
-    tb_long_t size = tb_snprintf(cstr, maxn, "%{tessellator_region}", region);
+    tb_long_t size = tb_snprintf(cstr, maxn, "%{tess_region}", region);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -389,12 +389,12 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
         // init the c-string function for tb_list_dump
         element.cstr = gb_tessellator_active_region_cstr;
 
-        // register printf("%{tessellator_region}", region);
+        // register printf("%{tess_region}", region);
         static tb_bool_t s_is_registered = tb_false;
         if (!s_is_registered)
         {
             // register it
-            tb_printf_object_register("tessellator_region", gb_tessellator_active_region_printf);
+            tb_printf_object_register("tess_region", gb_tessellator_active_region_printf);
 
             // ok
             s_is_registered = tb_true;
