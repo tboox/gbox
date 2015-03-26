@@ -25,7 +25,7 @@
  * trace
  */
 #define TB_TRACE_MODULE_NAME            "tessellator_mesh"
-#define TB_TRACE_MODULE_DEBUG           (0)
+#define TB_TRACE_MODULE_DEBUG           (1)
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * includes
@@ -182,7 +182,13 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
 
                 // continue 
                 continue ;
-            }
+            } 
+            
+            // clear the edge
+            edge = tb_null;
+
+            // clear the first edge
+            edge_first = tb_null;
 
             // trace
             tb_trace_d("move_to: %{point}", point);
@@ -199,9 +205,6 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
             // init edge.faces.inside
             gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
             gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge), 0);
-
-            // clear the first edge
-            edge_first = tb_null;
         }
         else 
         {
@@ -237,7 +240,6 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
 
             // init edge.dst
             gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), *point);
-
         }
 
         // next point

@@ -257,7 +257,7 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
     do 
     {
         // the edge must be down-going
-        tb_assert_abort(gb_tessellator_edge_go_down(edge));
+        tb_assertf_abort(gb_tessellator_edge_go_down(edge), "invalid edge: %{mesh_edge}", edge);
 
         // trace
         tb_trace_d("insert down-going edge: %{mesh_edge}", edge);
