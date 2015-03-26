@@ -137,6 +137,14 @@ gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_insert(gb_tess
  */
 gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_insert_before(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t region);
 
+#ifdef __gb_debug__
+/* check the active regions
+ *
+ * @param impl                      the tessellator impl
+ */
+tb_void_t                           gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl);
+#endif
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

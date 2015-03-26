@@ -534,4 +534,43 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_before(g
     // insert it
     return gb_tessellator_active_regions_insert_done(impl, region_tail->position, region);
 }
+#ifdef __gb_debug__
+tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
+{
+    // check
+    tb_assert_abort(impl && impl->active_regions);
+
+    // done
+    gb_tessellator_active_region_ref_t region_prev = tb_null;
+    tb_for_all_if (gb_tessellator_active_region_ref_t, region, impl->active_regions, region)
+    {
+        // check order
+        if (region_prev)
+        {
+            // the order is error?
+            if (tb_iterator_comp(impl->active_regions, region_prev, region) > 0)
+            {
+                // trace
+                tb_trace_i("the order of the active regions is error!");
+
+                // dump it
+#           ifdef __tb_debug__
+                tb_list_dump(impl->active_regions);
+#           endif
+
+                // trace
+                tb_trace_i("%{tess_region}", region_prev);
+                tb_trace_i("<?=");
+                tb_trace_i("%{tess_region}", region);
+
+                // abort it
+                tb_assert_abort(0);
+            }
+        }
+
+        // update the previous region
+        region_prev = region;
+    }
+}
+#endif
 

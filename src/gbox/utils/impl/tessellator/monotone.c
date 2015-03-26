@@ -522,7 +522,9 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     tb_assert_abort(edge_left);
     tb_assert_abort(edge_right);
 
-    /* we merge it into that edge chain if the event vertex close enough to the left edge 
+    /* the degenerate case
+     *
+     * we merge it into that edge chain if the event vertex close enough to the left edge 
      *
      *        .                                                    .
      *     .                                                         .
@@ -1195,6 +1197,11 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
 
     // update the current sweep event for the active_region.leq
     impl->event = event;
+
+    // check
+#ifdef __gb_debug__
+    gb_tessellator_active_regions_check(impl);
+#endif
 
     // trace
     tb_trace_d("event: sweep: %{point}", gb_tessellator_vertex_point(event));
