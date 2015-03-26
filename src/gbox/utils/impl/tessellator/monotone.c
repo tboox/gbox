@@ -921,7 +921,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     tb_assert_abort(edge_new && gb_mesh_edge_onext(edge_new) == edge_last);
     
     // insert this new down-going edges at this event and create new active region
-    gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_last, edge_last);
+    gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_last, edge_first);
 
     // mark it as a temporary edge, then we need fix it
     gb_tessellator_edge_region(gb_mesh_edge_sym(edge_new))->fixedge = 1;
@@ -1005,8 +1005,10 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
     {
         /* clear the temporary edge mark "fixedge" 
          *
+         * - quite possibly we only need clear the mark "fixedge"
+         *   if the temporary edge and event are conjoint.
+         *
          * - the temporary edge have been fixed now if the temporary edge and event are disjoint.
-         * - we only need clear the mark "fixedge" if the temporary edge and event are conjoint.
          */
         region->fixedge = 0;
 
@@ -1302,6 +1304,7 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
     tb_assert_abort(impl && bounds);
 
     // trace
+    tb_trace_d("");
     tb_trace_d("bounds: %{rect}", bounds);
 
     // the mesh

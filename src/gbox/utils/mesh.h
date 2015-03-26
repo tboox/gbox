@@ -882,10 +882,10 @@ gb_mesh_edge_ref_t              gb_mesh_edge_connect(gb_mesh_ref_t mesh, gb_mesh
 
 /*! delete edge
  *
- * The operation will disconnect the edge e from the rest of the structure 
+ * the operation will disconnect the edge e from the rest of the structure 
  * (this may cause the rest of the structure to fall apart in two separate components). 
  *
- * In a sense, the delete operation is the inverse of the connect operation. 
+ * in a sense, the delete operation is the inverse of the connect operation. 
  *
  * <pre>
  *
