@@ -478,6 +478,126 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
         }
     }
 }
+
+/* connect this degenerate top event to the processed portion of the mesh
+ *
+ * the event vertex lies exactly on an already-processed edge or vertex.
+ *
+ *  . edge_left                                                    . edge_right
+ *  .                                                              .
+ *  .                     region_left                              .
+ *  .                                                              .
+ *  .                                                              . 
+ *  . (top)                                                        .
+ *  . event ------------------------------------------------------ . ------------------ sweep line      
+ *  .  .   .                                                       .  
+ * /.\   .     .                                                  /.\
+ *  .      .       .                                               .
+ *  .        .         .                                           .  region_right    
+ *  .                      .                                       .           
+ *  .          new_edges                                           . 
+ *  .                                                              .
+ *  .                                                              .
+ */
+static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_mesh_vertex_ref_t event)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && region_left && event);
+
+    // trace
+    tb_trace_d("connect degenerate top event: %{point}", gb_tessellator_vertex_point(event));
+
+    // the left edge
+    gb_mesh_edge_ref_t edge_left = region_left->edge;
+    tb_assert_abort(edge_left);
+
+    /* the event vertex lies exactly on edge_left.org and edge_left.org is an unprocessed vertex
+     *
+     * because the left region have been finished and removed if the edge_left.org have been processed
+     *
+     *  . edge_left                                                    . edge_right
+     *  .                                                              .
+     *  .                     region_left                              .
+     *  .                                                              .
+     *  .                                                              . 
+     *  . (top)                                                        .
+     *  x event ------------------------------------------------------ . ------------------ sweep line      
+     *     .   .                                                       .  
+     *       .     .                                                  /.\
+     *         .       .                                               .
+     *           .         .                                           .  region_right    
+     *                         .                                       .           
+     *             new_edges                                           . 
+     *                                                                 .
+     *                                                                 .
+     */
+    if (gb_tessellator_vertex_eq(gb_mesh_edge_org(edge_left), event))
+    {
+        // trace
+        tb_trace_d("connect the event to the origin of the edge: %{mesh_edge}", edge_left);
+
+        /* we only connect the event vertex to the origin of the left edge 
+         * and wait for processing at next time, because the edge_left.org is an unprocessed vertex
+         */
+        gb_mesh_edge_splice(impl->mesh, edge_left, gb_mesh_vertex_edge(event));
+        return;
+    }
+
+    /* the event vertex lies exactly on edge_left.dst and the edge_left.dst have been processed
+     *
+     *                                                                 . edge_right
+     *                                                                 .
+     *                                                                 .
+     *                                                                 .
+     *                                                                 . 
+     *    (top)                                                        .
+     *  x event ------------------------------------------------------ . ------------------ sweep line      
+     *  .  .   .                                                       .  
+     *  .    .     .                                                  /.\
+     * /.\     .       .                                               .
+     *  .        .         .                                           .  region_right    
+     *  .                      .                                       .           
+     *  .          new_edges                                           . 
+     *  .                                                              .
+     *  .                          region_left
+     *  .
+     * edge_left
+     */
+    if (gb_tessellator_vertex_eq(gb_mesh_edge_dst(edge_left), event))
+    {
+        // trace
+        tb_trace_d("connect the event to the destination of the edge: %{mesh_edge}", edge_left);
+
+        // TODO
+        tb_assert_abort(0);
+    }
+    /* the event vertex lies exactly on an already-processed edge 
+     *
+     *  . edge_left                                                    . edge_right
+     *  .                                                              .
+     *  .                     region_left                              .
+     *  .                                                              .
+     *  .                                                              . 
+     *  . (top)                                                        .
+     *  . event ------------------------------------------------------ . ------------------ sweep line      
+     *  .  .   .                                                       .  
+     * /.\   .     .                                                  /.\
+     *  .      .       .                                               .
+     *  .        .         .                                           .  region_right    
+     *  .                      .                                       .           
+     *  .          new_edges                                           . 
+     *  .                                                              .
+     *  .                                                              .
+     */
+    else
+    {
+        // trace
+        tb_trace_d("connect the event to the body of the edge: %{mesh_edge}", edge_left);
+
+        // TODO
+        tb_assert_abort(0);
+    }
+}
 /* connect this top event to the processed portion of the mesh
  *
  * - the normal case:
@@ -495,7 +615,7 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
 static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && impl->active_regions && event);
+    tb_assert_abort(impl && impl->mesh && event);
 
     // trace
     tb_trace_d("connect top event: %{point}", gb_tessellator_vertex_point(event));
@@ -526,15 +646,13 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
      *
      * we merge it into that edge chain if the event vertex close enough to the left edge 
      *
-     *        .                                                    .
-     *     .                                                         .
      *  . edge_left                                                    . edge_right
      *  .                                                              .
      *  .                     region_left                              .
-     *  .                      (inside)                                .
+     *  .                                                              .
      *  .                                                              . 
      *  . (top)                                                        .
-     *  . event ------------------------------------------------------ . ------------------ sweep line      
+     *  x event ------------------------------------------------------ . ------------------ sweep line      
      *  .  .   .                                                       .  
      * /.\   .     .                                                  /.\
      *  .      .       .                                               .
@@ -546,8 +664,8 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
      */
     if (gb_tessellator_vertex_on_edge(event, gb_mesh_edge_dst(edge_left), gb_mesh_edge_org(edge_left)))
     {
-        // TODO
-        tb_assert_abort(0);
+        // connect the degenerate top event
+        gb_tessellator_connect_top_event_degenerate(impl, region_left, event);
     }
 
     // get the region which edge.dst is lower and we need connect it
