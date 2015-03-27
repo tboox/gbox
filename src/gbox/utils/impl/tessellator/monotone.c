@@ -77,7 +77,7 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
     // update the region reference to the edge
     gb_tessellator_edge_region_set(edge, region);
 }
-/* find the left region of the leftmost edge with the same origin(event)
+/* find the left top region of the leftmost edge with the same origin(event)
  *
  *  . edge_left                                                    . edge_right
  *  .                                                              .
@@ -95,7 +95,7 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  *  .                     .                                        .
  *  .                                                              .
  */
-static gb_tessellator_active_region_ref_t gb_tessellator_find_left_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
+static gb_tessellator_active_region_ref_t gb_tessellator_find_left_top_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check
     tb_assert_abort(impl && impl->mesh && region && region->edge);
@@ -104,11 +104,11 @@ static gb_tessellator_active_region_ref_t gb_tessellator_find_left_region(gb_tes
     gb_mesh_vertex_ref_t org = gb_mesh_edge_org(region->edge);
     tb_assert_abort(org);
 
-    // find the left region of the leftmost edge with the same origin
+    // find the left top region of the leftmost edge with the same origin
     gb_tessellator_active_region_ref_t region_left = region;
     do 
     {
-        // get the left region
+        // get the left top region
         region_left = gb_tessellator_active_regions_left(impl, region_left);
         tb_assert_abort(region_left && region_left->edge);
     
@@ -192,6 +192,46 @@ static gb_tessellator_active_region_ref_t gb_tessellator_find_left_region(gb_tes
         region_left = gb_tessellator_active_regions_left(impl, region_left);
         tb_assert_abort(region_left && region_left->edge);
     }
+
+    // ok?
+    return region_left;
+}
+/* find the left bottom region of the leftmost edge with the same destination(event)
+ *
+ *  . edge_left                                                    . edge_right
+ *  .                                                              .
+ *  .                                                              .
+ *  .                    .         .       .                       . 
+ *  .                      .      .    .                           .     
+ * /.\                       .   . .                              /.\
+ *  .  ------------------------ . event -------------------------- . ------- sweep line   
+ *  .                         .  . (dst)                           .
+ *  .                       .     .    .                           .
+ *  . region_left         .        .       .  region_last          . region_right
+ *  .                   .           .  region .                    .
+ *  .                 .              .           .                 .
+ *  .               . region_first    .           edge_last        .
+ *  .           edge_first             .                           .
+ *  .                                                              .
+ */
+static gb_tessellator_active_region_ref_t gb_tessellator_find_left_bottom_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && region && region->edge);
+
+    // get the destination of the region
+    gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(region->edge);
+    tb_assert_abort(dst);
+
+    // find the left bottom region of the leftmost edge with the same origin
+    gb_tessellator_active_region_ref_t region_left = region;
+    do 
+    {
+        // get the left bottom region
+        region_left = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left && region_left->edge);
+    
+    } while (gb_mesh_edge_dst(region_left->edge) == dst);
 
     // ok?
     return region_left;
@@ -1358,8 +1398,8 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
      */
     if (region)
     {
-        // find the left region of the leftmost edge with the same origin
-        gb_tessellator_active_region_ref_t region_left = gb_tessellator_find_left_region(impl, region);
+        // find the left top region of the leftmost edge with the same origin
+        gb_tessellator_active_region_ref_t region_left = gb_tessellator_find_left_top_region(impl, region);
         tb_assert_abort(region_left);
 
         // get the first(leftmost) top region of this event
