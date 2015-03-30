@@ -589,23 +589,23 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
 
     /* the event vertex lies exactly on edge.dst and the edge.dst have been processed
      *
-     * . edge_left                                                  
-     * .                                                             
-     * .                                                             
-     * .                                                             
-     * .                                                                
-     * . region_left                        (top)                       
-     * .                                   x x event ------------------------ sweep line      
-     * .                            .   .  .  .   .                        
-     * .                      .       .    .    .     .                  
-     * .                .           .     /.\     .       .               
-     * .           . region_first .        .        .         .             
-     * .      edge_first        .          .                      .         
-     * .                      .            .          new_edges           
-     * .                    .              .                               
-     * .                                   .   region
-     * .                                   .
-     * .                                 edge
+     * . edge_left                                                        . edge_right
+     * .                  edge_left_top                                   .             
+     * .                        .                                         .
+     * .                           .                                      .
+     * .                              .                                   .   
+     * . region_left                     .  (top)                         .   
+     * .                                   x x event -------------------- . ------- sweep line      
+     * .                            .   .  .  .   .                       .      
+     * .                      .       .    .    .     .                   .    
+     * .                .           .     /.\     .       .               . region_right
+     * .           . region_first .        .        .         .           .       
+     * .      edge_first        .          .                      .       .       
+     * .                      .            .          new_edges           .     
+     * .                    .              .                              .      
+     * .                                   .   region                     .
+     * .                                   .                              .
+     * .                                 edge                             .
      */
     if (gb_tessellator_vertex_eq(gb_mesh_edge_dst(edge), event))
     {
@@ -616,6 +616,10 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         gb_tessellator_active_region_ref_t region_left = gb_tessellator_find_left_bottom_region(impl, region);
         tb_assert_abort(region_left);
 
+        // get the right region
+        gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region);
+        tb_assert_abort(region_right);
+
         // get the first bottom region at the same destination
         gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
         tb_assert_abort(region_first);
@@ -624,8 +628,64 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         gb_mesh_edge_ref_t edge_first = gb_mesh_edge_sym(region_first->edge);
         tb_assert_abort(edge_first);
 
-        // TODO
-        tb_assert_abort(0);
+        // the left top edge
+        gb_mesh_edge_ref_t edge_left_top = gb_mesh_edge_oprev(edge_first);
+        tb_assert_abort(edge_left_top);
+
+        /* we remove it and it's region if the first edge is fixable
+         * since now we have some real down-going edges.
+         *
+         * so we no longer need a fixable edge for connecting the bottom event now.
+         */
+        if (region->fixedge)
+        {
+            // trace
+            tb_trace_d("fix the degenerate top edge: %{mesh_edge}", edge);
+
+            // check
+            tb_assert_abort(edge_first != edge_left_top);
+
+            // remove the first region
+            gb_tessellator_active_regions_remove(impl, region_first);
+
+            // remove the first edge
+            gb_mesh_edge_delete(impl->mesh, edge_first);
+
+            // update the first edge
+            edge_first = gb_mesh_edge_onext(edge_left_top);
+        }
+        
+        /* merge the new edges with event between the first edge and the left top edge
+         *
+         * @note we must ensure the edge order (edge_left_top.onext => new_edges.onext => edge_first)
+         *       for getting the range of inserting new down-going edges
+         *
+         * . edge_left                                                        . edge_right
+         * .                  edge_left_top                                   .             
+         * .                        .                                         .
+         * .                           .                                      .
+         * .                              .                                   .   
+         * . region_left  (merged position)  .  (top)                         .   
+         * .                                   . event ---------------------- . ------- sweep line      
+         * .                            .   .  .  .   .                       .      
+         * .                      .       .    .    .     .                   .    
+         * .                .           .     /.\     .       .               . region_right
+         * .           . region_first .        .        .         .           .       
+         * .      edge_first        .          .                      .       .       
+         * .                      .            .          new_edges           .     
+         * .                    .              .                              .      
+         * .                                   .   region                     .
+         * .                                   .                              .
+         * .                                 edge                             .
+         *
+         */
+        gb_mesh_edge_splice(impl->mesh, event->edge, edge_left_top);
+
+        // check
+        tb_assert_abort(gb_mesh_edge_onext(edge_left_top) != edge_first);
+
+        // insert new down-going edges at this event and create new active regions
+        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_left_top), edge_first, gb_tessellator_edge_go_up(edge_left_top)? edge_left_top : tb_null);
     }
     /* the event vertex lies exactly on an already-processed edge 
      *
@@ -650,8 +710,97 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         // trace
         tb_trace_d("connect the event to the body of the edge: %{mesh_edge}", edge);
 
-        // TODO
-        tb_assert_abort(0);
+        /* insert a new edge between (edge.rprev => edge) 
+         *
+         *  . edge                                                 
+         *  .                                                 
+         *  .                     region                         
+         *  .                                                  
+         *  .                                                   
+         *  . (top)                                             
+         *  . event ------------------------------ sweep line      
+         *  .  .   .                          
+         * /.\   .     .                                             
+         *  .      .       .                             
+         *  .        .         .              
+         *  .                      .                     
+         *  .          new_edges                        
+         *  .                               
+         *  x (new)
+         * /.\
+         *  .
+         *  .
+         *  . edge_new
+         *  .
+         *  .
+         *  . .
+         *  . . .
+         *  .  .  .
+         *  .   .   . edge.rprev
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_insert(impl->mesh, gb_mesh_edge_rprev(edge), edge);
+        tb_assert_abort(edge_new);
+
+        /* merge edge.org and event and remove the edge.org which was created recently   
+         *
+         *  . edge                                                 
+         *  .                                                 
+         *  .                     region                         
+         *  .                                                  
+         *  .                                                   
+         *  . (top)                                             
+         *  . event ------------------------------ sweep line      
+         * /.\ .   .                          
+         *  .    .     .                                             
+         *  .      .       .                             
+         *  .        .         .              
+         *  .                      .                     
+         *  .          new_edges                        
+         *  .       
+         *  . edge_new
+         *  .
+         *  .
+         *  . .
+         *  . . .
+         *  .  .  .
+         *  .   .   . 
+         */
+        gb_mesh_edge_splice(impl->mesh, event->edge, edge);
+
+        /* delete the new edge which was created recently if the edge is fixable
+         *
+         *  . edge                                                 
+         *  .                                                 
+         *  .                     region                         
+         *  .                                                  
+         *  .                                                   
+         *  . (top)                                             
+         *  . event ------------------------------ sweep line      
+         *     .   .                          
+         *       .     .                                             
+         *         .       .                             
+         *           .         .              
+         *                         .                     
+         *             new_edges                        
+         *          
+         *  .
+         *  . .
+         *  . . .
+         *  .  .  .
+         *  .   .   . 
+         */
+        if (region->fixedge)
+        {
+            // trace
+            tb_trace_d("fix the degenerate top edge: %{mesh_edge}", edge);
+
+            // delete the new edge which was created recently
+            gb_mesh_edge_delete(impl->mesh, edge_new);
+            region->fixedge = 0;
+        }
+
+        // continue to process this event recursively
+        gb_tessellator_sweep_event(impl, event);
     }
 }
 /* connect this top event to the processed portion of the mesh
@@ -967,7 +1116,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
  *   so that we can merge event with features that we have not seen yet.
  *
  *   for example, maybe there is a horizontal edge which passes just to
- *   the bottom of event; we would like to splice event into this edge.
+ *   the bottom of event. we would like to splice event into this edge.
  *
  *   .e.g
  *
