@@ -1472,9 +1472,10 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      *  .          .   .                                               .
      *  .       .     .                                                .
      *  .            .                                                 .
-     *  .           .                                                  .
+     *  .           . new edges                                        .
      *  .                                                              .
      */
+    tb_bool_t is_degenerate = tb_false;
     if (impl->event == gb_mesh_edge_org(edge_left))
     {
         // trace
@@ -1501,7 +1502,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .          .   .                                               .
          *  .       .     .                                                .
          *  .            .                                                 .
-         *  .           .                                                  .
+         *  .           . new edges                                        .
          *  .                                                              .
          */
         gb_mesh_edge_splice(impl->mesh, edge_first, gb_mesh_edge_oprev(edge_left));
@@ -1527,8 +1528,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .               .   .                                               .
          *  .            .     .                                                .
          *  .                 .                                                 .
-         *  .                .                                                  .
-         *  .                                                              .
+         *  .                . new edges                                        .
          */
         region_left = gb_tessellator_find_left_top_region(impl, region_left);
         tb_assert_abort(region_left);
@@ -1562,37 +1562,13 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .               .   .                                               .
          *  .            .     .                                                .
          *  .                 .                                                 .
-         *  .                .                                                  .
+         *  .                . new edges                                        .
          *
          */
         gb_tessellator_finish_top_regions(impl, region_first, region_right, tb_null);
-        
-        /* insert new down-going edges at this event and create new active regions
-         *
-         * edge_left       
-         *  .                     .                                             . edge_right
-         *  .                     .                                             .
-         *  . region_left         .                                             .
-         *  .                     .                                             .
-         *  .                     .                                             .
-         *  .                     .                .                            .
-         *  .       .             .              .                              .
-         *  .         .           .            .             . edge_last        .
-         *  .           .         .          .          .                       .
-         * /.\            .       .        .       .                           /.\ region_right
-         *  .               .     .      .    .                                 .     
-         *  .      edge_first .   .    . .                                      .
-         *  .                   . .  .                                          .
-         *  .                     . event ------------------------------------- . ------- sweep line   
-         *  .                  . . (bottom)                                     .
-         *  .               .   .                                               .
-         *  .            .     .                                                .
-         *  .                 .                                                 .
-         *  .                . new edges                                        .
-         *
-         *
-         */
-        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_first), edge_last, edge_first);
+
+        // mark "degenerate" for inserting new down-going edges
+        is_degenerate = tb_true;
     }
 
     /* the degenerate case
@@ -1600,14 +1576,95 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      * the edge of the right region may pass through event, 
      * or may coincide with new intersection vertex
      *
+     *
+     * edge_left                                   edge_right
+     *  .                                             .                                . 
+     *  . region_left                                 .                                .
+     *  .                                             .                                .
+     *  .        regions have been removed            .                                .
+     *  .                                             .                                .
+     *  .                         edge_last           .                                .
+     *  .                             .               .                 .              .
+     *  .                               .             . region_right  .                .
+     *  .                 edge_first      .           .             .                  .
+     *  .                       .           .         .           .          .         .
+     * /.\                          .         .      /.\        .       .             /.\
+     *  .                               .       .     .       .    .                   .     
+     *  .                                   .     .   .     . .                        .
+     *  .                                       .   . .   .                            .
+     *  .                                    event  .|. ------------------------------ . ------- sweep line   
+     *  .                                   (bottom)   . .                             .
+     *  .                                               .   .                          .
+     *  .                                                .     . new edges             .
+     *  .                                                                              .
      */
     if (impl->event == gb_mesh_edge_org(edge_right))
     {
         // trace
         tb_trace_d("merge the event to the origin of the left edge: %{mesh_edge}", edge_left);
 
-        // TODO
-        tb_assert_abort(0);
+        /* merge event and edge_right.org
+         *
+         * edge_left                                   edge_right
+         *  .                                             .                                . 
+         *  . region_left                                 .                                .
+         *  .                                             .                                .
+         *  .        regions have been removed            .                                .
+         *  .                                             .                                .
+         *  .                         edge_last           .                                .
+         *  .                             .               .                 .              .
+         *  .                               .             . region_right  .                .
+         *  .               edge_first        .           .             .                  .
+         *  .                    .              .         .           .          .         .
+         * /.\                        .           .      /.\        .       .             /.\
+         *  .                              .        .     .       .    .                   .     
+         *  .                                   .     .   .     . .                        .
+         *  .                                        .  . .   .                            .
+         *  .                                    event    . ------------------------------ . ------- sweep line   
+         *  .                                   (bottom)   . .                             .
+         *  .                                               .   .                          .
+         *  .                                                .     . new edges             .
+         *  .                                                                              .
+         */
+        gb_mesh_edge_splice(impl->mesh, edge_first, edge_right);
+
+        /* finish new unprocessed regions of this event and remove them.
+         * update the right region and the last edge
+         *
+         * edge_left                                                                   edge_right
+         *  .                                             .                                . 
+         *  . region_left                                 .                                .
+         *  .                                             .                                .
+         *  .        regions have been removed            .                                .
+         *  .                                             .                                .
+         *  .                                             .                                .
+         *  .                             .               .                 .              .
+         *  .                               .             . region_xxx    . (finished)     .
+         *  .               edge_first        .           . (finished)  . region_xxx       . region_right
+         *  .                    .              .         .           .          .         .
+         * /.\                        .           .      /.\        .       .   edge_last /.\
+         *  .                              .        .     .       .    .                   .     
+         *  .                                   .     .   .     . .     region_xxx         .
+         *  .                                        .  . .   .         (finished)         .
+         *  .                                    event    . ------------------------------ . ------- sweep line   
+         *  .                                   (bottom)   . .                             .
+         *  .                                               .   .                          .
+         *  .                                                .     . new edges             .
+         *  .                                                                              .
+         */
+        edge_last = gb_tessellator_finish_top_regions(impl, region_right, tb_null, &region_right);
+        tb_assert_abort(edge_last && region_right);
+
+        // mark "degenerate" for inserting new down-going edges
+        is_degenerate = tb_true;
+    }
+
+    // is degenerate case?
+    if (is_degenerate)
+    {
+        // insert new down-going edges at this event and create new active regions
+        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_first), edge_last, edge_first);
+        return ;
     }
 
     // check
