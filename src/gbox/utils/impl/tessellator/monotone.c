@@ -371,14 +371,16 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
             /* 
              *     . . . . org . . . . . .
              *          .            face 
-             *       .      org     . . . .
+             *       .      org_new  . . . .
              *    .   face    .       .
              * .               . face   .
              * edge_prev        .
              *                   .
              *                  edge_new
+             *
+             * @note edge_new.org will be created
              */
-            gb_mesh_edge_splice(impl->mesh, edge_new, gb_mesh_edge_oprev(edge_new));
+            gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_new), edge_new);
 
             /* 
              *     . . . . org . . . . . .
@@ -389,8 +391,10 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
              * edge_prev        .
              *                   .
              *                  edge_new
+             *
+             * @note edge_new.org will be removed and merged
              */
-            gb_mesh_edge_splice(impl->mesh, edge_new, edge_prev);
+            gb_mesh_edge_splice(impl->mesh, edge_prev, edge_new);
         }
 
         // check
@@ -1309,11 +1313,13 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
              * edge      face  .
              * .              .         .
              *    .          .   face .
-             *       .      org     . . . .
+             *       .      org_new . . . .
              *          .        face
              *     . . . . org . . . . . .
+             *
+             * @note edge_next.org will be created
              */
-            gb_mesh_edge_splice(impl->mesh, edge_next, gb_mesh_edge_oprev(edge_next));
+            gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_next), edge_next);
 
             /* 
              *                 edge_next
@@ -1325,8 +1331,10 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
              *       .      .     . . . .
              *          .  .
              *     . . . . org . . . . . .
+             *
+             * @note edge_next.org will be removed and merged
              */
-            gb_mesh_edge_splice(impl->mesh, edge_next, gb_mesh_edge_oprev(edge));
+            gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge), edge_next);
         }
 
         // check

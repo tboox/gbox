@@ -680,7 +680,7 @@ gb_mesh_edge_ref_t              gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bo
  *                        
  *                         <= splice =>
  *
- * the d.org and d.lface will be inserted or removed
+ * @note the d.org and d.lface will be inserted or removed
  *          
  * </pre>
  *
@@ -834,6 +834,8 @@ tb_void_t                       gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_
  *
  * make a new edge connecting the destination of edge_org to the origin of edge_dst, 
  * in such a way that edge_org.lface = edge_new.lface = edge_dst.lface after the connection is complete. 
+ *
+ * @note edge_org.lface and edge_dst.lface
  *
  * <pre>
  *
