@@ -131,7 +131,7 @@ typedef struct __gb_tessellator_edge_t
 typedef struct __gb_tessellator_face_t
 {
     // is inside?
-    tb_uint8_t                          inside : 1;
+    tb_uint8_t                          inside      : 1;
 
 } gb_tessellator_face_t, *gb_tessellator_face_ref_t;
 

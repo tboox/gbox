@@ -34,6 +34,50 @@
 #include "triangulation.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+#if 1
+/* walk edges in counter-clockwise order from bottom to top
+ *
+ * we attach the bottommost right edge to the face when we made monotone polygon.
+ * so we will find the bottommost left and right edge more quickly for triangulation.
+ *
+ *     .      .
+ *    .       .
+ *      .   . right => face.edge
+ * left   .
+ *
+ *  |            |
+ *   ----------->
+ *       ccw
+ */
+#   define gb_tessellator_edge_go_up_(a)                       gb_tessellator_edge_go_down(a)
+#   define gb_tessellator_edge_go_down_(a)                     gb_tessellator_edge_go_up(a)
+#   define gb_tessellator_vertex_in_top_(a, b)                 (!gb_tessellator_vertex_in_top(a, b))
+#   define gb_tessellator_vertex_on_edge_or_left_(a, b, c)     gb_tessellator_vertex_on_edge_or_right(a, c, b)
+#   define gb_tessellator_vertex_on_edge_or_right_(a, b, c)    gb_tessellator_vertex_on_edge_or_left(a, c, b)
+#else
+/* walk edges in counter-clockwise order from top to bottom
+ *
+ *          ccw
+ *    <------------
+ *   |             |
+ *
+ *          . 
+ * left   .   .  right
+ *      .       .
+ *       .        .
+ *        .       .
+ */
+#   define gb_tessellator_edge_go_up_(a)                       gb_tessellator_edge_go_up(a)
+#   define gb_tessellator_edge_go_down_(a)                     gb_tessellator_edge_go_down(a)
+#   define gb_tessellator_vertex_in_top_(a, b)                 gb_tessellator_vertex_in_top(a, b)
+#   define gb_tessellator_vertex_on_edge_or_left_(a, b, c)     gb_tessellator_vertex_on_edge_or_left(a, b, c)
+#   define gb_tessellator_vertex_on_edge_or_right_(a, b, c)    gb_tessellator_vertex_on_edge_or_right(a, b, c)
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
 
@@ -121,6 +165,8 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
 
     /* get the uppermost left edge
      *
+     * @note the face edge has been optimizated when we made monotone polygon.
+     *
      *          . 
      * left   .   .  right
      *      .       .
@@ -129,8 +175,8 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
      *         .      .
      */
     gb_mesh_edge_ref_t left = edge;
-    while (gb_tessellator_edge_go_down(left)) left = gb_mesh_edge_lprev(left);
-    while (gb_tessellator_edge_go_up(left)) left = gb_mesh_edge_lnext(left);
+    while (gb_tessellator_edge_go_down_(left)) left = gb_mesh_edge_lprev(left);
+    while (gb_tessellator_edge_go_up_(left)) left = gb_mesh_edge_lnext(left);
 
     // get the uppermost right edge
     gb_mesh_edge_ref_t right = gb_mesh_edge_lprev(left);
@@ -147,7 +193,7 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
          *        .       . 
          *         .      .
          */
-        if (gb_tessellator_vertex_in_top(gb_mesh_edge_dst(left), gb_mesh_edge_org(right))) 
+        if (gb_tessellator_vertex_in_top_(gb_mesh_edge_dst(left), gb_mesh_edge_org(right))) 
         {
             /* done some left edges
              *
@@ -185,8 +231,8 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
              *             .
              */
             while ( gb_mesh_edge_lnext(right) != left
-                &&  (   gb_tessellator_edge_go_up(gb_mesh_edge_lprev(left))
-                    ||  gb_tessellator_vertex_on_edge_or_left( gb_mesh_edge_org(left)
+                &&  (   gb_tessellator_edge_go_up_(gb_mesh_edge_lprev(left))
+                    ||  gb_tessellator_vertex_on_edge_or_left_( gb_mesh_edge_org(left)
                                                             ,   gb_mesh_edge_org(gb_mesh_edge_lprev(left))
                                                             ,   gb_mesh_edge_dst(left))))
             {
@@ -247,8 +293,8 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
              *     .
              */
             while ( gb_mesh_edge_lnext(right) != left
-                &&  (   gb_tessellator_edge_go_down(gb_mesh_edge_lnext(right))
-                    ||  gb_tessellator_vertex_on_edge_or_right(gb_mesh_edge_dst(right)
+                &&  (   gb_tessellator_edge_go_down_(gb_mesh_edge_lnext(right))
+                    ||  gb_tessellator_vertex_on_edge_or_right_(gb_mesh_edge_dst(right)
                                                             , gb_mesh_edge_dst(gb_mesh_edge_lnext(right))
                                                             , gb_mesh_edge_org(right))))
             {

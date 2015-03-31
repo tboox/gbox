@@ -553,9 +553,18 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
     // mark the face "inside" if the region is inside
     gb_tessellator_face_inside_set(face, region->inside);
 
-    /* TODO optimization for triangulation
+    /* optimization for triangulation
+     *
+     * we attach the bottommost right edge to the face now,
+     * so we will find the bottommost left and right edge more quickly for triangulation.
+     *
+     *     .      .
+     *    .       .
+     *      .   . right => face.edge
+     * left   .
+     *
      */
-    // face->edge = edge;
+    face->edge = gb_mesh_edge_oprev(edge);
 
     // remove this region
     gb_tessellator_active_regions_remove(impl, region);
