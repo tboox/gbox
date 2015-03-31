@@ -170,19 +170,8 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
         // first point?
         if (!index) 
         {
-            // not closed contour? skip it
-            if (!gb_point_eq(point, point + count - 1))
-            {
-                // trace
-                tb_assertf_abort(0, "this contour(%lu: %{point} => %{point}) is not closed!", count, point, point + count - 1);
-
-                // seek to the next contour
-                points = point + count;
-                count = *counts++;
-
-                // continue 
-                continue ;
-            } 
+            // must be closed contour
+            tb_assertf_abort(gb_point_eq(point, point + count - 1), "this contour(%lu: %{point} => %{point}) is not closed!", count, point, point + count - 1);
             
             // clear the edge
             edge = tb_null;
