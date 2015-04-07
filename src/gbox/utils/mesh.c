@@ -906,6 +906,67 @@ gb_mesh_edge_ref_t gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bool_t is_ccw)
     // ok?
     return edge;
 }
+gb_mesh_edge_ref_t gb_mesh_edge_split(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org)
+{
+    // check
+    gb_mesh_impl_t* impl = (gb_mesh_impl_t*)mesh;
+    tb_assert_and_check_return_val(impl && edge_org, tb_null);
+
+    // check edge
+    gb_mesh_check_edge(edge_org);
+
+    /* insert a new edge
+     *
+     * before:
+     *
+     *                                  
+     *             .                lface                  .
+     *                .                                 .
+     *                   .         edge_org          .       
+     *        . . . . . . . org -----------------> dst  
+     *                    .                        .    .        
+     *                  .           rface         .         . 
+     *                .                          .              . 
+     *              .                                               .
+     *
+     *
+     *                                  
+     *             .                lface                  * edge_org.dprev
+     *                .                                 *
+     *                   .         edge_org_sym     |*_       
+     *        . . . . . . . org <----------------- dst  
+     *                    .                        .    .        
+     *                  .           rface         .         . 
+     *                .                          .              . 
+     *              .                                               .
+     *
+     * after:
+     *                                  
+     *             .                               lface                             * edge_org.dprev
+     *                .                                                           *
+     *                   .         edge_org_sym                 edge_new_sym  |*_       
+     *        . . . . . . . org <----------------- vertex_new <------------- dst  
+     *                    .                                                  .    .        
+     *                  .                          rface                    .         . 
+     *                .                                                    .              . 
+     *              .                                                                         .
+     */
+    gb_mesh_edge_ref_t edge_new_sym = gb_mesh_edge_insert(mesh, gb_mesh_edge_dprev(edge_org), gb_mesh_edge_sym(edge_org));
+    tb_assert_abort(edge_new_sym);
+
+    /* reverse the new edge
+     *                                  
+     *             .                               lface                             *
+     *                .                                                           *
+     *                   .            edge_org                  edge_new      |*_       
+     *        . . . . . . . org -----------------> vertex_new -------------> dst  
+     *                    .                                                  .    .        
+     *                  .                          rface                    .         . 
+     *                .                                                    .              . 
+     *              .                                                                         .
+     */
+    return gb_mesh_edge_sym(edge_new_sym);
+}
 tb_void_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
 {
     // check

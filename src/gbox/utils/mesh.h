@@ -655,6 +655,46 @@ gb_mesh_edge_ref_t              gb_mesh_edge_make(gb_mesh_ref_t mesh);
  */
 gb_mesh_edge_ref_t              gb_mesh_edge_make_loop(gb_mesh_ref_t mesh, tb_bool_t is_ccw);
 
+/*! split edge 
+ *
+ * edge_org and edge_new will have the same left and right face.
+ *
+ * <pre>
+ *
+ * before:
+ *
+ *                                  
+ *             .                lface                  .
+ *                .                                 .
+ *                   .         edge_org          .       
+ *        . . . . . . . org -----------------> dst  
+ *                    .                        .    .        
+ *                  .           rface         .         . 
+ *                .                          .              . 
+ *              .                                               .
+ *           
+ *
+ * after:
+ *
+ *                                  
+ *             .                                lface                                 .
+ *                .                                                                .
+ *                   .         edge_org                      edge_new           .       
+ *        . . . . . . . org -----------------> vertex_new ------------------> dst
+ *                    .                                                       .    .        
+ *                  .                           rface                       .         . 
+ *                .                                                       .              . 
+ *              .                                                                           .
+ *
+ * </pre>
+ *
+ * @param mesh                  the mesh
+ * @param edge                  the original edge
+ *
+ * @return                      the new edge
+ */
+gb_mesh_edge_ref_t              gb_mesh_edge_split(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org);
+
 /*! splice edge
  *
  * refer to the paper of Guibas and Stolfi, simplified since we don't use flips (p98) 

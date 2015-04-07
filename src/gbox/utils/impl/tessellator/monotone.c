@@ -77,6 +77,47 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
     // update the region reference to the edge
     gb_tessellator_edge_region_set(edge, region);
 }
+/* fix the region ordering at the bottom edge
+ *
+ * the main purpose is to splice down-going edges with the same
+ * destinate vertex and nearly identical slopes.
+ *
+ * the region ordering may be violated 
+ * because sometimes we can't distinguish the slopes numerically.
+ *
+ * however the splicing can also help us to recover from numerical errors.
+ *
+ * .e.g
+ *
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .
+ * .. ---> fix it
+ * .
+ * .
+ *
+ * we also can fix those cases where we can't check for intersection.
+ *
+ * .                    .                  
+ *  .                   .          .       
+ *   . L . R            .        .         
+ *    .  .              . L    . R         
+ *     . .              .    .            
+ *      ..              .  .               
+ *       .              ..                
+ *       .. ---------- .. ---------------> fix it
+ *                                                
+ */
+#if 0
+static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left)
+{
+    return tb_false;
+}
+#endif
 /* find the left top region of the leftmost edge with the same origin(event)
  *
  *  . edge_left                                                    . edge_right
