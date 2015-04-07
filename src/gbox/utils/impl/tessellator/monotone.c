@@ -834,7 +834,7 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
  *  .                                                  
  *  .                                                    
  *  . (top)                                                   
- *  . event ----------------------------------- sweep line      
+ *  .|event ----------------------------------- sweep line      
  *  .  .   .                                                   
  * /.\   .     .                                            
  *  .      .       .                                   
@@ -866,7 +866,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
      *  .                                                 
      *  .                                              
      *  . (top)                                    
-     *  x event --------------------------------- sweep line      
+     *  x|event --------------------------------- sweep line      
      *     .   .                                  
      *       .     .                            
      *         .       .                             
@@ -896,7 +896,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
      * .                           .                                      .
      * .                              .                                   .   
      * . region_left                     .  (top)                         .   
-     * .                                   x x event -------------------- . ------- sweep line      
+     * .                                   x|x event -------------------- . ------- sweep line      
      * .                            .   .  .  .   .                       .      
      * .                      .       .    .    .     .                   .    
      * .                .           .     /.\     .       .               . region_right
@@ -996,7 +996,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
      *  .                                                  
      *  .                                                   
      *  . (top)                                             
-     *  . event ------------------------------ sweep line      
+     *  .|event ------------------------------ sweep line      
      *  .  .   .                          
      * /.\   .     .                                             
      *  .      .       .                             
@@ -1011,7 +1011,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         // trace
         tb_trace_d("connect the event to the body of the edge: %{mesh_edge}", edge);
 
-        /* insert a new edge between (edge.rprev => edge) 
+        /* split the left edge and add a new edge
          *
          *  . edge                                                 
          *  .                                                 
@@ -1019,7 +1019,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
          *  .                                                  
          *  .                                                   
          *  . (top)                                             
-         *  . event ------------------------------ sweep line      
+         *  .|event ------------------------------ sweep line      
          *  .  .   .                          
          * /.\   .     .                                             
          *  .      .       .                             
@@ -1028,19 +1028,51 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
          *  .          new_edges                        
          *  .                               
          *  x (new)
-         * /.\
+         *  . 
          *  .
          *  .
-         *  . edge_new
+         * \./edge_new
          *  .
          *  .
          *  . .
          *  . . .
          *  .  .  .
-         *  .   .   . edge.rprev
+         *  .   .   . edge.rnext
          */
-        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_insert(impl->mesh, gb_mesh_edge_rprev(edge), edge);
-        tb_assert_abort(edge_new);
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge));
+        tb_assert_abort(edge_new && edge_new == gb_mesh_edge_onext(edge));
+
+        /* delete the new edge which was created recently if the edge is fixable
+         *
+         *  . edge                                                 
+         *  .                                                 
+         *  .                     region                         
+         *  .                                                  
+         *  .                                                   
+         *  . (top)                                             
+         *  .|event ------------------------------ sweep line      
+         *     .   .                          
+         *       .     .                                             
+         *         .       .                             
+         *           .         .              
+         *                         .                     
+         *             new_edges                        
+         *          
+         *  .
+         *  . .
+         *  . . .
+         *  .  .  .
+         *  .   .   . 
+         */
+        if (region->fixedge)
+        {
+            // trace
+            tb_trace_d("fix the degenerate top edge: %{mesh_edge}", edge);
+
+            // delete the new edge which was created recently
+            gb_mesh_edge_delete(impl->mesh, edge_new);
+            region->fixedge = 0;
+        }
 
         /* merge edge.org and event and remove the edge.org which was created recently   
          *
@@ -1065,10 +1097,8 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
          *  . . .
          *  .  .  .
          *  .   .   . 
-         */
-        gb_mesh_edge_splice(impl->mesh, event->edge, edge);
-
-        /* delete the new edge which was created recently if the edge is fixable
+         *
+         * or
          *
          *  . edge                                                 
          *  .                                                 
@@ -1090,15 +1120,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
          *  .  .  .
          *  .   .   . 
          */
-        if (region->fixedge)
-        {
-            // trace
-            tb_trace_d("fix the degenerate top edge: %{mesh_edge}", edge);
-
-            // delete the new edge which was created recently
-            gb_mesh_edge_delete(impl->mesh, edge_new);
-            region->fixedge = 0;
-        }
+        gb_mesh_edge_splice(impl->mesh, event->edge, edge);
 
         // continue to process this event recursively
         gb_tessellator_sweep_event(impl, event);
