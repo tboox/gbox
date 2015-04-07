@@ -31,6 +31,104 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
         break;
     }
 }
+static tb_void_t gb_demo_utils_mesh_split()
+{
+    // trace
+    tb_trace_i("==========================================================================");
+
+    // init mesh
+    gb_mesh_ref_t mesh = gb_mesh_init(tb_element_str(tb_true), tb_element_str(tb_true), tb_element_str(tb_true));
+    if (mesh)
+    {
+        // init listener
+        gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT);
+
+        // make a clockwise self-loop edge
+        gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_false);
+        if (edge0)
+        {
+            /* make a quadrangle
+             *
+             *                     e1
+             *           v0 --------------> v1 
+             *            |                 |                  
+             *         e0 |      rface      | e2     lface     
+             *            |                 |                  
+             *           v3 <-------------- v2             
+             *                     e3                      
+             *
+             */
+            gb_mesh_edge_ref_t edge1 = gb_mesh_edge_insert(mesh, edge0, edge0);
+            gb_mesh_edge_ref_t edge2 = gb_mesh_edge_insert(mesh, edge1, edge0);
+            gb_mesh_edge_ref_t edge3 = gb_mesh_edge_insert(mesh, edge2, edge0);
+
+            // save face name
+            gb_mesh_face_data_set(mesh, gb_mesh_edge_lface(edge0), "lface");
+            gb_mesh_face_data_set(mesh, gb_mesh_edge_rface(edge0), "rface");
+
+            // save edge name
+            gb_mesh_edge_data_set(mesh, edge0, "e0");
+            gb_mesh_edge_data_set(mesh, edge1, "e1");
+            gb_mesh_edge_data_set(mesh, edge2, "e2");
+            gb_mesh_edge_data_set(mesh, edge3, "e3");
+
+            // save vertex name
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge0), "v0");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge1), "v1");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge2), "v2");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_dst(edge3), "v3");
+
+#ifdef __gb_debug__
+            // trace
+            tb_trace_i("");
+            tb_trace_i("split: make");
+
+            // check mesh
+            gb_mesh_check(mesh);
+        
+            // dump mesh
+            gb_mesh_dump(mesh);
+#endif
+            /* split a quadrangle
+             *
+             *                e1       e4
+             *           v0 ------ v4 -----> v1 
+             *            |                 |                  
+             *         e0 |      rface      | e2     lface     
+             *            |                 |                  
+             *           v3 <----- v5 <---- v2             
+             *                 e5       e3                      
+             *
+             */
+            gb_mesh_edge_ref_t edge4 = gb_mesh_edge_split(mesh, edge1);
+            gb_mesh_edge_ref_t edge5 = gb_mesh_edge_split(mesh, edge3);
+
+            // save edge name
+            gb_mesh_edge_data_set(mesh, edge4, "e4");
+            gb_mesh_edge_data_set(mesh, edge5, "e5");
+
+            // save vertex name
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_org(edge4), "v4");
+            gb_mesh_vertex_data_set(mesh, gb_mesh_edge_org(edge5), "v5");
+
+#ifdef __gb_debug__
+            // trace
+            tb_trace_i("");
+            tb_trace_i("split: done");
+
+            // check mesh
+            gb_mesh_check(mesh);
+        
+            // dump mesh
+            gb_mesh_dump(mesh);
+#endif
+        }
+    
+        // exit mesh
+        gb_mesh_exit(mesh);
+    }
+}
 static tb_void_t gb_demo_utils_mesh_splice()
 {
     // trace
@@ -452,6 +550,9 @@ static tb_void_t gb_demo_utils_mesh_tetrahedron()
  */
 tb_int_t gb_demo_utils_mesh_main(tb_int_t argc, tb_char_t** argv)
 {
+    // test split
+    gb_demo_utils_mesh_split();
+
     // test splice
     gb_demo_utils_mesh_splice();
 
