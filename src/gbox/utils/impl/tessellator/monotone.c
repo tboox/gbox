@@ -883,6 +883,8 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
 
         /* we only connect the event vertex to the origin of the left edge 
          * and wait for processing at next time, because the edge.org is an unprocessed vertex
+         *
+         * @note edge.org cannot be modified
          */
         gb_mesh_edge_splice(impl->mesh, edge, gb_mesh_vertex_edge(event));
         return;
@@ -983,6 +985,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         gb_mesh_edge_splice(impl->mesh, event->edge, edge_left_top);
 
         // check
+        tb_assert_abort(gb_mesh_edge_org(edge_left_top) == event);
         tb_assert_abort(gb_mesh_edge_onext(edge_left_top) != edge_first);
 
         // insert new down-going edges at this event and create new active regions
@@ -1121,6 +1124,9 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
          *  .   .   . 
          */
         gb_mesh_edge_splice(impl->mesh, event->edge, edge);
+
+        // check
+        tb_assert_abort(gb_mesh_edge_org(edge) == event);
 
         // continue to process this event recursively
         gb_tessellator_sweep_event(impl, event);
@@ -1514,7 +1520,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     gb_mesh_edge_ref_t edge_right   = region_right->edge;
     tb_assert_abort(edge_left && edge_right);
 
-    // TODO done intersections
+    // TODO done intersection
     if (gb_mesh_edge_dst(edge_left) != gb_mesh_edge_dst(edge_right))
     {
         // ...
@@ -1523,7 +1529,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     /* the degenerate case
      * 
      * the edge of the left region may pass through event, 
-     * or may coincide with new intersection vertex
+     * or may coincide with new intersection vertex after calculating intersection previously
      *
      *                edge_left
      *  .                .                                             . edge_right
@@ -1548,7 +1554,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      *  .                                                              .
      */
     tb_bool_t is_degenerate = tb_false;
-    if (impl->event == gb_mesh_edge_org(edge_left))
+    if (gb_tessellator_vertex_eq(impl->event, gb_mesh_edge_org(edge_left)))
     {
         // trace
         tb_trace_d("merge the event to the origin of the left edge: %{mesh_edge}", edge_left);
@@ -1578,6 +1584,10 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .                                                              .
          */
         gb_mesh_edge_splice(impl->mesh, edge_first, gb_mesh_edge_oprev(edge_left));
+
+        // the event vertex cannot be modified
+        tb_assert_abort(gb_mesh_edge_org(edge_left) == impl->event);
+        tb_assert_abort(gb_mesh_edge_org(edge_first) == impl->event);
 
         /* update the left and first region
          *
@@ -1645,9 +1655,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
 
     /* the degenerate case
      * 
-     * the edge of the right region may pass through event, 
-     * or may coincide with new intersection vertex
-     *
+     * the edge of the right region may pass through event
      *
      * edge_left                                   edge_right
      *  .                                             .                                . 
@@ -1670,7 +1678,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      *  .                                                .     . new edges             .
      *  .                                                                              .
      */
-    if (impl->event == gb_mesh_edge_org(edge_right))
+    if (gb_tessellator_vertex_eq(impl->event, gb_mesh_edge_org(edge_right)))
     {
         // trace
         tb_trace_d("merge the event to the origin of the left edge: %{mesh_edge}", edge_left);
@@ -1699,6 +1707,10 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .                                                                              .
          */
         gb_mesh_edge_splice(impl->mesh, edge_first, edge_right);
+
+        // the event vertex cannot be modified
+        tb_assert_abort(gb_mesh_edge_org(edge_first) == impl->event);
+        tb_assert_abort(gb_mesh_edge_org(edge_right) == impl->event);
 
         /* finish new unprocessed regions of this event and remove them.
          * update the right region and the last edge
