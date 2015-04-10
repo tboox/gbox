@@ -57,12 +57,49 @@ __tb_extern_c_enter__
     ||  (   gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y \
         &&  gb_tessellator_vertex_point(a)->x <= gb_tessellator_vertex_point(b)->x))
    
+/* vertex: a < b?
+ *
+ * sweep direction: horizontal
+ *
+ * v0 -------> v1-----                  
+ * ---> v2 -------> v3                  
+ * v4 ----------------                  
+ * --------> v5 ------                  
+ *
+ * v0 < v1 < v2 < v3 < v4 < v5
+ */
+#define gb_tessellator_vertex_le(a, b)  \
+    (   gb_tessellator_vertex_point(a)->y < gb_tessellator_vertex_point(b)->y \
+    ||  (   gb_tessellator_vertex_point(a)->y == gb_tessellator_vertex_point(b)->y \
+        &&  gb_tessellator_vertex_point(a)->x < gb_tessellator_vertex_point(b)->x))
+   
 // a is in b's top?
-#if 1
-#   define gb_tessellator_vertex_in_top(a, b)               gb_tessellator_vertex_leq(a, b)
-#else // faster
-#   define gb_tessellator_vertex_in_top(a, b)               gb_point_in_top(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
-#endif
+#define gb_tessellator_vertex_in_top(a, b)                  gb_point_in_top(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
+   
+// a is in b's top or horizontal?
+#define gb_tessellator_vertex_in_top_or_horizontal(a, b)    gb_point_in_top_or_horizontal(gb_tessellator_vertex_point(a), gb_tessellator_vertex_point(b))
+   
+/* a is in b's top or b's horizontal left or a == b?
+ *
+ * a
+ *   .
+ *     .             or        a . . . . . . b
+ *       .     
+ *         .
+ *           b
+ */
+#define gb_tessellator_vertex_in_top_or_hleft(a, b)         gb_tessellator_vertex_le(a, b)
+ 
+/* a is in b's top or b's horizontal left or a == b?
+ *
+ * a
+ *   .
+ *     .             or        a . . . . . . b           or         .(a/b)
+ *       .     
+ *         .
+ *           b
+ */
+#define gb_tessellator_vertex_in_top_or_hleft_or_eq(a, b)   gb_tessellator_vertex_leq(a, b)
  
 // v is on edge(u, l)?
 #define gb_tessellator_vertex_on_edge(v, u, l)              (!gb_point_to_segment_position_h(gb_tessellator_vertex_point(v), gb_tessellator_vertex_point(u), gb_tessellator_vertex_point(l)))
@@ -101,23 +138,23 @@ __tb_extern_c_enter__
  *  __                   __
  * | .                   . |
  *     .               .
- *       .           .
+ *       .           .            or  <------------------
  *         .       .
  *           .   .
  *
  */
-#define gb_tessellator_edge_go_up(edge)                     gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
+#define gb_tessellator_edge_go_up(edge)                     gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_dst(edge), gb_mesh_edge_org(edge))
 
 /* the edge goes down?
  *
  *           .   .
  *         .       .
- *       .           .
+ *       .           .            or  ------------------>
  *     .               .
  * | .                   .|
  *  --                  --
  */
-#define gb_tessellator_edge_go_down(edge)                   gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
+#define gb_tessellator_edge_go_down(edge)                   gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

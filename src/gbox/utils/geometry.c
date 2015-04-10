@@ -63,8 +63,8 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
     tb_assert_abort(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assert_abort(gb_point_in_top_or_eq(upper, center));
-    tb_assert_abort(gb_point_in_top_or_eq(center, lower));
+    tb_assert_abort(gb_point_in_top_or_horizontal(upper, center));
+    tb_assert_abort(gb_point_in_top_or_horizontal(center, lower));
 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
@@ -189,8 +189,8 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
     tb_assert_abort(center && left && right);
 
     // must be left <= center <= right
-    tb_assert_abort(gb_point_in_left_or_eq(left, center));
-    tb_assert_abort(gb_point_in_left_or_eq(center, right));
+    tb_assert_abort(gb_point_in_left_or_vertical(left, center));
+    tb_assert_abort(gb_point_in_left_or_vertical(center, right));
 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;
@@ -225,8 +225,8 @@ tb_long_t gb_point_to_segment_position_h(gb_point_ref_t center, gb_point_ref_t u
     tb_assert_abort(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assert_abort(gb_point_in_top_or_eq(upper, center));
-    tb_assert_abort(gb_point_in_top_or_eq(center, lower));
+    tb_assert_abort(gb_point_in_top_or_horizontal(upper, center));
+    tb_assert_abort(gb_point_in_top_or_horizontal(center, lower));
 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
@@ -276,8 +276,8 @@ tb_long_t gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t l
     tb_assert_abort(center && left && right);
 
     // must be left <= center <= right
-    tb_assert_abort(gb_point_in_left_or_eq(left, center));
-    tb_assert_abort(gb_point_in_left_or_eq(center, right));
+    tb_assert_abort(gb_point_in_left_or_vertical(left, center));
+    tb_assert_abort(gb_point_in_left_or_vertical(center, right));
 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;

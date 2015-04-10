@@ -122,7 +122,7 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  *       .  . ---- . -- . ---------------> fix it
  *           .   .       
  */
-#if 1
+#if 0
 static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left)
 {
     // check
@@ -158,7 +158,7 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
      *                . 
      *                .
      */
-    if (gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right)))
+    if (gb_tessellator_vertex_in_top_or_hleft_or_eq(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right)))
     {
         /* we need not fix it if the edge_left.org is in the edge_right's left
          *
@@ -1448,7 +1448,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
     }
 
     // get the region which edge.dst is lower and we need connect it
-    gb_tessellator_active_region_ref_t region_lower = gb_tessellator_vertex_in_top(gb_mesh_edge_dst(edge_left), gb_mesh_edge_dst(edge_right))? region_right : region_left;
+    gb_tessellator_active_region_ref_t region_lower = gb_tessellator_vertex_in_top_or_horizontal(gb_mesh_edge_dst(edge_left), gb_mesh_edge_dst(edge_right))? region_right : region_left;
 
     /* we need split it if the contained(left) region is inside
      *
@@ -2022,7 +2022,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      *                      *                                             .   
      *
      */
-    gb_mesh_edge_ref_t edge_new = gb_tessellator_vertex_in_top(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right))? gb_mesh_edge_oprev(edge_left) : edge_right;
+    gb_mesh_edge_ref_t edge_new = gb_tessellator_vertex_in_top_or_horizontal(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right))? gb_mesh_edge_oprev(edge_left) : edge_right;
     edge_new = gb_mesh_edge_connect(impl->mesh, gb_mesh_edge_sym(edge_last), edge_new);
     tb_assert_abort(edge_new && gb_mesh_edge_onext(edge_new) == edge_last);
     

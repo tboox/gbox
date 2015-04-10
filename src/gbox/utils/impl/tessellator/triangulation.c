@@ -52,11 +52,11 @@
  *   ----------->
  *       ccw
  */
-#   define gb_tessellator_edge_go_up_(a)                       gb_tessellator_edge_go_down(a)
-#   define gb_tessellator_edge_go_down_(a)                     gb_tessellator_edge_go_up(a)
-#   define gb_tessellator_vertex_in_top_(a, b)                 (!gb_tessellator_vertex_in_top(a, b))
-#   define gb_tessellator_vertex_on_edge_or_left_(a, b, c)     gb_tessellator_vertex_on_edge_or_right(a, c, b)
-#   define gb_tessellator_vertex_on_edge_or_right_(a, b, c)    gb_tessellator_vertex_on_edge_or_left(a, c, b)
+#   define gb_tessellator_edge_go_up_(a)                        gb_tessellator_edge_go_down(a)
+#   define gb_tessellator_edge_go_down_(a)                      gb_tessellator_edge_go_up(a)
+#   define gb_tessellator_vertex_in_top_or_horizontal_(a, b)    (!gb_tessellator_vertex_in_top_or_horizontal(a, b))
+#   define gb_tessellator_vertex_on_edge_or_left_(a, b, c)      gb_tessellator_vertex_on_edge_or_right(a, c, b)
+#   define gb_tessellator_vertex_on_edge_or_right_(a, b, c)     gb_tessellator_vertex_on_edge_or_left(a, c, b)
 #else
 /* walk edges in counter-clockwise order from top to bottom
  *
@@ -70,11 +70,11 @@
  *       .        .
  *        .       .
  */
-#   define gb_tessellator_edge_go_up_(a)                       gb_tessellator_edge_go_up(a)
-#   define gb_tessellator_edge_go_down_(a)                     gb_tessellator_edge_go_down(a)
-#   define gb_tessellator_vertex_in_top_(a, b)                 gb_tessellator_vertex_in_top(a, b)
-#   define gb_tessellator_vertex_on_edge_or_left_(a, b, c)     gb_tessellator_vertex_on_edge_or_left(a, b, c)
-#   define gb_tessellator_vertex_on_edge_or_right_(a, b, c)    gb_tessellator_vertex_on_edge_or_right(a, b, c)
+#   define gb_tessellator_edge_go_up_(a)                        gb_tessellator_edge_go_up(a)
+#   define gb_tessellator_edge_go_down_(a)                      gb_tessellator_edge_go_down(a)
+#   define gb_tessellator_vertex_in_top_or_horizontal_(a, b)    gb_tessellator_vertex_in_top_or_horizontal(a, b)
+#   define gb_tessellator_vertex_on_edge_or_left_(a, b, c)      gb_tessellator_vertex_on_edge_or_left(a, b, c)
+#   define gb_tessellator_vertex_on_edge_or_right_(a, b, c)     gb_tessellator_vertex_on_edge_or_right(a, b, c)
 #endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
          *        .       . 
          *         .      .
          */
-        if (gb_tessellator_vertex_in_top_(gb_mesh_edge_dst(left), gb_mesh_edge_org(right))) 
+        if (gb_tessellator_vertex_in_top_or_horizontal_(gb_mesh_edge_dst(left), gb_mesh_edge_org(right))) 
         {
             /* done some left edges
              *

@@ -59,8 +59,8 @@ static tb_bool_t gb_tessellator_active_region_leq(gb_mesh_vertex_ref_t event, gb
      *  / \     / \
      *   |       |
      */
-    tb_assert_abort(gb_tessellator_vertex_in_top(gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge)));
-    tb_assert_abort(gb_tessellator_vertex_in_top(gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge)));
+    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge)));
+    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge)));
 
     /* 
      *        event      
@@ -91,7 +91,7 @@ static tb_bool_t gb_tessellator_active_region_leq(gb_mesh_vertex_ref_t event, gb
              *                       .
              *
              */
-            if (gb_tessellator_vertex_in_top(gb_mesh_edge_org(ledge), gb_mesh_edge_org(redge))) 
+            if (gb_tessellator_vertex_in_top_or_hleft_or_eq(gb_mesh_edge_org(ledge), gb_mesh_edge_org(redge))) 
                 return gb_tessellator_vertex_on_edge_or_left(gb_mesh_edge_org(ledge), gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
 
             /* 

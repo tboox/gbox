@@ -54,13 +54,13 @@ static tb_void_t gb_demo_utils_geometry_in_point()
     gb_point_imake(&p2, -10, -50);
     
     // check
-    if (!gb_point_in_top_or_eq(&p1, &p0)) tb_abort();
-    if (!gb_point_in_top_or_eq(&p2, &p0)) tb_abort();
-    if (!gb_point_in_top_or_eq(&p2, &p1)) tb_abort();
+    if (!gb_point_in_top_or_horizontal(&p1, &p0)) tb_abort();
+    if (!gb_point_in_top_or_horizontal(&p2, &p0)) tb_abort();
+    if (!gb_point_in_top_or_horizontal(&p2, &p1)) tb_abort();
 
-    if (!gb_point_in_left_or_eq(&p2, &p1)) tb_abort();
-    if (!gb_point_in_left_or_eq(&p2, &p0)) tb_abort();
-    if (!gb_point_in_left_or_eq(&p1, &p0)) tb_abort();
+    if (!gb_point_in_left_or_vertical(&p2, &p1)) tb_abort();
+    if (!gb_point_in_left_or_vertical(&p2, &p0)) tb_abort();
+    if (!gb_point_in_left_or_vertical(&p1, &p0)) tb_abort();
 }
 static tb_void_t gb_demo_utils_geometry_in_segment()
 {

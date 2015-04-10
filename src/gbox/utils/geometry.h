@@ -41,14 +41,14 @@ __tb_extern_c_enter__
 /// a is in b's top?
 #define gb_point_in_top(a, b)                   ((a)->y < (b)->y)
    
-/// a is in b's top or a == b?
-#define gb_point_in_top_or_eq(a, b)             ((a)->y <= (b)->y)
+/// a is in b's top or horizontal?
+#define gb_point_in_top_or_horizontal(a, b)     ((a)->y <= (b)->y)
     
 /// a is in b's left?
 #define gb_point_in_left(a, b)                  ((a)->x < (b)->x)
     
-/// a is in b's left or a == b?
-#define gb_point_in_left_or_eq(a, b)            ((a)->x <= (b)->x)
+/// a is in b's left or vertical?
+#define gb_point_in_left_or_vertical(a, b)      ((a)->x <= (b)->x)
      
 /*! v is in segment(u, l)'s left?
  *
