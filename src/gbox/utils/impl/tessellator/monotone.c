@@ -122,11 +122,10 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  *       .  . ---- . -- . ---------------> fix it
  *           .   .       
  */
-#if 0
 static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left)
 {
     // check
-    tb_assert_abort(impl && region_left);
+    tb_assert_abort(impl && impl->mesh && region_left);
 
     // the right region
     gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region_left);
@@ -139,6 +138,14 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
     // the edge of the right region
     gb_mesh_edge_ref_t edge_right = region_right->edge;
     tb_assert_abort(edge_right);
+
+    // the origin of the left edge
+    gb_mesh_vertex_ref_t edge_left_org = gb_mesh_edge_org(edge_left);
+    tb_assert_abort(edge_left_org);
+
+    // the origin of the right edge
+    gb_mesh_vertex_ref_t edge_right_org = gb_mesh_edge_org(edge_right);
+    tb_assert_abort(edge_right_org);
 
     /* 
      *  edge_left  edge_right  edge_left  edge_right edge_left   edge_right
@@ -158,7 +165,7 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
      *                . 
      *                .
      */
-    if (gb_tessellator_vertex_in_top_or_hleft_or_eq(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right)))
+    if (gb_tessellator_vertex_in_top_or_hleft_or_eq(edge_left_org, edge_right_org))
     {
         /* we need not fix it if the edge_left.org is in the edge_right's left
          *
@@ -179,7 +186,7 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *                . 
          *                .
          */
-        if (gb_tessellator_vertex_in_edge_left(gb_mesh_edge_org(edge_left), gb_mesh_edge_dst(edge_right), gb_mesh_edge_org(edge_right)))
+        if (gb_tessellator_vertex_in_edge_left(edge_left_org, gb_mesh_edge_dst(edge_right), edge_right_org))
             return tb_false;
 
         /* before:
@@ -222,8 +229,61 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *            edge_new
          *
          */
-        if (!gb_tessellator_vertex_eq(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right)))
+        if (!gb_tessellator_vertex_eq(edge_left_org, edge_right_org))
         {
+            /* split the right edge and create a new edge
+             *
+             *  edge_left  edge_right
+             *        . lface .
+             *         .      .
+             *          .     .
+             *           .    .
+             *            .   .
+             *             .  .
+             *              . .
+             *               ..
+             *                .
+             *                ..    
+             *                . .            lface 
+             *                .  .  
+             *                .   . . . . edge_left.oprev
+             *                .
+             *                x org_new
+             *              .
+             *            .
+             *       edge_new
+             *
+             */
+            gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_right));
+
+            /* splice the left edge and right edges
+             * 
+             *  edge_left  edge_right
+             *        .       .
+             *         .      
+             *          .     
+             *           .     .
+             *            .    
+             *             .   
+             *              .   .
+             *               .
+             *                . 
+             *                 . .   
+             *                  .    
+             *                   .  
+             *                    . . . . -------------> fixed
+             *                  .
+             *                .
+             *            edge_new (org_new have been removed)
+             */
+            gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_left), edge_right);
+
+            // the origin of the left edge cannot be modified
+            tb_assert_abort(edge_left_org == gb_mesh_edge_org(edge_left));
+            tb_assert_abort(edge_left_org == gb_mesh_edge_org(edge_right));
+
+            // TODO mark dirty
+            // ...
         }
         /* edge_left.org lies on the edge_right.org
          *
@@ -254,8 +314,44 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *               ..
          *                . -----------------> fixed
          */
-        else if (gb_mesh_edge_org(edge_left) != gb_mesh_edge_org(edge_right))
+        else if (edge_left_org != edge_right_org)
         {
+            // trace
+            tb_trace_d("splice and remove the event vertex: %{mesh_vertex}", edge_left_org);
+
+            /* remove the origin of the left edge first 
+             *
+             *  edge_left  edge_right
+             *        . lface .
+             *         .      .
+             *          .     .
+             *           .    .
+             *            .   .
+             *             .  .
+             *              . .
+             *               ..
+             *                .
+             *                .x(removed)
+             *                   .     lface
+             *                     .
+             *                       . edge_left.oprev
+             */
+            gb_tessellator_event_queue_remove(impl, edge_left_org);
+
+            /* splice the left edge and right edges
+             *
+             *  edge_left  edge_right
+             *        .       .
+             *         .      .
+             *          .     .
+             *           .    .
+             *            .   .
+             *             .  .
+             *              . .
+             *               ..
+             *                .
+             */
+            gb_mesh_edge_splice(impl->mesh, edge_right, gb_mesh_edge_oprev(edge_left));
         }
         /* we need not fix it
          *
@@ -312,10 +408,13 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *                . 
          *                .
          */
-        if (gb_tessellator_vertex_in_edge_right(gb_mesh_edge_org(edge_right), gb_mesh_edge_dst(edge_left), gb_mesh_edge_org(edge_left)))
+        if (gb_tessellator_vertex_in_edge_right(edge_right_org, gb_mesh_edge_dst(edge_left), edge_left_org))
             return tb_false;
 
-        /* before:
+        // TODO mark dirty
+        // ...
+
+        /* split the left edge and create a new edge
          *
          *            edge_left  edge_right
          *                .       .
@@ -332,10 +431,16 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *             .  .  
          *            . - . -----------------> fix it
          *                . 
-         *                .
+         *        org_new x
+         *                  .
+         *                    .
+         *                 edge_new
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_left));
+        tb_assert_abort(edge_new && edge_new == gb_mesh_edge_oprev(edge_left));
+
+        /* splice the left edge and right edges
          *
-         * after:
-         * 
          *            edge_left  edge_right
          *                .       .
          *                       .
@@ -352,8 +457,9 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *            . ---------------------> fixed
          *              . 
          *                .
-         *             edge_new
+         *             edge_new (org_new have been removed)
          */
+        gb_mesh_edge_splice(impl->mesh, edge_right, edge_new);
     }
 
     // trace
@@ -362,7 +468,6 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
     // fixed
     return tb_true;
 }
-#endif
 /* find the left top region of the leftmost edge with the same origin(event)
  *
  *  . edge_left                                                    . edge_right
@@ -696,6 +801,9 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
 
         // mark it if the new region is inside
         region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
+
+        // TODO
+        tb_used(gb_tessellator_fix_region_ordering_at_bottom);
 
         // update the previous edge and region 
         edge_prev   = edge_new;
