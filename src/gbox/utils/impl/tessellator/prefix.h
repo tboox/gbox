@@ -46,8 +46,11 @@
 // add the winding of tessellator edge 
 #define gb_tessellator_edge_winding_add(edge, val)      do { gb_tessellator_edge(edge)->winding += (val); } while (0)
 
-// merge the winding of two tessellator edges
-#define gb_tessellator_edge_winding_merge(edge, other)  (gb_tessellator_edge_winding_add(edge, gb_tessellator_edge_winding(other)), gb_tessellator_edge_winding_add(gb_mesh_edge_sym(edge), gb_tessellator_edge_winding(gb_mesh_edge_sym(other))))
+/* merge the winding of two tessellator edges
+ *
+ * when we merge two edges into one, we need to compute the combined winding of the new edge.
+ */
+#define gb_tessellator_edge_winding_merge(edge, other)  do { gb_tessellator_edge_winding_add(edge, gb_tessellator_edge_winding(other)); gb_tessellator_edge_winding_add(gb_mesh_edge_sym(edge), gb_tessellator_edge_winding(gb_mesh_edge_sym(other))); } while (0)
 
 // the region of tessellator edge 
 #define gb_tessellator_edge_region(edge)                (gb_tessellator_edge(edge)->region)

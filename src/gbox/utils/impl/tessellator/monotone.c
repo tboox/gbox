@@ -85,16 +85,16 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  * the region ordering may be violated 
  * because sometimes we can't distinguish the slopes numerically.
  *
- * .
- * .
- * .
- * .
- * .
- * .
- * .
- * .. ---> fix it
- * .
- * .
+ * .        ..
+ * .        ..
+ * .        ..
+ * .        ..
+ * .        ..
+ * .        ..    
+ * .        ..
+ * .. ----- ..---> fix it
+ * .        .
+ * .        .
  *
  * however the splicing can also help us to recover from numerical errors.
  *
@@ -148,20 +148,20 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
     tb_assert_abort(edge_right_org);
 
     /* 
-     *  edge_left  edge_right  edge_left  edge_right edge_left   edge_right
-     *        .       .            .          .          .           .
-     *         .      .             .         .           .          .
-     *          .     .              .        .            .         .
-     *           .    .               .       .             .        .
-     *            .   .                .      .              .       .
-     *             .  .                 .     .               .      .
-     *              . .        or        .    .       or       .     .
-     *               ..                   .   .                 .    .
-     *                .                    .  .                  .   .
-     *                ..                    . .                   .  .
-     *                . .                    ..                    . .
-     *                .  .                    .                     ..
-     *                .   . ----------------- .. ------------------- . --------> fix it
+     *  edge_left  edge_right  edge_left  edge_right edge_left   edge_right     edge_left/right
+     *        .       .            .          .          .           .                ..
+     *         .      .             .         .           .          .                ..
+     *          .     .              .        .            .         .                ..
+     *           .    .               .       .             .        .                ..
+     *            .   .                .      .              .       .                ..
+     *             .  .                 .     .               .      .                ..
+     *              . .        or        .    .       or       .     .                ..
+     *               ..                   .   .                 .    .                ..
+     *                .                    .  .                  .   .                .
+     *                ..                    . .                   .  .                .
+     *                . .                    ..                    . .                .
+     *                .  .                    .                     ..                .
+     *                .   . ----------------- .. ------------------- . -------------- . --> fix it
      *                . 
      *                .
      */
@@ -191,42 +191,42 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
 
         /* before:
          *
-         *  edge_left  edge_right
-         *        .       .
-         *         .      .
-         *          .     .
-         *           .    .
-         *            .   .
-         *             .  .
-         *              . .
-         *               ..
-         *                .
-         *                ..
-         *                . .
-         *                .  .
-         *                .   . -------------> fix it
-         *                . 
-         *                .
+         *  edge_left  edge_right     edge_left/right
+         *        .       .                 ..
+         *         .      .                 ..
+         *          .     .                 ..
+         *           .    .                 ..
+         *            .   .                 ..
+         *             .  .                 ..
+         *              . .                 ..
+         *               ..                 ..    
+         *                .                 ..
+         *                ..                ..
+         *                . .               ..
+         *                .  .              ..
+         *                .   . ----------- .. --> fix it
+         *                .                 .
+         *                .                 .
          *
          * after:
          *
-         *  edge_left  edge_right
-         *        .       .
-         *         .      
-         *          .     
-         *           .     .
-         *            .    
-         *             .   
-         *              .   .
-         *               .
-         *                . 
-         *                 . .
-         *                  .
-         *                   .
-         *                    . -------------> fixed
-         *                  .
-         *                .
-         *            edge_new
+         *  edge_left  edge_right    edge_left/right
+         *        .       .                ..
+         *         .                       ..
+         *          .                      ..
+         *           .     .               ..
+         *            .                    ..
+         *             .                   ..
+         *              .   .              ..
+         *               .                 ..
+         *                .                ..            
+         *                 . .             ..
+         *                  .              ..
+         *                   .             ..
+         *                    . ---------- . --> fixed
+         *                  .              .
+         *                .                .
+         *            edge_new          edge_new
          *
          */
         if (!gb_tessellator_vertex_eq(edge_left_org, edge_right_org))
@@ -289,30 +289,30 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *
          * before:
          *
-         *  edge_left  edge_right
-         *        .       .
-         *         .      .
-         *          .     .
-         *           .    .
-         *            .   .
-         *             .  .
-         *              . .
-         *               ..
-         *                .
-         *                .. ----------------> fix it (coordinate is equal, but the ordering is incorrect)
+         *  edge_left  edge_right  edge_left/right
+         *        .       .              ..
+         *         .      .              ..
+         *          .     .              ..
+         *           .    .              ..
+         *            .   .              ..
+         *             .  .              ..
+         *              . .              ..
+         *               ..              ..
+         *                .              ..
+         *                .. ----------- .. ----> fix it (coordinate is equal, but the ordering is incorrect)
          *
          * after:
          *
-         *  edge_left  edge_right
-         *        .       .
-         *         .      .
-         *          .     .
-         *           .    .
-         *            .   .
-         *             .  .
-         *              . .
-         *               ..
-         *                . -----------------> fixed
+         *  edge_left  edge_right  edge_left/right
+         *        .       .              ..  
+         *         .      .              ..  
+         *          .     .              ..  
+         *           .    .              ..  
+         *            .   .              ..  
+         *             .  .              ..  
+         *              . .              ..  
+         *               ..              ..  
+         *                . ------------ . ----> fixed
          */
         else if (edge_left_org != edge_right_org)
         {
@@ -353,20 +353,22 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
              */
             gb_mesh_edge_splice(impl->mesh, edge_right, gb_mesh_edge_oprev(edge_left));
         }
-        /* we need not fix it
+        /* we need not fix it, 
+         * but we need remove one edge with same slope for inserting down-going edges
          *
-         *  edge_left  edge_right
-         *        .       .
-         *         .      .
-         *          .     .
-         *           .    .
-         *            .   .
-         *             .  .
-         *              . .
-         *               ..
-         *                . 
+         *  edge_left  edge_right edge_left/right
+         *        .       .            ..
+         *         .      .            ..
+         *          .     .            ..
+         *           .    .     or     ..
+         *            .   .            .. (one edge will be removed after inserting down-going edges)
+         *             .  .            ..
+         *              . .            ..
+         *               ..            ..
+         *                .            .
+         * return:     false          true
          */
-        else return tb_false;
+        else return gb_mesh_edge_dst(edge_left) == gb_mesh_edge_dst(edge_right);
     }
     /* 
      *            edge_left  edge_right
@@ -713,6 +715,7 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
     }
 
     // done
+    tb_bool_t                           is_first    = tb_true;
     gb_tessellator_active_region_ref_t  region_new  = tb_null;
     gb_tessellator_active_region_ref_t  region_prev = region_left;
     gb_mesh_edge_ref_t                  edge_new    = tb_null;
@@ -802,8 +805,38 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
         // mark it if the new region is inside
         region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
 
-        // TODO
-        tb_used(gb_tessellator_fix_region_ordering_at_bottom);
+        /* fix two new edges with same slope before calculating intersections 
+         * and skip the first edge: edge_left_top != edge_prev
+         *
+         * we need to compute the combined winding of the new edge,
+         * because we merge two edges into one.
+         *
+         *       edge_prev/new edge_new
+         * .          .          .
+         * ..         ..          .
+         * ..         ..          .
+         * ..         ..          . (winding += edge_prev.winding)
+         * ..   fix   .. remove   . 
+         * .. ======> .. ======>  .
+         * ..         ..          .
+         * ..         x          x
+         * .          .          .
+         * .          .          .
+         */
+        if (!is_first && gb_tessellator_fix_region_ordering_at_bottom(impl, region_prev))
+        {
+            // compute the combined winding of the new edge.
+            gb_tessellator_edge_winding_merge(edge_new, edge_prev);
+            
+            // remove the previous region
+            gb_tessellator_active_regions_remove(impl, region_prev);
+
+            // remove the previous edge
+            gb_mesh_edge_delete(impl->mesh, edge_prev);
+        }
+
+        // update the first state
+        is_first = tb_false;
 
         // update the previous edge and region 
         edge_prev   = edge_new;
