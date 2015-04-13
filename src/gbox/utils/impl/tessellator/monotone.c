@@ -77,6 +77,270 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
     // update the region reference to the edge
     gb_tessellator_edge_region_set(edge, region);
 }
+/* fix the region ordering at the top edge
+ *
+ * theoretically, this should always be true.
+ *
+ * however, splitting an edge into two pieces can change the results of previous tests
+ * when we are calculating intersections.
+ * 
+ *            .       
+ * edge_left  .   
+ *            .    .
+ *            . 
+ *            .        . edge_left'
+ *            .                        the previous region ordering have been changed
+ *            .  .         .
+ *            . . edge_right
+ *            ..          . 
+ *            . ----------------> x (intersection with numerical error)
+ *           ..    splitting     ..
+ *          . .                 . .
+ *         .  .                .  .
+ *        .   .               .   .
+ *                          new edges
+ *
+ * so we need fix the following case:
+ *
+ *  .                              . 
+ *   .                           .       
+ *    .  . ------------ . ---- . --------> fix it        
+ *     . .              .    .          
+ *      ..              .  .               
+ *       .              ..                
+ *       ..            ..  
+ *       . .         .  .
+ *     L .  .      .    .  
+ *       . R .   . L    . R       
+ *       .    .         .
+ *
+ */
+#if 0
+static tb_bool_t gb_tessellator_fix_region_ordering_at_top(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left)
+{
+    // check
+    tb_assert_abort(impl && impl->mesh && region_left);
+
+    // the right region
+    gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region_left);
+    tb_assert_abort(region_right);
+
+    // the edge of the left region
+    gb_mesh_edge_ref_t edge_left = region_left->edge;
+    tb_assert_abort(edge_left);
+
+    // the edge of the right region
+    gb_mesh_edge_ref_t edge_right = region_right->edge;
+    tb_assert_abort(edge_right);
+
+    // the destination of the left edge
+    gb_mesh_vertex_ref_t edge_left_dst = gb_mesh_edge_dst(edge_left);
+    tb_assert_abort(edge_left_dst);
+
+    // the destination of the right edge
+    gb_mesh_vertex_ref_t edge_right_dst = gb_mesh_edge_dst(edge_right);
+    tb_assert_abort(edge_right_dst);
+
+    // check
+    tb_assert_abort(!gb_tessellator_vertex_eq(edge_left_dst, edge_right_dst));
+
+    /*                  
+     *                  .
+     *                  .
+     *                  .    
+     *                  .                 
+     *                  . ----- . --------> fix it        
+     *                  .     .          
+     *                  .   .               
+     *                  . .               
+     *                  .   
+     *                . .   
+     *              .   .  
+     *            .     .      
+     *          .       .
+     *        .         .
+     *    edge_left edge_right
+     */
+    if (gb_tessellator_vertex_in_top_or_hleft(edge_right_dst, edge_left_dst))
+    {
+        /* we need not fix it if the edge_left.dst is in the edge_right's left
+         *
+         *            edge_right
+         *                .
+         *                .
+         *                .
+         *   edge_left    .
+         *        .       .
+         *                .
+         *         .      .
+         *                .
+         *          .     .
+         *                .
+         *           .    . 
+         *                .  
+         *            .   .   
+         *                . 
+         *                .
+         */
+        if (gb_tessellator_vertex_in_edge_left(edge_left_dst, edge_right_dst, gb_mesh_edge_org(edge_right)))
+            return tb_false;
+
+        /* split the right edge and create a new edge
+         *
+         *      edge_new
+         *          . 
+         *              .
+         *        lface     x dst_new
+         *                  .
+         *                  .    
+         *                  .                 
+         *                  . ----- . --------> fix it        
+         *                  .     .          
+         *                  .   .               
+         *                  . .               
+         *                  .   
+         *                . .   
+         *              .   .  
+         *            .     .      
+         *          . lface .
+         *        .         .
+         *    edge_left edge_right
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, edge_right);
+        tb_assert_abort(edge_new);
+
+        /* splice the left edge and right edges
+         * 
+         *             edge_new
+         *                  .
+         *                   
+         *                      .
+         *                                    
+         *                          . --------> fixed       
+         *                        .          
+         *                      .               
+         *                    .  .            
+         *                  .   
+         *                .     
+         *              .     .
+         *            .            
+         *          .    
+         *        .        .
+         *    edge_left edge_right
+         */
+        gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_sym(edge_left), edge_new);
+
+        // the destination of the left edge cannot be changed
+        tb_assert_abort(edge_left_dst == gb_mesh_edge_dst(edge_new));
+        tb_assert_abort(edge_left_dst == gb_mesh_edge_dst(edge_left));
+        tb_assert_abort(edge_left_dst == gb_mesh_edge_dst(edge_right));
+
+        // TODO mark dirty and inside
+        // ...
+
+    }
+    /*                  
+     *                    .
+     *                    .
+     *                    .        
+     *                    .             
+     *          . ------- . -----------> fix it      
+     *            .       .         
+     *              .     .             
+     *                .   .             
+     *                  . .
+     *                    .
+     *                    . .
+     *                    .   .    
+     *                    .     .
+     *                    .       .
+     *                edge_left edge_right
+     */
+    else
+    {
+        /* we need not fix it if the edge_right.dst is in the edge_left's right
+         *
+         *            edge_left  
+         *                .          
+         *                .      
+         *                .         
+         *                .   edge_right
+         *                .       .
+         *                .   
+         *                .      .
+         *                .
+         *                .     .
+         *                .   
+         *                .    .
+         *                .  
+         *                .   .
+         *                . 
+         *                .
+         */
+        if (gb_tessellator_vertex_in_edge_right(edge_right_dst, edge_left_dst, gb_mesh_edge_org(edge_left)))
+            return tb_false;
+
+        /* split the left edge and create a new edge
+         *
+         *                       edge_new
+         *                          .
+         *                       .
+         *          (dst_new) x
+         *                    .
+         *   edge_right.lnext .        
+         *             .      .             
+         *          . ------- . -----------> fix it      
+         *            .       .         
+         *              .     .             
+         *                .   .             
+         *                  . .
+         *                    .
+         *                    . .
+         *                    .   .    
+         *                    .     .
+         *                    .       .
+         *                edge_left edge_right
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, edge_left);
+        tb_assert_abort(edge_new);
+
+        /* splice the left edge and right edges         
+         *
+         *               edge_new
+         *                  .
+         *                   
+         *              .              
+         *               .                    
+         *          . --------------------> fixed       
+         *            .                 
+         *              .                   
+         *            .   .                 
+         *                  . 
+         *                    .
+         *                .     .
+         *                        .    
+         *                          .
+         *                    .       .
+         *                edge_left edge_right
+         */
+        gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_lnext(edge_right), gb_mesh_edge_sym(edge_left));
+
+        // the destination of the right edge cannot be changed
+        tb_assert_abort(edge_right_dst == gb_mesh_edge_dst(edge_new));
+        tb_assert_abort(edge_right_dst == gb_mesh_edge_dst(edge_left));
+        tb_assert_abort(edge_right_dst == gb_mesh_edge_dst(edge_right));
+
+        // TODO mark dirty and inside
+        // ...
+    }
+
+    // trace
+    tb_trace_d("fix the top ordering for region: %{tess_region}", region_left);
+
+    // fixed
+    return tb_true;
+}
+#endif
 /* fix the region ordering at the bottom edge
  *
  * the main purpose is to splice down-going edges with the same
@@ -278,7 +542,7 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
              */
             gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_left), edge_right);
 
-            // the origin of the left edge cannot be modified
+            // the origin of the left edge cannot be changed
             tb_assert_abort(edge_left_org == gb_mesh_edge_org(edge_left));
             tb_assert_abort(edge_left_org == gb_mesh_edge_org(edge_right));
 
@@ -462,6 +726,10 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
          *             edge_new (org_new have been removed)
          */
         gb_mesh_edge_splice(impl->mesh, edge_right, edge_new);
+
+        // the origin of the right edge cannot be changed
+        tb_assert_abort(edge_right_org == gb_mesh_edge_org(edge_left));
+        tb_assert_abort(edge_right_org == gb_mesh_edge_org(edge_right));
     }
 
     // trace
@@ -1270,7 +1538,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         /* we only connect the event vertex to the origin of the left edge 
          * and wait for processing at next time, because the edge.org is an unprocessed vertex
          *
-         * @note edge.org cannot be modified
+         * @note edge.org cannot be changed
          */
         gb_mesh_edge_splice(impl->mesh, edge, gb_mesh_vertex_edge(event));
         return;
@@ -1974,7 +2242,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          */
         gb_mesh_edge_splice(impl->mesh, edge_first, gb_mesh_edge_oprev(edge_left));
 
-        // the event vertex cannot be modified
+        // the event vertex cannot be changed
         tb_assert_abort(gb_mesh_edge_org(edge_left) == impl->event);
         tb_assert_abort(gb_mesh_edge_org(edge_first) == impl->event);
 
@@ -2100,7 +2368,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          */
         gb_mesh_edge_splice(impl->mesh, edge_first, edge_right);
 
-        // the event vertex cannot be modified
+        // the event vertex cannot be changed
         tb_assert_abort(gb_mesh_edge_org(edge_first) == impl->event);
         tb_assert_abort(gb_mesh_edge_org(edge_right) == impl->event);
 
