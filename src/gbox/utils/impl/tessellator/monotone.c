@@ -83,7 +83,11 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  *
  * however, splitting an edge into two pieces can change the results of previous tests
  * when we are calculating intersections.
+ *
+ * @note this will generate one degenerate face with only two edges after fixing.
  * 
+ * before:
+ *
  *            .       
  * edge_left  .   
  *            .    .
@@ -91,14 +95,58 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  *            .        . edge_left'
  *            .                        the previous region ordering have been changed
  *            .  .         .
- *            . . edge_right
+ *            . . edge_right'
  *            ..          . 
  *            . ----------------> x (intersection with numerical error)
- *           ..    splitting     ..
- *          . .                 . .
- *         .  .                .  .
- *        .   .               .   .
- *                          new edges
+ *           ..    splitting  . .  
+ *          . .           .  .              
+ *         .  .       .   .         
+ *        .   .   .    .   
+ *       .    .     .
+ *      . .   .  .
+ *     .      .
+ * edge_right
+ *
+ * after:
+ *
+ *            .       
+ *                
+ *             .   
+ *               edge_new
+ *              . 
+ *                 
+ *               *         
+ *                    ..  edge_left/right (with a degenerate face)
+ *                          .. 
+ *                               x (intersection with numerical error)
+ *                            . .  
+ *                        .  .              
+ *                    .   .         
+ *                .    .   
+ *            .     .
+ *        .      .
+ *     .      .
+ *
+ * so
+ *
+ *            .                                      .                      .
+ * edge_left  .                            edge_left .                      .
+ *            .  region_left                         .                      .
+ *            . (rface.inside)                       .                      . edge_new (rface.inside = region_left.inside)
+ *            .                                      .       fixed          .
+ *            .                              . . . . . .  ----------->      * . . . . .
+ *            . edge_right         edge_right  .     .                     ..       
+ *            . . . . . .                        .   .                     .. edge_left/right (with a degenerate face)
+ *            ..           intersection            . .                     ..
+ *            .        x   ------------>             x                      x intersection with numerical error
+ *           ..  intersection with numerical error  ..                     ..
+ *          . .                                    . .                    . .
+ *         .  .                                   .  .                   .  .
+ *        .   .                                  .   .                  .   .
+ *       .    .                                 .    .                 .    .
+ *      .     .                                .     .                .     .
+ *     .      .                               .      .               .      .
+ * edge_right
  *
  * so we need fix the following case:
  *
@@ -115,7 +163,6 @@ static tb_void_t gb_tessellator_fix_region_edge(gb_tessellator_impl_t* impl, gb_
  *       .    .         .
  *
  */
-#if 0
 static tb_bool_t gb_tessellator_fix_region_ordering_at_top(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left)
 {
     // check
@@ -235,14 +282,58 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_top(gb_tessellator_impl_t
         tb_assert_abort(edge_left_dst == gb_mesh_edge_dst(edge_left));
         tb_assert_abort(edge_left_dst == gb_mesh_edge_dst(edge_right));
 
-        // TODO mark dirty and inside
-        // ...
+        /* update the inside of the new edge
+         *
+         * @note only region_left.inside have been calculated and validate.
+         *
+         * the new edge may be the last right edge before calculating intersection and fixing region ordering
+         *
+         *                    .
+         *                    .
+         *        region_left . edge_right
+         *          (inside)  .
+         *                    .
+         *      edge_left .   .
+         *                  . .
+         *                    .
+         *                    . .
+         *                    .   .
+         *                    .     .
+         *                    .       .
+         *
+         * the region ordering was violated with some numerical error after calculating intersection
+         *
+         *                    .                                             .
+         *                    .        lface.inside = region_left.inside => .
+         *                    .                                             .
+         *                    .                                             .
+         *                    .                                             . 
+         *                    .                         fixed               .
+         *                    .     . . . . .  ---------------------->  . . x . .
+         *                    .       .                                   . .  
+         *                    .     .                                   .   .    
+         *                    .   .                                   .     .      
+         *                    . .                                   .       . region_right
+         *                    .                                   .         .          
+         *                  . .                                 .           .            
+         *                .   .                               . region_left .   
+         *              .     . region_right                .               .                
+         *            .       .                           .                 .                  
+         *          .         .                         .                   .
+         *        .           .                       .                     .
+         *      . region_left .                     .                       .
+         *    .               .                   .                         .
+         * edge_left     edge_right           edge_left                 edge_right
+         */
+        gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge_new), region_left->inside);
 
+        // TODO mark dirty
+        // ...
     }
     /*                  
      *                    .
      *                    .
-     *                    .        
+     *                    .  
      *                    .             
      *          . ------- . -----------> fix it      
      *            .       .         
@@ -330,7 +421,49 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_top(gb_tessellator_impl_t
         tb_assert_abort(edge_right_dst == gb_mesh_edge_dst(edge_left));
         tb_assert_abort(edge_right_dst == gb_mesh_edge_dst(edge_right));
 
-        // TODO mark dirty and inside
+        /* update the inside of the new edge
+         *
+         * @note only region_left.inside have been calculated and validate.
+         *
+         * the new edge may be the last right edge before calculating intersection and fixing region ordering
+         *
+         *                    .
+         *                    . edge_left
+         *                    .
+         *                    . region_left(inside)
+         *                    .
+         *                    .   . edge_right
+         *                    . .
+         *                    .
+         *                  . . 
+         *                .   .   
+         *              .     .     
+         *            .       .       
+         *
+         *
+         * the region ordering was violated with some numerical error after calculating intersection
+         *
+         *                                                    edge_new
+         *                    .                                  .
+         *                    .                                  .
+         *                    .  region_left                     .
+         *                    . (rface.inside)                   . rface.inside = region_left.inside
+         *                    .                                  .
+         *      . . . . .     . -------------------------->  . . x . .
+         *            .       .              fixed               . .
+         *              .     .                                  .   .
+         *                .   .                                  .     .
+         *                  . .                                  .       .  region_right
+         *                    .                                  .         .
+         *                    . . region_right                   .           .
+         *                    .   .                              . region_left .
+         *                    .     .                            .               .
+         *                    .       .                          .                 .
+         *                edge_left edge_right               edge_left        edge_right
+         */
+        gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge_new), region_left->inside);
+
+        // TODO mark dirty 
         // ...
     }
 
@@ -340,7 +473,6 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_top(gb_tessellator_impl_t
     // fixed
     return tb_true;
 }
-#endif
 /* fix the region ordering at the bottom edge
  *
  * the main purpose is to splice down-going edges with the same
@@ -1111,9 +1243,16 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
         region_prev = region_new;
     }
 
+    // TODO
+    tb_used(gb_tessellator_fix_region_ordering_at_top);
+
     // check winding
     tb_assert_abort(region_new->winding == region_prev->winding - gb_tessellator_edge_winding(edge_new));
 }
+/* remove the degenerate edges
+ *
+ * zero-length edges, and contours with fewer than 3 vertices.
+ */
 static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* impl)
 {
     // check
@@ -1189,6 +1328,17 @@ static tb_void_t gb_tessellator_remove_degenerate_edges(gb_tessellator_impl_t* i
         }
     }
 }
+/* remove the degenerate faces
+ *
+ * the two places this can happen are 
+ *
+ * - in finish_top_regions()
+ *   when we splice in a "temporary" edge produced by connect_bottom_event(),
+ *
+ * - in fix_region_ordering_at_top()
+ *   where we splice already-processed edges to ensure that 
+ *   our active region ordering is not violated by numerical errors.
+ */
 static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* impl)
 {
     // check
@@ -1212,7 +1362,7 @@ static tb_void_t gb_tessellator_remove_degenerate_faces(gb_tessellator_impl_t* i
             // trace
             tb_trace_d("remove degenerate face");
 
-            // clear inside
+            // only clear inside
             gb_tessellator_face_inside_set(face, 0);
         }
     }
