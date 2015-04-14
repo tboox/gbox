@@ -156,6 +156,26 @@ __tb_extern_c_enter__
  */
 #define gb_tessellator_edge_go_down(edge)                   gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_org(edge), gb_mesh_edge_dst(edge))
 
+/* calculate the intersection of two edges
+ *
+ *    org2
+ *       .   intersection
+ *         .   |
+ *           . |
+ * . . . . . . . . . . . . . . . . dst1
+ * org1          .
+ *                 . 
+ *                   .
+ *                  dst2
+ */
+#define gb_tessellator_edge_intersection(org1, dst1, org2, dst2, result) \
+            \
+            gb_segment_intersection(    gb_tessellator_vertex_point(org1) \
+                                    ,   gb_tessellator_vertex_point(dst1) \
+                                    ,   gb_tessellator_vertex_point(org2) \
+                                    ,   gb_tessellator_vertex_point(dst2) \
+                                        result)
+
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
  */

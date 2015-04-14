@@ -44,11 +44,23 @@ __tb_extern_c_enter__
 /// a is in b's top or horizontal?
 #define gb_point_in_top_or_horizontal(a, b)     ((a)->y <= (b)->y)
     
+/// a is in b's bottom?
+#define gb_point_in_bottom(a, b)                ((a)->y > (b)->y)
+   
+/// a is in b's bottom or horizontal?
+#define gb_point_in_bottom_or_horizontal(a, b)  ((a)->y >= (b)->y)
+    
 /// a is in b's left?
 #define gb_point_in_left(a, b)                  ((a)->x < (b)->x)
     
 /// a is in b's left or vertical?
 #define gb_point_in_left_or_vertical(a, b)      ((a)->x <= (b)->x)
+      
+/// a is in b's right?
+#define gb_point_in_right(a, b)                 ((a)->x > (b)->x)
+    
+/// a is in b's right or vertical?
+#define gb_point_in_right_or_vertical(a, b)     ((a)->x >= (b)->x)
      
 /*! v is in segment(u, l)'s left?
  *
@@ -169,7 +181,7 @@ __tb_extern_c_enter__
  * interfaces
  */
 
-/* the three points are counter-clockwise?
+/*! the three points are counter-clockwise?
  *
  *                   p1
  *  . <-------------- .
@@ -187,7 +199,7 @@ __tb_extern_c_enter__
  */
 tb_long_t               gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t p2);
 
-/* compute the point-to-segment horizontal distance
+/*! compute the point-to-segment horizontal distance
  *
  *     upper            upper'
  *       .               .
@@ -209,7 +221,7 @@ tb_long_t               gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, g
  */
 gb_float_t              gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
 
-/* compute the point-to-segment vertical distance
+/*! compute the point-to-segment vertical distance
  *
  *                             . right
  *                        .
@@ -237,7 +249,7 @@ gb_float_t              gb_point_to_segment_distance_h(gb_point_ref_t center, gb
  */
 gb_float_t              gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
 
-/* compute the point-to-segment horizontal position
+/*! compute the point-to-segment horizontal position
  *
  * only evaluate the sign of the distance, faster than distance()
  *
@@ -261,7 +273,7 @@ gb_float_t              gb_point_to_segment_distance_v(gb_point_ref_t center, gb
  */
 tb_long_t               gb_point_to_segment_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower);
 
-/* compute the point-to-segment vertical position
+/*! compute the point-to-segment vertical position
  *
  * only evaluate the sign of the distance, faster than distance()
  *
@@ -290,6 +302,32 @@ tb_long_t               gb_point_to_segment_position_h(gb_point_ref_t center, gb
  * @return              the vertical position
  */
 tb_long_t               gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
+
+/*! calculate the intersection of two segments
+ * 
+ * <pre>
+ *
+ *    org2
+ *       . intersection
+ *         .   |
+ *           . |
+ * . . . . . . . . . . . . . . . . dst1
+ * org1          .
+ *                 . 
+ *                   .
+ *                  dst2
+ *
+ * </pre>
+ * 
+ * @param org1          the origin of the segment1
+ * @param dst1          the destination of the segment1
+ * @param org2          the origin of the segment2
+ * @param dst2          the destination of the segment2
+ * @param result        the intersection result, we only get the return value if be passed null
+ *
+ * @return              return tb_true if exists intersection
+ */
+tb_bool_t               gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

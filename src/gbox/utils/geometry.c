@@ -33,6 +33,144 @@
 #include "geometry.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * private implementation
+ */
+
+/* calculate the x-coordinate of intersection
+ * 
+ *
+ *        org2
+ *          . 
+ *          |   .
+ *      dy1 |       .
+ * . . . . . . . . . . * . . . . . . . . . dst1
+ * org1          dx    |    .       | dy2 
+ *                     |        .   |
+ *                     |            .
+ *                     |           dst2
+ *                     |
+ *                  result.x
+ *
+ * if dy1 + dy2 > 0:
+ *    dx / (dst2.x - org2.x) = dy1 / (dy1 + dy2)
+ *    dx = dy1 * (dst2.x - org2.x) / (dy1 + dy2)
+ *
+ * so:
+ * result.x = org2.x + dx = org2.x + dy1 * (dst2.x - org2.x) / (dy1 + dy2) 
+ *          = (org2.x * (dy1 + dy2) + dy1 * (dst2.x - org2.x)) / (dy1 + dy2)
+ *          = (org2.x * dy1 + org2.x * dy2 + dy1 * dst2.x - dy1 * org2.x) / (dy1 + dy2)
+ *          = (org2.x * dy2 + dy1 * dst2.x) / (dy1 + dy2)
+ */
+static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
+{
+    // check
+    tb_assert_abort(org1 && dst1 && org2 && dst2);
+
+    /* sort edges in the order: org1.x <= org2.x <= (dst1/dst2).x
+     *
+     *        org2                                                    dst2
+     *         .                                                       .
+     *           .                                                   .
+     *             .                                               .
+     * . . . . . . . . . . . . . . .          or       . . . . . . . . . . . . .
+     * org1            .           dst1              org1      .              dst1
+     *                   .                                   .
+     *                     .                               org2
+     *                     dst2
+     */
+    if (gb_point_in_right(org1, dst1)) { tb_swap(gb_point_ref_t, org1, dst1); }
+    if (gb_point_in_right(org2, dst2)) { tb_swap(gb_point_ref_t, org2, dst2); }
+    if (gb_point_in_right(org1, org2)) { tb_swap(gb_point_ref_t, org1, org2); 
+                                         tb_swap(gb_point_ref_t, dst1, dst2); }
+
+    /* no intersection?
+     *                              org2
+     *                                . 
+     *                                  .
+     *                                    .
+     * . . . . . . . . . . . . . . .        .
+     * org1                       dst1        . 
+     *                                          .
+     *                                            .
+     *                                             dst2
+     */
+    if (gb_point_in_right(org2, dst1)) return tb_false;
+    /* the intersection approachs dst1 or no intersection
+     * 
+     * no intersection:
+     *
+     *                          org2
+     *                           . 
+     *                           |  .
+     *                       dy1 | |   .
+     *                           | |dy2   .
+     * . . . . . . . . . . . . . . .         .
+     * org1                       dst1          . 
+     *                                             .
+     *                                                .
+     *                                                dst2
+     *
+     * or the intersection approachs dst1:
+     *
+     *        org2
+     *          . 
+     *          |   .
+     *      dy1 |       .
+     * . . . . . . . . . . * . . . . dst1
+     * org1          dx    |    .  | dy2 
+     *                     |        .
+     *                     |            .
+     *                     |                .
+     *                     |                    .
+     *                  result.x               dst2
+     */
+    else if (gb_point_in_left_or_vertical(dst1, dst2))
+    {
+    }
+    /* the intersection approachs the center point or no intersection
+     *
+     * no intersection:
+     * 
+     *        org2
+     *          . 
+     *          |   .
+     *          |       .
+     *      dy1 |           .  dst2
+     *          |               .
+     *          |               | dy2
+     * . . . . . . . . . . . . . . . . . . . . dst1
+     * org1                    
+     *                           
+     * or the intersection approachs the center point
+     *
+     *        org2
+     *          . 
+     *          |   .
+     *      dy1 |       .
+     * . . . . . . . . . . * . . . . . . . . . dst1
+     * org1          dx    |    .       | dy2 
+     *                     |        .   |
+     *                     |            .
+     *                     |           dst2
+     *                     |
+     *                  result.x
+     */
+    else
+    {
+    }
+
+    // exists the validate intersection
+    return tb_true;
+}
+static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
+{
+    // check
+    tb_assert_abort(org1 && dst1 && org2 && dst2);
+
+    return tb_false;
+}
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
 tb_long_t gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t p2)
@@ -299,4 +437,12 @@ tb_long_t gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t l
     // vertical edge
     return 0;
 }
+tb_bool_t gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
+{
+    // check
+    tb_assert_abort(org1 && dst1 && org2 && dst2);
 
+    // calculate the intersection
+    return (    gb_segment_intersection_x(org1, dst1, org2, dst2, result)
+            &&  gb_segment_intersection_y(org1, dst1, org2, dst2, result));
+}
