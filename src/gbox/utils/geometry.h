@@ -304,6 +304,9 @@ tb_long_t               gb_point_to_segment_position_h(gb_point_ref_t center, gb
 tb_long_t               gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right);
 
 /*! calculate the intersection of two segments
+ *
+ * @note the segments must be intersected in here, 
+ * so we need reject it quickly before calling this function if does not exist intersection
  * 
  * <pre>
  *
@@ -323,11 +326,9 @@ tb_long_t               gb_point_to_segment_position_v(gb_point_ref_t center, gb
  * @param dst1          the destination of the segment1
  * @param org2          the origin of the segment2
  * @param dst2          the destination of the segment2
- * @param result        the intersection result, we only get the return value if be passed null
- *
- * @return              return tb_true if exists intersection
+ * @param result        the intersection result
  */
-tb_bool_t               gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result);
+tb_void_t               gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
