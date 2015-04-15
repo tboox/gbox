@@ -40,8 +40,10 @@
  */
 #ifdef GB_CONFIG_FLOAT_FIXED
 typedef tb_fixed_t      gb_float_t;
+typedef tb_int64_t      gb_double_t;
 #else
 typedef tb_float_t      gb_float_t;
+typedef tb_double_t     gb_double_t;
 #endif
 
 /// the pixel type

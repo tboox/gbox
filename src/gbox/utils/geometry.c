@@ -35,9 +35,87 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
+static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower)
+{
+    // check
+    tb_assert_abort(center && upper && lower);
 
+    // must be upper <= center <= lower
+    tb_assert_abort(gb_point_in_top_or_horizontal(upper, center));
+    tb_assert_abort(gb_point_in_top_or_horizontal(center, lower));
+
+    // compute the upper and lower y-distances
+    gb_float_t yu = center->y - upper->y;
+    gb_float_t yl = lower->y - center->y;
+    tb_assert_abort(yu >= 0 && yl >= 0);
+
+    // edge(upper, lower) is not horizontal?
+    if (yu + yl > 0)
+    {
+        /* compute the position
+         * 
+         * distance = (center.x - upper.x) + (upper.x - lower.x) * (yu / (yu + yl))
+         * => distance * (yu + yl)  = (center.x - upper.x) * (yu + yl) + (upper.x - lower.x) * yu
+         *                          = (center.x - upper.x) * yu + (center.x - upper.x) * yl + (upper.x - lower.x) * yu
+         *
+         *
+         *
+         * distance = (center.x - lower.x) + (lower.x - upper.x) * (yl / (yu + yl))
+         * => distance * (yu + yl)  = (center.x - lower.x) * (yu + yl) + (lower.x - upper.x) * yl
+         *                          = (center.x - lower.x) * yl + (center.x - lower.x) * yu + (lower.x - upper.x) * yl
+         *
+         * so
+         *
+         * 2 * distance * (yu + yl) = (center.x - upper.x) * yu + (center.x - upper.x) * yl + (upper.x - lower.x) * yu
+         *                          + (center.x - lower.x) * yl + (center.x - lower.x) * yu + (lower.x - upper.x) * yl
+         *                          = 2 * (center.x - lower.x) * yu + 2 * (center.x - upper.x) * yl
+         *
+         * => distance * (yu + yl)  = (center.x - lower.x) * yu + (center.x - upper.x) * yl
+         * => sign(distance * (yu + yl))
+         * => sign(distance)
+         * => position
+         *
+         */
+#ifdef GB_CONFIG_FLOAT_FIXED
+        return (tb_hong_t)(center->x - lower->x) * yu + (tb_hong_t)(center->x - upper->x) * yl;
+#else
+        return (tb_double_t)(center->x - lower->x) * yu + (tb_double_t)(center->x - upper->x) * yl;
+#endif
+    }
+
+    // horizontal edge
+    return 0;
+}
+static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
+{
+    // check
+    tb_assert_abort(center && left && right);
+
+    // must be left <= center <= right
+    tb_assert_abort(gb_point_in_left_or_vertical(left, center));
+    tb_assert_abort(gb_point_in_left_or_vertical(center, right));
+
+    // compute the left and right x-distances
+    gb_float_t xl = center->x - left->x;
+    gb_float_t xr = right->x - center->x;
+    tb_assert_abort(xl >= 0 && xr >= 0);
+
+    // edge(left, right) is not vertical?
+    if (xl + xr > 0)
+    {
+        // compute the position
+#ifdef GB_CONFIG_FLOAT_FIXED
+        return (tb_hong_t)(center->y - right->y) * xl + (tb_hong_t)(center->y - left->y) * xr;
+#else
+        return (tb_double_t)(center->y - right->y) * xl + (tb_double_t)(center->y - left->y) * xr;
+#endif
+    }
+
+    // vertical edge
+    return 0;
+}
 // calculate interpolation: (a * x + b * y) / (a + b) for intersection
-static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_float_t a, gb_float_t x, gb_float_t b, gb_float_t y)
+static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_double_t a, gb_float_t x, gb_double_t b, gb_float_t y)
 {
     // a and b may be slightly negative
     if (a < 0) a = 0;
@@ -46,19 +124,29 @@ static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_float_t a
     // the results are very accurate even when a and b are very large
     if (a >= b)
     {
-        // calculate the factor
-        gb_float_t factor = gb_div(b, a + b);
+        // we only return x + y / 2 if a and b are zero
+        if (0 == a) return gb_avg(x, y);
 
-        /* calculate interpolation: x + (y - x) * (b / (a + b))
-         *
-         * we only return x + y / 2 if a and b are zero
-         */
-        return (0 == a)? gb_avg(x, y) : (x + gb_mul(y - x, factor));
+        // calculate the factor
+#ifdef GB_CONFIG_FLOAT_FIXED
+        gb_float_t factor = (gb_float_t)((b << 16) / (a + b));
+        tb_assertf_abort(b == ((b << 16) >> 16), "the factors is too large: %lld, %lld", a, b);
+#else
+        gb_float_t factor = (gb_float_t)(b / (a + b));
+#endif
+
+        // calculate interpolation: x + (y - x) * (b / (a + b))
+        return (x + gb_mul(y - x, factor));
     }
     else 
     {
         // calculate the factor
-        gb_float_t factor = gb_div(a, a + b);
+#ifdef GB_CONFIG_FLOAT_FIXED
+        gb_float_t factor = (gb_float_t)((a << 16) / (a + b));
+        tb_assertf_abort(a == ((a << 16) >> 16), "the factors is too large: %lld, %lld", a, b);
+#else
+        gb_float_t factor = (gb_float_t)(a / (a + b));
+#endif
 
         // calculate interpolation: y + (x - y) * (a / (a + b))
         return (y + gb_mul(x - y, factor));
@@ -208,12 +296,18 @@ static tb_void_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
      */
     else
     {
-        /* calculate the vertical distance: dy1 and dy2
+        /* quickly calculate the vertical cheap distance: dy1 and dy2 
+         * and the result will be not changed
          *
-         * TODO optimization
+         * dy1_cheap = dy1 * (dst1.x - org1.x) = dy1 * dt
+         * dy2_cheap = dy2 * (dst1.x - org1.x) = dy2 * dt
+         *
+         * result.x = (org2.x * dy2_cheap + dst2.x * dy1_cheap) / (dy1_cheap + dy2_cheap)
+         *          = (org2.x * dy2 * dt + dst2.x * dy1 * dt) / (dy1 * dt + dy2 * dt)
+         *          = (org2.x * dy2 + dst2.x * dy1) / (dy1 + dy2)
          */
-        gb_float_t dy1 = gb_point_to_segment_distance_v(org2, org1, dst1);
-        gb_float_t dy2 = -gb_point_to_segment_distance_v(dst2, org1, dst1);
+        gb_double_t dy1 = gb_point_to_segment_distance_v_cheap(org2, org1, dst1);
+        gb_double_t dy2 = -gb_point_to_segment_distance_v_cheap(dst2, org1, dst1);
 
         // ensure: (dy1 + dy2) > 0
         if (dy1 + dy2 < 0)
@@ -223,7 +317,7 @@ static tb_void_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
         }
 
         // no intersection? dy1 * dy2 < 0?
-        tb_assertf_abort(dy1 > -GB_NEAR0 && dy2 > -GB_NEAR0, "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
+        tb_assertf_abort(dy1 > -gb_mul(dst1->x - org1->x, GB_NEAR0) && dy2 > -gb_mul(dst1->x - org1->x, GB_NEAR0), "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
 
         /* calculate the x-coordinate of the intersection
          *
@@ -275,9 +369,9 @@ static tb_void_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
     // two points are projected onto the same line segment
     else
     {
-        // calculate the horizontal distance: dx1 and dx2
-        gb_float_t dx1 = gb_point_to_segment_distance_h(org2, org1, dst1);
-        gb_float_t dx2 = -gb_point_to_segment_distance_h(dst2, org1, dst1);
+        // quickly calculate the horizontal cheap distance: dx1 and dx2
+        gb_double_t dx1 = gb_point_to_segment_distance_h_cheap(org2, org1, dst1);
+        gb_double_t dx2 = -gb_point_to_segment_distance_h_cheap(dst2, org1, dst1);
 
         // ensure: (dx1 + dx2) > 0
         if (dx1 + dx2 < 0)
@@ -287,7 +381,7 @@ static tb_void_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
         }
 
         // no intersection? dx1 * dx2 < 0?
-        tb_assertf_abort(dx1 > -GB_NEAR0 && dx2 > -GB_NEAR0, "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
+        tb_assertf_abort(dx1 > -gb_mul(dst1->y - org1->y, GB_NEAR0) && dx2 > -gb_mul(dst1->y - org1->y, GB_NEAR0), "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
 
         /* calculate the y-coordinate of the intersection
          *
@@ -489,80 +583,22 @@ tb_long_t gb_point_to_segment_position_h(gb_point_ref_t center, gb_point_ref_t u
     // check
     tb_assert_abort(center && upper && lower);
 
-    // must be upper <= center <= lower
-    tb_assert_abort(gb_point_in_top_or_horizontal(upper, center));
-    tb_assert_abort(gb_point_in_top_or_horizontal(center, lower));
+    // compute the cheap distance quickly
+    gb_double_t distance = gb_point_to_segment_distance_h_cheap(center, upper, lower);
 
-    // compute the upper and lower y-distances
-    gb_float_t yu = center->y - upper->y;
-    gb_float_t yl = lower->y - center->y;
-    tb_assert_abort(yu >= 0 && yl >= 0);
-
-    // edge(upper, lower) is not horizontal?
-    if (yu + yl > 0)
-    {
-        /* compute the position
-         * 
-         * distance = (center.x - upper.x) + (upper.x - lower.x) * (yu / (yu + yl))
-         * => distance * (yu + yl)  = (center.x - upper.x) * (yu + yl) + (upper.x - lower.x) * yu
-         *                          = (center.x - upper.x) * yu + (center.x - upper.x) * yl + (upper.x - lower.x) * yu
-         *
-         *
-         *
-         * distance = (center.x - lower.x) + (lower.x - upper.x) * (yl / (yu + yl))
-         * => distance * (yu + yl)  = (center.x - lower.x) * (yu + yl) + (lower.x - upper.x) * yl
-         *                          = (center.x - lower.x) * yl + (center.x - lower.x) * yu + (lower.x - upper.x) * yl
-         *
-         * so
-         *
-         * 2 * distance * (yu + yl) = (center.x - upper.x) * yu + (center.x - upper.x) * yl + (upper.x - lower.x) * yu
-         *                          + (center.x - lower.x) * yl + (center.x - lower.x) * yu + (lower.x - upper.x) * yl
-         *                          = 2 * (center.x - lower.x) * yu + 2 * (center.x - upper.x) * yl
-         *
-         * => distance * (yu + yl)  = (center.x - lower.x) * yu + (center.x - upper.x) * yl
-         * => sign(distance * (yu + yl))
-         * => sign(distance)
-         * => position
-         *
-         */
-#ifdef GB_CONFIG_FLOAT_FIXED
-        return (tb_long_t)((tb_hong_t)(center->x - lower->x) * yu + (tb_hong_t)(center->x - upper->x) * yl);
-#else
-        return gb_sign_to_long((center->x - lower->x) * yu + (center->x - upper->x) * yl);
-#endif
-    }
-
-    // horizontal edge
-    return 0;
+    // get the sign of the distance
+    return distance < 0? -1 : distance > 0;
 }
 tb_long_t gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
 {
     // check
     tb_assert_abort(center && left && right);
 
-    // must be left <= center <= right
-    tb_assert_abort(gb_point_in_left_or_vertical(left, center));
-    tb_assert_abort(gb_point_in_left_or_vertical(center, right));
+    // compute the cheap distance quickly
+    gb_double_t distance = gb_point_to_segment_distance_v_cheap(center, left, right);
 
-    // compute the left and right x-distances
-    gb_float_t xl = center->x - left->x;
-    gb_float_t xr = right->x - center->x;
-    tb_assert_abort(xl >= 0 && xr >= 0);
-
-    // edge(left, right) is not vertical?
-    if (xl + xr > 0)
-    {
-        // compute the position
-#ifdef GB_CONFIG_FLOAT_FIXED
-        tb_hong_t position = ((tb_hong_t)(center->y - right->y) * xl + (tb_hong_t)(center->y - left->y) * xr);
-        return position < 0? -1 : position > 0;
-#else
-        return gb_sign_to_long((center->y - right->y) * xl + (center->y - left->y) * xr);
-#endif
-    }
-
-    // vertical edge
-    return 0;
+    // get the sign of the distance
+    return distance < 0? -1 : distance > 0;
 }
 tb_void_t gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
