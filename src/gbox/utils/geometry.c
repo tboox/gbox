@@ -177,7 +177,7 @@ static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_double_t 
  *          = (org2.x * dy1 + org2.x * dy2 + dy1 * dst2.x - dy1 * org2.x) / (dy1 + dy2)
  *          = (org2.x * dy2 + dst2.x * dy1) / (dy1 + dy2)
  */
-static tb_void_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
+static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
     // check
     tb_assert_abort(org1 && dst1 && org2 && dst2);
@@ -210,11 +210,7 @@ static tb_void_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
      *                                            .
      *                                             dst2
      */
-    if (gb_point_in_right(org2, dst1))
-    {
-        // no intersection
-        tb_assertf_abort(0, "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
-    }
+    if (gb_point_in_right(org2, dst1)) return tb_false;
     /* two points are projected onto the different line segment
      * 
      * no intersection:
@@ -258,13 +254,13 @@ static tb_void_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
         }
 
         // no intersection? dy1 * dy2 < 0?
-        tb_assertf_abort(dy1 > -GB_NEAR0 && dy2 > -GB_NEAR0, "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
+        if (dy1 < -GB_NEAR0 || dy2 < -GB_NEAR0) return tb_false;
 
         /* calculate the x-coordinate of the intersection
          *
          * result.x = (org2.x * dy2 + dst1.x * dy1) / (dy1 + dy2)
          */
-        result->x = gb_segment_intersection_interpolate(org2->x, dy2, dst1->x, dy1);
+        if (result) result->x = gb_segment_intersection_interpolate(org2->x, dy2, dst1->x, dy1);
     }
     /* two points are projected onto the same line segment
      *
@@ -317,16 +313,19 @@ static tb_void_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
         }
 
         // no intersection? dy1 * dy2 < 0?
-        tb_assertf_abort(dy1 > -gb_mul(dst1->x - org1->x, GB_NEAR0) && dy2 > -gb_mul(dst1->x - org1->x, GB_NEAR0), "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
+        if (dy1 < -GB_NEAR0 || dy2 < -GB_NEAR0) return tb_false;
 
         /* calculate the x-coordinate of the intersection
          *
          * result.x = (org2.x * dy2 + dst2.x * dy1) / (dy1 + dy2)
          */
-        result->x = gb_segment_intersection_interpolate(org2->x, dy2, dst2->x, dy1);
+        if (result) result->x = gb_segment_intersection_interpolate(org2->x, dy2, dst2->x, dy1);
     }
+
+    // exists intersection
+    return tb_true;
 }
-static tb_void_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
+static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
     // check
     tb_assert_abort(org1 && dst1 && org2 && dst2);
@@ -338,11 +337,7 @@ static tb_void_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
                                           tb_swap(gb_point_ref_t, dst1, dst2); }
 
     // no intersection?
-    if (gb_point_in_bottom(org2, dst1))
-    {
-        // no intersection
-        tb_assertf_abort(0, "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
-    }
+    if (gb_point_in_bottom(org2, dst1)) return tb_false;
     // two points are projected onto the different line segment
     else if (gb_point_in_top_or_horizontal(dst1, dst2))
     {
@@ -358,13 +353,13 @@ static tb_void_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
         }
 
         // no intersection? dx1 * dx2 < 0?
-        tb_assertf_abort(dx1 > -GB_NEAR0 && dx2 > -GB_NEAR0, "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
+        if (dx1 < -GB_NEAR0 || dx2 < -GB_NEAR0) return tb_false;
 
         /* calculate the y-coordinate of the intersection
          *
          * result.y = (org2.y * dx2 + dst1.y * dx1) / (dx1 + dx2)
          */
-        result->y = gb_segment_intersection_interpolate(org2->y, dx2, dst1->y, dx1);
+        if (result) result->y = gb_segment_intersection_interpolate(org2->y, dx2, dst1->y, dx1);
     }
     // two points are projected onto the same line segment
     else
@@ -381,14 +376,17 @@ static tb_void_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
         }
 
         // no intersection? dx1 * dx2 < 0?
-        tb_assertf_abort(dx1 > -gb_mul(dst1->y - org1->y, GB_NEAR0) && dx2 > -gb_mul(dst1->y - org1->y, GB_NEAR0), "no intersection for: (%{point}, %{point}) and (%{point}, %{point})", org1, dst1, org2, dst2);
+        if (dx1 < -GB_NEAR0 || dx2 < -GB_NEAR0) return tb_false;
 
         /* calculate the y-coordinate of the intersection
          *
          * result.y = (org2.y * dx2 + dst2.y * dx1) / (dx1 + dx2)
          */
-        result->y = gb_segment_intersection_interpolate(org2->y, dx2, dst2->y, dx1);
+        if (result) result->y = gb_segment_intersection_interpolate(org2->y, dx2, dst2->y, dx1);
     }
+
+    // exists intersection
+    return tb_true;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
@@ -600,16 +598,16 @@ tb_long_t gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t l
     // get the sign of the distance
     return distance < 0? -1 : distance > 0;
 }
-tb_void_t gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
+tb_bool_t gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
     // check
-    tb_assert_abort(org1 && dst1 && org2 && dst2 && result);
+    tb_assert_abort(org1 && dst1 && org2 && dst2);
 
     /* calculate the intersection
      *
      * this is certainly not the most efficient way to find the intersection of two line segments,
      * but it is very numerically stable.
      */
-    gb_segment_intersection_x(org1, dst1, org2, dst2, result);
-    gb_segment_intersection_y(org1, dst1, org2, dst2, result);
+    return gb_segment_intersection_x(org1, dst1, org2, dst2, result)
+        && gb_segment_intersection_y(org1, dst1, org2, dst2, result);
 }
