@@ -99,8 +99,8 @@ static tb_void_t gb_demo_utils_geometry_intersection()
     // clear random
     tb_random_clear(tb_null);
 
-    // done
-    tb_size_t count = 256;
+    // test results
+    __tb_volatile__ tb_size_t count = 256;
     while (count--)
     {
         // make range
@@ -120,6 +120,33 @@ static tb_void_t gb_demo_utils_geometry_intersection()
             tb_trace_i("(%{point} => %{point}) x (%{point} => %{point})): %{point}", &org1, &dst1, &org2, &dst2, &intersection);
         }
     }
+
+    // clear random
+    tb_random_clear(tb_null);
+
+    // test performance
+    count = 1000000;
+    tb_size_t in = 0;
+    tb_hong_t dt = tb_mclock();
+    while (count--)
+    {
+        // make line segments
+        gb_point_imake(&org1, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&dst1, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&org2, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&dst2, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+
+        // calculate intersection
+        if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection))
+        {
+            // update the intersection number
+            in++;
+        }
+    }
+    dt = tb_mclock() - dt;
+
+    // trace
+    tb_trace_i("intersection: count: %lu, time: %lld ms", in, dt);
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////
