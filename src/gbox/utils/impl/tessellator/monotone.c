@@ -870,6 +870,33 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
     // fixed
     return tb_true;
 }
+/* calculate and patch the intersection of the left and right edges of the given region
+ *
+ * we need return true if adding the new intersection resulted 
+ * in a recursive call to insert_down_doing_edges()
+ * 
+ * - in this case all "dirty" regions have been fixed for intersections, 
+ *   and possibly the given region has been deleted.
+ *
+ * edge_left
+ *       .
+ *         .          region           . edge_right
+ *           .                      .
+ *             .                 .
+ *               .    * event . ------------ sweep line
+ *                 .       .
+ *                   .  .
+ *                    x --------- intersection
+ *                 .     .
+ *              .          .
+ */
+static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
+{
+    // check
+    tb_assert_abort(impl && region);
+
+    return tb_false;
+}
 /* find the left top region of the leftmost edge with the same origin(event)
  *
  *  . edge_left                                                    . edge_right
@@ -2324,11 +2351,25 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     gb_mesh_edge_ref_t edge_right   = region_right->edge;
     tb_assert_abort(edge_left && edge_right);
 
-    // TODO done intersection
+    /* attempt to fix the intersection of the left and right edges in the left region first
+     *
+     *           region_left
+     *                                   .
+     * edge_left       .               . edge_right
+     *   .             .  .          .
+     *     .       .   . .         .
+     *       .       . ..        .
+     *         .       . event . --------------------------- sweep line
+     *           .           .
+     *             .       .
+     *               .   .
+     *                 x -- intersection
+     *               .   .
+     *             .
+     *           .  
+     */
     if (gb_mesh_edge_dst(edge_left) != gb_mesh_edge_dst(edge_right))
-    {
-        // ...
-    }
+        gb_tessellator_fix_region_intersection(impl, region_left);
 
     /* the degenerate case
      * 
