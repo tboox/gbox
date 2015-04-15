@@ -77,7 +77,7 @@ static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, g
          *
          */
 #ifdef GB_CONFIG_FLOAT_FIXED
-        return (tb_hong_t)(center->x - lower->x) * yu + (tb_hong_t)(center->x - upper->x) * yl;
+        return ((tb_hong_t)(center->x - lower->x) * yu + (tb_hong_t)(center->x - upper->x) * yl) >> 16;
 #else
         return (tb_double_t)(center->x - lower->x) * yu + (tb_double_t)(center->x - upper->x) * yl;
 #endif
@@ -105,7 +105,7 @@ static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, g
     {
         // compute the position
 #ifdef GB_CONFIG_FLOAT_FIXED
-        return (tb_hong_t)(center->y - right->y) * xl + (tb_hong_t)(center->y - left->y) * xr;
+        return ((tb_hong_t)(center->y - right->y) * xl + (tb_hong_t)(center->y - left->y) * xr) >> 16;
 #else
         return (tb_double_t)(center->y - right->y) * xl + (tb_double_t)(center->y - left->y) * xr;
 #endif
@@ -114,8 +114,8 @@ static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, g
     // vertical edge
     return 0;
 }
-// calculate interpolation: (a * x + b * y) / (a + b) for intersection
-static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_double_t a, gb_float_t x, gb_double_t b, gb_float_t y)
+// calculate interpolation: (x * a + y * b) / (a + b) for intersection
+static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_float_t x, gb_double_t a, gb_float_t y, gb_double_t b)
 {
     // a and b may be slightly negative
     if (a < 0) a = 0;
@@ -127,29 +127,31 @@ static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_double_t 
         // we only return x + y / 2 if a and b are zero
         if (0 == a) return gb_avg(x, y);
 
-        // calculate the factor
 #ifdef GB_CONFIG_FLOAT_FIXED
+        // calculate the factor
         gb_float_t factor = (gb_float_t)((b << 16) / (a + b));
-        tb_assertf_abort(b == ((b << 16) >> 16), "the factors is too large: %lld, %lld", a, b);
-#else
-        gb_float_t factor = (gb_float_t)(b / (a + b));
-#endif
+        tb_assertf_abort(b == (b << 16) >> 16, "the factors are too large: %lld %lld", a, b);
 
-        // calculate interpolation: x + (y - x) * (b / (a + b))
-        return (x + gb_mul(y - x, factor));
+        // calculate the intersection
+        return x + gb_mul(y - x, factor);
+#else
+        // calculate the intersection
+        return (gb_float_t)(x + (y - x) * (b / (a + b)));
+#endif
     }
     else 
     {
-        // calculate the factor
 #ifdef GB_CONFIG_FLOAT_FIXED
+        // calculate the factor
         gb_float_t factor = (gb_float_t)((a << 16) / (a + b));
-        tb_assertf_abort(a == ((a << 16) >> 16), "the factors is too large: %lld, %lld", a, b);
-#else
-        gb_float_t factor = (gb_float_t)(a / (a + b));
-#endif
+        tb_assertf_abort(a == (a << 16) >> 16, "the factors are too large: %lld %lld", a, b);
 
-        // calculate interpolation: y + (x - y) * (a / (a + b))
-        return (y + gb_mul(x - y, factor));
+        // calculate the intersection
+        return y + gb_mul(x - y, factor);
+#else
+        // calculate the intersection
+        return (gb_float_t)(y + (x - y) * (a / (a + b)));
+#endif
     }
 }
 /* calculate the x-coordinate of intersection
@@ -198,6 +200,10 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
     if (gb_point_in_right(org2, dst2)) { tb_swap(gb_point_ref_t, org2, dst2); }
     if (gb_point_in_right(org1, org2)) { tb_swap(gb_point_ref_t, org1, org2); 
                                          tb_swap(gb_point_ref_t, dst1, dst2); }
+
+    // check
+    tb_assert_abort(org1 != org2);
+    tb_assert_abort(dst1 != dst2);
 
     /* no intersection?
      *                              org2
@@ -335,6 +341,10 @@ static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
     if (gb_point_in_bottom(org2, dst2)) { tb_swap(gb_point_ref_t, org2, dst2); }
     if (gb_point_in_bottom(org1, org2)) { tb_swap(gb_point_ref_t, org1, org2); 
                                           tb_swap(gb_point_ref_t, dst1, dst2); }
+
+    // check
+    tb_assert_abort(org1 != org2);
+    tb_assert_abort(dst1 != dst2);
 
     // no intersection?
     if (gb_point_in_bottom(org2, dst1)) return tb_false;
