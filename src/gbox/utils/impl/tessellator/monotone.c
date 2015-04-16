@@ -880,7 +880,7 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
  *
  * edge_left
  *       .
- *         .          region           . edge_right
+ *         .      region_left          . edge_right
  *           .                      .
  *             .                 .
  *               .    * event . ------------ sweep line
@@ -890,11 +890,283 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
  *                 .     .
  *              .          .
  */
-static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
+static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left)
 {
     // check
-    tb_assert_abort(impl && region);
+    tb_assert_abort(impl && impl->mesh && region_left);
 
+    // the event
+    gb_mesh_vertex_ref_t event = impl->event;
+    tb_assert_abort(event);
+
+    // the right region
+    gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region_left);
+    tb_assert_abort(region_right);
+
+    // the edge of the left region
+    gb_mesh_edge_ref_t edge_left = region_left->edge;
+    tb_assert_abort(edge_left);
+
+    // the edge of the right region
+    gb_mesh_edge_ref_t edge_right = region_right->edge;
+    tb_assert_abort(edge_right);
+
+    // the origin and destination of the left edge
+    gb_mesh_vertex_ref_t edge_left_org = gb_mesh_edge_org(edge_left);
+    gb_mesh_vertex_ref_t edge_left_dst = gb_mesh_edge_dst(edge_left);
+    tb_assert_abort(edge_left_org && edge_left_dst);
+
+    // the origin and destination of the right edge
+    gb_mesh_vertex_ref_t edge_right_org = gb_mesh_edge_org(edge_right);
+    gb_mesh_vertex_ref_t edge_right_dst = gb_mesh_edge_dst(edge_right);
+    tb_assert_abort(edge_right_org && edge_right_dst);
+
+    // the top vertices of two edge cannot be equal
+    tb_assert_abort(!gb_tessellator_vertex_eq(edge_left_dst, edge_right_dst));
+
+    // the event vertex must be in the middle of two edge
+    tb_assert_abort(gb_tessellator_vertex_on_edge_or_right(event, edge_left_dst, edge_left_org));
+    tb_assert_abort(gb_tessellator_vertex_on_edge_or_left(event, edge_right_dst, edge_right_org));
+    tb_assert_abort(event != edge_left_org && event != edge_right_org);
+
+    // two edges cannot be fixable 
+    tb_assert_abort(!region_left->fixedge && !region_right->fixedge);
+
+    /* we need not fix it if the bottom vertices are same
+     *
+     * . edge_left
+     *   .           . edge_right
+     *     .     .
+     *       . (same)
+     */
+    tb_check_return_val(edge_left_org != edge_right_org, tb_false);
+
+    /* no intersection?
+     *
+     * we reject it quickly if edge_left_max_x < edge_right_min_x
+     *
+     * edge_left
+     *    .
+     *     .                     edge_right
+     *      .                      .
+     *       .                    .
+     *        .                  .
+     *         .                . 
+     *          *              *
+     *  edge_left_max_x < edge_right_min_x
+     *
+     *          (no intersection)
+     */ 
+    gb_float_t edge_left_max_x  = tb_max(gb_tessellator_vertex_point(edge_left_org)->x, gb_tessellator_vertex_point(edge_left_dst)->x);
+    gb_float_t edge_right_min_x = tb_min(gb_tessellator_vertex_point(edge_right_org)->x, gb_tessellator_vertex_point(edge_right_dst)->x);
+    tb_check_return_val(edge_left_max_x >= edge_right_min_x, tb_false);
+
+    /* no intersection?
+     *
+     * we reject it quickly if edge_left is in the left-top of edge_right
+     *
+     * edge_left
+     *   .
+     *    .           edge_right
+     *     .             .
+     *      .         .
+     *       *     .
+     *          .
+     *       .
+     *    *
+     */
+    if (gb_tessellator_vertex_in_top_or_horizontal(edge_left_org, edge_right_org))
+    {
+        if (gb_tessellator_vertex_in_edge_left(edge_left_org, edge_right_dst, edge_right_org)) return tb_false;
+    }
+    /* no intersection?
+     *
+     * we reject it quickly if edge_right is in the right-top of edge_left
+     *
+     *               edge_right
+     * edge_left         .
+     *   .              .
+     *      .          .
+     *         .      *
+     *            .   
+     *               .
+     *                  *
+     */
+    else
+    {
+        if (gb_tessellator_vertex_in_edge_right(edge_right_org, edge_left_dst, edge_left_org)) return tb_false;
+    }
+
+    // attempt to calculate the intersection of two edges
+    gb_tessellator_vertex_local(intersection);
+    if (!gb_tessellator_edge_intersection(edge_left_org, edge_left_dst, edge_right_org, edge_right_dst, intersection))
+        return tb_false;
+
+    // trace
+    tb_trace_d("intersection: %{mesh_edge} x %{mesh_edge} => %{point}", edge_left, edge_right, gb_tessellator_vertex_point(intersection));
+
+    /* check the position of the intersection
+     *
+     * edge_left
+     *    .       edge_right
+     *      .     .
+     *        .  .
+     *          x ---- intersection
+     *         .  .
+     *        .     .
+     *                .
+     */
+    tb_assert_abort(gb_tessellator_vertex_point(intersection)->x >= edge_right_min_x);
+    tb_assert_abort(gb_tessellator_vertex_point(intersection)->x <= edge_left_max_x);
+    tb_assert_abort(gb_tessellator_vertex_point(intersection)->y >= tb_max(gb_tessellator_vertex_point(edge_left_dst)->y, gb_tessellator_vertex_point(edge_right_dst)->y));
+    tb_assert_abort(gb_tessellator_vertex_point(intersection)->y <= tb_min(gb_tessellator_vertex_point(edge_left_org)->y, gb_tessellator_vertex_point(edge_right_org)->y));
+
+    /* we need fix it if the intersection lies slightly to
+     * the upper of the sweep line because of some numerical errors.
+     * 
+     * the easiest and safest thing to do is replace the intersection by the event vertex.
+     *
+     * edge_left
+     *       .
+     *         .      region_left            . edge_right
+     *           .                        .
+     *             .                   .
+     *               .              .
+     *                 .  x ---- . ------------------ intersection with numerical error
+     *                   . *  . event --------------- sweep line
+     *                     .  
+     *                  .    .
+     *               .         .
+     *                           .
+     *                             .
+     *                               .
+     */
+    if (gb_tessellator_vertex_in_top_or_horizontal(intersection, event))
+    {
+        // trace
+        tb_trace_d("fix intersection by the event: %{mesh_vertex}", event);
+
+        // replace the intersection by the event vertex
+        gb_tessellator_vertex_point_set(intersection, gb_tessellator_vertex_point(event));
+    }
+
+    /* similarly, we also need fix it if the intersection lies slightly to
+     * the lower of the topmost origin because of some numerical errors .
+     *
+     * edge_left
+     *       .
+     *         .      region_left            . edge_right
+     *           .                        .
+     *             .        * event -- . ----------- sweep line
+     *               .              .
+     *                 .         . 
+     *                   .    .  
+     *                     .  
+     *    edge_org_upper *   .
+     *                     x - . ------------------- intersection with numerical error
+     *                           .
+     *                             .
+     *                               .
+     */
+    gb_mesh_vertex_ref_t edge_org_upper = gb_tessellator_vertex_in_top_or_horizontal(edge_left_org, edge_right_org)? edge_left_org : edge_right_org;
+    if (gb_tessellator_vertex_in_top_or_horizontal(edge_org_upper, intersection))
+    {
+        // trace
+        tb_trace_d("fix intersection by the topmost origin: %{mesh_vertex}", edge_org_upper);
+
+        // replace the intersection by the edge_org_upper
+        gb_tessellator_vertex_point_set(intersection, gb_tessellator_vertex_point(edge_org_upper));
+    }
+
+    /* we only need fix the bottom region ordering 
+     * if the intersection is at the one of the bottom endpoints
+     *
+     * edge_left
+     *   .       
+     *    .    edge_right
+     *     .      .
+     *      .   .
+     *       .. ------ intersection
+     */
+    if (    gb_tessellator_vertex_eq(intersection, edge_left_org)
+        ||  gb_tessellator_vertex_eq(intersection, edge_right_org))
+    {
+        // trace
+        tb_trace_d("fix intersection by splicing the origin of two edges");
+
+        // fix the bottom region ordering by splicing two edges
+        gb_tessellator_fix_region_ordering_at_bottom(impl, region_left);
+        return tb_false;
+    }
+
+    // TODO
+    // ...
+
+    /* the general case
+     *
+     * we will split two edges and splice them
+     * and insert the new intersection to the event queue.
+     *
+     * before:
+     *
+     * edge_left
+     *       .
+     *         .      region_left          . edge_right
+     *           .                      .
+     *             .                 .
+     *               .    * event . ------------ sweep line
+     *                 .       .
+     *                   .  .
+     *                    x --------- intersection
+     *                 .     .
+     *              .          .
+     *           .               .
+     *                             .
+     *                               .
+     *
+     * after:
+     *
+     * edge_left
+     *       .
+     *         .      region_left          . edge_right
+     *           .                      .
+     *             .                 .
+     *               .    * event . ------------ sweep line
+     *                 .       .
+     *                   .  .
+     *                    x --------- intersection (insert to the event queue)
+     *                 .     .
+     *              .          .
+     *           .               .
+     *       edge_new              .
+     *                               .
+     *                           edge_new
+     */
+    {
+        /* split two edges 
+         *
+         * we will create two new edges and a new vertex 
+         */
+        gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_left));
+        gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_right));
+
+        // splice edges
+        gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_left), edge_right);
+
+        // check
+        tb_assert_abort(gb_mesh_edge_org(edge_left) == gb_mesh_edge_org(edge_right));
+
+        // init the new intersection point
+        gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge_right), gb_tessellator_vertex_point(intersection));
+
+        // insert the new intersection vertex to the event queue
+        gb_tessellator_event_queue_insert(impl, gb_mesh_edge_org(edge_right));
+
+        // TODO: mark dirty
+        // ...
+    }
+
+    // no recursion
     return tb_false;
 }
 /* find the left top region of the leftmost edge with the same origin(event)

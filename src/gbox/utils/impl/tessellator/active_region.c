@@ -332,7 +332,7 @@ static tb_void_t gb_tessellator_active_regions_test(gb_tessellator_impl_t* impl,
     // update the current sweep event for inserting region in ascending order
     tb_byte_t vertex[sizeof(gb_mesh_vertex_t) + sizeof(gb_tessellator_vertex_t)];
     impl->event = (gb_mesh_vertex_ref_t)vertex;
-    gb_tessellator_vertex_point_set(impl->event, point);
+    gb_tessellator_vertex_point_set(impl->event, &point);
 
     // insert some regions 
     __tb_volatile__ tb_size_t count = 20;

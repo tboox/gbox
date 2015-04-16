@@ -45,6 +45,13 @@ __tb_extern_c_enter__
  */
 tb_bool_t           gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl);
 
+/* insert the vertex event to queue
+ *
+ * @param impl      the tessellator impl
+ * @param event     the vertex event
+ */
+tb_void_t           gb_tessellator_event_queue_insert(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event);
+
 /* remove the vertex event from queue
  *
  * @param impl      the tessellator impl

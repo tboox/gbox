@@ -74,7 +74,12 @@
 #define gb_tessellator_vertex_point(vertex)             (&(gb_tessellator_vertex(vertex)->point))
 
 // set the tessellator vertex point
-#define gb_tessellator_vertex_point_set(vertex, val)    do { gb_tessellator_vertex(vertex)->point = (val); } while (0)
+#define gb_tessellator_vertex_point_set(vertex, val)    do { gb_tessellator_vertex(vertex)->point = *(val); } while (0)
+
+// define the local tessellator vertex variable
+#define gb_tessellator_vertex_local(name) \
+    tb_byte_t __name##_data[sizeof(gb_mesh_vertex_t) + sizeof(gb_tessellator_vertex_t)]; \
+    gb_mesh_vertex_ref_t name = (gb_mesh_vertex_ref_t)__name##_data;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types

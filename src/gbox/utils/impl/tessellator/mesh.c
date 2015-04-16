@@ -228,7 +228,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
             gb_tessellator_edge_region_set(gb_mesh_edge_sym(edge), tb_null);
 
             // init edge.dst
-            gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), *point);
+            gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), point);
         }
 
         // next point
@@ -272,10 +272,10 @@ gb_mesh_edge_ref_t gb_tessellator_mesh_make_edge(gb_tessellator_impl_t* impl, gb
     gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge), 0);
 
     // init edge.org
-    if (org) gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge), *org);
+    if (org) gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge), org);
 
     // init edge.dst
-    if (dst) gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), *dst);
+    if (dst) gb_tessellator_vertex_point_set(gb_mesh_edge_dst(edge), dst);
 
     // ok
     return edge;

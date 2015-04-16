@@ -85,6 +85,14 @@ tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
     // ok
     return tb_priority_queue_size(impl->event_queue);
 }
+tb_void_t gb_tessellator_event_queue_insert(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
+{
+    // check
+    tb_assert_abort(impl && impl->event_queue && event);
+
+    // insert this event
+    tb_priority_queue_put(impl->event_queue, event);
+}
 tb_void_t gb_tessellator_event_queue_remove(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
 {
     // check

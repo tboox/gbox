@@ -174,7 +174,7 @@ __tb_extern_c_enter__
                                     ,   gb_tessellator_vertex_point(dst1) \
                                     ,   gb_tessellator_vertex_point(org2) \
                                     ,   gb_tessellator_vertex_point(dst2) \
-                                        result)
+                                    ,   gb_tessellator_vertex_point(result))
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern
