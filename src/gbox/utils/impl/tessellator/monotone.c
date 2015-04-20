@@ -870,6 +870,146 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
     // fixed
     return tb_true;
 }
+/* we need fix four case because of the calculated intersection with some small numerical errors.
+ *
+ * the case 1 and 2 when calling insert_down_doing_edges():
+ *
+ * - the new left and right edges with the intersection point may violate the region ordering 
+ *   because the calculated intersection has some small numerical errors.
+ * 
+ * case 1:
+ *
+ * edge_left
+ * .
+ *   . .
+ *     .   .
+ *       .    .              
+ *         .      .        
+ *           .        .  
+ *             .  event   . 
+ *               .   *   .    . edge_left_new
+ *                 . .          . .
+ *                   . -------------- x <--- intersection with numerical error
+ *                   . .
+ *                   .   .
+ *                   .     .
+ *                   .       .
+ *                   .         .
+ *                   .
+ *                   .
+ *                   .
+ *               edge_right
+ *
+ * or case 2:
+ *
+ *                                     . edge_right
+ *                                 . .
+ *                             .   .
+ *                          .    .
+ *                      .      .     
+ *  edge_right_new  .        .
+ *              .     event.
+ *          .     .  *   .
+ *      . .          . .   
+ *   x <------------ . ----------------- intersection with numerical error
+ *                 . . 
+ *               .   .   
+ *             .     .     
+ *           .       .       
+ *         .         .         
+ *                   .
+ *                   .
+ *                   .
+ *               edge_left
+ *
+ * the case 3 and 4 when calling connect_bottom_event():
+ *
+ * - the event will be not in the middle of the new left and right edges 
+ *   with the intersection point, when we are connecting the bottom event.
+ *
+ *   this can happen due to very small numerical errors in the intersection calculation
+ *   and we cannot continue to connect the bottom event if the case has been happened.
+ *
+ *   so we need also fix it for this case.
+ *
+ * case 3:
+ *
+ * edge_left     edge_right
+ * .                 .
+ *   .       *       . .
+ *     . .    *      .   .
+ *       .     *   * .     .  edge_right_new
+ *         .    * *  .       .
+ *           .   * event       .
+ *             .     .    .      .
+ *               .   .         . edge_left_new
+ *                 . .              .
+ *                   . ---------------- x <--- intersection with numerical error
+ *                   . .
+ *                   .   .
+ *                   .     .
+ *                   .       .
+ *                   .         .
+ *                   .
+ *                   .
+ *                   .
+ *
+ * case 4:
+ *
+ *                         edge_left                 edge_right
+ *                             .                         .
+ *                             .                    .  .
+ *                           . .                 .   .
+ *                             .              .    .  
+ *                        .    .           .     .
+ *                             .       *.      .
+ *                     .       .      *      .
+ *    edge_left_new            . *   *     .
+ *                  .          .  * *    .
+ *                         .   .   * event
+ *               .     .       .     .   
+ *                 .           .   .    
+ *            . edge_right_new . .            
+ *          x <--------------- . ------------------- intersection with numerical error
+ *                           . .  
+ *                         .   .     
+ *                       .     .     
+ *                     .       .       
+ *                   .         .         
+ *                             .
+ *                             .
+ *                             .
+ *
+ */
+static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_vertex_ref_t intersection)
+{
+    // check
+    tb_assert_abort(impl && region_left && region_right && intersection);
+
+    // the event
+    gb_mesh_vertex_ref_t event = impl->event;
+    tb_assert_abort(event);
+
+    // the edge of the left region
+    gb_mesh_edge_ref_t edge_left = region_left->edge;
+    tb_assert_abort(edge_left);
+
+    // the edge of the right region
+    gb_mesh_edge_ref_t edge_right = region_right->edge;
+    tb_assert_abort(edge_right);
+
+    // the origin and destination of the left edge
+    gb_mesh_vertex_ref_t edge_left_org = gb_mesh_edge_org(edge_left);
+    gb_mesh_vertex_ref_t edge_left_dst = gb_mesh_edge_dst(edge_left);
+    tb_assert_abort(edge_left_org && edge_left_dst);
+
+    // the origin and destination of the right edge
+    gb_mesh_vertex_ref_t edge_right_org = gb_mesh_edge_org(edge_right);
+    gb_mesh_vertex_ref_t edge_right_dst = gb_mesh_edge_dst(edge_right);
+    tb_assert_abort(edge_right_org && edge_right_dst);
+
+    return tb_false;
+}
 /* calculate and patch the intersection of the left and right edges of the given region
  *
  * we need return true if adding the new intersection resulted 
@@ -1099,8 +1239,18 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         return tb_false;
     }
 
-    // TODO
-    // ...
+    /* we need fix four case because of the calculated intersection with some small numerical errors.
+     *
+     * see the comments of gb_tessellator_fix_region_intersection_errors
+     */
+    if (    (   !gb_tessellator_vertex_eq(event, edge_left_dst)
+            &&  gb_tessellator_vertex_on_edge_or_left(event, edge_left_dst, intersection))
+        ||  (   !gb_tessellator_vertex_eq(event, edge_right_dst)
+            &&  gb_tessellator_vertex_on_edge_or_right(event, edge_right_dst, intersection)))
+    {
+        // fix some case because of numerical errors
+        return gb_tessellator_fix_region_intersection_errors(impl, region_left, region_right, intersection);
+    }
 
     /* the general case
      *
