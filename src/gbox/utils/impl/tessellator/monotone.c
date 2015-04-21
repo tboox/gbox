@@ -38,7 +38,11 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
  */
-static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event);
+static tb_void_t                            gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event);
+static gb_tessellator_active_region_ref_t   gb_tessellator_find_left_top_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
+static gb_tessellator_active_region_ref_t   gb_tessellator_find_left_bottom_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
+static tb_void_t                            gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top);
+static gb_mesh_edge_ref_t                   gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_head, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t* pregion_right);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -984,7 +988,7 @@ static tb_bool_t gb_tessellator_fix_region_ordering_at_bottom(gb_tessellator_imp
 static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_vertex_ref_t intersection)
 {
     // check
-    tb_assert_abort(impl && region_left && region_right && intersection);
+    tb_assert_abort(impl && impl->mesh && region_left && region_right && intersection);
 
     // the event
     gb_mesh_vertex_ref_t event = impl->event;
@@ -1008,6 +1012,334 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
     gb_mesh_vertex_ref_t edge_right_dst = gb_mesh_edge_dst(edge_right);
     tb_assert_abort(edge_right_org && edge_right_dst);
 
+    /* case 1:
+     *
+     * edge_left
+     * .
+     *   .  region_left
+     *     .    
+     *       .                  . (finished)
+     *         .              .        .
+     *           .          .     . (finished)
+     *             .   event .
+     *               .   * .        
+     *                 . .    .  region_xxx
+     *                   . -------------- x <--- intersection with numerical error
+     *                   . .
+     *                   .   .
+     *                   .     .
+     *                   .       .
+     *                   .         .
+     *                   .
+     *                   . region_right
+     *                   .
+     *               edge_right
+     */
+    if (event == edge_right_dst)
+    {
+        // trace
+        tb_trace_d("fix intersection error by the right event");
+
+        /* split the left edge
+         *
+         * edge_left
+         * .
+         *   .  region_left
+         *     .               edge_right.lnext 
+         *       .                  . (finished)
+         *         .    lface     .        .
+         *           .          .     . (finished)
+         *             .   event .
+         *               .   * .  
+         *                 . .    .  region_xxx
+         *                   x -------------- x <--- intersection with numerical error
+         *                   . .
+         *                   .   .      lface
+         *                   .     .
+         *                   .       .
+         *                   .         . edge_new
+         *                   .
+         *                   . region_right
+         *                   .
+         *               edge_right
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_left));
+        tb_assert_abort(edge_new);
+ 
+        /* splice the left and new edges into the event vertex
+         * and uses the event as the real intersection
+         *
+         * edge_left
+         * .
+         *   .  region_left
+         *     .                 
+         *       .
+         *         .      lface
+         *           .              . (finished)
+         *             .          .        .
+         *               .      .     . (finished)
+         *                 event .
+         *                   * . ------------------- intersection     
+         *                 . .    .  region_xxx    
+         *               .   .    
+         *             .     .      
+         *           .       . region_right
+         *         .  lface  .          
+         *       .           .            
+         *   edge_new - - -  . - - - - - - . (edge_new.dst)
+         *                   .
+         *                   .
+         *                   .
+         *               edge_right
+         */
+        gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_lnext(edge_right), edge_new);
+
+        // the event cannot be changed
+        tb_assert_abort(event == gb_mesh_edge_org(edge_new));
+        tb_assert_abort(event == gb_mesh_edge_org(edge_left));
+        tb_assert_abort(event == gb_mesh_edge_dst(edge_right));
+ 
+        // update the new left region
+        region_left = gb_tessellator_find_left_top_region(impl, region_left);
+        tb_assert_abort(region_left);
+
+        // get the first region
+        gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
+        tb_assert_abort(region_first);
+
+        // get the left-top edge
+        gb_mesh_edge_ref_t edge_left_top = region_first->edge;
+        tb_assert_abort(edge_left_top);
+        
+        /* finish and remove the top regions 
+         *
+         *  .             edge_left_top
+         *  .             .
+         *  .               .  
+         *  . region_left     .   region_first(finished)     
+         *  .                   .
+         *  .                     .      lface
+         *  .                       .              . (finished)
+         *  .                         .          .        .
+         *  .                           .      .     . (finished)
+         *  .                             event .
+         *  .                               * . --------------------- intersection  
+         *  .                             . .    . region_xxx    
+         *  .                           .   .    
+         *  .                         .     .      
+         *  .                       .       . region_right
+         *  .                     .  lface  .         
+         *  .                   .           .            
+         *  .               edge_new - - -  . - - - - - - . (edge_new.dst)
+         *  .             (inserted)        .
+         *                      region_new  .
+         *                                  .
+         *                              edge_right
+         */
+        gb_tessellator_finish_top_regions(impl, region_first, region_right, tb_null);
+
+        // check the new edge order: edge_left_top => edge_new => edge_right
+        tb_assert_abort(edge_new == gb_mesh_edge_onext(edge_left_top));
+        tb_assert_abort(edge_right == gb_mesh_edge_onext(edge_new));
+
+        // insert the new down-going edge without region: edge_new
+        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_right, edge_left_top);
+
+        /* we need return directly from the recurse call
+         * because we have fix all "dirty" regions after calling insert_down_going_edges()
+         * and possibly the previous regions have been removed
+         */
+        return tb_true;
+    }
+
+    /* case 2:
+     *
+     *
+     *                                       . edge_right
+     *                                     .
+     *          .                        .
+     * (finished) .                    .
+     *      .       .                .     
+     *          .     .            .   region_right
+     *  (finished)  .  event     .
+     *                  .*     .
+     *                .  .   .   
+     *        region_xxx . .
+     *   x <------------ . ----------------- intersection with numerical error
+     *                 . . 
+     *               .   .   
+     *             .     .     
+     *           .       .       
+     *         .         .         
+     *                   . region_left
+     *                   . 
+     *                   .
+     *               edge_left
+     */
+    if (event == edge_left_dst)
+    {
+        // trace
+        tb_trace_d("fix intersection error by the left event");
+
+        /* split the right edge
+         *
+         *
+         *                                     . edge_right
+         *                                   .
+         *          .                      .
+         * (finished) .                  .
+         *       .      .      lface   .     
+         *           .    .          .   region_right
+         *  (finished)   . event   .
+         *                  .*   .
+         *                .  . .   
+         *   x <------------ x ----------------- intersection with numerical error
+         *                 . . 
+         *               .   .   
+         *             .     .     
+         *           .       .       
+         *         .         . lface
+         *    edge_new       .
+         *                   . region_left
+         *                   .
+         *               edge_left
+         */
+        gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_right));
+        tb_assert_abort(edge_new);
+ 
+        /* splice the right and new edges into the event vertex
+         * and uses the event as the real intersection
+         *
+         *                               edge_right
+         *                                  .
+         *                                . 
+         *                    lface     .
+         *          .                 .
+         * (finished) .             .    
+         *       .      .         .        
+         *           .    .     .      region_right
+         * (finished)    . event    
+         *                  .* --------------------- intersection
+         *               .   .  .    
+         *            .      .    .
+         *        region_xxx .      .
+         *                   .        . 
+         *                   . lface    .  
+         *      .            .            .   
+         * (edge_new.dst) -- . - - - - -  edge_new
+         *                   .
+         *                   . region_left
+         *                   .
+         *               edge_left
+         */
+        gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_sym(edge_left), edge_right);
+
+        // the event cannot be changed
+        tb_assert_abort(event == gb_mesh_edge_org(edge_new));
+        tb_assert_abort(event == gb_mesh_edge_org(edge_right));
+        tb_assert_abort(event == gb_mesh_edge_dst(edge_left));
+
+        // update the new left region
+        region_left = gb_tessellator_find_left_bottom_region(impl, region_left);
+        tb_assert_abort(region_left);
+
+        /* finish and remove the top regions 
+         * and update the right region
+         *
+         *  .                                             edge_right                .
+         *  .                                                .                      .
+         *  .                                              .                        .
+         *  .                                  lface     .                          .
+         *  .                        .                 .                            .
+         *  .              (finished)  .             .                              .
+         *  .                     .      .         .                                .
+         *  .                         .    .     .      region_xxx(finished)        .
+         *  .              (finished)     . event                                   .
+         *  .                                .* --------------------- intersection  .
+         *  .                             .   .  .                                  .
+         *  . region_left              .      .    .                                . region_right
+         *  .                      region_xxx .      .                              .
+         *  .                                 .        . region_new                 .
+         *  .                                 . lface    .                          .
+         *  .                    .            .            .                        .
+         *  .               (edge_new.dst) -- . - - - - -  edge_new(inserted)       .
+         *  .                                 .                                     .
+         *  .                                 . region_xxx                          .
+         *  .                                 .                                     .
+         *                                edge_left                        
+         */
+        gb_tessellator_finish_top_regions(impl, region_right, tb_null, &region_right);
+
+        // check the new edge
+        tb_assert_abort(edge_right == gb_mesh_edge_onext(edge_new));
+
+        // insert the new down-going edge without region: edge_new
+        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_right, tb_null);
+
+        /* we need return directly from the recurse call
+         * because we have fix all "dirty" regions after calling insert_down_going_edges()
+         * and possibly the previous regions have been removed
+         */
+        return tb_true;
+    }
+
+    /* case 3:
+     *
+     * edge_left     edge_right
+     * .                 .
+     *   .       *       .  
+     *     .      *      .  
+     *       .     *   * .  
+     *         .    * *  .    
+     *           .   * event      
+     *             .     .          
+     *               .   .          
+     *                 . .               
+     *                   . ---------------- x <--- intersection with numerical error
+     *                   . .
+     *                   .   .
+     *                   .     .
+     *                   .       .
+     *                   .         .
+     *                   .
+     *                   .
+     *                   .
+     */
+    if (gb_tessellator_vertex_on_edge_or_left(event, edge_left_dst, intersection))
+    {
+    }
+
+    /* case 4:
+     *
+     *                         edge_left                 edge_right
+     *                             .                         .
+     *                             .                    .  .
+     *                           . .                 .   .
+     *                             .              .    .  
+     *                        .    .           .     .
+     *                             .       *.      .
+     *                     .       .      *      .
+     *    edge_left_new            . *   *     .
+     *                  .          .  * *    .
+     *                         .   .   * event
+     *               .     .       .     .   
+     *                 .           .   .    
+     *            . edge_right_new . .            
+     *          x <--------------- . ------------------- intersection with numerical error
+     *                           . .  
+     *                         .   .     
+     *                       .     .     
+     *                     .       .       
+     *                   .         .         
+     *                             .
+     *                             .
+     *                             .
+     */
+    if (gb_tessellator_vertex_on_edge_or_right(event, edge_right_dst, intersection))
+    {
+    }
+
+    // TODO
     return tb_false;
 }
 /* calculate and patch the intersection of the left and right edges of the given region
@@ -1875,10 +2207,10 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
  *  .                                                              .
  *  .            (prev)                                            .
  *  .          (leftmost)              .                           .
- *  .          edge_first             .                            .
- *  .                . region_first  .             . edge_last     .
+ *  .          edge_head              .                            .
+ *  .                . region_head   .             . edge_last     .
  *  .                  .            .  region  .                   .
- *  . region_left        .         .       .                       . region_right
+ *  . region_left        .         .       .                       . region_right/tail
  *  .                      .      .    .  region_last              .     
  * /.\                       .   . .                              /.\
  *  .  ------------------------ . event -------------------------- . ------- sweep line   
@@ -1887,17 +2219,17 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
  *  .                     .                                        .
  *  .                                                              .
  */
-static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_first, gb_tessellator_active_region_ref_t region_last, gb_tessellator_active_region_ref_t* pregion_right)
+static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_head, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t* pregion_right)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && region_first);
+    tb_assert_abort(impl && impl->mesh && region_head);
 
-    // we walk as far as possible if region_last is null 
-    gb_mesh_edge_ref_t                  edge            = region_first->edge;
+    // we walk as far as possible if region_tail is null 
+    gb_mesh_edge_ref_t                  edge            = region_head->edge;
     gb_mesh_edge_ref_t                  edge_next       = tb_null;
-    gb_tessellator_active_region_ref_t  region          = region_first;
+    gb_tessellator_active_region_ref_t  region          = region_head;
     gb_tessellator_active_region_ref_t  region_next     = tb_null;
-    while (region != region_last) 
+    while (region != region_tail) 
     {
         /* clear the temporary edge mark "fixedge" 
          *
@@ -1921,9 +2253,9 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
         {
             /* we fix it if the left edge was a temporary edge 
              *
-             *  edge_first
+             *  edge_head
              *  .               
-             *   . region_first                                   
+             *   . region_head                                   
              *    .           .                                  
              *     .         .            edge                   
              *      .       .             .              
@@ -1943,9 +2275,9 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
 
                 /* create a new edge and connect the temporary edge to the event
                  *
-                 *  edge_first
+                 *  edge_head
                  *  .               
-                 *   . region_first                                   
+                 *   . region_head                                 
                  *    .           .                                  
                  *     .         .            edge                   
                  *      .       .             .              
@@ -1966,9 +2298,9 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
 
                 /* fix the next edge to the new edge 
                  *
-                 *  edge_first
+                 *  edge_head
                  *  .               
-                 *   . region_first                                   
+                 *   . region_head                                  
                  *    .           .                                  
                  *     .         .            edge                   
                  *      .       .             .              
