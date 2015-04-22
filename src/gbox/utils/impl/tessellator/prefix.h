@@ -110,6 +110,9 @@ typedef struct __gb_tessellator_active_region_t
     // the winding
     tb_long_t                           winding;
 
+    // is dirty? we need fix the region ordering 
+    tb_uint8_t                          dirty   : 1;
+
     // is inside?
     tb_uint8_t                          inside  : 1;
 
