@@ -1283,19 +1283,19 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
         return tb_true;
     }
 
-    /* case 3:
+    /* case 3
      *
      * edge_left     edge_right
      * .                 .
-     *   .       *       .  
-     *     .      *      .  
-     *       .     *   * .  
+     *   . .     *       .  
+     *     .  .   *      .  
+     *       .   . *   * .  
      *         .    * *  .    
      *           .   * event      
-     *             .     .          
-     *               .   .          
-     *                 . .               
-     *                   . ---------------- x <--- intersection with numerical error
+     *             .     . .        
+     *               .   .    .     
+     *                 . .       .       
+     *                   . ------- x <--- intersection with numerical error
      *                   . .
      *                   .   .
      *                   .     .
@@ -1307,24 +1307,95 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
      */
     if (gb_tessellator_vertex_on_edge_or_left(event, edge_left_dst, intersection))
     {
+        // TODO mark dirty
+        // ...
+
+        /* split the left edge
+         *
+         * edge_left     edge_right
+         * .                 .
+         *   .       *       .  
+         *     .      *      .  
+         *       .     *   * .  
+         *         .    * *  .    
+         *           .   * event      
+         *             x     .          
+         *               .   .          
+         *                 . .               
+         *                   . 
+         *                   . .
+         *                   .   .
+         *                   .     .
+         *                   .       .
+         *                   .         . edge_new
+         *                   .
+         *                   .
+         *                   .
+         */
+        gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_left));
+
+        /* replace the intersection by the event vertex
+         * and wait for connect_bottom_event() to splice it appropriately
+         *
+         * edge_left     edge_right
+         *  .                 .
+         *    .       *       .  
+         *      .      *      .  
+         *        .     *   * .  
+         *          .    * *  .    
+         *            .   * event      
+         *      event - x     .          
+         *  (intersection).   .          
+         *                  . .               
+         *                    . 
+         *                    . .
+         *                    .   .
+         *                    .     .
+         *                    .       .
+         *                    .         . edge_new
+         *                    .
+         *                    .
+         *                    .
+         *
+         *
+         * after connect_bottom_event()
+         *
+         * edge_left     edge_right
+         * . (finished)       .
+         *    .       *       . 
+         *       .     *      . region_right
+         *          .   *   * .  
+         *             . * *  .    
+         *                * event      
+         *                    . 
+         *                    .  .
+         *                    .     .  (region_new)
+         *                    .        .
+         *                    .           .
+         *                    .              . edge_new(inserted)
+         *                    .
+         *                    .
+         *                    .
+         */
+        gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge_left), gb_tessellator_vertex_point(event));
     }
 
-    /* case 4:
+    /* case 4
      *
      *                         edge_left                 edge_right
      *                             .                         .
      *                             .                    .  .
-     *                           . .                 .   .
+     *                             .                 .   .
      *                             .              .    .  
-     *                        .    .           .     .
+     *                             .           .     .
      *                             .       *.      .
-     *                     .       .      *      .
-     *    edge_left_new            . *   *     .
-     *                  .          .  * *    .
+     *                             .      *      .
+     *                             . *   *     .
+     *                             .  * *    .
      *                         .   .   * event
-     *               .     .       .     .   
+     *                     .       .     .   
      *                 .           .   .    
-     *            . edge_right_new . .            
+     *            .                . .            
      *          x <--------------- . ------------------- intersection with numerical error
      *                           . .  
      *                         .   .     
@@ -1337,9 +1408,93 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
      */
     if (gb_tessellator_vertex_on_edge_or_right(event, edge_right_dst, intersection))
     {
+        // TODO mark dirty
+        // ...
+
+        /* split the right edge
+         *
+         *                         edge_left                 edge_right
+         *                             .                         .
+         *                             .                       .
+         *                             .                     .
+         *                             .                   .  
+         *                             .                 .
+         *                             .       *       .
+         *                             .      *      .
+         *                             . *   *     .
+         *                             .  * *    .
+         *                             .   * event
+         *                             .     x   
+         *                             .   .    
+         *                             . .            
+         *                             . 
+         *                           . .  
+         *                         .   .     
+         *                       .     .     
+         *                     .       .       
+         *                   .         .         
+         *           edge_new          .
+         *                             .
+         *                             .
+         */
+        gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_right));
+
+        /* replace the intersection by the event vertex
+         * and wait for connect_bottom_event() to splice it appropriately
+         *
+         *                         edge_left                 edge_right
+         *                             .                         .
+         *                             .                       .
+         *                             .                     .
+         *                             .                   .  
+         *                             .                 .
+         *                             .       *       .
+         *                             .      *      .
+         *                             . *   *     .
+         *                             .  * *    .
+         *                             .   * event
+         *                             .     x - event   
+         *                             .   . (intersection) 
+         *                             . .            
+         *                             . 
+         *                           . .  
+         *                         .   .     
+         *                       .     .     
+         *                     .       .       
+         *                   .         .         
+         *           edge_new          .
+         *                             .
+         *                             .
+         *
+         *
+         * after connect_bottom_event()
+         *
+         *                         edge_left               edge_right
+         *                             .                      .
+         *                             .                    .
+         *                             . region_left      .
+         *                             .                .  
+         *                             .              .  region_right
+         *                             .       *    .     (finished)
+         *                             .      *   .
+         *                             . *   *  .
+         *                             .  * * .
+         *                             .   * event
+         *                             . . (intersection) 
+         *                             . region_new          
+         *                           . .  
+         *                         .   .     
+         *                       .     .     
+         *                     .       .       
+         *                   .         .         
+         *              edge_new       .
+         *                             .
+         *                             .
+         */
+        gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge_right), gb_tessellator_vertex_point(event));
     }
 
-    // TODO
+    // the left operation will be processed in connect_bottom_event()
     return tb_false;
 }
 /* calculate and patch the intersection of the left and right edges of the given region
