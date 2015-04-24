@@ -238,6 +238,22 @@ static tb_bool_t gb_tessellator_fix_region_order_at_top(gb_tessellator_impl_t* i
         if (gb_tessellator_vertex_in_edge_left(edge_left_dst, edge_right_dst, gb_mesh_edge_org(edge_right)))
             return tb_false;
 
+        /* the right edge will be split, so we need mark it and it's left edge as "dirty"
+         *
+         *      fix_all_dirty_regions()
+         *    <-------------------------
+         *              
+         * edge_left    edge_right   edge_xxx
+         *  (dirty)      (dirty)
+         *    |             |-----------|
+         *    |                recheck
+         *    |-------------------|
+         *           recheck
+         *
+         */
+        region_left->dirty  = 1;
+        region_right->dirty = 1;
+
         /* split the right edge and create a new edge
          *
          *      edge_new
@@ -332,9 +348,6 @@ static tb_bool_t gb_tessellator_fix_region_order_at_top(gb_tessellator_impl_t* i
          * edge_left     edge_right           edge_left                 edge_right
          */
         gb_tessellator_face_inside_set(gb_mesh_edge_lface(edge_new), region_left->inside);
-
-        // TODO mark dirty
-        // ...
     }
     /*                  
      *                    .
@@ -376,6 +389,25 @@ static tb_bool_t gb_tessellator_fix_region_order_at_top(gb_tessellator_impl_t* i
          */
         if (gb_tessellator_vertex_in_edge_right(edge_right_dst, edge_left_dst, gb_mesh_edge_org(edge_left)))
             return tb_false;
+
+        /* the left edge will be split, so we need mark it and it's left edge as "dirty"
+         *
+         *      fix_all_dirty_regions()
+         *    <-------------------------
+         *              
+         * edge_left2   edge_left   edge_right
+         *  (dirty)      (dirty)
+         *    |             |-----------|
+         *    |                recheck
+         *    |-------------------|
+         *           recheck
+         *
+         */
+        gb_tessellator_active_region_ref_t region_left2 = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left2);
+
+        region_left->dirty  = 1;
+        region_left2->dirty = 1;
 
         /* split the left edge and create a new edge
          *
@@ -468,9 +500,6 @@ static tb_bool_t gb_tessellator_fix_region_order_at_top(gb_tessellator_impl_t* i
          *                edge_left edge_right               edge_left        edge_right
          */
         gb_tessellator_face_inside_set(gb_mesh_edge_rface(edge_new), region_left->inside);
-
-        // TODO mark dirty 
-        // ...
     }
 
     // trace
@@ -633,6 +662,22 @@ static tb_bool_t gb_tessellator_fix_region_order_at_bottom(gb_tessellator_impl_t
          */
         if (!gb_tessellator_vertex_eq(edge_left_org, edge_right_org))
         {
+            /* the right edge will be split, so we need mark it and it's left edge as "dirty"
+             *
+             *      fix_all_dirty_regions()
+             *    <-------------------------
+             *              
+             * edge_left    edge_right   edge_xxx
+             *  (dirty)      (dirty)
+             *    |             |-----------|
+             *    |                recheck
+             *    |-------------------|
+             *           recheck
+             *
+             */
+            region_left->dirty  = 1;
+            region_right->dirty = 1;
+
             /* split the right edge and create a new edge
              *
              *  edge_left  edge_right
@@ -683,9 +728,6 @@ static tb_bool_t gb_tessellator_fix_region_order_at_bottom(gb_tessellator_impl_t
             // the origin of the left edge cannot be changed
             tb_assert_abort(edge_left_org == gb_mesh_edge_org(edge_left));
             tb_assert_abort(edge_left_org == gb_mesh_edge_org(edge_right));
-
-            // TODO mark dirty
-            // ...
         }
         /* edge_left.org lies on the edge_right.org
          *
@@ -815,8 +857,24 @@ static tb_bool_t gb_tessellator_fix_region_order_at_bottom(gb_tessellator_impl_t
         if (gb_tessellator_vertex_in_edge_right(edge_right_org, gb_mesh_edge_dst(edge_left), edge_left_org))
             return tb_false;
 
-        // TODO mark dirty
-        // ...
+        /* the left edge will be split, so we need mark it and it's left edge as "dirty"
+         *
+         *      fix_all_dirty_regions()
+         *    <-------------------------
+         *              
+         * edge_left2   edge_left   edge_right
+         *  (dirty)      (dirty)
+         *    |             |-----------|
+         *    |                recheck
+         *    |-------------------|
+         *           recheck
+         *
+         */
+        gb_tessellator_active_region_ref_t region_left2 = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left2);
+
+        region_left->dirty  = 1;
+        region_left2->dirty = 1;
 
         /* split the left edge and create a new edge
          *
@@ -1312,8 +1370,24 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
         // trace
         tb_trace_d("fix intersection error for case 3");
 
-        // TODO mark dirty
-        // ...
+        /* the left edge will be split, so we need mark it and it's left edge as "dirty"
+         *
+         *      fix_all_dirty_regions()
+         *    <-------------------------
+         *              
+         * edge_left2   edge_left   edge_right
+         *  (dirty)      (dirty)
+         *    |             |-----------|
+         *    |                recheck
+         *    |-------------------|
+         *           recheck
+         *
+         */
+        gb_tessellator_active_region_ref_t region_left2 = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left2);
+
+        region_left->dirty  = 1;
+        region_left2->dirty = 1;
 
         /* split the left edge
          *
@@ -1416,8 +1490,21 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
         // trace
         tb_trace_d("fix intersection error for case 4");
 
-        // TODO mark dirty
-        // ...
+        /* the right edge will be split, so we need mark it and it's left edge as "dirty"
+         *
+         *      fix_all_dirty_regions()
+         *    <-------------------------
+         *              
+         * edge_left    edge_right   edge_xxx
+         *  (dirty)      (dirty)
+         *    |             |-----------|
+         *    |                recheck
+         *    |-------------------|
+         *           recheck
+         *
+         */
+        region_left->dirty  = 1;
+        region_right->dirty = 1;
 
         /* split the right edge
          *
@@ -1807,8 +1894,27 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         // insert the new intersection vertex to the event queue
         gb_tessellator_event_queue_insert(impl, gb_mesh_edge_org(edge_right));
 
-        // TODO: mark dirty
-        // ...
+        /* the left and right edge will be split, so we need mark them and their left edge as "dirty"
+         *
+         *      fix_all_dirty_regions()
+         *    <-------------------------
+         *              
+         * edge_left2   edge_left   edge_right   edge_xxxx
+         *  (dirty)      (dirty)      (dirty)
+         *    |             |           |------------|
+         *    |             |              recheck
+         *    |             |-----------------|
+         *    |                   recheck
+         *    |----------------------|
+         *           recheck
+         *
+         */
+        gb_tessellator_active_region_ref_t region_left2 = gb_tessellator_active_regions_left(impl, region_left);
+        tb_assert_abort(region_left2);
+
+        region_left->dirty  = 1;
+        region_right->dirty = 1;
+        region_left2->dirty = 1;
     }
 
     // no recursion
