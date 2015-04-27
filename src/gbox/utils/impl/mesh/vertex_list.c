@@ -165,6 +165,11 @@ tb_void_t gb_mesh_vertex_list_clear(gb_mesh_vertex_list_ref_t list)
 
     // clear head
     tb_list_entry_clear(&impl->head);
+
+#ifdef __gb_debug__
+    // clear id
+    impl->id = 0;
+#endif
 }
 tb_iterator_ref_t gb_mesh_vertex_list_itor(gb_mesh_vertex_list_ref_t list)
 {

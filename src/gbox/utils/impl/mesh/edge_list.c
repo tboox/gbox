@@ -335,6 +335,11 @@ tb_void_t gb_mesh_edge_list_clear(gb_mesh_edge_list_ref_t list)
 
     // clear list
     gb_mesh_edge_init(impl->head);
+
+#ifdef __gb_debug__
+    // clear id
+    impl->id = 0;
+#endif
 }
 tb_iterator_ref_t gb_mesh_edge_list_itor(gb_mesh_edge_list_ref_t list)
 {

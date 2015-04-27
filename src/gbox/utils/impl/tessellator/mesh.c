@@ -71,8 +71,11 @@ static tb_char_t const* gb_tessellator_vertex_cstr(tb_element_t* func, tb_cpoint
     gb_tessellator_vertex_ref_t vertex = (gb_tessellator_vertex_ref_t)data;
     tb_assert_and_check_return_val(vertex, tb_null);
 
+    // the vertex base
+    gb_mesh_vertex_ref_t vertex_base = ((gb_mesh_vertex_ref_t)vertex) - 1;
+
     // make info
-    tb_long_t size = tb_snprintf(cstr, maxn, "%{point}", &vertex->point);
+    tb_long_t size = tb_snprintf(cstr, maxn, "v%lu: %{point}", vertex_base->id, &vertex->point);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?

@@ -1725,7 +1725,7 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         return tb_false;
 
     // trace
-    tb_trace_d("intersection: %{mesh_edge} x %{mesh_edge} => %{point}", edge_left, edge_right, gb_tessellator_vertex_point(intersection));
+    tb_trace_d("intersection: %{tess_region} x %{tess_region} => %{point}", region_left, region_right, gb_tessellator_vertex_point(intersection));
 
     /* check the position of the intersection
      *
@@ -1894,6 +1894,9 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         // insert the new intersection vertex to the event queue
         gb_tessellator_event_queue_insert(impl, gb_mesh_edge_org(edge_right));
 
+        // trace
+        tb_trace_d("insert the new intersection: %{mesh_vertex}", gb_mesh_edge_org(edge_right));
+
         /* the left and right edge will be split, so we need mark them and their left edge as "dirty"
          *
          *      fix_all_dirty_regions()
@@ -2001,7 +2004,7 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
         edge_right = region_right->edge;
 
         // trace
-        tb_trace_d("fix dirty regions with %{mesh_edge} and %{mesh_edge}", edge_left, edge_right);
+        tb_trace_d("fix dirty regions with %{tess_region} and %{tess_region}", region_left, region_right);
     
         /* fix the region order at the top edge first
          *
@@ -4016,7 +4019,7 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
 #endif
 
     // trace
-    tb_trace_d("event: sweep: %{point}", gb_tessellator_vertex_point(event));
+    tb_trace_d("event: sweep: %{mesh_vertex}", event);
 
     // find an active region of all edges at this event 
     gb_mesh_edge_ref_t                  edge = gb_mesh_vertex_edge(event);

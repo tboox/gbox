@@ -204,15 +204,20 @@ static tb_long_t gb_tessellator_active_region_printf(tb_cpointer_t object, tb_ch
     // the region
     gb_tessellator_active_region_ref_t region = (gb_tessellator_active_region_ref_t)object;
 
+    // is bounds region?
+    if (region->bounds) return tb_snprintf(cstr, maxn, "(e%lu.bounds)", region->edge->id);
+
+    // is fixable edge region?
+    if (region->fixedge) return tb_snprintf(cstr, maxn, "(e%lu.fixable)", region->edge->id);
+
     // make info
     return tb_snprintf( cstr
                     ,   maxn
-                    ,   "(%{mesh_edge}, winding: %ld, inside: %d, fixedge: %d, bounds: %d)"
-                    ,   region->edge
+                    ,   "(e%lu.w%d, winding: %ld, inside: %d)"
+                    ,   region->edge->id
+                    ,   gb_tessellator_edge_winding(region->edge)
                     ,   region->winding
-                    ,   region->inside
-                    ,   region->fixedge
-                    ,   region->bounds);
+                    ,   region->inside);
 }
 #endif
 
