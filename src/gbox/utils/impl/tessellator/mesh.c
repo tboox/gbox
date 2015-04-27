@@ -103,6 +103,20 @@ static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
             gb_tessellator_face_inside_set(face_dst, gb_tessellator_face_inside(face_org));
         }
         break;
+    case GB_MESH_EVENT_EDGE_SPLIT:
+        {
+            // the org and dst edge
+            gb_mesh_edge_ref_t edge_org = (gb_mesh_edge_ref_t)event->org;
+            gb_mesh_edge_ref_t edge_dst = (gb_mesh_edge_ref_t)event->dst;
+
+            /* split(edge_org) => (edge_org, edge_dst)
+             *
+             * the new edge will inherit the winding attribute of the old edge
+             */
+            gb_tessellator_edge_winding_set(edge_dst, gb_tessellator_edge_winding(edge_org));
+            gb_tessellator_edge_winding_set(gb_mesh_edge_sym(edge_dst), gb_tessellator_edge_winding(gb_mesh_edge_sym(edge_org)));
+        }
+        break;
     default:
         tb_assertf_abort(0, "unknown listener event: %lx", event->type);
         break;
@@ -149,7 +163,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
 
         // init listener
         gb_mesh_listener_set(impl->mesh, gb_tessellator_listener, impl->mesh);
-        gb_mesh_listener_event_add(impl->mesh, GB_MESH_EVENT_FACE_SPLIT);
+        gb_mesh_listener_event_add(impl->mesh, GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_EDGE_SPLIT);
     }
 
     // check

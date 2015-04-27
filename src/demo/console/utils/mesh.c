@@ -26,6 +26,18 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
             tb_trace_d("face.split(%{mesh_face}) => (%{mesh_face}, %{mesh_face})", event->org, event->org, event->dst);
         }
         break;
+    case GB_MESH_EVENT_EDGE_MERGE:
+        {
+            // trace
+            tb_trace_d("edge.merge(%{mesh_edge}, %{mesh_edge}) => %{mesh_edge}", event->org, event->dst, event->dst);
+        }
+        break;
+    case GB_MESH_EVENT_EDGE_SPLIT:
+        {
+            // trace
+            tb_trace_d("edge.split(%{mesh_edge}) => (%{mesh_edge}, %{mesh_edge})", event->org, event->org, event->dst);
+        }
+        break;
     default:
         tb_assert_abort(0);
         break;
@@ -42,7 +54,7 @@ static tb_void_t gb_demo_utils_mesh_split()
     {
         // init listener
         gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
-        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_EDGE_SPLIT);
 
         // make a clockwise self-loop edge
         gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_false);
@@ -140,7 +152,7 @@ static tb_void_t gb_demo_utils_mesh_splice()
     {
         // init listener
         gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
-        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_EDGE_SPLIT);
 
         /* make a edge
          *
@@ -236,7 +248,7 @@ static tb_void_t gb_demo_utils_mesh_radiation()
     {
         // init listener
         gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
-        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_EDGE_SPLIT);
 
         // make a edge
         gb_mesh_edge_ref_t edge1 = gb_mesh_edge_make(mesh);
@@ -356,7 +368,7 @@ static tb_void_t gb_demo_utils_mesh_quadrangle()
     {
         // init listener
         gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
-        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_EDGE_SPLIT);
 
         // make a counter-clockwise self-loop edge
         gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_true);
@@ -454,7 +466,7 @@ static tb_void_t gb_demo_utils_mesh_tetrahedron()
     {
         // init listener
         gb_mesh_listener_set(mesh, gb_demo_utils_mesh_listener, mesh);
-        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT);
+        gb_mesh_listener_event_add(mesh, GB_MESH_EVENT_FACE_MERGE | GB_MESH_EVENT_FACE_SPLIT | GB_MESH_EVENT_EDGE_MERGE | GB_MESH_EVENT_EDGE_SPLIT);
 
         // make a clockwise self-loop edge
         gb_mesh_edge_ref_t edge0 = gb_mesh_edge_make_loop(mesh, tb_false);

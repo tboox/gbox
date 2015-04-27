@@ -965,7 +965,14 @@ gb_mesh_edge_ref_t gb_mesh_edge_split(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
      *                .                                                    .              . 
      *              .                                                                         .
      */
-    return gb_mesh_edge_sym(edge_new_sym);
+    gb_mesh_edge_ref_t edge_new = gb_mesh_edge_sym(edge_new_sym);
+    tb_assert_abort(edge_new);
+
+    // post the split event, split(edge_org) => (edge_org, edge_new)
+    gb_mesh_post_event(impl, GB_MESH_EVENT_EDGE_SPLIT, edge_org, edge_new);
+
+    // ok
+    return edge_new;
 }
 tb_void_t gb_mesh_edge_splice(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_org, gb_mesh_edge_ref_t edge_dst)
 {

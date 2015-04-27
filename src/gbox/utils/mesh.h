@@ -296,6 +296,8 @@ typedef enum __gb_mesh_event_e
     // edge
 ,   GB_MESH_EVENT_EDGE_INIT     = 0x0001 //!< init edge
 ,   GB_MESH_EVENT_EDGE_EXIT     = 0x0002 //!< exit edge
+,   GB_MESH_EVENT_EDGE_MERGE    = 0x0004 //!< merge edge
+,   GB_MESH_EVENT_EDGE_SPLIT    = 0x0008 //!< split edge
 ,   GB_MESH_EVENT_EDGE_ALL      = GB_MESH_EVENT_EDGE_INIT | GB_MESH_EVENT_EDGE_EXIT
 
     // face
