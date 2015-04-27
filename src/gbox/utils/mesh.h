@@ -153,7 +153,7 @@ typedef struct __gb_mesh_face_t
 
     /*! the face list for dumping it in the debug mode
      *
-     * format: %{mesh_vertex} 
+     * format: %{mesh_face} 
      */
     tb_pointer_t                list;
 #endif
@@ -280,7 +280,7 @@ typedef struct __gb_mesh_edge_t
 
     /*! the edge list for dumping it in the debug mode
      *
-     * format: %{mesh_vertex} 
+     * format: %{mesh_edge} 
      */
     tb_pointer_t                list;
 #endif

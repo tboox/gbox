@@ -231,8 +231,9 @@ tb_long_t gb_mesh_face_list_cstr(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_
     tb_assert_and_check_return_val(impl && impl->element.cstr && face && maxn, -1);
   
     // make it
-    tb_char_t info[256] = {0};
-    return tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, gb_mesh_face_list_data(list, face), info, sizeof(info)));
+    tb_char_t       face_info[256] = {0};
+    tb_cpointer_t   face_data = gb_mesh_face_list_data(list, face);
+    return face_data? tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, face_data, face_info, sizeof(face_info))) : tb_snprintf(data, maxn, "(f%lu)", face->id);
 }
 #endif
 tb_void_t gb_mesh_face_list_kill(gb_mesh_face_list_ref_t list, gb_mesh_face_ref_t face)

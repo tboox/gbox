@@ -231,8 +231,9 @@ tb_long_t gb_mesh_vertex_list_cstr(gb_mesh_vertex_list_ref_t list, gb_mesh_verte
     tb_assert_and_check_return_val(impl && impl->element.cstr && vertex && maxn, -1);
   
     // make it
-    tb_char_t info[256] = {0};
-    return tb_snprintf(data, maxn, "(%lu: %s)", vertex->id, impl->element.cstr(&impl->element, gb_mesh_vertex_list_data(list, vertex), info, sizeof(info)));
+    tb_char_t       vertex_info[256] = {0};
+    tb_cpointer_t   vertex_data = gb_mesh_vertex_list_data(list, vertex);
+    return vertex_data? tb_snprintf(data, maxn, "(%s)", impl->element.cstr(&impl->element, vertex_data, vertex_info, sizeof(vertex_info))) : tb_snprintf(data, maxn, "(v%lu)", vertex->id);
 }
 #endif
 tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_vertex_ref_t vertex)

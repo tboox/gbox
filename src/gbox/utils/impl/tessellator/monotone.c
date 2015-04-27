@@ -1968,7 +1968,7 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
     // get the right region
     gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region_left);
     tb_assert_abort(region_right);
-    
+
     // done
     gb_mesh_edge_ref_t edge_left    = tb_null;
     gb_mesh_edge_ref_t edge_right   = tb_null;
@@ -2000,6 +2000,9 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
         edge_left = region_left->edge;
         edge_right = region_right->edge;
 
+        // trace
+        tb_trace_d("fix dirty regions with %{mesh_edge} and %{mesh_edge}", edge_left, edge_right);
+    
         /* fix the region order at the top edge first
          *
          * splitting an edge into two pieces may violate the previous region order
@@ -2053,7 +2056,10 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
              */
             if (region_left->fixedge)
             {
-                // remvoe the left region
+                // trace
+                tb_trace_d("remove the left fixable edge: %{mesh_edge}", edge_left);
+
+                // remove the left region
                 gb_tessellator_active_regions_remove(impl, region_left);
 
                 // delete the left fixable edge
@@ -2069,7 +2075,10 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
             }
             else if (region_right->fixedge)
             {
-                // remvoe the right region
+                // trace
+                tb_trace_d("remove the right fixable edge: %{mesh_edge}", edge_right);
+
+                // remove the right region
                 gb_tessellator_active_regions_remove(impl, region_right);
 
                 // delete the right fixable edge
@@ -2101,14 +2110,16 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
         if (gb_mesh_edge_org(edge_left) != gb_mesh_edge_org(edge_right))
         {
             /* we need calculate it if exists intersection 
-             * and neither of these is marked fixable.
+             *
+             * it requires that the event lie between the left and right edges 
+             * for calculating intersection and neither of these is marked fixable
+             *
              */
             if (    gb_mesh_edge_dst(edge_left) != gb_mesh_edge_dst(edge_right)
-                &&  !region_left->fixedge && !region_right->fixedge)
+                &&  !region_left->fixedge && !region_right->fixedge
+                &&  (   impl->event == gb_mesh_edge_dst(edge_left)
+                    ||  impl->event == gb_mesh_edge_dst(edge_right)))
             {
-                // check
-                tb_assert_abort(impl->event == gb_mesh_edge_dst(edge_left) || impl->event == gb_mesh_edge_dst(edge_right));
-
                 /* calculate intersection and fix the region order
                  *
                  * we must return directly if the current function was called recursively
@@ -2121,6 +2132,7 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
                 /* we need fix the following case:
                  * - may violate ordering because of numerical errors for nearly identical slopes
                  * - the fixable and real edges are intersected.
+                 * - the event does not lie between the left and right edges.
                  * 
                  * case 1:
                  *
@@ -2148,6 +2160,21 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
                  *   .                .                  .                     .
                  *   .             fixable                .                fixable
                  * fixable                              fixable
+                 *
+                 * case 3:
+                 *                                                   edge_right
+                 *               .                                       .                                                        
+                 *               .      event             edge_left      .      event              
+                 *  .            .       .                  .            . dirty  .                
+                 *  .            .     .                    .  dirty     .     . 
+                 *  .            .   .                      .            .   . dirty
+                 *  .            . .        intersection    .            . .
+                 *  .            x        --------------->  .            x                 
+                 *  .          . .                          .          . .
+                 *  .        .   .                          .        .   .
+                 *  .            .                                       .
+                 *                                            
+                 *
                  */
                 gb_tessellator_fix_region_order_at_bottom(impl, region_left);
             }
@@ -2172,6 +2199,9 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
         if (    gb_mesh_edge_org(edge_left) == gb_mesh_edge_org(edge_right)
             &&  gb_mesh_edge_dst(edge_left) == gb_mesh_edge_dst(edge_right))
         {
+            // trace
+            tb_trace_d("remove the edge for the degenerate loop: %{mesh_edge}", edge_left);
+
             // compute the combined winding of the right edge because the left edge will be deleted
             gb_tessellator_edge_winding_merge(edge_right, edge_left);
 

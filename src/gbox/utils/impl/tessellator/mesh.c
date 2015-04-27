@@ -46,7 +46,7 @@ static tb_char_t const* gb_tessellator_edge_cstr(tb_element_t* func, tb_cpointer
     gb_mesh_edge_ref_t edge_base = ((gb_mesh_edge_ref_t)edge) - 1;
 
     // make info
-    tb_long_t size = tb_snprintf(cstr, maxn, "%{point}", gb_tessellator_vertex_point(gb_mesh_edge_org(edge_base)));
+    tb_long_t size = tb_snprintf(cstr, maxn, "e%lu.w%d", edge_base->id, edge->winding);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?

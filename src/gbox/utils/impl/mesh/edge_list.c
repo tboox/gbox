@@ -381,7 +381,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make(gb_mesh_edge_list_ref_t list)
 #ifdef __gb_debug__
     // init id
     edge->id        = ++impl->id;
-    edge_sym->id    = ++impl->id;
+    edge_sym->id    = edge->id;
 
     // save list
     edge->list      = (tb_pointer_t)list;
@@ -429,7 +429,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_list_make_loop(gb_mesh_edge_list_ref_t list, tb_
 #ifdef __gb_debug__
     // init id
     edge->id        = ++impl->id;
-    edge_sym->id    = ++impl->id;
+    edge_sym->id    = edge->id;
 
     // save list
     edge->list      = (tb_pointer_t)list;
@@ -459,15 +459,17 @@ tb_long_t gb_mesh_edge_list_cstr(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_
     tb_assert_and_check_return_val(impl && impl->element.cstr && edge && maxn, -1);
 
     // make the edge info
-    tb_char_t edge_info[4096] = {0};
-    tb_char_t const* pedge_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge), edge_info, sizeof(edge_info));
+    tb_char_t           edge_info[4096] = {0};
+    tb_char_t const*    pedge_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge), edge_info, sizeof(edge_info));
+    if (!pedge_info) pedge_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge->sym), edge_info, sizeof(edge_info));
+    if (!pedge_info) 
+    {
+        tb_snprintf(edge_info, sizeof(edge_info) - 1, "<e%lu>", edge->id);
+        pedge_info = edge_info;
+    }
 
-    // make the sym edge info
-    tb_char_t edge_sym_info[4096] = {0};
-    tb_char_t const* pedge_sym_info = impl->element.cstr(&impl->element, gb_mesh_edge_list_data(list, edge->sym), edge_sym_info, sizeof(edge_sym_info));
-
-    // make it
-    return tb_snprintf(data, maxn, "(%lu: %s => %lu: %s)", edge->org->id, pedge_info, edge->sym->org->id, pedge_sym_info);
+    // make it, @note only for the debug mode
+    return tb_snprintf(data, maxn, "(%s: %{mesh_vertex} => %{mesh_vertex})", pedge_info, edge->org, edge->sym->org);
 }
 #endif
 tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_t edge)
