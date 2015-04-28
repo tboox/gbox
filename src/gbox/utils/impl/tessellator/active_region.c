@@ -253,6 +253,11 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
     // save the region reference to the edge
     gb_tessellator_edge_region_set(region->edge, region);
 
+    // check
+#ifdef __gb_debug__
+    gb_tessellator_active_regions_check(impl);
+#endif
+
     // ok
     return region;
 }
@@ -556,7 +561,7 @@ tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
             if (tb_iterator_comp(impl->active_regions, region_prev, region) > 0)
             {
                 // trace
-                tb_trace_i("the order of the active regions is error!");
+                tb_trace_i("the order of the active regions is error with event: %{mesh_vertex}", impl->event);
 
                 // dump it
 #           ifdef __tb_debug__
@@ -564,9 +569,9 @@ tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
 #           endif
 
                 // trace
-                tb_trace_i("%{tess_region}", region_prev);
+                tb_trace_i("%{mesh_edge}", region_prev->edge);
                 tb_trace_i("<?=");
-                tb_trace_i("%{tess_region}", region);
+                tb_trace_i("%{mesh_edge}", region->edge);
 
                 // abort it
                 tb_assert_abort(0);
