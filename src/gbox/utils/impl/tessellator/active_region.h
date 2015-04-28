@@ -122,20 +122,20 @@ tb_void_t                           gb_tessellator_active_regions_remove(gb_tess
  */
 gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_insert(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
 
-/* insert a new active region before the tail region in ascending order
+/* insert a new active region after the previous region in ascending order
  *
- * r0 <---- r1 <------ r2 <------- r3 <--- ... <---- 
- *                              region_tail
- *                 <----------------|
- *                      insert
+ * r0 ----> r1 ------> r2 -------> r3 ---> ... ---->
+ *                 region_prev
+ *                     |----------------->
+ *                           insert
  *
  * @param impl                      the tessellator impl
- * @param region_tail               the tail region
+ * @param region_prev               the previous region
  * @param region                    the initialized region, but be not real region
  *
  * @return                          the real new region
  */
-gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_insert_before(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t region);
+gb_tessellator_active_region_ref_t  gb_tessellator_active_regions_insert_after(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_prev, gb_tessellator_active_region_ref_t region);
 
 #ifdef __gb_debug__
 /* check the active regions

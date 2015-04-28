@@ -41,8 +41,8 @@
 static tb_void_t                            gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event);
 static gb_tessellator_active_region_ref_t   gb_tessellator_find_left_top_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
 static gb_tessellator_active_region_ref_t   gb_tessellator_find_left_bottom_region(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region);
-static tb_void_t                            gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top, tb_bool_t fix_dirty_regions);
-static gb_mesh_edge_ref_t                   gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_head, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t* pregion_right);
+static tb_void_t                            gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top, tb_bool_t fix_dirty_regions);
+static gb_mesh_edge_ref_t                   gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_head, gb_tessellator_active_region_ref_t region_tail);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
@@ -1194,14 +1194,14 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
          *                                  .
          *                              edge_right
          */
-        gb_tessellator_finish_top_regions(impl, region_first, region_right, tb_null);
+        gb_tessellator_finish_top_regions(impl, region_first, region_right);
 
         // check the new edge order: edge_left_top => edge_new => edge_right
         tb_assert_abort(edge_new == gb_mesh_edge_onext(edge_left_top));
         tb_assert_abort(gb_mesh_edge_sym(edge_right) == gb_mesh_edge_onext(edge_new));
 
         // insert the new down-going edge without region: edge_new
-        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, gb_mesh_edge_sym(edge_right), edge_left_top, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, gb_mesh_edge_sym(edge_right), edge_left_top, tb_true);
 
         /* we need return directly from the recurse call
          * because we have fix all "dirty" regions after calling insert_down_going_edges()
@@ -1311,11 +1311,11 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
          *  .                        .                 .                            .
          *  .              (finished)  .             .                              .
          *  .                     .      .         .                                .
-         *  .                         .    .     .      region_xxx(finished)        .
+         *  .                         .    .     .      region_right(finished)      .
          *  .              (finished)     . event                                   .
          *  .                                .* --------------------- intersection  .
          *  .                             .   .  .                                  .
-         *  . region_left              .      .    .                                . region_right
+         *  . region_left              .      .    .                                . 
          *  .                      region_xxx .      .                              .
          *  .                                 .        . region_new                 .
          *  .                                 . lface    .                          .
@@ -1326,13 +1326,13 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
          *  .                                 .                                     .
          *                                edge_left                        
          */
-        gb_tessellator_finish_top_regions(impl, region_right, tb_null, &region_right);
+        gb_tessellator_finish_top_regions(impl, region_right, tb_null);
 
         // check the new edge
         tb_assert_abort(edge_right == gb_mesh_edge_onext(edge_new));
 
         // insert the new down-going edge without region: edge_new
-        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_right, tb_null, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, edge_right, tb_null, tb_true);
 
         /* we need return directly from the recurse call
          * because we have fix all "dirty" regions after calling insert_down_going_edges()
@@ -2377,10 +2377,15 @@ static gb_tessellator_active_region_ref_t gb_tessellator_find_left_bottom_region
     // ok?
     return region_left;
 }
-static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_new)
+static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_right(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_mesh_edge_ref_t edge_new)
 {
     // check
-    tb_assert_abort(impl && region_right && edge_new);
+    tb_assert_abort(impl && region_left && edge_new);
+
+    // check
+#ifdef __gb_debug__
+    gb_tessellator_active_regions_check(impl);
+#endif
 
     // make region
     gb_tessellator_active_region_t region;
@@ -2390,8 +2395,8 @@ static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(g
     region.bounds   = 0;
     region.fixedge  = 0;
 
-    // insert region before the right region
-    return gb_tessellator_active_regions_insert_before(impl, region_right, &region);
+    // insert region after the left region
+    return gb_tessellator_active_regions_insert_after(impl, region_left, &region);
 }
 /* insert the down-going edges from the given range: [head, tail) and new regions
  * and update winding numbers and mesh connectivity appropriately.
@@ -2428,7 +2433,7 @@ static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_left(g
  *  .                                                              .
  *
  */
-static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_tessellator_active_region_ref_t region_right, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top, tb_bool_t fix_dirty_regions)
+static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_left, gb_mesh_edge_ref_t edge_head, gb_mesh_edge_ref_t edge_tail, gb_mesh_edge_ref_t edge_left_top, tb_bool_t fix_dirty_regions)
 {
     // check
     tb_assert_abort(impl && impl->mesh && edge_head && edge_tail);
@@ -2443,8 +2448,8 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
         // trace
         tb_trace_d("insert down-going edge: %{mesh_edge}", edge);
 
-        // insert a new region with the new edge at the left of the right region
-        gb_tessellator_insert_region_at_left(impl, region_right, gb_mesh_edge_sym(edge));
+        // insert a new region with the new edge at the right of the left region
+        gb_tessellator_insert_region_at_right(impl, region_left, gb_mesh_edge_sym(edge));
 
         // the next inserted edge
         edge = gb_mesh_edge_onext(edge);
@@ -2812,7 +2817,7 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
  *  .                     .                                        .
  *  .                                                              .
  */
-static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_head, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t* pregion_right)
+static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_head, gb_tessellator_active_region_ref_t region_tail)
 {
     // check
     tb_assert_abort(impl && impl->mesh && region_head);
@@ -2999,9 +3004,6 @@ static gb_mesh_edge_ref_t gb_tessellator_finish_top_regions(gb_tessellator_impl_
         region  = region_next;
     }
 
-    // save the right region
-    if (pregion_right) *pregion_right = region_next;
-
     // return the last edge
     return edge;
 }
@@ -3100,10 +3102,6 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         gb_tessellator_active_region_ref_t region_left = gb_tessellator_find_left_bottom_region(impl, region);
         tb_assert_abort(region_left);
 
-        // get the right region
-        gb_tessellator_active_region_ref_t region_right = gb_tessellator_active_regions_right(impl, region);
-        tb_assert_abort(region_right);
-
         // get the first bottom region at the same destination
         gb_tessellator_active_region_ref_t region_first = gb_tessellator_active_regions_right(impl, region_left);
         tb_assert_abort(region_first);
@@ -3170,7 +3168,7 @@ static tb_void_t gb_tessellator_connect_top_event_degenerate(gb_tessellator_impl
         tb_assert_abort(gb_mesh_edge_onext(edge_left_top) != edge_first);
 
         // insert new down-going edges at this event and create new active regions
-        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_left_top), edge_first, gb_tessellator_edge_go_up(edge_left_top)? edge_left_top : tb_null, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, gb_mesh_edge_onext(edge_left_top), edge_first, gb_tessellator_edge_go_up(edge_left_top)? edge_left_top : tb_null, tb_true);
     }
     /* the event vertex lies exactly on an already-processed edge 
      *
@@ -3540,8 +3538,8 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
         }
         else
         {
-            // insert a new region with the new edge at the left of the right region
-            gb_tessellator_active_region_ref_t region_new = gb_tessellator_insert_region_at_left(impl, region_right, edge_new);
+            // insert a new region with the new edge at the right of the left region
+            gb_tessellator_active_region_ref_t region_new = gb_tessellator_insert_region_at_right(impl, region_left, edge_new);
             tb_assert_abort(region_new);
 
             /* check region
@@ -3590,7 +3588,7 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
          *  .                                                              .
          *
          */
-        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_event, edge_event, tb_null, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, edge_event, edge_event, tb_null, tb_true);
     }
 }
 /* connect the bottom event if no down-going edges
@@ -3846,7 +3844,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .                . new edges                                        .
          *
          */
-        gb_tessellator_finish_top_regions(impl, region_first, region_right, tb_null);
+        gb_tessellator_finish_top_regions(impl, region_first, region_right);
 
         // mark "degenerate" for inserting new down-going edges
         is_degenerate = tb_true;
@@ -3917,7 +3915,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
         /* finish new unprocessed regions of this event and remove them.
          * update the right region and the last edge
          *
-         * edge_left                                                                   edge_right
+         * edge_left                                                                   
          *  .                                             .                                . 
          *  . region_left                                 .                                .
          *  .                                             .                                .
@@ -3925,8 +3923,8 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .                                             .                                .
          *  .                                             .                                .
          *  .                             .               .                 .              .
-         *  .                               .             . region_xxx    . (finished)     .
-         *  .               edge_first        .           . (finished)  . region_xxx       . region_right
+         *  .                               .             . region_right  . (finished)     .
+         *  .               edge_first        .           . (finished)  . region_xxx       . 
          *  .                    .              .         .           .          .         .
          * /.\                        .           .      /.\        .       .   edge_last /.\
          *  .                              .        .     .       .    .                   .     
@@ -3938,8 +3936,8 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .                                                .     . new edges             .
          *  .                                                                              .
          */
-        edge_last = gb_tessellator_finish_top_regions(impl, region_right, tb_null, &region_right);
-        tb_assert_abort(edge_last && region_right);
+        edge_last = gb_tessellator_finish_top_regions(impl, region_right, tb_null);
+        tb_assert_abort(edge_last);
 
         // mark "degenerate" for inserting new down-going edges
         is_degenerate = tb_true;
@@ -3949,7 +3947,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     if (is_degenerate)
     {
         // insert new down-going edges at this event and create new active regions
-        gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_first), edge_last, edge_first, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, gb_mesh_edge_onext(edge_first), edge_last, edge_first, tb_true);
         return ;
     }
 
@@ -3981,7 +3979,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      * 
      * delay to fix all dirty regions before marking the new temporary edge
      */
-    gb_tessellator_insert_down_going_edges(impl, region_left, region_right, edge_new, edge_last, edge_first, tb_false);
+    gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, edge_last, edge_first, tb_false);
 
     // the new region
     gb_tessellator_active_region_ref_t region_new = gb_tessellator_edge_region(gb_mesh_edge_sym(edge_new));
@@ -4073,9 +4071,8 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
          *
          * return the last edge and right region in the meantime
          */
-        gb_tessellator_active_region_ref_t  region_right = tb_null;
-        gb_mesh_edge_ref_t                  edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null, &region_right);
-        tb_assert_abort(edge_last && region_right);
+        gb_mesh_edge_ref_t edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null);
+        tb_assert_abort(edge_last);
 
         // check
 #ifdef __gb_debug__
@@ -4105,7 +4102,7 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
             gb_tessellator_connect_bottom_event(impl, region_left, edge_first, edge_last);
         }
         // insert all down-going edges at this event and create new active regions
-        else gb_tessellator_insert_down_going_edges(impl, region_left, region_right, gb_mesh_edge_onext(edge_first), edge_last, edge_first, tb_true);
+        else gb_tessellator_insert_down_going_edges(impl, region_left, gb_mesh_edge_onext(edge_first), edge_last, edge_first, tb_true);
     }
     /* all edges are new and go down.
      *

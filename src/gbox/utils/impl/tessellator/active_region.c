@@ -190,7 +190,7 @@ static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t eleme
     tb_assert_and_check_return_val(region, tb_null);
 
     // make info
-    tb_long_t size = tb_snprintf(cstr, maxn, "%{tess_region}", region);
+    tb_long_t size = tb_snprintf(cstr, maxn, "%{tess_region}.%{mesh_edge}", region, region->edge);
     if (size >= 0) cstr[size] = '\0';
 
     // ok?
@@ -220,27 +220,30 @@ static tb_long_t gb_tessellator_active_region_printf(tb_cpointer_t object, tb_ch
                     ,   region->inside);
 }
 #endif
-
 /* insert region in ascending order and save the region position
  *
- * r0 <---- r1 <------ r2 <------- r3 <--- ... <---- 
- *                              region_tail
- *                 <----------------|
- *                      insert
+ * r0 ----> r1 ------> r2 -------> r3 ---> ... ---->
+ *                 region_prev
+ *                     |----------------->
+ *                           insert
+ *
  */
-static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_done(gb_tessellator_impl_t* impl, tb_size_t tail, gb_tessellator_active_region_ref_t region)
+static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_done(gb_tessellator_impl_t* impl, tb_size_t prev, gb_tessellator_active_region_ref_t region)
 {
     // check
     tb_assert_abort(impl && impl->active_regions && region && region->edge);
 
     // trace
-    tb_trace_d("insert: %{point} => %{point}", gb_tessellator_vertex_point(gb_mesh_edge_org(region->edge)), gb_tessellator_vertex_point(gb_mesh_edge_dst(region->edge)));
+    tb_trace_d("insert: %{mesh_edge}", region->edge);
 
     // reverse to find the inserted position
-    tb_size_t itor = tb_rfind_if(impl->active_regions, tb_iterator_head(impl->active_regions), tail, tb_predicate_le, region);
+    tb_size_t itor = tb_find_if(impl->active_regions, prev, tb_iterator_tail(impl->active_regions), tb_predicate_beq, region);
+
+    // trace
+    tb_trace_d("insert: find count: %lu", tb_distance(impl->active_regions, prev, itor));
 
     // insert the region to the next position
-    itor = tb_list_insert_next(impl->active_regions, itor, region);
+    itor = tb_list_insert_prev(impl->active_regions, itor, region);
     tb_assert_abort(itor != tb_iterator_tail(impl->active_regions));
 
     // get the real region reference 
@@ -533,16 +536,19 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert(gb_tesse
     tb_assert_abort(impl && impl->active_regions && region);
 
     // insert it
-    return gb_tessellator_active_regions_insert_done(impl, tb_iterator_tail(impl->active_regions), region);
+    return gb_tessellator_active_regions_insert_done(impl, tb_iterator_head(impl->active_regions), region);
 }
-gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_before(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_tail, gb_tessellator_active_region_ref_t region)
+gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_after(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_prev, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && region_tail && region);
-    tb_assert_abort(region_tail->position != tb_iterator_tail(impl->active_regions));
+    tb_assert_abort(impl && impl->active_regions && region_prev && region);
+    tb_assert_abort(region_prev->position != tb_iterator_tail(impl->active_regions));
+
+    // region_prev <= region
+    tb_assert_abort(tb_iterator_comp(impl->active_regions, region_prev, region) <= 0);
 
     // insert it
-    return gb_tessellator_active_regions_insert_done(impl, region_tail->position, region);
+    return gb_tessellator_active_regions_insert_done(impl, region_prev->position, region);
 }
 #ifdef __gb_debug__
 tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
