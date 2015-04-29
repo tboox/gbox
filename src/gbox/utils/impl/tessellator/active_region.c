@@ -44,143 +44,166 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * private implementation
  */
-static tb_bool_t gb_tessellator_active_region_leq(gb_mesh_vertex_ref_t event, gb_tessellator_active_region_ref_t lregion, gb_tessellator_active_region_ref_t rregion)
+static tb_bool_t gb_tessellator_active_region_leq(gb_tessellator_active_region_ref_t lregion, gb_tessellator_active_region_ref_t rregion)
 {
     // check
-    tb_assert_abort(event && lregion && rregion);
+    tb_assert_abort(lregion && lregion->edge && rregion && rregion->edge);
 
-    // the edges
-    gb_mesh_edge_ref_t ledge = lregion->edge;
-    gb_mesh_edge_ref_t redge = rregion->edge;
-    tb_assert_abort(ledge && redge);
+    // the origin and destination of the left edge
+    gb_mesh_vertex_ref_t ledge_org = gb_mesh_edge_org(lregion->edge);
+    gb_mesh_vertex_ref_t ledge_dst = gb_mesh_edge_dst(lregion->edge);
+
+    // the origin and destination of the right edge
+    gb_mesh_vertex_ref_t redge_org = gb_mesh_edge_org(rregion->edge);
+    gb_mesh_vertex_ref_t redge_dst = gb_mesh_edge_dst(rregion->edge);
 
     /* two edges must go up
      *
      *  / \     / \
      *   |       |
      */
-    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge)));
-    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge)));
+    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(ledge_dst, ledge_org));
+    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(redge_dst, redge_org));
 
     /* 
-     *        event      
-     *         .      
-     * ledge .           
-     *     .                                       
-     *
+     *             .
+     *     ledge .   .
+     *         .       . redge
+     *       .           .
      */
-    if (gb_mesh_edge_dst(ledge) == event)
+    if (ledge_dst == redge_dst)
     {
         /* 
-         *           event
+         *             .
+         *             ..
+         *             .. 
+         *       ledge .. redge
+         *             ..
+         *             ..
+         *             .
+         */
+        if (ledge_org == redge_org) return 1;
+        /* 
          *             .
          *     ledge .   .
          *         .       . redge
-         *       .           .
+         *       . --------  .
+         *                     .
+         *                       .
          *
          */
-        if (gb_mesh_edge_dst(redge) == event)
-        {
-            /* 
-             *           event
-             *             .
-             *     ledge .   .
-             *         .       . redge
-             *       . --------  .
-             *                     .
-             *                       .
-             *
-             */
-            if (gb_tessellator_vertex_in_top_or_hleft_or_eq(gb_mesh_edge_org(ledge), gb_mesh_edge_org(redge))) 
-                return gb_tessellator_vertex_on_edge_or_left(gb_mesh_edge_org(ledge), gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
-
-            /* 
-             *         event        
-             *           .                      
-             *         .   . redge      
-             * ledge .       .           
-             *     . --------- .       
-             *   .                                 
-             * .                                         
-             *
-             */
-            return gb_tessellator_vertex_on_edge_or_right(gb_mesh_edge_org(redge), gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge));
-        }
-
+        else if (gb_tessellator_vertex_in_top_or_hleft_or_eq(ledge_org, redge_org)) 
+            return gb_tessellator_vertex_on_edge_or_left(ledge_org, redge_dst, redge_org);
         /* 
-         *         event    .     
-         *           . ------ .              
-         *         .            . redge      
-         * ledge .                .           
-         *     .                    .       
+         *           .                      
+         *         .   . redge      
+         * ledge .       .           
+         *     . --------- .       
          *   .                                 
          * .                                         
          *
          */
-        return gb_tessellator_vertex_on_edge_or_left(event, gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
+        else return gb_tessellator_vertex_on_edge_or_right(redge_org, ledge_dst, ledge_org);
     }
-    /*  event
-     *     .
-     *       . redge
-     *         .
+    /* 
+     *      .                  .
+     *        .              .
+     *    ledge .          . redge
+     *            .      .
+     *
+     * or
+     *
+     *      .                   .
+     *        .               .
+     *    ledge .           . redge
+     *            .       .
+     *              .   .
+     *                .
+     *
+     * or
+     *          .           . 
+     *            .       .
+     *        ledge .   . redge
+     *                .
+     *              .   .
+     *            .       .
+     *          .           .
      */
-    else if (gb_mesh_edge_dst(redge) == event)
+    else
     {
         /* 
-         *             .      event        
-         *           . -------- .                      
-         *         .              . redge      
-         * ledge .                  .           
-         *     .                      .       
-         *   .                                 
-         * .                                         
+         *  .
+         *    .
+         *      . ---------------- .
+         *        .              .
+         *    ledge .          . redge
+         *            .      .
          *
+         * or
+         *
+         *  .
+         *    .
+         *      . ----------------- .
+         *        .               .
+         *    ledge .           . redge
+         *            .       .
+         *              .   .
+         *                .
+         *
+         * or
+         *      .
+         *        .
+         *          . --------- . 
+         *            .       .
+         *        ledge .   . redge
+         *                .
+         *              .   .
+         *            .       .
+         *          .           .
          */
-        return gb_tessellator_vertex_on_edge_or_right(event, gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge));
+        if (gb_tessellator_vertex_in_top_or_hleft_or_eq(ledge_dst, redge_dst))
+            return gb_tessellator_vertex_on_edge_or_right(redge_dst, ledge_dst, ledge_org);
+        /* 
+         *                             .
+         *                           .
+         *      . ---------------- .
+         *        .              .
+         *    ledge .          . redge
+         *            .      .
+         *
+         * or
+         *
+         *                              .
+         *                            .
+         *      . ----------------- .
+         *        .               .
+         *    ledge .           . redge
+         *            .       .
+         *              .   .
+         *                .
+         *
+         * or
+         *                          .
+         *                        .
+         *          . --------- . 
+         *            .       .
+         *        ledge .   . redge
+         *                .
+         *              .   .
+         *            .       .
+         *          .           .
+         */
+        else return gb_tessellator_vertex_on_edge_or_left(ledge_dst, redge_dst, redge_org);
     }
 
-    /* 
-     *             .              
-     *           .          .                      
-     *         . ld       rd  . redge      
-     * ledge . ------ . ------- .           
-     *     .   > 0 event  < 0     .       
-     *   .                                 
-     * .       
-     *
-     *             .              
-     *           .          .                      
-     *         .              . redge      
-     * ledge . ---------------- . ----------- .          
-     *     .                      .  rd > 0  event
-     *   .                                 
-     * .       |------------------------------|
-     *                      ld > 0
-     *
-     *                         .              
-     *                       .          .                      
-     *        ld < 0       .              . redge      
-     *  . -------- ledge . ---------------- .           
-     * event           .                      .       
-     *               .                                 
-     *             .      
-     *  |-----------------------------------|
-     *                 rd < 0
-     */
-    gb_float_t ld = gb_tessellator_vertex_to_edge_distance_h(event, gb_mesh_edge_dst(ledge), gb_mesh_edge_org(ledge));
-    gb_float_t rd = gb_tessellator_vertex_to_edge_distance_h(event, gb_mesh_edge_dst(redge), gb_mesh_edge_org(redge));
-
-    // ledge <= redge?
-    return ld >= rd;
+    // failed
+    tb_assert_abort(0);
+    return 0;
 }
 static tb_long_t gb_tessellator_active_region_comp(tb_element_ref_t element, tb_cpointer_t ldata, tb_cpointer_t rdata)
 {
-    // check
-    gb_tessellator_impl_t* impl = (gb_tessellator_impl_t*)element->priv;
-    tb_assert_abort(impl);
-
     // lregion <= rregion ? -1 : 1
-    return (!gb_tessellator_active_region_leq(impl->event, (gb_tessellator_active_region_ref_t)ldata, (gb_tessellator_active_region_ref_t)rdata) << 1) - 1;
+    return (!gb_tessellator_active_region_leq((gb_tessellator_active_region_ref_t)ldata, (gb_tessellator_active_region_ref_t)rdata) << 1) - 1;
 }
 #ifdef __gb_debug__
 static tb_char_t const* gb_tessellator_active_region_cstr(tb_element_ref_t element, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
@@ -393,7 +416,7 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
     if (!impl->active_regions) 
     {
         // make active region element
-        tb_element_t element = tb_element_mem(sizeof(gb_tessellator_active_region_t), tb_null, impl);
+        tb_element_t element = tb_element_mem(sizeof(gb_tessellator_active_region_t), tb_null, tb_null);
 
         // init the comparator 
         element.comp = gb_tessellator_active_region_comp;
@@ -509,11 +532,8 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_right(gb_tessel
 }
 tb_bool_t gb_tessellator_active_regions_in_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region1, gb_tessellator_active_region_ref_t region2)
 {
-    // check
-    tb_assert_abort(impl);
-
     // region1 <= region2
-    return gb_tessellator_active_region_leq(impl->event, region1, region2);
+    return gb_tessellator_active_region_leq(region1, region2);
 }
 tb_void_t gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {

@@ -4074,11 +4074,6 @@ static tb_void_t gb_tessellator_sweep_event(gb_tessellator_impl_t* impl, gb_mesh
         gb_mesh_edge_ref_t edge_last = gb_tessellator_finish_top_regions(impl, region_first, tb_null);
         tb_assert_abort(edge_last);
 
-        // check
-#ifdef __gb_debug__
-        gb_tessellator_active_regions_check(impl);
-#endif
-
         /* no down-going edges?
          *
          *  . edge_left                                                    . edge_right
