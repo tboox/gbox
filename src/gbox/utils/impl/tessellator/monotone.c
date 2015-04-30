@@ -1760,8 +1760,40 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
      *                           .
      *                             .
      *                               .
+     *
+     *
+     *    
+     * it is error case if the intersection lies to the horizontal left side of the event
+     * and the intersection will be not processed next.
+     *
+     * so we need fix it for this case.
+     *
+     *
+     *                      . . . . .
+     *                      .       .
+     *                      .       .
+     *    . . . . . . . . . x . . . .
+     *   / \   intersection .     event
+     *    |                 .
+     *    |                 .
+     *    |                 .
+     *    |
+     * the intersection shoud be calculated in here
+     *
+     * it is normal case if the intersection lies to the horizontal right side of the event
+     * and the intersection will be processed next.
+     *
+     *      . . . . .
+     *      .       .
+     *      .       .
+     *      . . . . x . . . . .. . . . . . . . . .
+     *   event      . intersection
+     *              .
+     *              .
+     *              .
+     *
      */
-    if (gb_tessellator_vertex_in_top_or_horizontal(intersection, event))
+    if (gb_tessellator_vertex_in_top_or_hleft(intersection, event))
     {
         // trace
         tb_trace_d("fix intersection by the event: %{mesh_vertex}", event);
@@ -1787,9 +1819,23 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
      *                           .
      *                             .
      *                               .
+     *
+     *
+     * it is normal case if the edge_org_upper lies to the horizontal right side of the intersection
+     * and the intersection will be processed next.
+     *
+     *                      . . . . .
+     *                      .       .
+     *                      .       .
+     *  . . . . . . . . . . x . . . .   <=
+     * event   intersection .   edge_org_upper
+     *                      .
+     *                      .
+     *                      .
+     *
      */
     gb_mesh_vertex_ref_t edge_org_upper = gb_tessellator_vertex_in_top_or_horizontal(edge_left_org, edge_right_org)? edge_left_org : edge_right_org;
-    if (gb_tessellator_vertex_in_top_or_horizontal(edge_org_upper, intersection))
+    if (gb_tessellator_vertex_in_top_or_hleft(edge_org_upper, intersection))
     {
         // trace
         tb_trace_d("fix intersection by the topmost origin: %{mesh_vertex}", edge_org_upper);
