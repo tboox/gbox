@@ -41,8 +41,8 @@ static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, g
     tb_assert_abort(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assert_abort(gb_point_in_top_or_horizontal(upper, center));
-    tb_assert_abort(gb_point_in_top_or_horizontal(center, lower));
+    tb_assertf_abort(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
+    tb_assertf_abort(gb_point_in_top_or_horizontal(center, lower), "%{point} <=? %{point}", center, lower);
 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
@@ -92,8 +92,8 @@ static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, g
     tb_assert_abort(center && left && right);
 
     // must be left <= center <= right
-    tb_assert_abort(gb_point_in_left_or_vertical(left, center));
-    tb_assert_abort(gb_point_in_left_or_vertical(center, right));
+    tb_assertf_abort(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
+    tb_assertf_abort(gb_point_in_left_or_vertical(center, right), "%{point} <=? %{point}", center, right);
 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;
@@ -430,8 +430,8 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
     tb_assert_abort(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assert_abort(gb_point_in_top_or_horizontal(upper, center));
-    tb_assert_abort(gb_point_in_top_or_horizontal(center, lower));
+    tb_assertf_abort(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
+    tb_assertf_abort(gb_point_in_top_or_horizontal(center, lower), "%{point} <=? %{point}", center, lower);
 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
@@ -556,8 +556,8 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
     tb_assert_abort(center && left && right);
 
     // must be left <= center <= right
-    tb_assert_abort(gb_point_in_left_or_vertical(left, center));
-    tb_assert_abort(gb_point_in_left_or_vertical(center, right));
+    tb_assertf_abort(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
+    tb_assertf_abort(gb_point_in_left_or_vertical(center, right), "%{point} <=? %{point}", center, right);
 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;
