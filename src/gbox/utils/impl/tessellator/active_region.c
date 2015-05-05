@@ -62,8 +62,8 @@ static tb_bool_t gb_tessellator_active_region_leq(gb_tessellator_active_region_r
      *  / \     / \
      *   |       |
      */
-    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(ledge_dst, ledge_org));
-    tb_assert_abort(gb_tessellator_vertex_in_top_or_hleft(redge_dst, redge_org));
+    tb_assertf_abort(gb_tessellator_edge_go_up(lregion->edge), "%{mesh_edge}", lregion->edge);
+    tb_assertf_abort(gb_tessellator_edge_go_up(rregion->edge), "%{mesh_edge}", rregion->edge);
 
     /* 
      *             .
@@ -255,6 +255,9 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
 {
     // check
     tb_assert_abort(impl && impl->active_regions && region && region->edge);
+
+    // the edge must go up
+    tb_assertf_abort(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
 
     // trace
     tb_trace_d("insert: %{mesh_edge}", region->edge);
@@ -474,6 +477,9 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessell
     gb_tessellator_active_region_t region_temp;
     region_temp.edge = edge;
 
+    // the edge must go up
+    tb_assertf_abort(gb_tessellator_edge_go_up(edge), "%{mesh_edge}", edge);
+
     /* reverse to find the region containing the given edge from the regions
      *
      * region.edge
@@ -598,6 +604,9 @@ tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
                 tb_assert_abort(0);
             }
         }
+
+        // the edge must go up
+        tb_assertf_abort(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
 
         // update the previous region
         region_prev = region;

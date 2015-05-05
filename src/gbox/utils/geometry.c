@@ -488,8 +488,12 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
              * distance = xc + xu
              *          = (center.x - upper.x) + (upper.x - lower.x) * (yu / (yu + yl))
              */
+#ifdef GB_CONFIG_FLOAT_FIXED
+            return (center->x - upper->x) + (tb_fixed_t)(((tb_hong_t)yu * (upper->x - lower->x)) / (yu + yl));
+#else
             gb_float_t factor = gb_div(yu, yu + yl);
             return (center->x - upper->x) + gb_mul(upper->x - lower->x, factor);
+#endif
         } 
         // center.y is close to lower.y?
         else 
@@ -542,8 +546,12 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
              * distance = xc + xl
              *          = (center.x - lower.x) + (lower.x - upper.x) * (yl / (yu + yl))
              */
+#ifdef GB_CONFIG_FLOAT_FIXED
+            return (center->x - lower->x) + (tb_fixed_t)((tb_hong_t)yl * (lower->x - upper->x) / (yu + yl));
+#else
             gb_float_t factor = gb_div(yl, yu + yl);
             return (center->x - lower->x) + gb_mul(lower->x - upper->x, factor);
+#endif
         }
     }
 
@@ -571,15 +579,23 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
         if (xl < xr)
         {
             // compute distance
+#ifdef GB_CONFIG_FLOAT_FIXED
+            return (center->y - left->y) + (tb_fixed_t)(((tb_hong_t)xl * (left->y - right->y)) / (xl + xr));
+#else
             gb_float_t factor = gb_div(xl, xl + xr);
             return (center->y - left->y) + gb_mul(left->y - right->y, factor);
+#endif
         } 
         // center.x is close to right.x?
         else 
         {
             // compute distance
+#ifdef GB_CONFIG_FLOAT_FIXED
+            return (center->y - right->y) + (tb_fixed_t)(((tb_hong_t)xr * (right->y - left->y)) / (xl + xr));
+#else
             gb_float_t factor = gb_div(xr, xl + xr);
             return (center->y - right->y) + gb_mul(right->y - left->y, factor);
+#endif
         }
     }
 
