@@ -45,6 +45,21 @@ static tb_bool_t gb_tessellator_event_queue_find(tb_iterator_ref_t iterator, tb_
 {
     return item == value;
 }
+#ifdef __gb_debug__
+static tb_char_t const* gb_tessellator_event_queue_cstr(tb_element_ref_t element, tb_cpointer_t data, tb_char_t* cstr, tb_size_t maxn)
+{
+    // check
+    gb_mesh_vertex_ref_t event = (gb_mesh_vertex_ref_t)data;
+    tb_assert_and_check_return_val(event, tb_null);
+
+    // make info
+    tb_long_t size = tb_snprintf(cstr, maxn, "%{mesh_vertex}", event);
+    if (size >= 0) cstr[size] = '\0';
+
+    // ok?
+    return cstr;
+}
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
@@ -66,6 +81,11 @@ tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
 
         // init the comparator for the vertex event
         element.comp = gb_tessellator_event_queue_comp;
+
+#ifdef __gb_debug__
+        // init the c-string function for tb_priority_queue_dump
+        element.cstr = gb_tessellator_event_queue_cstr;
+#endif
 
         // make event queue
         impl->event_queue = tb_priority_queue_init(0, element);

@@ -259,7 +259,10 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
             dy2 = -dy2;
         }
 
-        // no intersection? dy1 * dy2 < 0?
+        /* no intersection? dy1 * dy2 < 0?
+         *
+         * we also attempt to calculate it if one segment is very close to another segment
+         */
         if (dy1 < -GB_NEAR0 || dy2 < -GB_NEAR0) return tb_false;
 
         /* calculate the x-coordinate of the intersection
@@ -318,7 +321,10 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
             dy2 = -dy2;
         }
 
-        // no intersection? dy1 * dy2 < 0?
+        /* no intersection? dy1 * dy2 < 0?
+         *
+         * we also attempt to calculate it if one segment is very close to another segment
+         */
         if (dy1 < -GB_NEAR0 || dy2 < -GB_NEAR0) return tb_false;
 
         /* calculate the x-coordinate of the intersection
@@ -362,7 +368,10 @@ static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
             dx2 = -dx2;
         }
 
-        // no intersection? dx1 * dx2 < 0?
+        /* no intersection? dx1 * dx2 < 0?
+         *
+         * we also attempt to calculate it if one segment is very close to another segment
+         */
         if (dx1 < -GB_NEAR0 || dx2 < -GB_NEAR0) return tb_false;
 
         /* calculate the y-coordinate of the intersection
@@ -385,7 +394,10 @@ static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
             dx2 = -dx2;
         }
 
-        // no intersection? dx1 * dx2 < 0?
+        /* no intersection? dx1 * dx2 < 0?
+         *
+         * we also attempt to calculate it if one segment is very close to another segment
+         */
         if (dx1 < -GB_NEAR0 || dx2 < -GB_NEAR0) return tb_false;
 
         /* calculate the y-coordinate of the intersection
@@ -489,10 +501,10 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
              *          = (center.x - upper.x) + (upper.x - lower.x) * (yu / (yu + yl))
              */
 #ifdef GB_CONFIG_FLOAT_FIXED
-            return (center->x - upper->x) + (tb_fixed_t)(((tb_hong_t)yu * (upper->x - lower->x)) / (yu + yl));
+            return (center->x - upper->x) + (gb_float_t)(((tb_hong_t)yu * (upper->x - lower->x)) / (yu + yl));
 #else
-            gb_float_t factor = gb_div(yu, yu + yl);
-            return (center->x - upper->x) + gb_mul(upper->x - lower->x, factor);
+            tb_double_t factor = (tb_double_t)(upper->x - lower->x) / (yu + yl);
+            return (center->x - upper->x) + (gb_float_t)(yu * factor);
 #endif
         } 
         // center.y is close to lower.y?
@@ -547,10 +559,10 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
              *          = (center.x - lower.x) + (lower.x - upper.x) * (yl / (yu + yl))
              */
 #ifdef GB_CONFIG_FLOAT_FIXED
-            return (center->x - lower->x) + (tb_fixed_t)((tb_hong_t)yl * (lower->x - upper->x) / (yu + yl));
+            return (center->x - lower->x) + (gb_float_t)((tb_hong_t)yl * (lower->x - upper->x) / (yu + yl));
 #else
-            gb_float_t factor = gb_div(yl, yu + yl);
-            return (center->x - lower->x) + gb_mul(lower->x - upper->x, factor);
+            tb_double_t factor = (tb_double_t)(lower->x - upper->x) / (yu + yl);
+            return (center->x - lower->x) + (gb_float_t)(yl * factor);
 #endif
         }
     }
@@ -580,10 +592,10 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
         {
             // compute distance
 #ifdef GB_CONFIG_FLOAT_FIXED
-            return (center->y - left->y) + (tb_fixed_t)(((tb_hong_t)xl * (left->y - right->y)) / (xl + xr));
+            return (center->y - left->y) + (gb_float_t)(((tb_hong_t)xl * (left->y - right->y)) / (xl + xr));
 #else
-            gb_float_t factor = gb_div(xl, xl + xr);
-            return (center->y - left->y) + gb_mul(left->y - right->y, factor);
+            tb_double_t factor = (tb_double_t)(left->y - right->y) / (xl + xr);
+            return (center->y - left->y) + (gb_float_t)(xl * factor);
 #endif
         } 
         // center.x is close to right.x?
@@ -591,10 +603,10 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
         {
             // compute distance
 #ifdef GB_CONFIG_FLOAT_FIXED
-            return (center->y - right->y) + (tb_fixed_t)(((tb_hong_t)xr * (right->y - left->y)) / (xl + xr));
+            return (center->y - right->y) + (gb_float_t)(((tb_hong_t)xr * (right->y - left->y)) / (xl + xr));
 #else
-            gb_float_t factor = gb_div(xr, xl + xr);
-            return (center->y - right->y) + gb_mul(right->y - left->y, factor);
+            tb_double_t factor = (tb_double_t)(right->y - left->y) / (xl + xr);
+            return (center->y - right->y) + (gb_float_t)(xr * factor);
 #endif
         }
     }
