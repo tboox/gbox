@@ -3764,7 +3764,14 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
      *           .  
      */
     if (gb_mesh_edge_dst(edge_left) != gb_mesh_edge_dst(edge_right))
+    {
+        // trace
+        tb_trace_d("fix intersection of %{mesh_edge}", edge_left);
+        tb_trace_d("                  x %{mesh_edge}", edge_right);
+
+        // fix the intersection
         gb_tessellator_fix_region_intersection(impl, region_left);
+    }
 
     /* the degenerate case
      * 
@@ -3924,7 +3931,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     if (gb_tessellator_vertex_eq(impl->event, gb_mesh_edge_org(edge_right)))
     {
         // trace
-        tb_trace_d("merge the event to the origin of the left edge: %{mesh_edge}", edge_left);
+        tb_trace_d("merge the event to the origin of the right edge: %{mesh_edge}", edge_right);
 
         // check
         tb_assert_abort(impl->event != gb_mesh_edge_org(edge_right));
@@ -3952,7 +3959,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
          *  .                                                .     . new edges             .
          *  .                                                                              .
          */
-        gb_mesh_edge_splice(impl->mesh, edge_first, edge_right);
+        gb_mesh_edge_splice(impl->mesh, gb_mesh_edge_oprev(edge_last), edge_right);
 
         // the event vertex cannot be changed
         tb_assert_abort(gb_mesh_edge_org(edge_first) == impl->event);

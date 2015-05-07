@@ -20,7 +20,7 @@
 #define GB_CONFIG_SMALL                 [small]
 
 // the fixed type for float
-#define GB_CONFIG_FLOAT_FIXED
+//#define GB_CONFIG_FLOAT_FIXED
 
 // gl
 #define GB_CONFIG_GL_APICALL            __tb_cdecl__
