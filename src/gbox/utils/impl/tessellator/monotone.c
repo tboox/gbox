@@ -2228,6 +2228,8 @@ static tb_void_t gb_tessellator_fix_all_dirty_regions(gb_tessellator_impl_t* imp
          *
          * we need delete one edge and region
          *
+         * @note might gererate an unclosed edge
+         *
          *           .
          *           ..
          *           ..

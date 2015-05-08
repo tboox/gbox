@@ -984,28 +984,73 @@ gb_mesh_edge_ref_t gb_mesh_edge_split(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
     else
     {
         /* append a new edge
-         *
-         *       .                  
-         *         .        edge_org            edge_new
+         *                             lface
+         *       .              
+         *         .        edge_org           edge_new_sym
          * . . . . . org ---------------> dst -------------> vertex_new
          *       .                          
-         *     .                            
+         *     .                       rface    
          */
-        edge_new = gb_mesh_edge_append(mesh, edge_org);
+        gb_mesh_edge_ref_t edge_new_sym = gb_mesh_edge_append(mesh, edge_org);
+        tb_assert_abort(edge_new_sym);
+
+        // the new edge
+        edge_new = gb_mesh_edge_sym(edge_new_sym);
         tb_assert_abort(edge_new);
 
-        /* swap two vertices
+        /* splice(edge_org_sym, edge_new_sym)
+         *                                    lface
+         *       .                  
+         *         .       edge_org_sym                    edge_new_sym
+         * . . . . . org <--------------- dst          dst -------------> vertex_new
+         *       .                          
+         *     .                              rface
+         */
+        gb_mesh_edge_ref_t edge_org_sym = gb_mesh_edge_sym(edge_org);
+        gb_mesh_splice_edge(edge_org_sym, edge_new_sym);
+
+        /* splice(edge_org_sym, edge_new)
          *
          *       .                  
-         *         .        edge_org                   edge_new
-         * . . . . . org ---------------> vertex_new -------------> dst
+         *         .       edge_org_sym                       edge_new
+         * . . . . . org <--------------- dst          dst <------------- vertex_new
          *       .                          
          *     .                            
+         *
+         * 
+         *       .                  
+         *         .       edge_org_sym                    edge_new
+         * . . . . . org <--------------- dst vertex_new ------------> dst 
+         *       .                          
+         *     .                            
+         *                                             
+         *       .                  
+         *         .        edge_org                       edge_new
+         * . . . . . org ---------------> dst vertex_new ------------> dst 
+         *       .                          
+         *     .              
+         *
          */
-        gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(edge_org);
-        gb_mesh_edge_dst_set(edge_org, gb_mesh_edge_dst(edge_new));
-        gb_mesh_edge_org_set(edge_new, gb_mesh_edge_dst(edge_new));
-        gb_mesh_edge_dst_set(edge_new, dst);
+        gb_mesh_splice_edge(edge_org_sym, edge_new);
+
+        /* update the edge_org.dst
+         *
+         *                    
+         *       .                  
+         *         .         edge_org                  edge_new
+         * . . . . . org ---------------> vertex_new ------------> dst 
+         *       .                          
+         *     .              
+         *
+         */
+        gb_mesh_edge_dst_set(edge_org, gb_mesh_edge_org(edge_new));
+
+        // update the edge of edge_new.dst, may have pointed to edge_org_sym
+        gb_mesh_vertex_edge_set(gb_mesh_edge_dst(edge_new), edge_new_sym);
+
+        // update the faces of edge_new
+        gb_mesh_edge_lface_set(edge_new,        gb_mesh_edge_lface(edge_org));
+        gb_mesh_edge_lface_set(edge_new_sym,    gb_mesh_edge_lface(edge_org_sym));
     }
 
     // check
