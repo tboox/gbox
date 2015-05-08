@@ -915,10 +915,7 @@ gb_mesh_edge_ref_t gb_mesh_edge_split(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
     // check edge
     gb_mesh_check_edge(edge_org);
 
-    /* insert a new edge
-     *
-     * before:
-     *
+    /* the general case
      *                                  
      *             .                lface                  .
      *                .                                 .
@@ -930,43 +927,89 @@ gb_mesh_edge_ref_t gb_mesh_edge_split(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edg
      *              .                                               .
      *
      *
-     *                                  
-     *             .                lface                  * edge_org.dprev
-     *                .                                 *
-     *                   .         edge_org_sym     |*_       
-     *        . . . . . . . org <----------------- dst  
-     *                    .                        .    .        
-     *                  .           rface         .         . 
-     *                .                          .              . 
-     *              .                                               .
-     *
-     * after:
-     *                                  
-     *             .                               lface                             * edge_org.dprev
-     *                .                                                           *
-     *                   .         edge_org_sym                 edge_new_sym  |*_       
-     *        . . . . . . . org <----------------- vertex_new <------------- dst  
-     *                    .                                                  .    .        
-     *                  .                          rface                    .         . 
-     *                .                                                    .              . 
-     *              .                                                                         .
      */
-    gb_mesh_edge_ref_t edge_new_sym = gb_mesh_edge_insert(mesh, gb_mesh_edge_dprev(edge_org), gb_mesh_edge_sym(edge_org));
-    tb_assert_abort(edge_new_sym);
+    gb_mesh_edge_ref_t edge_new = tb_null;
+    gb_mesh_edge_ref_t edge_org_dprev = gb_mesh_edge_dprev(edge_org);
+    if (edge_org_dprev != edge_org)
+    {
+        /* insert a new edge
+         *
+         * before:
+         *
+         *             .                lface                  * edge_org.dprev
+         *                .                                 *
+         *                   .         edge_org_sym     |*_       
+         *        . . . . . . . org <----------------- dst  
+         *                    .                        .    .        
+         *                  .           rface         .         . 
+         *                .                          .              . 
+         *              .                                               .
+         *
+         * after:
+         *                                  
+         *             .                               lface                             * edge_org.dprev
+         *                .                                                           *
+         *                   .         edge_org_sym                 edge_new_sym  |*_       
+         *        . . . . . . . org <----------------- vertex_new <------------- dst  
+         *                    .                                                  .    .        
+         *                  .                          rface                    .         . 
+         *                .                                                    .              . 
+         *              .                                                                         .
+         */
+        gb_mesh_edge_ref_t edge_new_sym = gb_mesh_edge_insert(mesh, edge_org_dprev, gb_mesh_edge_sym(edge_org));
+        tb_assert_abort(edge_new_sym);
 
-    /* reverse the new edge
-     *                                  
-     *             .                               lface                             *
-     *                .                                                           *
-     *                   .            edge_org                  edge_new      |*_       
-     *        . . . . . . . org -----------------> vertex_new -------------> dst  
-     *                    .                                                  .    .        
-     *                  .                          rface                    .         . 
-     *                .                                                    .              . 
-     *              .                                                                         .
+        /* reverse the new edge
+         *                                  
+         *             .                               lface                             *
+         *                .                                                           *
+         *                   .            edge_org                  edge_new      |*_       
+         *        . . . . . . . org -----------------> vertex_new -------------> dst  
+         *                    .                                                  .    .        
+         *                  .                          rface                    .         . 
+         *                .                                                    .              . 
+         *              .                                                                         .
+         */
+        edge_new = gb_mesh_edge_sym(edge_new_sym);
+        tb_assert_abort(edge_new);
+    }
+    /* the special case
+     *
+     *       .                  
+     *         .        edge_org     
+     * . . . . . org ---------------> dst
+     *       .                          
+     *     .                            
      */
-    gb_mesh_edge_ref_t edge_new = gb_mesh_edge_sym(edge_new_sym);
-    tb_assert_abort(edge_new);
+    else
+    {
+        /* append a new edge
+         *
+         *       .                  
+         *         .        edge_org            edge_new
+         * . . . . . org ---------------> dst -------------> vertex_new
+         *       .                          
+         *     .                            
+         */
+        edge_new = gb_mesh_edge_append(mesh, edge_org);
+        tb_assert_abort(edge_new);
+
+        /* swap two vertices
+         *
+         *       .                  
+         *         .        edge_org                   edge_new
+         * . . . . . org ---------------> vertex_new -------------> dst
+         *       .                          
+         *     .                            
+         */
+        gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(edge_org);
+        gb_mesh_edge_dst_set(edge_org, gb_mesh_edge_dst(edge_new));
+        gb_mesh_edge_org_set(edge_new, gb_mesh_edge_dst(edge_new));
+        gb_mesh_edge_dst_set(edge_new, dst);
+    }
+
+    // check
+    tb_assert_abort(gb_mesh_edge_dst(edge_org) == gb_mesh_edge_org(edge_new));
 
     // post the split event, split(edge_org) => (edge_org, edge_new)
     gb_mesh_post_event(impl, GB_MESH_EVENT_EDGE_SPLIT, edge_org, edge_new);

@@ -1198,10 +1198,9 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
 
         // check the new edge order: edge_left_top => edge_new => edge_right
         tb_assert_abort(edge_new == gb_mesh_edge_onext(edge_left_top));
-        tb_assert_abort(gb_mesh_edge_sym(edge_right) == gb_mesh_edge_onext(edge_new));
 
         // insert the new down-going edge without region: edge_new
-        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, gb_mesh_edge_sym(edge_right), edge_left_top, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, gb_mesh_edge_onext(edge_new), edge_left_top, tb_true);
 
         /* we need return directly from the recurse call
          * because we have fix all "dirty" regions after calling insert_down_going_edges()
@@ -1263,8 +1262,8 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
          *               edge_left
          */
         gb_mesh_edge_ref_t edge_new = gb_mesh_edge_split(impl->mesh, gb_mesh_edge_sym(edge_right));
-        tb_assert_abort(edge_new);
- 
+        tb_assert_abort(edge_new && edge_right == gb_mesh_edge_onext(edge_new));
+
         /* splice the right and new edges into the event vertex
          * and uses the event as the real intersection
          *
@@ -1328,11 +1327,8 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
          */
         gb_tessellator_finish_top_regions(impl, region_right, tb_null);
 
-        // check the new edge
-        tb_assert_abort(edge_right == gb_mesh_edge_onext(edge_new));
-
         // insert the new down-going edge without region: edge_new
-        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, edge_right, tb_null, tb_true);
+        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, gb_mesh_edge_onext(edge_new), tb_null, tb_true);
 
         /* we need return directly from the recurse call
          * because we have fix all "dirty" regions after calling insert_down_going_edges()
@@ -1935,11 +1931,11 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         // init the new intersection point
         gb_tessellator_vertex_point_set(gb_mesh_edge_org(edge_right), gb_tessellator_vertex_point(intersection));
 
-        // insert the new intersection vertex to the event queue
-        gb_tessellator_event_queue_insert(impl, gb_mesh_edge_org(edge_right));
-
         // trace
         tb_trace_d("insert the new intersection: %{mesh_vertex}", gb_mesh_edge_org(edge_right));
+
+        // insert the new intersection vertex to the event queue
+        gb_tessellator_event_queue_insert(impl, gb_mesh_edge_org(edge_right));
 
         /* the left and right edge will be split, so we need mark them and their left edge as "dirty"
          *

@@ -38,8 +38,18 @@
  */
 static tb_long_t gb_tessellator_event_queue_comp(tb_element_ref_t element, tb_cpointer_t ldata, tb_cpointer_t rdata)
 {
+#if 0
     // lvertex <= rvertex ? -1 : 1
     return (!gb_tessellator_vertex_leq((gb_mesh_vertex_ref_t)ldata, (gb_mesh_vertex_ref_t)rdata) << 1) - 1;
+#else
+    // the left and right point
+    gb_point_ref_t lpoint = gb_tessellator_vertex_point(ldata);
+    gb_point_ref_t rpoint = gb_tessellator_vertex_point(rdata);
+    tb_assert_abort(lpoint && rpoint);
+
+    // lpoint < rpoint?
+    return (lpoint->y < rpoint->y)? -1 : ((lpoint->y > rpoint->y)? 1 : ((lpoint->x < rpoint->x)? -1 : (lpoint->x > rpoint->x)));
+#endif
 }
 static tb_bool_t gb_tessellator_event_queue_find(tb_iterator_ref_t iterator, tb_cpointer_t item, tb_cpointer_t value)
 {
