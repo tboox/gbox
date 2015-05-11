@@ -282,11 +282,6 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
     // save the region reference to the edge
     gb_tessellator_edge_region_set(region->edge, region);
 
-    // check
-#ifdef __gb_debug__
-    gb_tessellator_active_regions_check(impl);
-#endif
-
     // ok
     return region;
 }

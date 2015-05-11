@@ -1879,6 +1879,8 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
      * we will split two edges and splice them
      * and insert the new intersection to the event queue.
      *
+     * the region order might be changed if the intersection has some numerical errors.
+     *
      * before:
      *
      * edge_left
@@ -2425,11 +2427,6 @@ static gb_tessellator_active_region_ref_t gb_tessellator_insert_region_at_right(
 {
     // check
     tb_assert_abort(impl && region_left && edge_new);
-
-    // check
-#ifdef __gb_debug__
-    gb_tessellator_active_regions_check(impl);
-#endif
 
     // make region
     gb_tessellator_active_region_t region;
@@ -3767,7 +3764,16 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
         tb_trace_d("fix intersection of %{mesh_edge}", edge_left);
         tb_trace_d("                  x %{mesh_edge}", edge_right);
 
-        // fix the intersection
+        /* fix the intersection
+         *
+         * the region order might be changed if the intersection has some numerical errors.
+         *
+         * but we need not fix it immediately because we will fix it in insert_down_doing_edges(),
+         * and before this we only inserted a fixedge edge or two new splitted edges. 
+         *
+         * so it will not have any affect though the region order have been changed.
+         * but we cannot check the region order in the insert_region_at_right().
+         */
         gb_tessellator_fix_region_intersection(impl, region_left);
     }
 
@@ -4025,7 +4031,7 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     gb_mesh_edge_ref_t edge_new = gb_tessellator_vertex_in_top_or_horizontal(gb_mesh_edge_org(edge_left), gb_mesh_edge_org(edge_right))? gb_mesh_edge_oprev(edge_left) : edge_right;
     edge_new = gb_mesh_edge_connect(impl->mesh, gb_mesh_edge_sym(edge_last), edge_new);
     tb_assert_abort(edge_new && gb_mesh_edge_onext(edge_new) == edge_last);
-    
+
     /* insert this new down-going edges at this event and create new active region
      * 
      * delay to fix all dirty regions before marking the new temporary edge
