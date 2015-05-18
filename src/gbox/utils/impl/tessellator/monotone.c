@@ -1740,8 +1740,6 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
     /* we need fix it if the intersection lies slightly to
      * the upper of the sweep line because of some numerical errors.
      * 
-     * the easiest and safest thing to do is replace the intersection by the event vertex.
-     *
      * edge_left
      *       .
      *         .      region_left            . edge_right
@@ -1760,24 +1758,25 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
      *
      *    
      * it is error case if the intersection lies to the horizontal left side of the event
-     * and the intersection will be not processed next.
+     * and the right edge is horizontal approximately.
      *
-     * so we need fix it for this case.
+     * we need fix it for this case because the intersection will be not processed forever.
      *
-     *
-     *                      . . . . .
-     *                      .       .
-     *                      .       .
-     *    . . . . . . . . . x . . . .
-     *   / \   intersection .     event
-     *    |                 .
-     *    |                 .
-     *    |                 .
-     *    |
-     * the intersection shoud be calculated in here
+     *                  edge_left
+     *                      . 
+     *                      .       
+     *                      .                                                              . (dst)
+     *    . . . . . . . . . x . . . . (dst) edge_right => horizontal approximately =>    . 
+     *         intersection .     event                                                .
+     *                      .
+     *                      .
+     *                      .
+     *     
      *
      * it is normal case if the intersection lies to the horizontal right side of the event
      * and the intersection will be processed next.
+     *
+     * so we need not fix this case now.
      *
      *      . . . . .
      *      .       .
@@ -1794,12 +1793,35 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         // trace
         tb_trace_d("fix intersection by the event: %{mesh_vertex}", event);
 
-        // replace the intersection by the event vertex
-        gb_tessellator_vertex_point_set(intersection, gb_tessellator_vertex_point(event));
+        // the points
+        gb_point_ref_t point_event = gb_tessellator_vertex_point(event);
+        gb_point_ref_t point_inter = gb_tessellator_vertex_point(intersection);
+        gb_point_ref_t point_left_org = gb_tessellator_vertex_point(edge_left_org);
+        gb_point_ref_t point_right_org = gb_tessellator_vertex_point(edge_right_org);
+
+        /* we only need replace the intersection by the event vertex 
+         * if the intersection is close to the event.
+         */
+        gb_float_t dx = point_inter->x - point_event->x;
+        if (gb_near0(dx)) gb_tessellator_vertex_point_set(intersection, point_event);
+        /* the intersection might be not close to the event if an edge is horizontal approximately.
+         * so we need replace the y-coordinate of the intersection by the minimum y-coordinate in edge origin
+         * 
+         *                  edge_left
+         *                      . 
+         *                      .       
+         *                      .                                                              . (dst)
+         *    . . . . . . . . . x . . . . (dst) edge_right => horizontal approximately =>    . 
+         *         intersection .     event                                                .
+         *                      .
+         *                      .
+         *                      .
+         */
+        else point_inter->y = tb_min(point_left_org->y, point_right_org->y);
     }
 
     /* similarly, we also need fix it if the intersection lies slightly to
-     * the lower of the topmost origin because of some numerical errors .
+     * the lower of the topmost origin because of some numerical errors.
      *
      * edge_left
      *       .
@@ -1816,6 +1838,21 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
      *                             .
      *                               .
      *
+     * it is error case if the intersection lies to the horizontal right side of the edge_org_upper
+     * and the right edge is horizontal approximately.
+     *
+     * we need fix it for this case because the intersection will be not processed forever.
+     *
+     *                  edge_left
+     *                      . 
+     *                      .       
+     * edge_org_upper       .                                                              . (dst)
+     *    . . . . . . . . . x . . . . (dst) edge_right => horizontal approximately =>    . 
+     *         intersection .     event                                                .
+     *                      .
+     *                      .
+     *                      .
+     *     
      *
      * it is normal case if the edge_org_upper lies to the horizontal right side of the intersection
      * and the intersection will be processed next.
@@ -1836,8 +1873,29 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         // trace
         tb_trace_d("fix intersection by the topmost origin: %{mesh_vertex}", edge_org_upper);
 
-        // replace the intersection by the edge_org_upper
-        gb_tessellator_vertex_point_set(intersection, gb_tessellator_vertex_point(edge_org_upper));
+        // the points
+        gb_point_ref_t point_upper = gb_tessellator_vertex_point(edge_org_upper);
+        gb_point_ref_t point_inter = gb_tessellator_vertex_point(intersection);
+
+        /* we only need replace the intersection by the edge_org_upper
+         * if the intersection is close to the edge_org_upper.
+         */
+        gb_float_t dx = point_inter->x - point_upper->x;
+        if (gb_near0(dx)) gb_tessellator_vertex_point_set(intersection, point_upper);
+        /* the intersection might be not close to the edge_org_upper if an edge is horizontal approximately.
+         * so we need replace the y-coordinate of the intersection by the y-coordinate of edge_org_upper
+         * 
+         *                  edge_left
+         *                      . 
+         *                      .       
+         * edge_org_upper       .                                                              . (dst)
+         *    . . . . . . . . . x . . . . (dst) edge_right => horizontal approximately =>    . 
+         *         intersection .     event                                                .
+         *                      .
+         *                      .
+         *                      .
+         */
+        else point_inter->y = point_upper->y;
     }
 
     /* we only need fix the bottom region order 
@@ -3595,6 +3653,9 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
 
             // mark it if the new region is inside
             region_new->inside = gb_tessellator_winding_is_inside(impl, region_new->winding);
+ 
+            // trace
+            tb_trace_d("insert edge: %{mesh_edge} to region: %{tess_region}", edge_new, region_new);
         }
 
         // continue to sweep this event for the new region

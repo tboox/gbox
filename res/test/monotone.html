@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Test</title>
+        <script src="raphael.js"></script>
+        <script>
+        
+            // size
+            var width = 640;
+            var height = 480;
+
+            // translate
+            var tx = 281.617 + 10;
+            var ty = 201.619 + 10;
+
+            function edge(canvas, id, vb, ve, x1, y1, x2, y2)
+            {
+                var edge = canvas.path("M" + x1 + ", " + y1 + "L" + x2 + ", " + y2);
+                edge.translate(tx, ty);
+                edge.attr("stroke", "blue");
+
+                var text = canvas.text((x1 + x2) / 2, (y1 + y2) / 2, id);
+                text.translate(tx, ty).scale(0.7);
+                text.attr("fill", "red");
+
+                canvas.text(x1, y1, vb).translate(tx, ty).scale(0.7);
+                canvas.text(x2, y2, ve).translate(tx, ty).scale(0.7);
+
+                return edge;
+            }
+            function split(canvas, id, vb, ve, x1, y1, x2, y2)
+            {
+                var edge = canvas.path("M" + x1 + ", " + y1 + "L" + x2 + ", " + y2);
+                edge.translate(tx, ty);
+                edge.attr("stroke", "pink");
+
+                var text = canvas.text((x1 + x2) / 2, (y1 + y2) / 2, id);
+                text.translate(tx, ty).scale(0.7);
+                text.attr("fill", "green");
+
+                canvas.text(x1, y1, vb).translate(tx, ty).scale(0.7);
+                canvas.text(x2, y2, ve).translate(tx, ty).scale(0.7);
+
+                return edge;
+            }
+            function patch(canvas, id, vb, ve, x1, y1, x2, y2)
+            {
+                var edge = canvas.path("M" + x1 + ", " + y1 + "L" + x2 + ", " + y2);
+                edge.translate(tx, ty);
+                edge.attr("stroke", "lightgrey");
+
+                var text = canvas.text((x1 + x2) / 2, (y1 + y2) / 2, id);
+                text.translate(tx, ty).scale(0.7);
+                text.attr("fill", "lightgrey");
+
+                canvas.text(x1, y1, vb).translate(tx, ty).scale(0.7);
+                canvas.text(x2, y2, ve).translate(tx, ty).scale(0.7);
+
+                return edge;
+            }
+            function inter(canvas, vi, x, y)
+            {
+                var text = canvas.text(x, y, vi);
+                text.translate(tx, ty).scale(0.7);
+            }
+            window.onload = function ()
+            {
+                // canvas
+                var canvas = Raphael(0, 0, width, height);
+    
+                /*
+                [gbox]: [monotone]: bounds: (x: -281.617, y: -201.619, w: 418.117, h: 403.238)
+                */
+                edge(canvas, "e66", "", "", -281.617, -201.619, -283.853, 403.238);
+                edge(canvas, "e67", "", "", -281.617 + 418.117, -201.619, -283.853 + 418.117, 403.238);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v5: (0.000, -201.619))
+                [gbox]: [monotone]: connect top event: (0.000, -201.619)
+                [gbox]: [monotone]: insert down-going edge: (e5.w1: (v5: (0.000, -201.619)) => (v6: (75.809, -125.809)))
+                [gbox]: [monotone]: insert down-going edge: (e4.w-1: (v5: (0.000, -201.619)) => (v4: (-75.809, -125.809)))
+                [gbox]: [monotone]: fix dirty regions with (e5.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e4.w1, winding: 1, inside: 1) and (e5.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e4.w1, winding: 1, inside: 1) 
+                 */
+                edge(canvas, "e5", "v5", "v6", 0.000, -201.619, 75.809, -125.809);
+                edge(canvas, "e4*", "v5", "v4", 0.000, -201.619, -75.809, -125.809);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v63: (0.000, -150.000))
+                [gbox]: [monotone]: connect top event: (0.000, -150.000)
+                [gbox]: [monotone]: split the region: (e4.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert edge: (e68.w0: (v63: (0.000, -150.000)) => (v5: (0.000, -201.619))) to region: (e68.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v63: (0.000, -150.000))
+                [gbox]: [monotone]: finish region: (e68.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e63.w1: (v63: (0.000, -150.000)) => (v64: (25.809, -124.191)))
+                [gbox]: [monotone]: insert down-going edge: (e62.w-1: (v63: (0.000, -150.000)) => (v62: (-25.809, -124.191)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e63.w-1, winding: 1, inside: 1) and (e5.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e62.w1, winding: 2, inside: 1) and (e63.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e4.w1, winding: 1, inside: 1) and (e62.w1, winding: 2, inside: 1)         
+                 */
+                split(canvas, "e68*", "v63", "v5", 0.000, -150.000, -0.000, -201.619);
+                edge(canvas, "e63*", "v63", "v64", 0.000, -150.000, 25.809, -124.191);
+                edge(canvas, "e62*", "v63", "v62", 0.000, -150.000, -25.809, -124.191);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v31: (-136.500, -136.500))
+                [gbox]: [monotone]: connect top event: (-136.500, -136.500)
+                [gbox]: [monotone]: insert down-going edge: (e31.w1: (v31: (-136.500, -136.500)) => (v1: (-100.000, -136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e30.w-1: (v31: (-136.500, -136.500)) => (v30: (-136.500, -50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e31.w-1, winding: 0, inside: 0) and (e4.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e31.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e30.w1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e31", "v31", "v1", -136.500, -136.500, -100.000, -136.500);
+                edge(canvas, "e30*", "v31", "v30", -136.500, -136.500, -136.500, -50.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v1: (-100.000, -136.500))
+                [gbox]: [monotone]: finish region: (e31.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e1.w1: (v1: (-100.000, -136.500)) => (v2: (-50.000, -136.500)))
+                [gbox]: [monotone]: fix dirty regions with (e1.w-1, winding: 0, inside: 0) and (e4.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: intersection: (e1.w-1, winding: 0, inside: 0) x (e4.w1, winding: 1, inside: 1) => (-65.119, -136.500)
+                [gbox]: [monotone]: insert the new intersection: (v71: (-65.119, -136.500))
+                [gbox]: [monotone]: fix dirty regions with (e4.w1, winding: 1, inside: 1) and (e62.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e1.w-1, winding: 0, inside: 0) and (e4.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e1.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e1", "v1", "v2", -100.000, -136.500, -50.000, -136.500);
+                inter(canvas, "v71", -65.119, -136.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v71: (-65.119, -136.500))
+                [gbox]: [monotone]: finish region: (e1.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: finish region: (e4.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e69.w1: (v71: (-65.119, -136.500)) => (v2: (-50.000, -136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e70.w-1: (v71: (-65.119, -136.500)) => (v4: (-75.809, -125.809)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e69.w-1, winding: 1, inside: 1) and (e62.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e70.w1, winding: 2, inside: 1) and (e69.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e70.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e69*", "v71", "v2", -65.119, -136.500, -50.000, -136.500);
+                edge(canvas, "e70*", "v71", "v4", -65.119, -136.500, -75.809, -125.809);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v2: (-50.000, -136.500))
+                [gbox]: [monotone]: finish region: (e69.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e2.w1: (v2: (-50.000, -136.500)) => (v3: (-50.000, -100.000)))
+                [gbox]: [monotone]: fix dirty regions with (e2.w-1, winding: 1, inside: 1) and (e62.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e70.w1, winding: 2, inside: 1) and (e2.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e2*", "v2", "v3", -50.000, -136.500, -50.000, -100.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v8: (50.000, -136.500))
+                [gbox]: [monotone]: connect top event: (50.000, -136.500)
+                [gbox]: [monotone]: split the region: (e63.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert edge: (e71.w0: (v8: (50.000, -136.500)) => (v63: (0.000, -150.000))) to region: (e71.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v8: (50.000, -136.500))
+                [gbox]: [monotone]: finish region: (e71.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e7.w-1: (v8: (50.000, -136.500)) => (v7: (50.000, -100.000)))
+                [gbox]: [monotone]: insert down-going edge: (e8.w1: (v8: (50.000, -136.500)) => (v9: (136.500, -136.500)))
+                [gbox]: [monotone]: fix dirty regions with (e8.w-1, winding: 1, inside: 1) and (e5.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: intersection: (e8.w-1, winding: 1, inside: 1) x (e5.w-1, winding: 0, inside: 0) => (65.119, -136.500)
+                [gbox]: [monotone]: insert the new intersection: (v74: (65.119, -136.500))
+                [gbox]: [monotone]: fix dirty regions with (e5.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e8.w-1, winding: 1, inside: 1) and (e5.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e7.w1, winding: 2, inside: 1) and (e8.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e63.w-1, winding: 1, inside: 1) and (e7.w1, winding: 2, inside: 1)
+                */
+                split(canvas, "e71*", "v8", "v63", 50.000, -136.500, 0.000, -150.000);
+                edge(canvas, "e7*", "v8", "v7", 50.000, -136.500, 50.000, -100.000);
+                edge(canvas, "e8*", "v8", "v9", 50.000, -136.500, 136.500, -136.500);
+                inter(canvas, "v74", 65.119, -136.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v74: (65.119, -136.500))
+                [gbox]: [monotone]: finish region: (e8.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e5.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e72.w1: (v74: (65.119, -136.500)) => (v9: (136.500, -136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e73.w1: (v74: (65.119, -136.500)) => (v6: (75.809, -125.809)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e72.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e73.w-1, winding: 1, inside: 1) and (e72.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e7.w1, winding: 2, inside: 1) and (e73.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e72", "v74", "v9", 65.119, -136.500, 136.500, -136.500);
+                edge(canvas, "e73*", "v74", "v6", 65.119, -136.500, 75.809, -125.809);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v9: (136.500, -136.500))
+                [gbox]: [monotone]: finish region: (e72.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e9.w1: (v9: (136.500, -136.500)) => (v10: (136.500, -29.770)))
+                [gbox]: [monotone]: fix dirty regions with (e9.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e73.w-1, winding: 1, inside: 1) and (e9.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e9", "v9", "v10", 136.500, -136.500, 136.500, -29.770);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v4: (-75.809, -125.809))
+                [gbox]: [monotone]: finish region: (e70.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e3.w-1: (v4: (-75.809, -125.809)) => (v3: (-50.000, -100.000)))
+                [gbox]: [monotone]: fix dirty regions with (e3.w1, winding: 2, inside: 1) and (e2.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e3.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e3*", "v4", "v3", -75.809, -125.809, -50.000, -100.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v6: (75.809, -125.809))
+                [gbox]: [monotone]: finish region: (e73.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e6.w1: (v6: (75.809, -125.809)) => (v7: (50.000, -100.000)))
+                [gbox]: [monotone]: fix dirty regions with (e6.w-1, winding: 1, inside: 1) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e7.w1, winding: 2, inside: 1) and (e6.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e6*", "v6", "v7", 75.809, -125.809, 50.000, -100.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v62: (-25.809, -124.191))
+                [gbox]: [monotone]: finish region: (e62.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e61.w-1: (v62: (-25.809, -124.191)) => (v61: (34.881, -63.500)))
+                [gbox]: [monotone]: fix dirty regions with (e61.w1, winding: 2, inside: 1) and (e63.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e2.w-1, winding: 1, inside: 1) and (e61.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e61*", "v62", "v61", -25.809, -124.191, 34.881, -63.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v64: (25.809, -124.191))
+                [gbox]: [monotone]: finish region: (e63.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e64.w1: (v64: (25.809, -124.191)) => (v65: (-34.881, -63.500)))
+                [gbox]: [monotone]: fix dirty regions with (e64.w-1, winding: 1, inside: 1) and (e7.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e61.w1, winding: 2, inside: 1) and (e64.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: intersection: (e61.w1, winding: 2, inside: 1) x (e64.w-1, winding: 1, inside: 1) => (0.000, -98.381)
+                [gbox]: [monotone]: insert the new intersection: (v77: (0.000, -98.381))
+                [gbox]: [monotone]: fix dirty regions with (e64.w-1, winding: 1, inside: 1) and (e7.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e61.w1, winding: 2, inside: 1) and (e64.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e2.w-1, winding: 1, inside: 1) and (e61.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e64*", "v64", "v65", 25.809, -124.191, -34.881, -63.500);
+                inter(canvas, "v77", 0.000, -98.381);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v33: (-100.000, -100.000))
+                [gbox]: [monotone]: connect top event: (-100.000, -100.000)
+                [gbox]: [monotone]: split the region: (e30.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert edge: (e76.w0: (v33: (-100.000, -100.000)) => (v4: (-75.809, -125.809))) to region: (e76.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v33: (-100.000, -100.000))
+                [gbox]: [monotone]: finish region: (e76.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e33.w1: (v33: (-100.000, -100.000)) => (v34: (-63.500, -100.000)))
+                [gbox]: [monotone]: insert down-going edge: (e32.w-1: (v33: (-100.000, -100.000)) => (v32: (-100.000, -63.500)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e33.w-1, winding: 1, inside: 1) and (e3.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e32.w1, winding: 2, inside: 1) and (e33.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e32.w1, winding: 2, inside: 1)
+                 */
+                split(canvas, "e76*", "v33", "v4", -100.000, -100.000, -75.809, -125.809);
+                edge(canvas, "e33*", "v33", "v34", -100.000, -100.000, -63.500, -100.000);
+                edge(canvas, "e32*", "v33", "v32", -100.000, -100.000, -100.000, -63.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v34: (-63.500, -100.000))
+                [gbox]: [monotone]: finish region: (e33.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e34.w1: (v34: (-63.500, -100.000)) => (v35: (-63.500, -27.442)))
+                [gbox]: [monotone]: fix dirty regions with (e34.w-1, winding: 1, inside: 1) and (e3.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e32.w1, winding: 2, inside: 1) and (e34.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e34*", "v34", "v35", -63.500, -100.000, -63.500, -27.442);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v3: (-50.000, -100.000))
+                [gbox]: [monotone]: finish region: (e3.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e2.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (-50.000, -100.000)
+                [gbox]: [monotone]: fix intersection of (e34.w-1: (v35: (-63.500, -27.442)) => (v34: (-63.500, -100.000)))
+                [gbox]: [monotone]:                   x (e61.w1: (v77: (0.000, -98.381)) => (v62: (-25.809, -124.191)))
+                [gbox]: [monotone]: insert down-going edge: (e77.w0: (v3: (-50.000, -100.000)) => (v77: (0.000, -98.381)))
+                [gbox]: [monotone]: fix dirty regions with (e77.fixable) and (e61.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e34.w-1, winding: 1, inside: 1) and (e77.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e77.w0: (v77: (0.000, -98.381)) => (v3: (-50.000, -100.000)))
+                 */
+                patch(canvas, "e77*", "v3", "v77", -50.000, -100.000, 0.000, -98.381);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v7: (50.000, -100.000))
+                [gbox]: [monotone]: finish region: (e7.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e6.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (50.000, -100.000)
+                [gbox]: [monotone]: fix intersection of (e64.w-1: (v77: (0.000, -98.381)) => (v64: (25.809, -124.191)))
+                [gbox]: [monotone]:                   x (e9.w-1: (v10: (136.500, -29.770)) => (v9: (136.500, -136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e78.w0: (v7: (50.000, -100.000)) => (v77: (0.000, -98.381)))
+                [gbox]: [monotone]: fix dirty regions with (e78.fixable) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e64.w-1, winding: 1, inside: 1) and (e78.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e78.w0: (v77: (0.000, -98.381)) => (v7: (50.000, -100.000)))
+                 */
+                patch(canvas, "e78", "v7", "v77", 50.000, -100.000, 0.000, -98.381);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v58: (63.500, -100.000))
+                [gbox]: [monotone]: connect top event: (63.500, -100.000)
+                [gbox]: [monotone]: split the region: (e78.fixable)
+                [gbox]: [monotone]: fix a temporary edge: (e78.fixable) => (e79.w0: (v58: (63.500, -100.000)) => (v7: (50.000, -100.000)))
+                [gbox]: [monotone]: event: sweep: (v58: (63.500, -100.000))
+                [gbox]: [monotone]: finish region: (e79.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e57.w-1: (v58: (63.500, -100.000)) => (v57: (63.500, -50.000)))
+                [gbox]: [monotone]: insert down-going edge: (e58.w1: (v58: (63.500, -100.000)) => (v59: (100.000, -100.000)))
+                [gbox]: [monotone]: fix dirty regions with (e58.w-1, winding: 1, inside: 1) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e57.w1, winding: 2, inside: 1) and (e58.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e64.w-1, winding: 1, inside: 1) and (e57.w1, winding: 2, inside: 1)
+                 */
+                split(canvas, "e79*", "v58", "v7", 63.500, -100.000, 50.000, -100.000);
+                edge(canvas, "e57*", "v58", "v57", 63.500, -100.000, 63.500, -50.000);
+                edge(canvas, "e58*", "v58", "v59", 63.500, -100.000, 100.000, -100.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v59: (100.000, -100.000))
+                [gbox]: [monotone]: finish region: (e58.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e59.w1: (v59: (100.000, -100.000)) => (v60: (100.000, -63.500)))
+                [gbox]: [monotone]: fix dirty regions with (e59.w-1, winding: 1, inside: 1) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e57.w1, winding: 2, inside: 1) and (e59.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e59*", "v59", "v60", 100.000, -100.000, 100.000, -63.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v77: (0.000, -98.381))
+                [gbox]: [monotone]: finish region: (e77.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e61.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e64.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e74.w-1: (v77: (0.000, -98.381)) => (v61: (34.881, -63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e75.w1: (v77: (0.000, -98.381)) => (v65: (-34.881, -63.500)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e74.w1, winding: 1, inside: 1) and (e57.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e75.w-1, winding: 0, inside: 0) and (e74.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e34.w-1, winding: 1, inside: 1) and (e75.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e74*", "v77", "v61", 0.000, -98.381, 34.881, -63.500);
+                edge(canvas, "e75", "v77", "v65", 0.000, -98.381, -34.881, -63.500);
+ 
+                /*
+                [gbox]: [monotone]: event: sweep: (v28: (-116.323, -82.647))
+                [gbox]: [monotone]: connect top event: (-116.323, -82.647)
+                [gbox]: [monotone]: split the region: (e30.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert edge: (e80.w0: (v28: (-116.323, -82.647)) => (v33: (-100.000, -100.000))) to region: (e80.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v28: (-116.323, -82.647))
+                [gbox]: [monotone]: finish region: (e80.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e28.w1: (v28: (-116.323, -82.647)) => (v29: (-100.000, -50.000)))
+                [gbox]: [monotone]: insert down-going edge: (e27.w-1: (v28: (-116.323, -82.647)) => (v27: (-281.617, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e28.w-1, winding: 1, inside: 1) and (e32.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e27.w1, winding: 2, inside: 1) and (e28.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e27.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: intersection: (e30.w1, winding: 1, inside: 1) x (e27.w1, winding: 2, inside: 1) => (-136.500, -72.558)
+                [gbox]: [monotone]: insert the new intersection: (v82: (-136.500, -72.558))
+                [gbox]: [monotone]: fix dirty regions with (e27.w1, winding: 2, inside: 1) and (e28.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e30.w1, winding: 1, inside: 1) and (e27.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e30.w1, winding: 1, inside: 1)
+                 */
+                split(canvas, "e80*", "v28", "v33", -116.323, -82.647, -100.000, -100.000);
+                edge(canvas, "e28*", "v28", "v29", -116.323, -82.647, -100.000, -50.000);
+                edge(canvas, "e27*", "v28", "v27", -116.323, -82.647, -281.617, 0.000);
+                inter(canvas, "v82", -136.500, -72.558);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v55: (80.655, -80.952))
+                [gbox]: [monotone]: connect top event: (80.655, -80.952)
+                [gbox]: [monotone]: split the region: (e57.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert edge: (e83.w0: (v55: (80.655, -80.952)) => (v59: (100.000, -100.000))) to region: (e83.w0, winding: 2, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v55: (80.655, -80.952))
+                [gbox]: [monotone]: finish region: (e83.w0, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e55.w1: (v55: (80.655, -80.952)) => (v56: (100.000, -50.000)))
+                [gbox]: [monotone]: insert down-going edge: (e54.w-1: (v55: (80.655, -80.952)) => (v54: (-48.868, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e55.w-1, winding: 2, inside: 1) and (e59.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e54.w1, winding: 3, inside: 1) and (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e57.w1, winding: 2, inside: 1) and (e54.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: intersection: (e57.w1, winding: 2, inside: 1) x (e54.w1, winding: 3, inside: 1) => (63.500, -70.230)
+                [gbox]: [monotone]: insert the new intersection: (v85: (63.500, -70.230))
+                [gbox]: [monotone]: fix dirty regions with (e54.w1, winding: 3, inside: 1) and (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e57.w1, winding: 2, inside: 1) and (e54.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e74.w1, winding: 1, inside: 1) and (e57.w1, winding: 2, inside: 1)
+                 */
+                split(canvas, "e83*", "v55", "v59", 80.655, -80.952, -100.000, -100.000);
+                edge(canvas, "e55*", "v55", "v56", 80.655, -80.952, 100.000, -50.000);
+                edge(canvas, "e54*", "v55", "v54", 80.655, -80.952, -48.868, 0.000);
+                inter(canvas, "v85", 63.500, -70.230);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v82: (-136.500, -72.558))
+                [gbox]: [monotone]: finish region: (e30.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e27.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e81.w-1: (v82: (-136.500, -72.558)) => (v30: (-136.500, -50.000)))
+                [gbox]: [monotone]: insert down-going edge: (e82.w-1: (v82: (-136.500, -72.558)) => (v27: (-281.617, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e81.w1, winding: 2, inside: 1) and (e28.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e82.w1, winding: 1, inside: 1) and (e81.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e82.w1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e81*", "v82", "v30", -136.500, -72.558, -136.500, -50.000);
+                edge(canvas, "e82*", "v82", "v27", -136.500, -72.558, -281.617, 0.000);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v85: (63.500, -70.230))
+                [gbox]: [monotone]: finish region: (e57.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e54.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e84.w-1: (v85: (63.500, -70.230)) => (v57: (63.500, -50.000)))
+                [gbox]: [monotone]: insert down-going edge: (e85.w-1: (v85: (63.500, -70.230)) => (v54: (-48.868, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e84.w1, winding: 3, inside: 1) and (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e85.w1, winding: 2, inside: 1) and (e84.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e74.w1, winding: 1, inside: 1) and (e85.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e84*", "v85", "v57", 63.500, -70.230, 63.500, -50.000);
+                edge(canvas, "e85*", "v85", "v54", 63.500, -70.230, -48.868, 0.000);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v65: (-34.881, -63.500))
+                [gbox]: [monotone]: finish region: (e75.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e65.w1: (v65: (-34.881, -63.500)) => (v32: (-100.000, -63.500)))
+                [gbox]: [monotone]: fix dirty regions with (e65.w-1, winding: 0, inside: 0) and (e74.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e34.w-1, winding: 1, inside: 1) and (e65.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: intersection: (e34.w-1, winding: 1, inside: 1) x (e65.w-1, winding: 0, inside: 0) => (-63.500, -63.500)
+                [gbox]: [monotone]: fix intersection by the event: (v65: (-34.881, -63.500))
+                [gbox]: [monotone]: fix intersection error for case 1
+                [gbox]: [monotone]: finish region: (e34.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e86.w1: (v65: (-34.881, -63.500)) => (v35: (-63.500, -27.442)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e86.w-1, winding: 0, inside: 0) and (e74.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e65.w-1, winding: 1, inside: 1) and (e86.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e32.w1, winding: 2, inside: 1) and (e65.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e65*", "v65", "v32", -34.881, -63.500, -100.000, -63.500);
+                inter(canvas, "v65", -34.881, -63.500);
+                edge(canvas, "e86", "v65", "v35", -34.881, -63.500, -63.500, -27.442);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v61: (34.881, -63.500))
+                [gbox]: [monotone]: finish region: (e74.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e60.w-1: (v61: (34.881, -63.500)) => (v60: (100.000, -63.500)))
+                [gbox]: [monotone]: fix dirty regions with (e60.w1, winding: 1, inside: 1) and (e85.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: intersection: (e60.w1, winding: 1, inside: 1) x (e85.w1, winding: 2, inside: 1) => (52.732, -63.500)
+                [gbox]: [monotone]: insert the new intersection: (v91: (52.732, -63.500))
+                [gbox]: [monotone]: fix dirty regions with (e85.w1, winding: 2, inside: 1) and (e84.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e60.w1, winding: 1, inside: 1) and (e85.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e86.w-1, winding: 0, inside: 0) and (e60.w1, winding: 1, inside: 1)
+                */
+                edge(canvas, "e60*", "v61", "v60", 34.881, -63.500, 100.000, -63.500);
+                inter(canvas, "v91", 52.732, -63.500);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v91: (52.732, -63.500))
+                [gbox]: [monotone]: finish region: (e60.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e85.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e87.w-1: (v91: (52.732, -63.500)) => (v60: (100.000, -63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e88.w-1: (v91: (52.732, -63.500)) => (v54: (-48.868, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e87.w1, winding: 2, inside: 1) and (e84.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: intersection: (e87.w1, winding: 2, inside: 1) x (e84.w1, winding: 3, inside: 1) => (63.500, -63.500)
+                [gbox]: [monotone]: insert the new intersection: (v94: (63.500, -63.500))
+                [gbox]: [monotone]: fix dirty regions with (e84.w1, winding: 3, inside: 1) and (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e87.w1, winding: 2, inside: 1) and (e84.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e88.w1, winding: 1, inside: 1) and (e87.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e86.w-1, winding: 0, inside: 0) and (e88.w1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e87*", "v91", "v60", 52.732, -63.500, 100.000, -63.500);
+                edge(canvas, "e88*", "v91", "v54", 52.732, -63.500, -48.868, 0.000);
+                inter(canvas, "v94", 63.500, -63.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v94: (63.500, -63.500))
+                [gbox]: [monotone]: finish region: (e87.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e84.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e89.w-1: (v94: (63.500, -63.500)) => (v60: (100.000, -63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e90.w-1: (v94: (63.500, -63.500)) => (v57: (63.500, -50.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e89.w1, winding: 3, inside: 1) and (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: intersection: (e89.w1, winding: 3, inside: 1) x (e55.w-1, winding: 2, inside: 1) => (91.563, -63.500)
+                [gbox]: [monotone]: insert the new intersection: (v97: (91.563, -63.500))
+                [gbox]: [monotone]: fix dirty regions with (e55.w-1, winding: 2, inside: 1) and (e59.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e89.w1, winding: 3, inside: 1) and (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e90.w1, winding: 2, inside: 1) and (e89.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e88.w1, winding: 1, inside: 1) and (e90.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e89*", "v94", "v60", 63.500, -63.500, 100.000, -63.500);
+                edge(canvas, "e90*", "v94", "v57", 63.500, -63.500, 63.500, -50.000);
+                inter(canvas, "v97", 91.563, -63.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v32: (-100.000, -63.500))
+                [gbox]: [monotone]: finish region: (e32.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e65.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (-100.000, -63.500)
+                [gbox]: [monotone]: fix intersection of (e28.w-1: (v29: (-100.000, -50.000)) => (v28: (-116.323, -82.647)))
+                [gbox]: [monotone]:                   x (e86.w-1: (v35: (-63.500, -27.442)) => (v65: (-34.881, -63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e93.w0: (v32: (-100.000, -63.500)) => (v29: (-100.000, -50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e93.fixable) and (e86.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e28.w-1, winding: 1, inside: 1) and (e93.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e93.w0: (v29: (-100.000, -50.000)) => (v32: (-100.000, -63.500)))
+                 */
+                patch(canvas, "e93*", "v32", "v29", -100.000, -63.500, -100.000, -50.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v97: (91.563, -63.500))
+                [gbox]: [monotone]: finish region: (e89.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: finish region: (e55.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e91.w-1: (v97: (91.563, -63.500)) => (v60: (100.000, -63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e92.w1: (v97: (91.563, -63.500)) => (v56: (100.000, -50.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e91.w1, winding: 2, inside: 1) and (e59.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e92.w-1, winding: 1, inside: 1) and (e91.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e90.w1, winding: 2, inside: 1) and (e92.w-1, winding: 1, inside: 1)
+                */
+                edge(canvas, "e91*", "v97", "v60", 91.563, -63.500, 100.000, -63.500);
+                edge(canvas, "e92*", "v97", "v56", 91.563, -63.500, 100.000, -50.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v60: (100.000, -63.500))
+                [gbox]: [monotone]: finish region: (e91.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e59.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (100.000, -63.500)
+                [gbox]: [monotone]: fix intersection of (e92.w-1: (v56: (100.000, -50.000)) => (v97: (91.563, -63.500)))
+                [gbox]: [monotone]:                   x (e9.w-1: (v10: (136.500, -29.770)) => (v9: (136.500, -136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e94.w0: (v60: (100.000, -63.500)) => (v56: (100.000, -50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e94.fixable) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e92.w-1, winding: 1, inside: 1) and (e94.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e94.w0: (v56: (100.000, -50.000)) => (v60: (100.000, -63.500)))
+                 */
+                patch(canvas, "e94*", "v60", "v56", 100.000, -63.500, 100.000, -50.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v30: (-136.500, -50.000))
+                [gbox]: [monotone]: finish region: (e81.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e29.w-1: (v30: (-136.500, -50.000)) => (v29: (-100.000, -50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e29.w1, winding: 2, inside: 1) and (e28.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e82.w1, winding: 1, inside: 1) and (e29.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e29*", "v30", "v29", -136.500, -50.000, 100.000, -50.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v29: (-100.000, -50.000))
+                [gbox]: [monotone]: finish region: (e29.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e28.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e93.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (-100.000, -50.000)
+                [gbox]: [monotone]: fix intersection of (e82.w1: (v27: (-281.617, 0.000)) => (v82: (-136.500, -72.558)))
+                [gbox]: [monotone]:                   x (e86.w-1: (v35: (-63.500, -27.442)) => (v65: (-34.881, -63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e95.w0: (v29: (-100.000, -50.000)) => (v35: (-63.500, -27.442)))
+                [gbox]: [monotone]: fix dirty regions with (e95.fixable) and (e86.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e82.w1, winding: 1, inside: 1) and (e95.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e95.w0: (v35: (-63.500, -27.442)) => (v29: (-100.000, -50.000)))
+                 */
+                patch(canvas, "e95", "v29", "v35", -100.000, -50.000, -63.500, -27.442);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v57: (63.500, -50.000))
+                [gbox]: [monotone]: finish region: (e90.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e56.w-1: (v57: (63.500, -50.000)) => (v56: (100.000, -50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e56.w1, winding: 2, inside: 1) and (e92.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e88.w1, winding: 1, inside: 1) and (e56.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e56*", "v57", "v56", 63.500, -50.000, 100.000, -50.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v56: (100.000, -50.000))
+                [gbox]: [monotone]: finish region: (e56.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e92.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e94.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (100.000, -50.000)
+                [gbox]: [monotone]: fix intersection of (e88.w1: (v54: (-48.868, 0.000)) => (v91: (52.732, -63.500)))
+                [gbox]: [monotone]:                   x (e9.w-1: (v10: (136.500, -29.770)) => (v9: (136.500, -136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e96.w0: (v56: (100.000, -50.000)) => (v10: (136.500, -29.770)))
+                [gbox]: [monotone]: fix dirty regions with (e96.fixable) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e88.w1, winding: 1, inside: 1) and (e96.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e96.w0: (v10: (136.500, -29.770)) => (v56: (100.000, -50.000)))
+                 */
+                patch(canvas, "e96", "v56", "v10", 100.000, -50.000, 136.500, -29.770);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v38: (-183.677, -32.647))
+                [gbox]: [monotone]: connect top event: (-183.677, -32.647)
+                [gbox]: [monotone]: split the region: (e82.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix a temporary edge: (e95.fixable) => (e97.w0: (v38: (-183.677, -32.647)) => (v29: (-100.000, -50.000)))
+                [gbox]: [monotone]: event: sweep: (v38: (-183.677, -32.647))
+                [gbox]: [monotone]: finish region: (e97.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e38.w1: (v38: (-183.677, -32.647)) => (v39: (-63.500, 27.442)))
+                [gbox]: [monotone]: insert down-going edge: (e37.w-1: (v38: (-183.677, -32.647)) => (v37: (-200.000, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e38.w-1, winding: 1, inside: 1) and (e86.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e37.w1, winding: 2, inside: 1) and (e38.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e82.w1, winding: 1, inside: 1) and (e37.w1, winding: 2, inside: 1)
+                 */
+                split(canvas, "e97*", "v38", "v29", -183.677, -32.647, -100.000, -50.000);
+                edge(canvas, "e38*", "v38", "v39", -183.677, -32.647, -63.500, 27.442);
+                edge(canvas, "e37*", "v38", "v37", -183.677, -32.647, -200.000, 0.000);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v13: (39.345, -30.952))
+                [gbox]: [monotone]: connect top event: (39.345, -30.952)
+                [gbox]: [monotone]: split the region: (e88.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix a temporary edge: (e96.fixable) => (e98.w0: (v13: (39.345, -30.952)) => (v56: (100.000, -50.000)))
+                [gbox]: [monotone]: event: sweep: (v13: (39.345, -30.952))
+                [gbox]: [monotone]: finish region: (e98.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e13.w1: (v13: (39.345, -30.952)) => (v14: (136.500, 29.770)))
+                [gbox]: [monotone]: insert down-going edge: (e12.w-1: (v13: (39.345, -30.952)) => (v12: (20.000, 0.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e13.w-1, winding: 1, inside: 1) and (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e12.w1, winding: 2, inside: 1) and (e13.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e88.w1, winding: 1, inside: 1) and (e12.w1, winding: 2, inside: 1)
+                 */
+                split(canvas, "e98*", "v13", "v56", 39.345, -30.952, 100.000, -50.000);
+                edge(canvas, "e13*", "v13", "v14", 39.345, -30.952, 136.500, 29.770);
+                edge(canvas, "e12*", "v13", "v12", 39.345, -30.952, 20.000, 0.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v10: (136.500, -29.770))
+                [gbox]: [monotone]: finish region: (e9.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e10.w1: (v10: (136.500, -29.770)) => (v11: (39.345, 30.952)))
+                [gbox]: [monotone]: fix dirty regions with (e10.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e13.w-1, winding: 1, inside: 1) and (e10.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: intersection: (e13.w-1, winding: 1, inside: 1) x (e10.w-1, winding: 0, inside: 0) => (88.868, 0.000)
+                [gbox]: [monotone]: insert the new intersection: (v102: (88.868, 0.000))
+                [gbox]: [monotone]: fix dirty regions with (e10.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e13.w-1, winding: 1, inside: 1) and (e10.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e12.w1, winding: 2, inside: 1) and (e13.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e10", "v10", "v11", 136.500, -29.770, 39.345, 30.952);
+                inter(canvas, "v102", 88.868, 0.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v35: (-63.500, -27.442))
+                [gbox]: [monotone]: finish region: (e86.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e35.w1: (v35: (-63.500, -27.442)) => (v36: (-183.677, 32.647)))
+                [gbox]: [monotone]: fix dirty regions with (e35.w-1, winding: 0, inside: 0) and (e88.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e38.w-1, winding: 1, inside: 1) and (e35.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: intersection: (e38.w-1, winding: 1, inside: 1) x (e35.w-1, winding: 0, inside: 0) => (-118.384, 0.000)
+                [gbox]: [monotone]: insert the new intersection: (v104: (-118.384, 0.000))
+                [gbox]: [monotone]: fix dirty regions with (e35.w-1, winding: 0, inside: 0) and (e88.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e38.w-1, winding: 1, inside: 1) and (e35.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e37.w1, winding: 2, inside: 1) and (e38.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e35", "v35", "v36", -63.500, -27.442, -183.677, 32.647);
+                inter(canvas, "v104", -118.384, 0.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v27: (-281.617, 0.000))
+                [gbox]: [monotone]: finish region: (e82.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e26.w-1: (v27: (-281.617, 0.000)) => (v26: (-116.323, 82.647)))
+                [gbox]: [monotone]: fix dirty regions with (e26.w1, winding: 1, inside: 1) and (e37.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e26.w1, winding: 1, inside: 1)
+                */
+                edge(canvas, "e26*", "v27", "v26", -281.617, 0.000, -116.323, 82.647);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v37: (-200.000, 0.000))
+                [gbox]: [monotone]: finish region: (e37.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e36.w-1: (v37: (-200.000, 0.000)) => (v36: (-183.677, 32.647)))
+                [gbox]: [monotone]: fix dirty regions with (e36.w1, winding: 2, inside: 1) and (e38.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e26.w1, winding: 1, inside: 1) and (e36.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e36*", "v37", "v36", -200.000, 0.000, -183.677, 32.647);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v104: (-118.384, 0.000))
+                [gbox]: [monotone]: finish region: (e38.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e35.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e101.w1: (v104: (-118.384, 0.000)) => (v39: (-63.500, 27.442)))
+                [gbox]: [monotone]: insert down-going edge: (e102.w1: (v104: (-118.384, 0.000)) => (v36: (-183.677, 32.647)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e101.w-1, winding: 0, inside: 0) and (e88.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e102.w-1, winding: 1, inside: 1) and (e101.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e36.w1, winding: 2, inside: 1) and (e102.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e101", "v104", "v39", -118.384, 0.000, -63.500, 27.442);
+                edge(canvas, "e102*", "v104", "v36", -118.384, 0.000, -183.677, 32.647);
+                
+                /* 
+                [gbox]: [monotone]: event: sweep: (v54: (-48.868, 0.000))
+                [gbox]: [monotone]: finish region: (e88.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e53.w-1: (v54: (-48.868, 0.000)) => (v53: (80.655, 80.952)))
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e12.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e101.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e53*", "v54", "v53", -48.868, 0.000, 80.655, 80.952);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v12: (20.000, 0.000))
+                [gbox]: [monotone]: finish region: (e12.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e11.w-1: (v12: (20.000, 0.000)) => (v11: (39.345, 30.952)))
+                [gbox]: [monotone]: fix dirty regions with (e11.w1, winding: 2, inside: 1) and (e13.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e11.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e11*", "v12", "v11", 20.000, 0.000, 39.345, 30.952);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v102: (88.868, 0.000))
+                [gbox]: [monotone]: finish region: (e13.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e10.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e99.w1: (v102: (88.868, 0.000)) => (v14: (136.500, 29.770)))
+                [gbox]: [monotone]: insert down-going edge: (e100.w1: (v102: (88.868, 0.000)) => (v11: (39.345, 30.952)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e99.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e100.w-1, winding: 1, inside: 1) and (e99.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e11.w1, winding: 2, inside: 1) and (e100.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e99", "v102", "v14", 88.868, 0.000, 136.500, 29.770);
+                edge(canvas, "e100*", "v102", "v11", 88.868, 0.000, 39.345, 30.952);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v39: (-63.500, 27.442))
+                [gbox]: [monotone]: finish region: (e101.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e39.w1: (v39: (-63.500, 27.442)) => (v40: (-63.500, 100.000)))
+                [gbox]: [monotone]: fix dirty regions with (e39.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e102.w-1, winding: 1, inside: 1) and (e39.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e39", "v39", "v40", -63.500, 27.442, -63.500, 100.000);
+                
+                /*
+                [gbox]: [monotone]: event: sweep: (v14: (136.500, 29.770))
+                [gbox]: [monotone]: finish region: (e99.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e14.w1: (v14: (136.500, 29.770)) => (v15: (136.500, 136.500)))
+                [gbox]: [monotone]: fix dirty regions with (e14.w-1, winding: 0, inside: 0) and (e67.bounds)
+                [gbox]: [monotone]: fix dirty regions with (e100.w-1, winding: 1, inside: 1) and (e14.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e14", "v14", "v15", 136.500, 29.770, 136.500, 136.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v11: (39.345, 30.952))
+                [gbox]: [monotone]: finish region: (e11.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e100.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (39.345, 30.952)
+                [gbox]: [monotone]: fix intersection of (e53.w1: (v53: (80.655, 80.952)) => (v54: (-48.868, 0.000)))
+                [gbox]: [monotone]:                   x (e14.w-1: (v15: (136.500, 136.500)) => (v14: (136.500, 29.770)))
+                [gbox]: [monotone]: insert down-going edge: (e103.w0: (v11: (39.345, 30.952)) => (v53: (80.655, 80.952)))
+                [gbox]: [monotone]: fix dirty regions with (e103.fixable) and (e14.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e103.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e103.w0: (v53: (80.655, 80.952)) => (v11: (39.345, 30.952)))
+                 */
+                patch(canvas, "e103", "v11", "v53", 39.345, 30.952, 80.655, 80.952);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v36: (-183.677, 32.647))
+                [gbox]: [monotone]: finish region: (e36.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e102.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: connect bottom event: (-183.677, 32.647)
+                [gbox]: [monotone]: fix intersection of (e26.w1: (v26: (-116.323, 82.647)) => (v27: (-281.617, 0.000)))
+                [gbox]: [monotone]:                   x (e39.w-1: (v40: (-63.500, 100.000)) => (v39: (-63.500, 27.442)))
+                [gbox]: [monotone]: insert down-going edge: (e104.w0: (v36: (-183.677, 32.647)) => (v26: (-116.323, 82.647)))
+                [gbox]: [monotone]: fix dirty regions with (e104.fixable) and (e39.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e26.w1, winding: 1, inside: 1) and (e104.fixable)
+                [gbox]: [monotone]: patch a temporary edge: (e104.w0: (v26: (-116.323, 82.647)) => (v36: (-183.677, 32.647)))
+                 */
+                patch(canvas, "e104", "v36", "v26", -183.677, 32.647, -116.323, 82.647);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v24: (-136.500, 50.000))
+                [gbox]: [monotone]: connect top event: (-136.500, 50.000)
+                [gbox]: [monotone]: split the region: (e104.fixable)
+                [gbox]: [monotone]: fix a temporary edge: (e104.fixable) => (e105.w0: (v24: (-136.500, 50.000)) => (v36: (-183.677, 32.647)))
+                [gbox]: [monotone]: event: sweep: (v24: (-136.500, 50.000))
+                [gbox]: [monotone]: finish region: (e105.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e23.w-1: (v24: (-136.500, 50.000)) => (v23: (-136.500, 136.500)))
+                [gbox]: [monotone]: insert down-going edge: (e24.w1: (v24: (-136.500, 50.000)) => (v25: (-100.000, 50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e24.w-1, winding: 1, inside: 1) and (e39.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e23.w1, winding: 2, inside: 1) and (e24.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e26.w1, winding: 1, inside: 1) and (e23.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: intersection: (e26.w1, winding: 1, inside: 1) x (e23.w1, winding: 2, inside: 1) => (-136.500, 72.558)
+                [gbox]: [monotone]: insert the new intersection: (v108: (-136.500, 72.558))
+                [gbox]: [monotone]: fix dirty regions with (e23.w1, winding: 2, inside: 1) and (e24.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e26.w1, winding: 1, inside: 1) and (e23.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e26.w1, winding: 1, inside: 1)
+                 */
+                split(canvas, "e105*", "v24", "v36", -136.500, 50.000, -183.677, 32.647);
+                edge(canvas, "e23*", "v24", "v23", -136.500, 50.000, -136.500, 136.500);
+                edge(canvas, "e24*", "v24", "v25", -136.500, 50.000, -100.000, 50.000);
+                inter(canvas, "v108", -136.500, 72.558);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v25: (-100.000, 50.000))
+                [gbox]: [monotone]: finish region: (e24.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e25.w1: (v25: (-100.000, 50.000)) => (v26: (-116.323, 82.647)))
+                [gbox]: [monotone]: fix dirty regions with (e25.w-1, winding: 1, inside: 1) and (e39.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e23.w1, winding: 2, inside: 1) and (e25.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e25", "v25", "v26", -100.000, 50.000, -116.323, 82.647);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v51: (63.500, 50.000))
+                [gbox]: [monotone]: connect top event: (63.500, 50.000)
+                [gbox]: [monotone]: split the region: (e103.fixable)
+                [gbox]: [monotone]: fix a temporary edge: (e103.fixable) => (e108.w0: (v51: (63.500, 50.000)) => (v11: (39.345, 30.952)))
+                [gbox]: [monotone]: event: sweep: (v51: (63.500, 50.000))
+                [gbox]: [monotone]: finish region: (e108.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e50.w-1: (v51: (63.500, 50.000)) => (v50: (63.500, 100.000)))
+                [gbox]: [monotone]: insert down-going edge: (e51.w1: (v51: (63.500, 50.000)) => (v52: (100.000, 50.000)))
+                [gbox]: [monotone]: fix dirty regions with (e51.w-1, winding: 1, inside: 1) and (e14.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e50.w1, winding: 2, inside: 1) and (e51.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e50.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: intersection: (e53.w1, winding: 1, inside: 1) x (e50.w1, winding: 2, inside: 1) => (63.500, 70.230)
+                [gbox]: [monotone]: insert the new intersection: (v110: (63.500, 70.230))
+                [gbox]: [monotone]: fix dirty regions with (e50.w1, winding: 2, inside: 1) and (e51.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e50.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e39.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                 */
+                split(canvas, "e108*", "v51", "v11", 63.500, 50.000, 39.345, 30.952);
+                edge(canvas, "e50*", "v51", "v50", 63.500, 50.000, 63.500, 100.000);
+                edge(canvas, "e51*", "v51", "v52", 63.500, 50.000, 100.000, 50.000);
+                inter(canvas, "v110", 63.500, 70.230);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v52: (100.000, 50.000))
+                [gbox]: [monotone]: finish region: (e51.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e52.w1: (v52: (100.000, 50.000)) => (v53: (80.655, 80.952)))
+                [gbox]: [monotone]: fix dirty regions with (e52.w-1, winding: 1, inside: 1) and (e14.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e50.w1, winding: 2, inside: 1) and (e52.w-1, winding: 1, inside: 1)
+                */
+                edge(canvas, "e52*", "v52", "v53", 100.000, 50.000, 80.655, 80.952);
+
+                /* 
+                [gbox]: [monotone]: event: sweep: (v42: (-100.000, 63.500))
+                [gbox]: [monotone]: connect top event: (-100.000, 63.500)
+                [gbox]: [monotone]: split the region: (e25.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert edge: (e111.w0: (v42: (-100.000, 63.500)) => (v25: (-100.000, 50.000))) to region: (e111.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v42: (-100.000, 63.500))
+                [gbox]: [monotone]: finish region: (e111.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e41.w-1: (v42: (-100.000, 63.500)) => (v41: (-100.000, 100.000)))
+                [gbox]: [monotone]: insert down-going edge: (e42.w1: (v42: (-100.000, 63.500)) => (v43: (-34.881, 63.500)))
+                [gbox]: [monotone]: fix dirty regions with (e42.w-1, winding: 1, inside: 1) and (e39.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: intersection: (e42.w-1, winding: 1, inside: 1) x (e39.w-1, winding: 0, inside: 0) => (-63.500, 63.500)
+                [gbox]: [monotone]: insert the new intersection: (v112: (-63.500, 63.500))
+                [gbox]: [monotone]: fix dirty regions with (e39.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e42.w-1, winding: 1, inside: 1) and (e39.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e41.w1, winding: 2, inside: 1) and (e42.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e25.w-1, winding: 1, inside: 1) and (e41.w1, winding: 2, inside: 1)
+                 */
+                split(canvas, "e111*", "v42", "v25", -100.000, 63.500, -100.000, 50.000);
+                edge(canvas, "e41", "v42", "v41", -100.000, 63.500, -100.000, 100.000);
+                edge(canvas, "e42*", "v42", "v43", -100.000, 63.500, -34.881, 63.500);
+                inter(canvas, "v112", -63.500, 63.500);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v48: (100.000, 63.500))
+                [gbox]: [monotone]: connect top event: (100.000, 63.500)
+                [gbox]: [monotone]: split the region: (e52.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert edge: (e114.w0: (v48: (100.000, 63.500)) => (v52: (100.000, 50.000))) to region: (e114.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: event: sweep: (v48: (100.000, 63.500))
+                [gbox]: [monotone]: finish region: (e114.w0, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e47.w-1: (v48: (100.000, 63.500)) => (v47: (34.881, 63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e48.w1: (v48: (100.000, 63.500)) => (v49: (100.000, 100.000)))
+                [gbox]: [monotone]: fix dirty regions with (e48.w-1, winding: 1, inside: 1) and (e14.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e47.w1, winding: 2, inside: 1) and (e48.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e52.w-1, winding: 1, inside: 1) and (e47.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: intersection: (e52.w-1, winding: 1, inside: 1) x (e47.w1, winding: 2, inside: 1) => (91.563, 63.500)
+                [gbox]: [monotone]: fix intersection by the event: (v48: (100.000, 63.500))
+                [gbox]: [monotone]: fix intersection error for case 1
+                [gbox]: [monotone]: finish region: (e52.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e115.w1: (v48: (100.000, 63.500)) => (v53: (80.655, 80.952)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e48.w-1, winding: 1, inside: 1) and (e14.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e115.w-1, winding: 2, inside: 1) and (e48.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e47.w1, winding: 3, inside: 1) and (e115.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e50.w1, winding: 2, inside: 1) and (e47.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: intersection: (e50.w1, winding: 2, inside: 1) x (e47.w1, winding: 3, inside: 1) => (63.500, 63.500)
+                [gbox]: [monotone]: fix intersection by the topmost origin: (v47: (34.881, 63.500))
+                [gbox]: [monotone]: fix intersection by splicing the origin of two edges
+                [gbox]: [monotone]: fix the bottom order for region: (e50.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e50.w1, winding: 2, inside: 1) and (e47.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e50.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix the bottom order for region: (e53.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e53.w1, winding: 1, inside: 1) and (e50.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e39.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                 */
+                split(canvas, "e114*", "v48", "v52", 100.000, 63.500, 100.000, 50.000);
+                edge(canvas, "e47*", "v48", "v47", 100.000, 63.500, 34.881, 63.500);
+                edge(canvas, "e48", "v48", "v49", 100.000, 63.500, 100.000, 100.000);
+                edge(canvas, "e115", "v48", "v53", 100.000, 63.500, 80.655, 80.952);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v112: (-63.500, 63.500))
+                [gbox]: [monotone]: finish region: (e42.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e39.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e112.w1: (v112: (-63.500, 63.500)) => (v43: (-34.881, 63.500)))
+                [gbox]: [monotone]: insert down-going edge: (e113.w1: (v112: (-63.500, 63.500)) => (v40: (-63.500, 100.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e112.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e113.w-1, winding: 1, inside: 1) and (e112.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: fix dirty regions with (e41.w1, winding: 2, inside: 1) and (e113.w-1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e112", "v112", "v43", -63.500, 63.500, -34.881, 63.500);
+                edge(canvas, "e113", "v112", "v40", -63.500, 63.500, -63.500, 100.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v43: (-34.881, 63.500))
+                [gbox]: [monotone]: finish region: (e112.w-1, winding: 0, inside: 0)
+                [gbox]: [monotone]: insert down-going edge: (e43.w1: (v43: (-34.881, 63.500)) => (v44: (25.809, 124.191)))
+                [gbox]: [monotone]: fix dirty regions with (e43.w-1, winding: 0, inside: 0) and (e53.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e113.w-1, winding: 1, inside: 1) and (e43.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e43", "v43", "v44", -34.881, 63.500, 25.809, 124.191);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v47: (34.881, 63.500))
+                [gbox]: [monotone]: finish region: (e53.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e50.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: finish region: (e47.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e117.w-1: (v47: (34.881, 63.500)) => (v110: (63.500, 70.230)))
+                [gbox]: [monotone]: insert down-going edge: (e116.w-1: (v47: (34.881, 63.500)) => (v110: (63.500, 70.230)))
+                [gbox]: [monotone]: insert down-going edge: (e46.w-1: (v47: (34.881, 63.500)) => (v46: (-25.809, 124.191)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e116.w2, winding: 3, inside: 1) and (e115.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e46.w1, winding: 1, inside: 1) and (e116.w2, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e43.w-1, winding: 0, inside: 0) and (e46.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: intersection: (e43.w-1, winding: 0, inside: 0) x (e46.w1, winding: 1, inside: 1) => (0.000, 98.381)
+                [gbox]: [monotone]: insert the new intersection: (v120: (0.000, 98.381))
+                [gbox]: [monotone]: fix dirty regions with (e46.w1, winding: 1, inside: 1) and (e116.w2, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e43.w-1, winding: 0, inside: 0) and (e46.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e113.w-1, winding: 1, inside: 1) and (e43.w-1, winding: 0, inside: 0)
+                 */
+                edge(canvas, "e117", "v47", "v110", 34.881, 63.500, 63.500, 70.230);
+                edge(canvas, "e116*", "v47", "v110", 34.881, 63.500, 63.500, 70.230);
+                edge(canvas, "e46", "v47", "v46", 34.881, 63.500, -25.809, 124.191);
+                inter(canvas, "v120", 0.000, 98.381);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v110: (63.500, 70.230))
+                [gbox]: [monotone]: finish region: (e116.w2, winding: 3, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e109.w-1: (v110: (63.500, 70.230)) => (v53: (80.655, 80.952)))
+                [gbox]: [monotone]: insert down-going edge: (e110.w-1: (v110: (63.500, 70.230)) => (v50: (63.500, 100.000)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e109.w1, winding: 3, inside: 1) and (e115.w-1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e110.w1, winding: 2, inside: 1) and (e109.w1, winding: 3, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e46.w1, winding: 1, inside: 1) and (e110.w1, winding: 2, inside: 1)
+                 */
+                edge(canvas, "e109", "v110", "v53", 63.500, 70.230, 80.655, 80.952);
+                edge(canvas, "e110", "v110", "v50", 63.500, 70.230, 63.500, 100.000);
+
+                /*
+                [gbox]: [monotone]: event: sweep: (v108: (-136.500, 72.558))
+                [gbox]: [monotone]: finish region: (e26.w1, winding: 1, inside: 1)
+                [gbox]: [monotone]: finish region: (e23.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: insert down-going edge: (e106.w-1: (v108: (-136.500, 72.558)) => (v26: (-116.323, 82.647)))
+                [gbox]: [monotone]: insert down-going edge: (e107.w-1: (v108: (-136.500, 72.558)) => (v23: (-136.500, 136.500)))
+                [gbox]: [monotone]: joins down-going edges with the same origin
+                [gbox]: [monotone]: fix dirty regions with (e106.w1, winding: 2, inside: 1) and (e25.w-1, winding: 1, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e107.w1, winding: 1, inside: 1) and (e106.w1, winding: 2, inside: 1)
+                [gbox]: [monotone]: fix dirty regions with (e66.bounds) and (e107.w1, winding: 1, inside: 1)
+                 */
+                edge(canvas, "e106", "v108", "v26", -136.500, 72.558, -116.323, 82.647);
+                edge(canvas, "e107", "v108", "v23", -136.500, 72.558, -136.500, 136.500);
+
+
+            };
+        </script>
+    </head>
+    <body>
+        <div id="holder"></div>
+    </body>
+</html>
