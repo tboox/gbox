@@ -34,6 +34,18 @@
 #include "geometry.h"
 #include "event_queue.h"
 #include "active_region.h"
+#ifdef __gb_debug__
+#   include "profiler.h"
+#endif
+
+/* //////////////////////////////////////////////////////////////////////////////////////
+ * macros
+ */
+
+// enable profiler for debug?
+#ifdef __gb_debug__
+#   define GB_TESSELLATOR_PROFILER_ENABLE 
+#endif
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * declaration
@@ -4246,6 +4258,11 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
     tb_trace_d("");
     tb_trace_d("bounds: %{rect}", bounds);
 
+    // init profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+    gb_tessellator_profiler_init(impl, bounds);
+#endif
+
     // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
     tb_assert_abort(mesh);
@@ -4313,6 +4330,11 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
 
     // remove degenerate faces
     gb_tessellator_remove_degenerate_faces(impl);
+
+    // exit profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+    gb_tessellator_profiler_exit(impl);
+#endif
 
 #ifdef __gb_debug__
     // check mesh

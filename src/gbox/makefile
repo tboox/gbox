@@ -63,6 +63,9 @@ gbox_C_FILES 			+= \
 						utils/impl/tessellator/active_region \
 						utils/impl/tessellator/triangulation
 
+gbox_C_FILES-$(DEBUG) 	+= \
+						utils/impl/tessellator/profiler 
+
 
 # bitmap device files
 gbox_C_FILES-$(GB_CONFIG_DEVICE_HAVE_BITMAP) += \
