@@ -35,6 +35,61 @@
 __tb_extern_c_enter__
 
 /* //////////////////////////////////////////////////////////////////////////////////////
+ * algorithm
+ */
+
+/*! the tessellate polygon algorithm
+ *
+ * the algorithm is based on libtess2 here and
+ * we optimizated some implementation and fixed some bugs.
+ *
+ * the differents between our algorithm and libtess2's algorithm:
+ *
+ *     - we change the coordinate system and the sweep direction (sweep line by horizontal here).
+ *
+ *     - we need not project the vertices because our graphic engine is 2d,
+ *       so our algorithm will be faster.
+ *
+ *     - we processed more cases of the intersection with some numerical errors, 
+ *       so our algorithm will be more stable. 
+ *
+ *     - we change the algorithm of comparing the active edge and make it more stable for numerical errors.
+ *
+ *     - we optimizate the algorithm of merging into the convex polygon from the triangulated mesh.
+ *       we have not counted the vertices for each region, so it will be faster than libtess2.
+ *
+ * (you can see libtess2/alg_outline.md if want to known more details of algorithm.)
+ *
+ * there are four stages to the algorithm:
+ *
+ *     1. build a mesh (DCEL, be similar to quad-edge) from polygon.
+ *
+ *     2. tessellate the mesh into the monotone regions if the polygon is concave.
+ *
+ *     3. triangulate the monotone regions.
+ *
+ *     4. merge the triangulated regions into the convex regions.
+ *
+ * there are seven stages to the tessellation algorithm:
+ *
+ *     1. simplify the mesh and process some degenerate cases.
+ *
+ *     2. build a vertex event queue and sort it (uses the priority queue with min-heap).
+ *
+ *     3. build an active edge region list and sort it (uses the partial insertion sort).
+ *
+ *     4. sweep all events from the event queue using the Bentley-Ottman line-sweep algorithm
+ *        and calculate the intersection and winding number.
+ *
+ *     5. we need fix it if the intersection with numerical errors violate 
+ *        the mesh topology or active edge list ordering.
+ *
+ *     6. process some degenerate cases for the mesh faces which were generated when we fixed some cases.
+ *
+ *     7. get the monotone regions with the left face marked "inside"
+ */
+
+/* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
 
