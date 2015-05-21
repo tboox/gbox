@@ -57,7 +57,7 @@ static tb_char_t const* g_head = "\
             var tx = %{float};\n\
             var ty = %{float};\n\
 \n\
-            function edge(canvas, id, vb, ve, x1, y1, x2, y2)\n\
+            function add_edge(canvas, id, vb, ve, x1, y1, x2, y2)\n\
             {\n\
                 var edge = canvas.path(\"M\" + x1 + \", \" + y1 + \"L\" + x2 + \", \" + y2);\n\
                 edge.translate(tx, ty);\n\
@@ -72,7 +72,7 @@ static tb_char_t const* g_head = "\
 \n\
                 return edge;\n\
             }\n\
-            function split(canvas, id, vb, ve, x1, y1, x2, y2)\n\
+            function add_split(canvas, id, vb, ve, x1, y1, x2, y2)\n\
             {\n\
                 var edge = canvas.path(\"M\" + x1 + \", \" + y1 + \"L\" + x2 + \", \" + y2);\n\
                 edge.translate(tx, ty);\n\
@@ -87,7 +87,7 @@ static tb_char_t const* g_head = "\
 \n\
                 return edge;\n\
             }\n\
-            function patch(canvas, id, vb, ve, x1, y1, x2, y2)\n\
+            function add_patch(canvas, id, vb, ve, x1, y1, x2, y2)\n\
             {\n\
                 var edge = canvas.path(\"M\" + x1 + \", \" + y1 + \"L\" + x2 + \", \" + y2);\n\
                 edge.translate(tx, ty);\n\
@@ -102,26 +102,30 @@ static tb_char_t const* g_head = "\
 \n\
                 return edge;\n\
             }\n\
-            function inside(canvas, x1, y1, x2, y2)\n\
+            function add_inter(canvas, vi, x, y)\n\
+            {\n\
+                var text = canvas.text(x, y, vi);\n\
+                text.translate(tx, ty).scale(0.7);\n\
+            }\n\
+            function finish_face(canvas, x, y)\n\
+            {\n\
+                var text = canvas.text(x, y, \"*\");\n\
+                text.translate(tx, ty).scale(0.7);\n\
+                text.attr(\"fill\", \"red\");\n\
+            }\n\
+            function finish_region(canvas, x1, y1, x2, y2)\n\
             {\n\
                 var text = canvas.text((x1 + x2) / 2, (y1 + y2) / 2, \"__\");\n\
                 text.translate(tx, ty).scale(0.7);\n\
                 text.attr(\"fill\", \"red\");\n\
-\n\
-                return edge;\n\
-            }\n\
-            function inter(canvas, vi, x, y)\n\
-            {\n\
-                var text = canvas.text(x, y, vi);\n\
-                text.translate(tx, ty).scale(0.7);\n\
             }\n\
             window.onload = function ()\n\
             {\n\
                 // canvas\n\
                 var canvas = Raphael(0, 0, width, height); \n\
 \n\
-                edge(canvas, \"ebl\", \"\", \"\", %{float}, %{float}, %{float}, %{float});\n\
-                edge(canvas, \"ebr\", \"\", \"\", %{float}, %{float}, %{float}, %{float});\n\
+                add_edge(canvas, \"ebl\", \"\", \"\", %{float}, %{float}, %{float}, %{float});\n\
+                add_edge(canvas, \"ebr\", \"\", \"\", %{float}, %{float}, %{float}, %{float});\n\
 \n\
 ";
 
@@ -251,7 +255,7 @@ tb_void_t gb_tessellator_profiler_add_edge(gb_mesh_edge_ref_t edge)
 
     // make line
     tb_char_t line[256] = {0};
-    tb_long_t size = tb_snprintf(line, sizeof(line), "                edge(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                add_edge(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
     tb_assert_and_check_return(size > 0);
 
     // write line
@@ -272,7 +276,7 @@ tb_void_t gb_tessellator_profiler_add_split(gb_mesh_edge_ref_t edge)
 
     // make line
     tb_char_t line[256] = {0};
-    tb_long_t size = tb_snprintf(line, sizeof(line), "                split(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                add_split(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
     tb_assert_and_check_return(size > 0);
 
     // write line
@@ -293,7 +297,7 @@ tb_void_t gb_tessellator_profiler_add_patch(gb_mesh_edge_ref_t edge)
 
     // make line
     tb_char_t line[256] = {0};
-    tb_long_t size = tb_snprintf(line, sizeof(line), "                patch(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                add_patch(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
     tb_assert_and_check_return(size > 0);
 
     // write line
@@ -309,7 +313,7 @@ tb_void_t gb_tessellator_profiler_add_inter(gb_mesh_vertex_ref_t inter)
 
     // make line
     tb_char_t line[256] = {0};
-    tb_long_t size = tb_snprintf(line, sizeof(line), "                inter(canvas, \"v%lu\", %{float}, %{float});\n", inter->id, &point->x, &point->y);
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                add_inter(canvas, \"v%lu\", %{float}, %{float});\n", inter->id, &point->x, &point->y);
     tb_assert_and_check_return(size > 0);
 
     // write line
@@ -337,9 +341,10 @@ tb_void_t gb_tessellator_profiler_finish_region(gb_tessellator_active_region_ref
 
     // make line
     tb_char_t line[256] = {0};
-    tb_long_t size = tb_snprintf(line, sizeof(line), "                inside(canvas, %{float}, %{float}, %{float}, %{float});\n", &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                finish_region(canvas, %{float}, %{float}, %{float}, %{float});\n", &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
     tb_assert_and_check_return(size > 0);
 
     // write line
     tb_stream_bwrit(g_profiler, (tb_byte_t const*)line, size);
 }
+
