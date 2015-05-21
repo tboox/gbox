@@ -52,18 +52,44 @@ __tb_extern_c_enter__
  *   - profiler_2.html
  *   - ...
  *
- * @param impl      the tessellator impl
  * @param bounds    the polygon bounds
  *
  * @return          tb_true or tb_false
  */
-tb_bool_t           gb_tessellator_profiler_init(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds);
+tb_bool_t           gb_tessellator_profiler_init(gb_rect_ref_t bounds);
 
-/*! exit the profiler
+/// exit the profiler
+tb_void_t           gb_tessellator_profiler_exit(tb_noarg_t);
+
+/*! add edge to the profiler
  *
- * @param impl      the tessellator impl
+ * @param edge      the edge
  */
-tb_void_t           gb_tessellator_profiler_exit(gb_tessellator_impl_t* impl);
+tb_void_t           gb_tessellator_profiler_add_edge(gb_mesh_edge_ref_t edge);
+
+/*! add split to the profiler
+ *
+ * @param edge      the edge
+ */
+tb_void_t           gb_tessellator_profiler_add_split(gb_mesh_edge_ref_t edge);
+
+/*! add patch to the profiler
+ *
+ * @param edge      the edge
+ */
+tb_void_t           gb_tessellator_profiler_add_patch(gb_mesh_edge_ref_t edge);
+
+/*! add intersection to the profiler
+ *
+ * @param inter     the intersection
+ */
+tb_void_t           gb_tessellator_profiler_add_inter(gb_mesh_vertex_ref_t inter);
+
+/*! finish region
+ *
+ * @param region    the region
+ */
+tb_void_t           gb_tessellator_profiler_finish_region(gb_tessellator_active_region_ref_t region);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -2006,6 +2006,11 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
         // trace
         tb_trace_d("insert the new intersection: %{mesh_vertex}", gb_mesh_edge_org(edge_right));
 
+        // add intersection to the profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+        gb_tessellator_profiler_add_inter(gb_mesh_edge_org(edge_right));
+#endif
+
         // insert the new intersection vertex to the event queue
         gb_tessellator_event_queue_insert(impl, gb_mesh_edge_org(edge_right));
 
@@ -2559,6 +2564,11 @@ static tb_void_t gb_tessellator_insert_down_going_edges(gb_tessellator_impl_t* i
         // trace
         tb_trace_d("insert down-going edge: %{mesh_edge}", edge);
 
+        // add edge to the profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+        gb_tessellator_profiler_add_edge(edge);
+#endif
+
         // insert a new region with the new edge at the right of the left region
         gb_tessellator_insert_region_at_right(impl, region_left, gb_mesh_edge_sym(edge));
 
@@ -2876,6 +2886,11 @@ static tb_void_t gb_tessellator_finish_top_region(gb_tessellator_impl_t* impl, g
 
     // trace
     tb_trace_d("finish region: %{tess_region}", region);
+
+    // finish region to the profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+    gb_tessellator_profiler_finish_region(region);
+#endif
 
     // get the edge of this region
     gb_mesh_edge_ref_t edge = region->edge;
@@ -3670,6 +3685,11 @@ static tb_void_t gb_tessellator_connect_top_event(gb_tessellator_impl_t* impl, g
             tb_trace_d("insert edge: %{mesh_edge} to region: %{tess_region}", edge_new, region_new);
         }
 
+        // add split to the profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+        gb_tessellator_profiler_add_split(edge_new);
+#endif
+
         // continue to sweep this event for the new region
         gb_tessellator_sweep_event(impl, event);
     }
@@ -4121,6 +4141,11 @@ static tb_void_t gb_tessellator_connect_bottom_event(gb_tessellator_impl_t* impl
     // fix all dirty regions and calculate intersection
     gb_tessellator_fix_all_dirty_regions(impl, region_new);
 
+    // add patch to the profiler
+#ifdef GB_TESSELLATOR_PROFILER_ENABLE
+    gb_tessellator_profiler_add_patch(edge_new);
+#endif
+
     // trace
     tb_trace_d("patch a temporary edge: %{mesh_edge}", gb_mesh_edge_sym(edge_new));
 }
@@ -4260,7 +4285,7 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
 
     // init profiler
 #ifdef GB_TESSELLATOR_PROFILER_ENABLE
-    gb_tessellator_profiler_init(impl, bounds);
+    gb_tessellator_profiler_init(bounds);
 #endif
 
     // the mesh
@@ -4333,7 +4358,7 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
 
     // exit profiler
 #ifdef GB_TESSELLATOR_PROFILER_ENABLE
-    gb_tessellator_profiler_exit(impl);
+    gb_tessellator_profiler_exit();
 #endif
 
 #ifdef __gb_debug__

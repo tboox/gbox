@@ -102,6 +102,14 @@ static tb_char_t const* g_head = "\
 \n\
                 return edge;\n\
             }\n\
+            function inside(canvas, x1, y1, x2, y2)\n\
+            {\n\
+                var text = canvas.text((x1 + x2) / 2, (y1 + y2) / 2, \"__\");\n\
+                text.translate(tx, ty).scale(0.7);\n\
+                text.attr(\"fill\", \"red\");\n\
+\n\
+                return edge;\n\
+            }\n\
             function inter(canvas, vi, x, y)\n\
             {\n\
                 var text = canvas.text(x, y, vi);\n\
@@ -131,10 +139,10 @@ static tb_char_t const* g_tail = "\
 /* //////////////////////////////////////////////////////////////////////////////////////
  * implementation
  */
-tb_bool_t gb_tessellator_profiler_init(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
+tb_bool_t gb_tessellator_profiler_init(gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_and_check_return_val(impl && bounds, tb_false);
+    tb_assert_and_check_return_val(bounds, tb_false);
 
     // done
     tb_bool_t   ok = tb_false;
@@ -216,7 +224,7 @@ tb_bool_t gb_tessellator_profiler_init(gb_tessellator_impl_t* impl, gb_rect_ref_
     // ok?
     return ok;
 }
-tb_void_t gb_tessellator_profiler_exit(gb_tessellator_impl_t* impl)
+tb_void_t gb_tessellator_profiler_exit()
 {
     // check
     tb_assert_and_check_return(g_profiler);
@@ -228,4 +236,110 @@ tb_void_t gb_tessellator_profiler_exit(gb_tessellator_impl_t* impl)
     tb_stream_exit(g_profiler);
     g_profiler = tb_null;
 }
+tb_void_t gb_tessellator_profiler_add_edge(gb_mesh_edge_ref_t edge)
+{
+    // check
+    tb_assert_and_check_return(g_profiler && edge);
 
+    // the vertices
+    gb_mesh_vertex_ref_t org = gb_mesh_edge_org(edge);
+    gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(edge);
+
+    // the points
+    gb_point_ref_t point_org = gb_tessellator_vertex_point(org);
+    gb_point_ref_t point_dst = gb_tessellator_vertex_point(dst);
+
+    // make line
+    tb_char_t line[256] = {0};
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                edge(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_assert_and_check_return(size > 0);
+
+    // write line
+    tb_stream_bwrit(g_profiler, (tb_byte_t const*)line, size);
+}
+tb_void_t gb_tessellator_profiler_add_split(gb_mesh_edge_ref_t edge)
+{
+    // check
+    tb_assert_and_check_return(g_profiler && edge);
+
+    // the vertices
+    gb_mesh_vertex_ref_t org = gb_mesh_edge_org(edge);
+    gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(edge);
+
+    // the points
+    gb_point_ref_t point_org = gb_tessellator_vertex_point(org);
+    gb_point_ref_t point_dst = gb_tessellator_vertex_point(dst);
+
+    // make line
+    tb_char_t line[256] = {0};
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                split(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_assert_and_check_return(size > 0);
+
+    // write line
+    tb_stream_bwrit(g_profiler, (tb_byte_t const*)line, size);
+}
+tb_void_t gb_tessellator_profiler_add_patch(gb_mesh_edge_ref_t edge)
+{
+    // check
+    tb_assert_and_check_return(g_profiler && edge);
+
+    // the vertices
+    gb_mesh_vertex_ref_t org = gb_mesh_edge_org(edge);
+    gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(edge);
+
+    // the points
+    gb_point_ref_t point_org = gb_tessellator_vertex_point(org);
+    gb_point_ref_t point_dst = gb_tessellator_vertex_point(dst);
+
+    // make line
+    tb_char_t line[256] = {0};
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                patch(canvas, \"e%lu\", \"v%lu\", \"v%lu\", %{float}, %{float}, %{float}, %{float});\n", edge->id, org->id, dst->id, &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_assert_and_check_return(size > 0);
+
+    // write line
+    tb_stream_bwrit(g_profiler, (tb_byte_t const*)line, size);
+}
+tb_void_t gb_tessellator_profiler_add_inter(gb_mesh_vertex_ref_t inter)
+{
+    // check
+    tb_assert_and_check_return(g_profiler && inter);
+
+    // the point
+    gb_point_ref_t point = gb_tessellator_vertex_point(inter);
+
+    // make line
+    tb_char_t line[256] = {0};
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                inter(canvas, \"v%lu\", %{float}, %{float});\n", inter->id, &point->x, &point->y);
+    tb_assert_and_check_return(size > 0);
+
+    // write line
+    tb_stream_bwrit(g_profiler, (tb_byte_t const*)line, size);
+}
+tb_void_t gb_tessellator_profiler_finish_region(gb_tessellator_active_region_ref_t region)
+{
+    // check
+    tb_assert_and_check_return(g_profiler && region);
+
+    // the region is inside?
+    tb_check_return(region->inside);
+
+    // get the edge of this region
+    gb_mesh_edge_ref_t edge = region->edge;
+    tb_assert_and_check_return(edge);
+
+    // the vertices
+    gb_mesh_vertex_ref_t org = gb_mesh_edge_org(edge);
+    gb_mesh_vertex_ref_t dst = gb_mesh_edge_dst(edge);
+
+    // the points
+    gb_point_ref_t point_org = gb_tessellator_vertex_point(org);
+    gb_point_ref_t point_dst = gb_tessellator_vertex_point(dst);
+
+    // make line
+    tb_char_t line[256] = {0};
+    tb_long_t size = tb_snprintf(line, sizeof(line), "                inside(canvas, %{float}, %{float}, %{float}, %{float});\n", &point_org->x, &point_org->y, &point_dst->x, &point_dst->y);
+    tb_assert_and_check_return(size > 0);
+
+    // write line
+    tb_stream_bwrit(g_profiler, (tb_byte_t const*)line, size);
+}
