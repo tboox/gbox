@@ -41,7 +41,7 @@ static tb_long_t gb_prefix_printf_format_float(tb_cpointer_t object, tb_char_t* 
 
     // format
 #ifdef TB_CONFIG_TYPE_FLOAT
-    tb_long_t size = tb_snprintf(cstr, maxn - 1, "%0.3f", gb_float_to_tb(*value));
+    tb_long_t size = tb_snprintf(cstr, maxn - 1, "%f", gb_float_to_tb(*value));
     if (size >= 0) cstr[size] = '\0';
 #else
     tb_long_t size = tb_snprintf(cstr, maxn - 1, "%ld", gb_float_to_long(*value));

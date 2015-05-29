@@ -812,17 +812,16 @@ static tb_bool_t gb_tessellator_fix_region_order_at_bottom(gb_tessellator_impl_t
         /* we need not fix it, 
          * but we need remove one edge with same slope for inserting down-going edges
          *
-         *  edge_left  edge_right edge_left/right
-         *        .       .            ..
-         *         .      .            ..
-         *          .     .            ..
-         *           .    .     or     ..
-         *            .   .            .. (one edge will be removed after inserting down-going edges)
-         *             .  .            ..
-         *              . .            ..
-         *               ..            ..
-         *                .            .
-         * return:     false          true
+         *  edge_left/right
+         *      ..
+         *      ..
+         *      ..
+         *      ..
+         *      .. (one edge will be removed after inserting down-going edges)
+         *      ..
+         *      ..
+         *      ..
+         *      .
          */
         else return gb_mesh_edge_dst(edge_left) == gb_mesh_edge_dst(edge_right);
     }
@@ -1308,18 +1307,66 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
         tb_assert_abort(event == gb_mesh_edge_org(edge_right));
         tb_assert_abort(event == gb_mesh_edge_dst(edge_left));
 
+        // save the left region as a patched region
+        gb_tessellator_active_region_ref_t region_patch = region_left;
+
         // update the new left region
         region_left = gb_tessellator_find_left_bottom_region(impl, region_left);
         tb_assert_abort(region_left);
 
-        /* finish and remove the top regions 
+        // patch a region with the edge_right.onext
+        region_patch->edge = gb_mesh_edge_onext(edge_right);
+
+        /* finish and remove the top regions from the patched region 
          * and update the right region
          *
+         * the left face of the patch region has been finished previously
+         * but the "inside" mark has might been reset before finishing the right region.
+         *
+         * this case will appear in some special situation:
+         *
+         *  - the old lface has might been removed after some splicing operations
+         *
+         * .e.g 
+         *
+         * before:
+         *             .
+         *               .
+         *                 .  (finished)       .
+         *                   .  inside: 1    .
+         *                     .           .
+         *               .       .       . 
+         *                      .  .   .
+         *                           . . ----------------- intersection
+         *                                   .
+         *                                         .
+         *                               
+         * after calculating intersection:
+         *
+         * the face has been changed because two splitted degenerate edges
+         * with the same origin will be joining when down-going edges.
+         * (the old face might be merged and removed when splicing edges.)
+         *
+         *             .      
+         *               .
+         *                 .  (finished)       .
+         *                   .  inside: 0    .
+         *                     .           .
+         *               .       .       . 
+         *                      .  .   .
+         *   intersection ---------- x . 
+         *      (event)              ..      .
+         *                           .             .
+         *              (two degenerate edges) 
+         *
+         * so we patch it using the old left region 
+         * and finish this patched region again for computing the accurate winding and inside.
+         *                            
          *  .                                             edge_right                .
-         *  .                                                .                      .
-         *  .                                              .                        .
-         *  .                                  lface     .                          .
-         *  .                        .                 .                            .
+         *  .                  . region_patch                .                      .
+         *  .                    .   (finished)            .                        .
+         *  .                      .           lface     .                          .
+         *  .                        .   (inside:0/1)  .                            .
          *  .              (finished)  .             .                              .
          *  .                     .      .         .                                .
          *  .                         .    .     .      region_right(finished)      .
@@ -1333,14 +1380,22 @@ static tb_bool_t gb_tessellator_fix_region_intersection_errors(gb_tessellator_im
          *  .                    .            .            .                        .
          *  .               (edge_new.dst) -- . - - - - -  edge_new(inserted)       .
          *  .                                 .                                     .
-         *  .                                 . region_xxx                          .
+         *  .                                 . (inserted)                          .
          *  .                                 .                                     .
-         *                                edge_left                        
+         *                                edge_left 
+         *        (the old left region has been a patched region and will be finished)   
          */
-        gb_tessellator_finish_top_regions(impl, region_right, tb_null);
+        gb_tessellator_finish_top_regions(impl, region_patch, tb_null);
 
-        // insert the new down-going edge without region: edge_new
-        gb_tessellator_insert_down_going_edges(impl, region_left, edge_new, gb_mesh_edge_onext(edge_new), tb_null, tb_true);
+        // check
+        tb_assert_abort(gb_mesh_edge_onext(gb_mesh_edge_sym(edge_left)) == edge_new);
+
+        /* insert the new down-going edge without region: edge_left and edge_new
+         *
+         * the region of the left edge have been removed(gave edge_right.onext),
+         * so we need insert it again.
+         */
+        gb_tessellator_insert_down_going_edges(impl, region_left, gb_mesh_edge_sym(edge_left), gb_mesh_edge_onext(edge_new), tb_null, tb_true);
 
         /* we need return directly from the recurse call
          * because we have fix all "dirty" regions after calling insert_down_going_edges()
