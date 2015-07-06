@@ -18,6 +18,7 @@
 *.stackdump
 *.manifest
 .ccache
+.xmake
 .svn
 .DS_Store
 cscope.*
