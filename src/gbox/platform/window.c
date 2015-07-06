@@ -55,7 +55,7 @@ gb_window_ref_t gb_window_init(gb_window_info_ref_t info)
     return gb_window_init_ios(info);
 #elif defined(TB_CONFIG_OS_ANDROID)
     return gb_window_init_android(info);
-#elif 0//defined(TB_CONFIG_OS_MAC)
+#elif 0//defined(TB_CONFIG_OS_MACOSX)
     return gb_window_init_mac(info);
 #elif 0//defined(TB_CONFIG_OS_WINDOWS)
     return gb_window_init_windows(info);

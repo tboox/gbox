@@ -423,7 +423,7 @@ gb_window_ref_t gb_window_init_sdl(gb_window_info_ref_t info)
          * - xrgb8888_be
          * - rgb565_le
          */
-#ifdef TB_CONFIG_OS_MAC
+#ifdef TB_CONFIG_OS_MACOSX
         impl->base.pixfmt       = gb_quality() < GB_QUALITY_TOP? GB_PIXFMT_RGB565 : (GB_PIXFMT_XRGB8888 | GB_PIXFMT_BENDIAN);
 #else
         impl->base.pixfmt       = gb_quality() < GB_QUALITY_TOP? GB_PIXFMT_RGB565 : GB_PIXFMT_XRGB8888;

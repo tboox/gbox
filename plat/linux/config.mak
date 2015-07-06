@@ -1,3 +1,0 @@
-# device
-GB_CONFIG_DEVICE_HAVE_BITMAP 				= y
-

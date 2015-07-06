@@ -63,7 +63,7 @@ __tb_extern_c_enter__
 #define GB_DEGREE_360           (23592960)
 
 // conversion
-#ifdef TB_CONFIG_TYPE_FLOAT
+#ifdef TB_CONFIG_TYPE_HAVE_FLOAT
 #   define gb_float_to_tb(x)    tb_fixed_to_float(x)
 #   define tb_float_to_gb(x)    tb_float_to_fixed(x)
 #endif
@@ -124,7 +124,7 @@ __tb_extern_c_enter__
 #define gb_exp1(x)              tb_fixed_exp1(x)
 #define gb_expi(x)              tb_fixed_expi(x)
 
-#elif defined(TB_CONFIG_TYPE_FLOAT)
+#elif defined(TB_CONFIG_TYPE_HAVE_FLOAT)
 
 // constant
 #define GB_ONE                  (1.0f)

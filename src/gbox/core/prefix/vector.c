@@ -197,7 +197,7 @@ tb_bool_t gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length)
     // this scale is zero nearly? 
     if (scale <= GB_NEAR0)
     {
-#ifdef TB_CONFIG_TYPE_FLOAT
+#ifdef TB_CONFIG_TYPE_HAVE_FLOAT
         // compute the length using the double value
         tb_double_t     xx = gb_float_to_tb(vector->x);
         tb_double_t     yy = gb_float_to_tb(vector->y);

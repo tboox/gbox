@@ -40,7 +40,7 @@ static tb_long_t gb_prefix_printf_format_float(tb_cpointer_t object, tb_char_t* 
     gb_float_t* value = (gb_float_t*)object;
 
     // format
-#ifdef TB_CONFIG_TYPE_FLOAT
+#ifdef TB_CONFIG_TYPE_HAVE_FLOAT
     tb_long_t size = tb_snprintf(cstr, maxn - 1, "%f", gb_float_to_tb(*value));
     if (size >= 0) cstr[size] = '\0';
 #else
