@@ -1594,7 +1594,6 @@ tb_void_t gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del)
     gb_mesh_check_edge(edge_del);
 
     // done
-    tb_bool_t ok = tb_false;
     tb_bool_t joining_faces = tb_false;
     do
     {
@@ -1794,13 +1793,7 @@ tb_void_t gb_mesh_edge_delete(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del)
         // kill this edge
         gb_mesh_kill_edge(impl, edge_del);
 
-        // ok
-        ok = tb_true;
-
     } while (0);
-
-    // check
-    tb_assert_abort(ok);
 }
 #ifdef __gb_debug__
 tb_void_t gb_mesh_dump(gb_mesh_ref_t mesh)

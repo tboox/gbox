@@ -26,7 +26,7 @@ add_option("opengl")
         add_option_mxflags("-framework OpenGL")
         add_option_ldflags("-framework OpenGL")
     else
-        add_option_links("gl")
+        add_option_links("GL")
     end
 
     -- add link directories
