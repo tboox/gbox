@@ -11,6 +11,9 @@ add_option("tbox")
     -- set description
     set_option_description("The tbox package")
 
+    -- set language: c99, c++11
+    set_option_languages("c99", "cxx11")
+
     -- add defines to config.h if checking ok
     add_option_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_TBOX")
 

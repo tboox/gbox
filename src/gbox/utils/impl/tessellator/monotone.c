@@ -4364,7 +4364,7 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
     while (tb_priority_queue_size(event_queue))
     {
         // get the minimum vertex event
-        gb_mesh_vertex_ref_t event = tb_priority_queue_get(event_queue);
+        gb_mesh_vertex_ref_t event = (gb_mesh_vertex_ref_t)tb_priority_queue_get(event_queue);
         tb_assert_abort(event);
 
         // pop it from the event queue first
@@ -4374,7 +4374,7 @@ tb_void_t gb_tessellator_monotone_make(gb_tessellator_impl_t* impl, gb_rect_ref_
         while (tb_priority_queue_size(event_queue))
         {
             // get the next vertex event
-            gb_mesh_vertex_ref_t event_next = tb_priority_queue_get(event_queue);
+            gb_mesh_vertex_ref_t event_next = (gb_mesh_vertex_ref_t)tb_priority_queue_get(event_queue);
             tb_assert_abort(event_next);
 
             // two vertices are exactly same?

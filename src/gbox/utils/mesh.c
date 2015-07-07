@@ -404,7 +404,7 @@ static tb_long_t gb_mesh_printf_edge(tb_cpointer_t object, tb_char_t* cstr, tb_s
     gb_mesh_edge_ref_t edge = (gb_mesh_edge_ref_t)object;
 
     // make info
-    return gb_mesh_edge_list_cstr(edge->list, edge, cstr, maxn);
+    return gb_mesh_edge_list_cstr((gb_mesh_edge_list_ref_t)edge->list, edge, cstr, maxn);
 }
 static tb_long_t gb_mesh_printf_face(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
@@ -415,7 +415,7 @@ static tb_long_t gb_mesh_printf_face(tb_cpointer_t object, tb_char_t* cstr, tb_s
     gb_mesh_face_ref_t face = (gb_mesh_face_ref_t)object;
 
     // make info
-    return gb_mesh_face_list_cstr(face->list, face, cstr, maxn);
+    return gb_mesh_face_list_cstr((gb_mesh_face_list_ref_t)face->list, face, cstr, maxn);
 }
 static tb_long_t gb_mesh_printf_vertex(tb_cpointer_t object, tb_char_t* cstr, tb_size_t maxn)
 {
@@ -426,7 +426,7 @@ static tb_long_t gb_mesh_printf_vertex(tb_cpointer_t object, tb_char_t* cstr, tb
     gb_mesh_vertex_ref_t vertex = (gb_mesh_vertex_ref_t)object;
 
     // make info
-    return gb_mesh_vertex_list_cstr(vertex->list, vertex, cstr, maxn);
+    return gb_mesh_vertex_list_cstr((gb_mesh_vertex_list_ref_t)vertex->list, vertex, cstr, maxn);
 }
 #endif
 

@@ -273,7 +273,7 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
     tb_assert_abort(itor != tb_iterator_tail(impl->active_regions));
 
     // get the real region reference 
-    region = tb_iterator_item(impl->active_regions, itor);
+    region = (gb_tessellator_active_region_ref_t)tb_iterator_item(impl->active_regions, itor);
     tb_assert_abort(region);
 
     // save the region position

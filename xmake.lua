@@ -8,17 +8,6 @@ set_warnings("all", "error")
 -- set language: c99, c++11
 set_languages("c99", "cxx11")
 
--- add defines to config.h
-add_defines_h("$(prefix)_OS_$(OS)")
-
--- add undefines to config.h 
-add_undefines_h("$(prefix)_TRACE_INFO_ONLY")
-add_undefines_h("$(prefix)_EXCEPTION_ENABLE")
-add_undefines_h("$(prefix)_MEMORY_UNALIGNED_ACCESS_ENABLE")
- 
--- add defines for c files
-add_defines("_GNU_SOURCE=1", "_REENTRANT")
-
 -- disable some compiler errors
 add_cxflags("-Wno-error=deprecated-declarations")
 add_mxflags("-Wno-error=deprecated-declarations")
@@ -95,9 +84,6 @@ end
 
 -- for the windows platform (msvc)
 if plats("windows") then 
-
-    -- add some defines only for windows
-    add_defines("NOCRYPT", "NOGDI")
 
     -- the release mode
     if modes("release") then

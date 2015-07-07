@@ -357,7 +357,7 @@ tb_void_t gb_tessellator_triangulation_make(gb_tessellator_impl_t* impl)
     while (itor != tail)
     {
         // the face
-        face = tb_iterator_item(iterator, itor);
+        face = (gb_mesh_face_ref_t)tb_iterator_item(iterator, itor);
         tb_assert_abort(face);
 
         /* the next face

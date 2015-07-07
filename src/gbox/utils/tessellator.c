@@ -100,7 +100,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
                 tb_vector_insert_tail(outputs, point_first);
 
                 // done it
-                impl->func((gb_point_ref_t)tb_vector_data(outputs), tb_vector_size(outputs), impl->priv);
+                impl->func((gb_point_ref_t)tb_vector_data(outputs), (tb_uint16_t)tb_vector_size(outputs), impl->priv);
             }
         }
     }

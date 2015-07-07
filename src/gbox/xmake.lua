@@ -41,8 +41,15 @@ add_target("gbox")
     -- add options
     add_options("bitmap", "fixed")
 
+    -- add packages for window
+    if os("ios", "android") then 
+    elseif options("x11") then add_options("x11")
+    elseif options("glut") then add_options("glut") 
+    elseif options("sdl") then add_options("sdl")
+    end
+
     -- add packages
-    add_options("tbox", "opengl", "glut", "skia", "sdl", "x11", "png", "jpeg", "freetype", "zlib", "base")
+    add_options("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib", "base")
 
     -- add the common source files
     add_files("*.c")
@@ -54,28 +61,19 @@ add_target("gbox")
     -- add the source files for debug
     if modes("debug") then add_files("utils/impl/tessellator/profiler.c") end
 
-    -- add the source files for opengl
+    -- add the source files for device
     if options("opengl") then add_files("core/device/gl.c", "core/device/gl/**.c") end
-
-    -- add the source files for bitmap
     if options("bitmap") then add_files("core/device/bitmap.c", "core/device/bitmap/**.c") end
-
-    -- add the source files for skia
     if options("skia") then add_files("core/device/skia.cpp") end
 
-    -- add the source files for glut
-    if options("glut") then add_files("platform/glut/window.c") end
+    -- add the source files for window
+    if os("ios") then add_files("platform/ios/window.c") 
+    elseif os("android") then add_files("platform/android/window.c") 
+    elseif options("x11") then add_files("platform/x11/window.c") 
+    elseif options("glut") then add_files("platform/glut/window.c") 
+    elseif options("sdl") then add_files("platform/sdl/window.c") 
+    end
 
-    -- add the source files for x11
-    if options("x11") then add_files("platform/x11/window.c") end
 
-    -- add the source files for sdl
-    if options("sdl") then add_files("platform/sdl/window.c") end
-
-    -- add the source files for ios
-    if os("ios") then add_files("platform/ios/window.c") end
-
-    -- add the source files for android
-    if os("android") then add_files("platform/android/window.c") end
 
 

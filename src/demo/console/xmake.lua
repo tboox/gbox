@@ -24,8 +24,15 @@ add_target("console")
     -- add links
     add_links("gbox")
 
+    -- add packages for window
+    if os("ios", "android") then 
+    elseif options("x11") then add_options("x11")
+    elseif options("glut") then add_options("glut") 
+    elseif options("sdl") then add_options("sdl")
+    end
+
     -- add packages
-    add_options("tbox", "opengl", "glut", "skia", "sdl", "x11", "png", "jpeg", "freetype", "zlib", "base")
+    add_options("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib", "base")
 
     -- add the source files
     add_files("**.c") 

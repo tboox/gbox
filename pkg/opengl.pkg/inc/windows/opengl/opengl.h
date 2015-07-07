@@ -23,6 +23,8 @@ Abstract:
 extern "C" {
 #endif
 
+#include <windows.h>
+
 /*
 ** Copyright 1996 Silicon Graphics, Inc.
 ** All Rights Reserved.
