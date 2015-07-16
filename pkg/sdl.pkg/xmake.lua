@@ -18,6 +18,7 @@ add_option("sdl")
     if plats("macosx") then 
         add_option_links("SDLmain") 
         add_option_defines("main=SDL_main")
+        add_option_ldflags("-framework Foundation", "-framework Cocoa") 
     end
 
     -- add link directories
