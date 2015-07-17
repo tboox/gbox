@@ -1,6 +1,6 @@
 
 -- version
-set_version("1.0.2")
+set_version("1.0.3")
 
 -- set warning all as error
 set_warnings("all", "error")
