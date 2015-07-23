@@ -252,6 +252,9 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
         gb_float_t dy1 = gb_point_to_segment_distance_v(org2, org1, dst1);
         gb_float_t dy2 = gb_point_to_segment_distance_v(dst1, org2, dst2);
 
+        // is parallel? no intersection
+        if (gb_near0(dy1) && gb_near0(dy2)) return tb_false;
+
         // ensure: (dy1 + dy2) > 0
         if (dy1 + dy2 < 0)
         {
@@ -314,6 +317,9 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
         gb_double_t dy1 = gb_point_to_segment_distance_v_cheap(org2, org1, dst1);
         gb_double_t dy2 = -gb_point_to_segment_distance_v_cheap(dst2, org1, dst1);
 
+        // is parallel? no intersection
+        if ((dy1 > -GB_NEAR0 && dy1 < GB_NEAR0) && (dy2 > -GB_NEAR0 && dy2 < GB_NEAR0)) return tb_false;
+
         // ensure: (dy1 + dy2) > 0
         if (dy1 + dy2 < 0)
         {
@@ -361,6 +367,9 @@ static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
         gb_float_t dx1 = gb_point_to_segment_distance_h(org2, org1, dst1);
         gb_float_t dx2 = gb_point_to_segment_distance_h(dst1, org2, dst2);
 
+        // is parallel? no intersection
+        if (gb_near0(dx1) && gb_near0(dx2)) return tb_false;
+
         // ensure: (dx1 + dx2) > 0
         if (dx1 + dx2 < 0)
         {
@@ -386,6 +395,9 @@ static tb_bool_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
         // quickly calculate the horizontal cheap distance: dx1 and dx2
         gb_double_t dx1 = gb_point_to_segment_distance_h_cheap(org2, org1, dst1);
         gb_double_t dx2 = -gb_point_to_segment_distance_h_cheap(dst2, org1, dst1);
+
+        // is parallel? no intersection
+        if ((dx1 > -GB_NEAR0 && dx1 < GB_NEAR0) && (dx2 > -GB_NEAR0 && dx2 < GB_NEAR0)) return tb_false;
 
         // ensure: (dx1 + dx2) > 0
         if (dx1 + dx2 < 0)

@@ -166,20 +166,19 @@ tb_int_t gb_demo_utils_geometry_main(tb_int_t argc, tb_char_t** argv)
     // test intersection
     gb_demo_utils_geometry_intersection();
 
-    gb_point_t e;
-    gb_point_t ld;
-    gb_point_t lo;
-    gb_point_t rd;
-    gb_point_t ro;
-//    gb_point_make(&e, tb_float_to_gb(-0.894), tb_float_to_gb(0.447));
-    gb_point_make(&e, tb_float_to_gb(1.341), tb_float_to_gb(0.447));
-    gb_point_make(&lo, tb_float_to_gb(-0.747), tb_float_to_gb(0.747));
-    gb_point_make(&ld, tb_float_to_gb(-0.894), tb_float_to_gb(0.447));
-    gb_point_make(&ro, tb_float_to_gb(49.106), tb_float_to_gb(100.447));
-    gb_point_make(&rd, tb_float_to_gb(-0.894), tb_float_to_gb(0.447));
-    gb_float_t le = gb_point_to_segment_distance_h(&e, &ld, &lo);
-    gb_float_t re = gb_point_to_segment_distance_h(&e, &rd, &ro);
-    tb_trace_i("%{float} %{float} %x %x", &le, &re, le, re);
+    gb_point_t org1;
+    gb_point_t dst1;
+    gb_point_t org2;
+    gb_point_t dst2;
+    gb_point_t intersection;
+    gb_point_make(&org1, -33.541019, 0.000000);
+    gb_point_make(&dst1, 100.000000, 66.770507);
+    gb_point_make(&org2, -33.541019, -0.000000);
+    gb_point_make(&dst2, -6.708203, 13.416407);
+    if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection))
+    {
+        tb_trace_i("%{point}", &intersection);
+    }
 
     return 0;
 }

@@ -22,7 +22,7 @@
 #include "ellipse.h"
 #include "triangle.h"
 #include "round_rect.h"
-
+ 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * types
  */
@@ -162,9 +162,6 @@ tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
     // check
     tb_assert_abort(window && canvas);
     tb_assert_abort(g_index < tb_arrayn(g_entries));
-
-    // FIXME 
-    //g_width = gb_long_to_float(30);
 
     // clear it
     gb_canvas_draw_clear(canvas, GB_COLOR_DEFAULT);
