@@ -137,7 +137,7 @@ static tb_void_t gb_demo_utils_geometry_intersection()
         gb_point_imake(&dst2, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
 
         // calculate intersection
-        if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection))
+        if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection) > 0)
         {
             // update the intersection number
             in++;
@@ -165,20 +165,6 @@ tb_int_t gb_demo_utils_geometry_main(tb_int_t argc, tb_char_t** argv)
 
     // test intersection
     gb_demo_utils_geometry_intersection();
-
-    gb_point_t org1;
-    gb_point_t dst1;
-    gb_point_t org2;
-    gb_point_t dst2;
-    gb_point_t intersection;
-    gb_point_make(&org1, -33.541019, 0.000000);
-    gb_point_make(&dst1, 100.000000, 66.770507);
-    gb_point_make(&org2, -33.541019, -0.000000);
-    gb_point_make(&dst2, -6.708203, 13.416407);
-    if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection))
-    {
-        tb_trace_i("%{point}", &intersection);
-    }
 
     return 0;
 }

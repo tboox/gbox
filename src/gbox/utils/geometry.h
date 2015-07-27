@@ -327,9 +327,9 @@ tb_long_t               gb_point_to_segment_position_v(gb_point_ref_t center, gb
  * @param dst2          the destination of the segment2
  * @param result        the intersection result, only get the return value if be null
  *
- * @return              exists intersection: tb_true
+ * @return              no intersection: -1, parallel line: 0, exists intersection: 1
  */
-tb_bool_t               gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result);
+tb_long_t               gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

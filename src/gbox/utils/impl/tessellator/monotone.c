@@ -1781,8 +1781,9 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
     }
 
     // attempt to calculate the intersection of two edges
+    tb_long_t ok = -1;
     gb_tessellator_vertex_local(intersection);
-    if (!gb_tessellator_edge_intersection(edge_left_org, edge_left_dst, edge_right_org, edge_right_dst, intersection))
+    if ((ok = gb_tessellator_edge_intersection(edge_left_org, edge_left_dst, edge_right_org, edge_right_dst, intersection)) <= 0)
     {
         /* we need fix the following case:
          * - may violate ordering because of numerical errors for nearly identical slopes
@@ -1799,7 +1800,7 @@ static tb_bool_t gb_tessellator_fix_region_intersection(gb_tessellator_impl_t* i
          *   .             .
          *
          */
-        gb_tessellator_fix_region_order_at_bottom(impl, region_left);
+        if (!ok) gb_tessellator_fix_region_order_at_bottom(impl, region_left);
         return tb_false;
     }
 
