@@ -79,7 +79,7 @@ tb_int_t gb_application_main(tb_int_t argc, tb_char_t** argv, gb_application_ini
         tb_assert_and_check_break(init);
 
         // init tbox
-        if (!tb_init(tb_null, tb_null, 0)) break;
+        if (!tb_init(tb_null, tb_null, tb_null, 0)) break;
 
         // init gbox
         if (!gb_init()) break;
