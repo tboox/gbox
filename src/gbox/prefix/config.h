@@ -37,7 +37,7 @@
  *
  * small mode
  */
-#if GB_CONFIG_SMALL
+#ifdef GB_CONFIG_SMALL
 #   define __gb_small__
 #endif
 
