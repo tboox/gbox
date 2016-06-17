@@ -113,7 +113,7 @@ static tb_void_t gb_demo_info(tb_bool_t killed, tb_cpointer_t priv)
 tb_bool_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(window);
+    tb_assert(window);
 
     // trace
     tb_trace_d("init");
@@ -143,7 +143,7 @@ tb_bool_t gb_demo_init(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
 tb_void_t gb_demo_exit(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(window);
+    tb_assert(window);
 
     // trace
     tb_trace_d("exit");
@@ -160,15 +160,15 @@ tb_void_t gb_demo_exit(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
 tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(window && canvas);
-    tb_assert_abort(g_index < tb_arrayn(g_entries));
+    tb_assert(window && canvas);
+    tb_assert(g_index < tb_arrayn(g_entries));
 
     // clear it
     gb_canvas_draw_clear(canvas, GB_COLOR_DEFAULT);
 
     // the entry
     gb_demo_entry_t const* entry = &g_entries[g_index];
-    tb_assert_abort(entry->draw);
+    tb_assert(entry->draw);
 
     // enter matrix
     gb_matrix_copy(gb_canvas_save_matrix(canvas), &g_matrix);
@@ -194,7 +194,7 @@ tb_void_t gb_demo_draw(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoint
 tb_void_t gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(window && canvas);
+    tb_assert(window && canvas);
 
     // trace
     tb_trace_d("resize: %lux%lu", gb_window_width(window), gb_window_height(window));
@@ -209,8 +209,8 @@ tb_void_t gb_demo_resize(gb_window_ref_t window, gb_canvas_ref_t canvas, tb_cpoi
 tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(window && event);
-    tb_assert_abort(g_index < tb_arrayn(g_entries));
+    tb_assert(window && event);
+    tb_assert(g_index < tb_arrayn(g_entries));
 
     // keyboard
     if (event->type == GB_EVENT_TYPE_KEYBOARD && event->u.keyboard.pressed)
@@ -314,7 +314,7 @@ tb_void_t gb_demo_event(gb_window_ref_t window, gb_event_ref_t event, tb_cpointe
 
     // the entry
     gb_demo_entry_t const* entry = &g_entries[g_index];
-    tb_assert_abort(entry->event);
+    tb_assert(entry->event);
 
     // done event
     entry->event(window, event);

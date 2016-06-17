@@ -85,7 +85,7 @@ static tb_char_t const* gb_tessellator_vertex_cstr(tb_element_t* func, tb_cpoint
 static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
 {
     // check
-    tb_assert_abort(event);
+    tb_assert(event);
 
     // done
     switch (event->type)
@@ -128,7 +128,7 @@ static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
 tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon)
 {
     // check
-    tb_assert_abort(impl && polygon);
+    tb_assert(impl && polygon);
 
     // the points
     gb_point_ref_t      points = polygon->points;
@@ -271,7 +271,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
 gb_mesh_edge_ref_t gb_tessellator_mesh_make_edge(gb_tessellator_impl_t* impl, gb_point_ref_t org, gb_point_ref_t dst)
 {
     // check
-    tb_assert_abort(impl && impl->mesh);
+    tb_assert(impl && impl->mesh);
 
     // make edge
     gb_mesh_edge_ref_t edge = gb_mesh_edge_make(impl->mesh);

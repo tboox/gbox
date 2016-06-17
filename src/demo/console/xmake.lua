@@ -1,6 +1,6 @@
 
 -- add target
-add_target("console")
+target("console")
 
     -- add the dependent target
     add_deps("gbox")
@@ -25,10 +25,10 @@ add_target("console")
     add_links("gbox")
 
     -- add packages for window
-    if os("ios", "android") then 
-    elseif options("x11") then add_options("x11")
-    elseif options("glut") then add_options("glut") 
-    elseif options("sdl") then add_options("sdl")
+    if is_os("ios", "android") then 
+    elseif is_option("x11") then add_options("x11")
+    elseif is_option("glut") then add_options("glut") 
+    elseif is_option("sdl") then add_options("sdl")
     end
 
     -- add packages

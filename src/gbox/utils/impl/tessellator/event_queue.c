@@ -45,7 +45,7 @@ static tb_long_t gb_tessellator_event_queue_comp(tb_element_ref_t element, tb_cp
     // the left and right point
     gb_point_ref_t lpoint = gb_tessellator_vertex_point(ldata);
     gb_point_ref_t rpoint = gb_tessellator_vertex_point(rdata);
-    tb_assert_abort(lpoint && rpoint);
+    tb_assert(lpoint && rpoint);
 
     // lpoint < rpoint?
     return (lpoint->y < rpoint->y)? -1 : ((lpoint->y > rpoint->y)? 1 : ((lpoint->x < rpoint->x)? -1 : (lpoint->x > rpoint->x)));
@@ -77,11 +77,11 @@ static tb_char_t const* gb_tessellator_event_queue_cstr(tb_element_ref_t element
 tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl);
+    tb_assert(impl);
 
     // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(mesh);
+    tb_assert(mesh);
 
     // init event queue
     if (!impl->event_queue) 
@@ -118,7 +118,7 @@ tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
 tb_void_t gb_tessellator_event_queue_insert(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
 {
     // check
-    tb_assert_abort(impl && impl->event_queue && event);
+    tb_assert(impl && impl->event_queue && event);
 
     // insert this event
     tb_priority_queue_put(impl->event_queue, event);
@@ -126,7 +126,7 @@ tb_void_t gb_tessellator_event_queue_insert(gb_tessellator_impl_t* impl, gb_mesh
 tb_void_t gb_tessellator_event_queue_remove(gb_tessellator_impl_t* impl, gb_mesh_vertex_ref_t event)
 {
     // check
-    tb_assert_abort(impl && impl->event_queue && event);
+    tb_assert(impl && impl->event_queue && event);
 
     // find it
     tb_size_t itor = tb_find_all_if(impl->event_queue, gb_tessellator_event_queue_find, event);

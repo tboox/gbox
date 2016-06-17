@@ -43,7 +43,7 @@
 static tb_bool_t gb_bitmap_render_apply_matrix_for_hint(gb_bitmap_device_ref_t device, gb_shape_ref_t hint, gb_shape_ref_t output)
 {
     // check
-    tb_assert_abort(device && device->base.matrix && output);
+    tb_assert(device && device->base.matrix && output);
 
     // clear output first
     output->type = GB_SHAPE_TYPE_NONE;
@@ -66,7 +66,7 @@ static tb_bool_t gb_bitmap_render_apply_matrix_for_hint(gb_bitmap_device_ref_t d
 static tb_size_t gb_bitmap_render_apply_matrix_for_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_point_ref_t* output)
 {
     // check
-    tb_assert_abort(device && device->points && device->base.matrix && points);
+    tb_assert(device && device->points && device->base.matrix && points);
 
     // clear points
     tb_vector_clear(device->points);
@@ -85,7 +85,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_points(gb_bitmap_device_ref_t
 
     // save points
     if (output) *output = (gb_point_ref_t)tb_vector_data(device->points);
-    tb_assert_abort(*output);
+    tb_assert(*output);
 
     // the points count
     return tb_vector_size(device->points);
@@ -93,7 +93,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_points(gb_bitmap_device_ref_t
 static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_point_ref_t* output)
 {
     // check
-    tb_assert_abort(device && device->points && device->base.matrix && polygon && polygon->points);
+    tb_assert(device && device->points && device->base.matrix && polygon && polygon->points);
 
     // clear points
     tb_vector_clear(device->points);
@@ -126,7 +126,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_
 
     // save points
     if (output) *output = (gb_point_ref_t)tb_vector_data(device->points);
-    tb_assert_abort(*output);
+    tb_assert(*output);
 
     // the points count
     return tb_vector_size(device->points);
@@ -134,7 +134,7 @@ static tb_size_t gb_bitmap_render_apply_matrix_for_polygon(gb_bitmap_device_ref_
 static gb_rect_ref_t gb_bitmap_render_make_bounds_for_points(gb_bitmap_device_ref_t device, gb_rect_ref_t bounds, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && device->base.matrix && points && count);
+    tb_assert(device && device->base.matrix && points && count);
 
     // make approximate bounds using matrix
     if (bounds)
@@ -156,7 +156,7 @@ static gb_rect_ref_t gb_bitmap_render_make_bounds_for_points(gb_bitmap_device_re
 static tb_void_t gb_bitmap_render_stroke_fill(gb_bitmap_device_ref_t device, gb_path_ref_t path)
 {
     // check
-    tb_assert_abort(device && device->stroker && device->base.paint && path);
+    tb_assert(device && device->stroker && device->base.paint && path);
 
     // null?
     tb_check_return(!gb_path_null(path));
@@ -185,7 +185,7 @@ static tb_void_t gb_bitmap_render_stroke_fill(gb_bitmap_device_ref_t device, gb_
 static __tb_inline__ tb_bool_t gb_bitmap_render_stroke_only(gb_bitmap_device_ref_t device)
 {
     // check
-    tb_assert_abort(device && device->base.paint && device->base.matrix);
+    tb_assert(device && device->base.paint && device->base.matrix);
 
     // width == 1 and solid? only stroke it
     return (    GB_ONE == gb_paint_stroke_width(device->base.paint)
@@ -234,7 +234,7 @@ tb_void_t gb_bitmap_render_exit(gb_bitmap_device_ref_t device)
 tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_t path)
 {
     // check
-    tb_assert_abort(device && device->base.paint && path);
+    tb_assert(device && device->base.paint && path);
 
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
@@ -260,7 +260,7 @@ tb_void_t gb_bitmap_render_draw_path(gb_bitmap_device_ref_t device, gb_path_ref_
 tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->base.paint && device->base.matrix && points && count && !(count & 0x1));
+    tb_assert(device && device->base.paint && device->base.matrix && points && count && !(count & 0x1));
 
     // check mode
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
@@ -274,7 +274,7 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
         // apply matrix to points
         gb_point_ref_t  stroked_points  = tb_null;
         tb_size_t       stroked_count   = gb_bitmap_render_apply_matrix_for_points(device, points, count, &stroked_points);
-        tb_assert_abort(stroked_points && stroked_count);
+        tb_assert(stroked_points && stroked_count);
 
         // TODO: clip it
         // ...
@@ -288,7 +288,7 @@ tb_void_t gb_bitmap_render_draw_lines(gb_bitmap_device_ref_t device, gb_point_re
 tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->base.paint && device->base.matrix && points && count);
+    tb_assert(device && device->base.paint && device->base.matrix && points && count);
 
     // check mode
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
@@ -302,7 +302,7 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
         // apply matrix to points
         gb_point_ref_t  stroked_points  = tb_null;
         tb_size_t       stroked_count   = gb_bitmap_render_apply_matrix_for_points(device, points, count, &stroked_points);
-        tb_assert_abort(stroked_points && stroked_count);
+        tb_assert(stroked_points && stroked_count);
 
         // TODO: clip it
         // ...
@@ -316,7 +316,7 @@ tb_void_t gb_bitmap_render_draw_points(gb_bitmap_device_ref_t device, gb_point_r
 tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->base.paint && polygon);
+    tb_assert(device && device->base.paint && polygon);
 
     // line?
     if (hint && hint->type == GB_SHAPE_TYPE_LINE)
@@ -343,11 +343,11 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
         // apply matrix to points
         gb_polygon_t    filled_polygon = {tb_null, polygon->counts, polygon->convex};
         tb_size_t       filled_count   = gb_bitmap_render_apply_matrix_for_polygon(device, polygon, &filled_polygon.points);
-        tb_assert_abort(filled_polygon.points && filled_count);
+        tb_assert(filled_polygon.points && filled_count);
 
         // make the filled bounds
         gb_rect_ref_t   filled_bounds = gb_bitmap_render_make_bounds_for_points(device, bounds, filled_polygon.points, filled_count);
-        tb_assert_abort(filled_bounds);
+        tb_assert(filled_bounds);
 
         // TODO: clip it
         tb_bool_t       clipped = tb_false;
@@ -357,7 +357,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
         if (!clipped && gb_bitmap_render_apply_matrix_for_hint(device, hint, &filled_hint))
         {
             // check
-            tb_assert_abort(filled_hint.type == GB_SHAPE_TYPE_RECT);
+            tb_assert(filled_hint.type == GB_SHAPE_TYPE_RECT);
 
             // fill rect
             gb_bitmap_render_fill_rect(device, &filled_hint.u.rect);
@@ -375,7 +375,7 @@ tb_void_t gb_bitmap_render_draw_polygon(gb_bitmap_device_ref_t device, gb_polygo
             // apply matrix to points
             gb_polygon_t    stroked_polygon = {tb_null, polygon->counts, polygon->convex};
             tb_size_t       stroked_count   = gb_bitmap_render_apply_matrix_for_polygon(device, polygon, &stroked_polygon.points);
-            tb_assert_abort(stroked_polygon.points && stroked_count);
+            tb_assert(stroked_polygon.points && stroked_count);
 
             // TODO: clip it
             // ...

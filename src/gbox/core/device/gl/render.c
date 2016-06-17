@@ -55,13 +55,13 @@
 static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point_ref_t points)
 {
     // check
-    tb_assert_abort(device && points);
+    tb_assert(device && points);
  
     // apply vertices
     if (device->version >= 0x20) 
     {
         // check
-        tb_assert_abort(device->program);
+        tb_assert(device->program);
 
         // apply it
         gb_glVertexAttribPointer(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_VERTICES), 2, GB_GL_VERTEX_TYPE, GB_GL_FALSE, 0, points);
@@ -75,11 +75,11 @@ static tb_void_t gb_gl_render_apply_vertices(gb_gl_device_ref_t device, gb_point
 static tb_void_t gb_gl_render_enter_solid(gb_gl_device_ref_t device)
 {
     // check
-    tb_assert_abort(device);
+    tb_assert(device);
  
     // the paint
     gb_paint_ref_t paint = device->base.paint;
-    tb_assert_abort(paint);
+    tb_assert(paint);
 
     // the color 
     gb_color_t color = gb_paint_color(paint);
@@ -110,7 +110,7 @@ static tb_void_t gb_gl_render_enter_solid(gb_gl_device_ref_t device)
     if (device->version >= 0x20)
     {
         // check
-        tb_assert_abort(device->program);
+        tb_assert(device->program);
 
         // apply it
         gb_glVertexAttrib4f(gb_gl_program_location(device->program, GB_GL_PROGRAM_LOCATION_COLORS), (gb_GLfloat_t)color.r / 0xff, (gb_GLfloat_t)color.g / 0xff, (gb_GLfloat_t)color.b / 0xff, (gb_GLfloat_t)color.a / 0xff);
@@ -124,7 +124,7 @@ static tb_void_t gb_gl_render_enter_solid(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_leave_solid(gb_gl_device_ref_t device)
 {    
     // check
-    tb_assert_abort(device);
+    tb_assert(device);
  
     // disable blend
     gb_glDisable(GB_GL_BLEND);
@@ -132,7 +132,7 @@ static tb_void_t gb_gl_render_leave_solid(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_enter_shader(gb_gl_device_ref_t device)
 {   
     // check
-    tb_assert_abort(device && device->base.paint);
+    tb_assert(device && device->base.paint);
  
     // disable blend
     gb_glDisable(GB_GL_BLEND);
@@ -143,7 +143,7 @@ static tb_void_t gb_gl_render_enter_shader(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_leave_shader(gb_gl_device_ref_t device)
 {   
     // check
-    tb_assert_abort(device);
+    tb_assert(device);
  
     // disable texture
     gb_glDisable(GB_GL_TEXTURE_2D);
@@ -151,7 +151,7 @@ static tb_void_t gb_gl_render_leave_shader(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_enter_paint(gb_gl_device_ref_t device)
 {
     // check
-    tb_assert_abort(device);
+    tb_assert(device);
 
     // enter shader
     if (device->shader) gb_gl_render_enter_shader(device);
@@ -161,7 +161,7 @@ static tb_void_t gb_gl_render_enter_paint(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
 {
     // check
-    tb_assert_abort(device);
+    tb_assert(device);
 
     // leave shader
     if (device->shader) gb_gl_render_leave_shader(device);
@@ -171,7 +171,7 @@ static tb_void_t gb_gl_render_leave_paint(gb_gl_device_ref_t device)
 static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t count, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(priv && points && count);
+    tb_assert(priv && points && count);
 
     // apply it
     gb_gl_render_apply_vertices((gb_gl_device_ref_t)priv, points);
@@ -211,7 +211,7 @@ static tb_void_t gb_gl_render_fill_convex(gb_point_ref_t points, tb_uint16_t cou
 static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_rect_ref_t bounds, tb_size_t rule)
 {
     // check
-    tb_assert_abort(device && device->tessellator);
+    tb_assert(device && device->tessellator);
 
 #ifdef GB_GL_TESSELLATOR_TEST_ENABLE
     // set mode
@@ -231,7 +231,7 @@ static tb_void_t gb_gl_render_fill_polygon(gb_gl_device_ref_t device, gb_polygon
 static tb_void_t gb_gl_render_stroke_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && points && count);
+    tb_assert(device && points && count);
 
     // apply vertices
     gb_gl_render_apply_vertices(device, points);
@@ -242,7 +242,7 @@ static tb_void_t gb_gl_render_stroke_lines(gb_gl_device_ref_t device, gb_point_r
 static tb_void_t gb_gl_render_stroke_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && points && count);
+    tb_assert(device && points && count);
 
     // apply vertices
     gb_gl_render_apply_vertices(device, points);
@@ -253,7 +253,7 @@ static tb_void_t gb_gl_render_stroke_points(gb_gl_device_ref_t device, gb_point_
 static tb_void_t gb_gl_render_stroke_polygon(gb_gl_device_ref_t device, gb_point_ref_t points, tb_uint16_t const* counts)
 {
     // check
-    tb_assert_abort(device && points && counts);
+    tb_assert(device && points && counts);
 
     // apply vertices
     gb_gl_render_apply_vertices(device, points);
@@ -270,7 +270,7 @@ static tb_void_t gb_gl_render_stroke_polygon(gb_gl_device_ref_t device, gb_point
 static tb_void_t gb_gl_render_stroke_fill(gb_gl_device_ref_t device, gb_path_ref_t path)
 {
     // check
-    tb_assert_abort(device && device->stroker && device->base.paint && path);
+    tb_assert(device && device->stroker && device->base.paint && path);
 
     // null?
     tb_check_return(!gb_path_null(path));
@@ -299,7 +299,7 @@ static tb_void_t gb_gl_render_stroke_fill(gb_gl_device_ref_t device, gb_path_ref
 static __tb_inline__ tb_bool_t gb_gl_render_stroke_only(gb_gl_device_ref_t device)
 {
     // check
-    tb_assert_abort(device && device->base.paint && device->base.matrix);
+    tb_assert(device && device->base.paint && device->base.matrix);
 
     // width == 1 and solid? only stroke it
     return (    GB_ONE == gb_paint_stroke_width(device->base.paint)
@@ -423,7 +423,7 @@ tb_void_t gb_gl_render_exit(gb_gl_device_ref_t device)
 tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
 {
     // check
-    tb_assert_abort(device && device->base.paint && path);
+    tb_assert(device && device->base.paint && path);
 
     // the mode
     tb_size_t mode = gb_paint_mode(device->base.paint);
@@ -446,7 +446,7 @@ tb_void_t gb_gl_render_draw_path(gb_gl_device_ref_t device, gb_path_ref_t path)
 tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->base.paint && points && count);
+    tb_assert(device && device->base.paint && points && count);
 
     // check mode
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
@@ -468,7 +468,7 @@ tb_void_t gb_gl_render_draw_lines(gb_gl_device_ref_t device, gb_point_ref_t poin
 tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t points, tb_size_t count, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->base.paint && points && count);
+    tb_assert(device && device->base.paint && points && count);
 
     // check mode
     tb_check_return(gb_paint_mode(device->base.paint) & GB_PAINT_MODE_STROKE);
@@ -490,7 +490,7 @@ tb_void_t gb_gl_render_draw_points(gb_gl_device_ref_t device, gb_point_ref_t poi
 tb_void_t gb_gl_render_draw_polygon(gb_gl_device_ref_t device, gb_polygon_ref_t polygon, gb_shape_ref_t hint, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(device && device->base.paint && polygon && polygon->points && polygon->counts);
+    tb_assert(device && device->base.paint && polygon && polygon->points && polygon->counts);
 
     // line?
     if (hint && hint->type == GB_SHAPE_TYPE_LINE)

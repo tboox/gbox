@@ -33,7 +33,7 @@
 tb_void_t gb_arc_make(gb_arc_ref_t arc, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry, gb_float_t ab, gb_float_t an)
 {
     // check
-    tb_assert_abort(arc);
+    tb_assert(arc);
 
     // make it
     arc->c.x    = x0;

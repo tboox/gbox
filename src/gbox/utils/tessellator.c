@@ -50,14 +50,14 @@
 static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && impl->func);
+    tb_assert(impl && impl->mesh && impl->func);
 
     // init outputs first
     if (!impl->outputs) impl->outputs = tb_vector_init(GB_TESSELLATOR_OUTPUTS_GROW, tb_element_mem(sizeof(gb_point_t), tb_null, tb_null));
 
     // check outputs
     tb_vector_ref_t outputs = impl->outputs;
-    tb_assert_abort(outputs);
+    tb_assert(outputs);
 
     // done
     tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(impl->mesh), face)
@@ -77,7 +77,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
             {
                 // the point
                 point = gb_tessellator_vertex_point(gb_mesh_edge_org(edge));
-                tb_assert_abort(point);
+                tb_assert(point);
 
                 // append point
                 tb_vector_insert_tail(outputs, point);
@@ -94,7 +94,7 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
             if (tb_vector_size(outputs) > 2)
             {
                 // check
-                tb_assert_abort(tb_vector_data(outputs));
+                tb_assert(tb_vector_data(outputs));
 
                 // append the first point for closing the contour
                 tb_vector_insert_tail(outputs, point_first);
@@ -108,10 +108,10 @@ static tb_void_t gb_tessellator_done_output(gb_tessellator_impl_t* impl)
 static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(impl && impl->func && polygon && bounds);
+    tb_assert(impl && impl->func && polygon && bounds);
 
     // only one convex contour
-    tb_assert_abort(polygon->convex && polygon->counts && !polygon->counts[1]);
+    tb_assert(polygon->convex && polygon->counts && !polygon->counts[1]);
 
     // make convex or monotone? done it directly
     if (impl->mode == GB_TESSELLATOR_MODE_CONVEX || impl->mode == GB_TESSELLATOR_MODE_MONOTONE)
@@ -124,14 +124,14 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
     }
 
     // must be triangulation mode now
-    tb_assert_abort(impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION);
+    tb_assert(impl->mode == GB_TESSELLATOR_MODE_TRIANGULATION);
 
     // make mesh
     if (!gb_tessellator_mesh_make(impl, polygon)) return ;
 
     // only two faces
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(mesh && tb_iterator_size(gb_mesh_face_itor(mesh)) == 2);
+    tb_assert(mesh && tb_iterator_size(gb_mesh_face_itor(mesh)) == 2);
 
     // the arbitrary face is marked "inside" and the triangulation will be not effected
     gb_tessellator_face_inside_set(gb_mesh_face_head(mesh), 1);
@@ -145,7 +145,7 @@ static tb_void_t gb_tessellator_done_convex(gb_tessellator_impl_t* impl, gb_poly
 static tb_void_t gb_tessellator_done_concave(gb_tessellator_impl_t* impl, gb_polygon_ref_t polygon, gb_rect_ref_t bounds)
 { 
     // check
-    tb_assert_abort(impl && polygon && !polygon->convex && bounds);
+    tb_assert(impl && polygon && !polygon->convex && bounds);
 
     // make mesh
     if (!gb_tessellator_mesh_make(impl, polygon)) return ;

@@ -222,7 +222,7 @@ tb_void_t gb_demo_path_event(gb_window_ref_t window, gb_event_ref_t event)
             {
                 // make it
                 g_maker = gb_path_init();
-                tb_assert_abort(g_maker);
+                tb_assert(g_maker);
 
                 // move-to
                 gb_path_move2i_to(g_maker, cx - x0, cy - y0);

@@ -430,7 +430,7 @@ static tb_void_t gb_window_glut_loop(gb_window_ref_t window)
 
     // init canvas
     if (!impl->canvas) impl->canvas = gb_canvas_init_from_window(window);
-    tb_assert_abort(impl->canvas);
+    tb_assert(impl->canvas);
 
     // done init
     if (impl->base.info.init && !impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv)) return ;
@@ -472,7 +472,7 @@ static tb_void_t gb_window_glut_fullscreen(gb_window_ref_t window, tb_bool_t ful
         // the screen width and height
         tb_size_t screen_width  = glutGet(GLUT_SCREEN_WIDTH);
         tb_size_t screen_height = glutGet(GLUT_SCREEN_HEIGHT);
-        tb_assert_abort(screen_width && screen_height && screen_width >= impl->normal_width && screen_height >= impl->normal_height);
+        tb_assert(screen_width && screen_height && screen_width >= impl->normal_width && screen_height >= impl->normal_height);
 
         // move window
         glutPositionWindow((screen_width - impl->normal_width) >> 1, (screen_height - impl->normal_height) >> 1);

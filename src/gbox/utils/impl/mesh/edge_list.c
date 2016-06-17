@@ -105,11 +105,11 @@ static tb_void_t gb_mesh_edge_exit(tb_pointer_t data, tb_cpointer_t priv)
 static __tb_inline__ tb_void_t gb_mesh_edge_init(gb_mesh_edge_ref_t edge)
 {
     // check
-    tb_assert_abort(edge);
+    tb_assert(edge);
 
     // the sym edge
     gb_mesh_edge_ref_t edge_sym = edge->sym;
-    tb_assert_abort(edge_sym && edge < edge_sym);
+    tb_assert(edge_sym && edge < edge_sym);
 
     /* init edge and make self-loop
      *
@@ -125,19 +125,19 @@ static __tb_inline__ tb_void_t gb_mesh_edge_init(gb_mesh_edge_ref_t edge)
 static __tb_inline__ tb_void_t gb_mesh_edge_insert_prev(gb_mesh_edge_ref_t edge, gb_mesh_edge_ref_t edge_next)
 {
     // check
-    tb_assert_abort(edge && edge_next);
+    tb_assert(edge && edge_next);
 
     // the sym edge
     gb_mesh_edge_ref_t edge_sym = edge->sym;
-    tb_assert_abort(edge_sym && edge < edge_sym);
+    tb_assert(edge_sym && edge < edge_sym);
 
     // the next sym edge
     gb_mesh_edge_ref_t edge_next_sym = edge_next->sym;
-    tb_assert_abort(edge_next_sym && edge_next < edge_next_sym);
+    tb_assert(edge_next_sym && edge_next < edge_next_sym);
 
     // the prev sym edge
 	gb_mesh_edge_ref_t edge_prev_sym = edge_next_sym->next;
-    tb_assert_abort(edge_prev_sym && edge_prev_sym->sym);
+    tb_assert(edge_prev_sym && edge_prev_sym->sym);
 
     /* insert edge before the next edge
      *
@@ -158,19 +158,19 @@ static __tb_inline__ tb_void_t gb_mesh_edge_insert_prev(gb_mesh_edge_ref_t edge,
 static __tb_inline__ tb_void_t gb_mesh_edge_remove_done(gb_mesh_edge_ref_t edge)
 {
     // check
-    tb_assert_abort(edge);
+    tb_assert(edge);
 
     // the sym edge
     gb_mesh_edge_ref_t edge_sym = edge->sym;
-    tb_assert_abort(edge_sym && edge < edge_sym);
+    tb_assert(edge_sym && edge < edge_sym);
 
     // the next edge 
 	gb_mesh_edge_ref_t edge_next = edge->next;
-    tb_assert_abort(edge_next && edge_next->sym);
+    tb_assert(edge_next && edge_next->sym);
 
     // the prev sym edge
 	gb_mesh_edge_ref_t edge_prev_sym = edge_sym->next;
-    tb_assert_abort(edge_prev_sym && edge_prev_sym->sym);
+    tb_assert(edge_prev_sym && edge_prev_sym->sym);
 
     /* remove edge 
      *
@@ -195,7 +195,7 @@ static tb_size_t gb_mesh_edge_itor_head(tb_iterator_ref_t iterator)
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)iterator;
-    tb_assert_abort(impl);
+    tb_assert(impl);
 
     // head
     return (tb_size_t)impl->head[0].next;
@@ -204,7 +204,7 @@ static tb_size_t gb_mesh_edge_itor_last(tb_iterator_ref_t iterator)
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)iterator;
-    tb_assert_abort(impl && impl->head[1].next);
+    tb_assert(impl && impl->head[1].next);
 
     // last
     return (tb_size_t)(impl->head[1].next->sym);
@@ -213,7 +213,7 @@ static tb_size_t gb_mesh_edge_itor_tail(tb_iterator_ref_t iterator)
 {
     // check
     gb_mesh_edge_list_impl_t* impl = (gb_mesh_edge_list_impl_t*)iterator;
-    tb_assert_abort(impl);
+    tb_assert(impl);
 
     // tail
     return (tb_size_t)impl->head;
@@ -221,7 +221,7 @@ static tb_size_t gb_mesh_edge_itor_tail(tb_iterator_ref_t iterator)
 static tb_size_t gb_mesh_edge_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
-    tb_assert_abort(itor);
+    tb_assert(itor);
 
     // next
     return (tb_size_t)(((gb_mesh_edge_ref_t)itor)->next);
@@ -229,7 +229,7 @@ static tb_size_t gb_mesh_edge_itor_next(tb_iterator_ref_t iterator, tb_size_t it
 static tb_size_t gb_mesh_edge_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
-    tb_assert_abort(itor && ((gb_mesh_edge_ref_t)itor)->sym && ((gb_mesh_edge_ref_t)itor)->sym->next);
+    tb_assert(itor && ((gb_mesh_edge_ref_t)itor)->sym && ((gb_mesh_edge_ref_t)itor)->sym->next);
 
     // prev
     return (tb_size_t)(((gb_mesh_edge_ref_t)itor)->sym->next->sym);
@@ -237,7 +237,7 @@ static tb_size_t gb_mesh_edge_itor_prev(tb_iterator_ref_t iterator, tb_size_t it
 static tb_pointer_t gb_mesh_edge_itor_item(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
-    tb_assert_abort(itor);
+    tb_assert(itor);
 
     // data
     return (tb_pointer_t)itor;
@@ -488,7 +488,7 @@ tb_void_t gb_mesh_edge_list_kill(gb_mesh_edge_list_ref_t list, gb_mesh_edge_ref_
 
 #ifdef __gb_debug__
     // check
-    tb_assert_abort(edge->id && edge->sym->id);
+    tb_assert(edge->id && edge->sym->id);
 
     // clear id
     edge->id        = 0;

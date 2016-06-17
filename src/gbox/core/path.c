@@ -136,7 +136,7 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
     
     // the last code
     tb_long_t code = (tb_long_t)tb_iterator_item(impl->codes, code_last);
-    tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
+    tb_assert(code >= 0 && code < GB_PATH_CODE_MAXN);
 
     // the last point step
     tb_size_t point_step = gb_path_point_step(code);
@@ -157,7 +157,7 @@ static tb_size_t gb_path_itor_tail(tb_iterator_ref_t iterator)
     // the code and point tail
     tb_size_t code_tail     = tb_vector_size(impl->codes);
     tb_size_t point_tail    = tb_vector_size(impl->points);
-    tb_assert_abort(code_tail <= TB_MAXU16 && point_tail <= TB_MAXU16);
+    tb_assert(code_tail <= TB_MAXU16 && point_tail <= TB_MAXU16);
 
     // tail
     return ((code_tail << 16) | point_tail);
@@ -170,7 +170,7 @@ static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
 
     // the code
     tb_long_t code = (tb_long_t)tb_iterator_item(impl->codes, itor >> 16);
-    tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
+    tb_assert(code >= 0 && code < GB_PATH_CODE_MAXN);
 
     /* the next
      *
@@ -186,14 +186,14 @@ static tb_size_t gb_path_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
     tb_assert_return_val(impl && impl->codes, 0);
 
     // check the code index
-    tb_assert_abort(itor >> 16);
+    tb_assert(itor >> 16);
 
     // the code
     tb_long_t code = (tb_size_t)tb_iterator_item(impl->codes, (itor >> 16) - 1);
-    tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
+    tb_assert(code >= 0 && code < GB_PATH_CODE_MAXN);
 
     // check the point index
-    tb_assert_abort((itor & 0xffff) >= gb_path_point_step(code));
+    tb_assert((itor & 0xffff) >= gb_path_point_step(code));
 
     /* the prev
      *
@@ -214,12 +214,12 @@ static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor
 
     // the code
     tb_size_t code = (tb_size_t)tb_iterator_item(impl->codes, code_index);
-    tb_assert_abort(code < 1 || point_index);
+    tb_assert(code < 1 || point_index);
 
     // init item
     impl->item.code     = code;
     impl->item.points   = (gb_point_ref_t)tb_iterator_item(impl->points, code < 1? point_index : point_index - 1);
-    tb_assert_abort(impl->item.points);
+    tb_assert(impl->item.points);
 
     // data
     return &impl->item;
@@ -527,8 +527,8 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                     gb_point_ref_t points = (gb_point_ref_t)tb_vector_data(impl->points);
 
                     // check
-                    tb_assert_abort(points && tb_vector_size(impl->points) > 1);
-                    tb_assert_abort(points[0].x == item->points[0].x && points[0].y == item->points[0].y);
+                    tb_assert(points && tb_vector_size(impl->points) > 1);
+                    tb_assert(points[0].x == item->points[0].x && points[0].y == item->points[0].y);
 
                     // update the points
                     x0 = x1;
@@ -540,7 +540,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
                 }
                 break;
             default:
-                tb_assert_abort(0);
+                tb_assert(0);
                 break;
             }
 
@@ -568,8 +568,8 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
         }
 
         // check
-        tb_assert_abort(point_count > 2);
-        tb_assert_abort(contour_count == 1);
+        tb_assert(point_count > 2);
+        tb_assert(contour_count == 1);
     }
 
     // trace
@@ -581,7 +581,7 @@ static tb_bool_t gb_path_make_convex(gb_path_impl_t* impl)
 static tb_void_t gb_path_make_quad_for_arc_to(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(priv && point);
+    tb_assert(priv && point);
 
     // append point and skip the first point which the ctrl point is null
     if (ctrl) gb_path_quad_to((gb_path_ref_t)priv, ctrl, point);
@@ -589,7 +589,7 @@ static tb_void_t gb_path_make_quad_for_arc_to(gb_point_ref_t ctrl, gb_point_ref_
 static tb_void_t gb_path_make_quad_for_add_arc(gb_point_ref_t ctrl, gb_point_ref_t point, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(priv && point);
+    tb_assert(priv && point);
 
     // append point
     ctrl? gb_path_quad_to((gb_path_ref_t)priv, ctrl, point) : gb_path_move_to((gb_path_ref_t)priv, point);
@@ -598,11 +598,11 @@ static tb_void_t gb_path_make_line_for_curve_to(gb_point_ref_t point, tb_cpointe
 {
     // check
     tb_value_t* values = (tb_value_t*)priv;
-    tb_assert_abort(values && point);
+    tb_assert(values && point);
 
     // the polygon points
     tb_vector_ref_t polygon_points = (tb_vector_ref_t)values[0].ptr;
-    tb_assert_abort(polygon_points);
+    tb_assert(polygon_points);
 
     // append point
     tb_vector_insert_tail(polygon_points, point);
@@ -702,7 +702,7 @@ static tb_bool_t gb_path_make_python(gb_path_impl_t* impl)
         tb_for_all (tb_long_t, code, impl->codes)
         {
             // check
-            tb_assert_abort(code >= 0 && code < GB_PATH_CODE_MAXN);
+            tb_assert(code >= 0 && code < GB_PATH_CODE_MAXN);
 
             // append count
             if (code == GB_PATH_CODE_MOVE) 
@@ -1018,7 +1018,7 @@ tb_void_t gb_path_last_set(gb_path_ref_t path, gb_point_ref_t point)
     // the last point
     gb_point_ref_t last = tb_null;
     if (tb_vector_size(impl->points)) last = (gb_point_ref_t)tb_vector_last(impl->points);
-    tb_assert_abort(last);
+    tb_assert(last);
 
     // save it
     if (last) *last = *point;

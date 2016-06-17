@@ -1,22 +1,30 @@
 
 -- add option: fixed
-add_option("fixed")
-    set_option_enable(true)
-    set_option_showmenu(true)
-    set_option_category("option")
-    set_option_description("Enable or disable the fixed type")
-    add_option_defines_h_if_ok("$(prefix)_FLOAT_FIXED")
+option("fixed")
+    set_enable(true)
+    set_showmenu(true)
+    set_category("option")
+    set_description("Enable or disable the fixed type")
+    add_defines_h_if_ok("$(prefix)_FLOAT_FIXED")
 
 -- add option: bitmap
-add_option("bitmap")
-    set_option_enable(true)
-    set_option_showmenu(true)
-    set_option_category("option")
-    set_option_description("Enable or disable the bitmap device")
-    add_option_defines_h_if_ok("$(prefix)_DEVICE_HAVE_BITMAP")
+option("bitmap")
+    set_enable(true)
+    set_showmenu(true)
+    set_category("option")
+    set_description("Enable or disable the bitmap device")
+    add_defines_h_if_ok("$(prefix)_DEVICE_HAVE_BITMAP")
+
+-- add option: smallest
+option("smallest")
+    set_enable(false)
+    set_showmenu(true)
+    set_category("option")
+    set_description("Enable the smallest compile mode and disable all modules.")
+    add_rbindings("bitmap")
 
 -- add target
-add_target("gbox")
+target("gbox")
 
     -- make as a static library
     set_kind("static")
@@ -38,14 +46,14 @@ add_target("gbox")
     -- add the header files for installing
     add_headers("../(gbox/**.h)|**/impl/**.h")
 
-    -- add options
+    -- add is_option
     add_options("bitmap", "fixed")
 
     -- add packages for window
-    if os("ios", "android") then 
-    elseif options("x11") then add_options("x11")
-    elseif options("glut") then add_options("glut") 
-    elseif options("sdl") then add_options("sdl")
+    if is_os("ios", "android") then 
+    elseif is_option("x11") then add_options("x11")
+    elseif is_option("glut") then add_options("glut") 
+    elseif is_option("sdl") then add_options("sdl")
     end
 
     -- add packages
@@ -59,19 +67,19 @@ add_target("gbox")
     add_files("utils/**.c|impl/tessellator/profiler.c")
 
     -- add the source files for debug
-    if modes("debug") then add_files("utils/impl/tessellator/profiler.c") end
+    if is_mode("debug") then add_files("utils/impl/tessellator/profiler.c") end
 
     -- add the source files for device
-    if options("opengl") then add_files("core/device/gl.c", "core/device/gl/**.c") end
-    if options("bitmap") then add_files("core/device/bitmap.c", "core/device/bitmap/**.c") end
-    if options("skia") then add_files("core/device/skia.cpp") end
+    if is_option("opengl") then add_files("core/device/gl.c", "core/device/gl/**.c") end
+    if is_option("bitmap") then add_files("core/device/bitmap.c", "core/device/bitmap/**.c") end
+    if is_option("skia") then add_files("core/device/skia.cpp") end
 
     -- add the source files for window
-    if os("ios") then add_files("platform/ios/window.c") 
-    elseif os("android") then add_files("platform/android/window.c") 
-    elseif options("x11") then add_files("platform/x11/window.c") 
-    elseif options("glut") then add_files("platform/glut/window.c") 
-    elseif options("sdl") then add_files("platform/sdl/window.c") 
+    if is_os("ios") then add_files("platform/ios/window.c") 
+    elseif is_os("android") then add_files("platform/android/window.c") 
+    elseif is_option("x11") then add_files("platform/x11/window.c") 
+    elseif is_option("glut") then add_files("platform/glut/window.c") 
+    elseif is_option("sdl") then add_files("platform/sdl/window.c") 
     end
 
 

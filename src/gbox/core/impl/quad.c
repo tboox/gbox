@@ -164,7 +164,7 @@ static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
         factor = 0;
 
         // failed
-        tb_assert_abort(0);
+        tb_assert(0);
     }
  
     // ok
@@ -177,7 +177,7 @@ static gb_float_t gb_quad_find_max_curvature(gb_point_t const points[3])
 gb_float_t gb_quad_near_distance(gb_point_t const points[3])
 {
     // check
-    tb_assert_abort(points);
+    tb_assert(points);
  
     /* compute the delat x and y of the distance(p1, center(p0, p2))
      *
@@ -204,11 +204,11 @@ gb_float_t gb_quad_near_distance(gb_point_t const points[3])
 tb_size_t gb_quad_divide_line_count(gb_point_t const points[3])
 {
     // check
-    tb_assert_abort(points);
+    tb_assert(points);
 
     // compute the approximate distance
     gb_float_t distance = gb_quad_near_distance(points);
-    tb_assert_abort(distance >= 0);
+    tb_assert(distance >= 0);
 
     // get the integer distance
     tb_size_t idistance = gb_ceil(distance);
@@ -225,7 +225,7 @@ tb_size_t gb_quad_divide_line_count(gb_point_t const points[3])
 tb_void_t gb_quad_chop_at(gb_point_t const points[3], gb_point_t output[5], gb_float_t factor)
 {
     // check
-    tb_assert_abort(points && output && gb_float_in_unit_range(factor));
+    tb_assert(points && output && gb_float_in_unit_range(factor));
 
     // chop x-coordinates at the factor
     gb_quad_chop_xy_at(&points[0].x, &output[0].x, factor);
@@ -236,7 +236,7 @@ tb_void_t gb_quad_chop_at(gb_point_t const points[3], gb_point_t output[5], gb_f
 tb_void_t gb_quad_chop_at_half(gb_point_t const points[3], gb_point_t output[5])
 {
     // check
-    tb_assert_abort(points && output);
+    tb_assert(points && output);
 
     /* compute the chopped points
      *
@@ -268,7 +268,7 @@ tb_void_t gb_quad_chop_at_half(gb_point_t const points[3], gb_point_t output[5])
 tb_size_t gb_quad_chop_at_max_curvature(gb_point_t const points[3], gb_point_t output[5])
 {
     // check
-    tb_assert_abort(points);
+    tb_assert(points);
 
     // find the factor of the max curvature
     gb_float_t factor = gb_quad_find_max_curvature(points);
@@ -294,7 +294,7 @@ tb_size_t gb_quad_chop_at_max_curvature(gb_point_t const points[3], gb_point_t o
 tb_void_t gb_quad_make_line(gb_point_t const points[3], gb_quad_line_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(func && points);
+    tb_assert(func && points);
 
     // compute the divided count first
     tb_size_t count = gb_quad_divide_line_count(points);

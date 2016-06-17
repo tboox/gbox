@@ -36,7 +36,7 @@
 tb_void_t gb_round_rect_make(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_vector_t radius[])
 {
     // check
-    tb_assert_abort(rect && bounds && radius);
+    tb_assert(rect && bounds && radius);
     tb_assert_static(GB_RECT_CORNER_MAXN == 4);
 
     // make it
@@ -48,7 +48,7 @@ tb_void_t gb_round_rect_make(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_
 tb_void_t gb_round_rect_make_same(gb_round_rect_ref_t rect, gb_rect_ref_t bounds, gb_float_t rx, gb_float_t ry)
 {
     // check
-    tb_assert_abort(rect && bounds);
+    tb_assert(rect && bounds);
     tb_assert_static(GB_RECT_CORNER_MAXN == 4);
 
     // the radius
@@ -70,7 +70,7 @@ tb_void_t gb_round_rect_imake_same(gb_round_rect_ref_t rect, gb_rect_ref_t bound
 tb_bool_t gb_round_rect_is_rect(gb_round_rect_ref_t rect)
 {
     // check
-    tb_assert_abort(rect);
+    tb_assert(rect);
 
     // is rect?
     return (    (rect->radius[0].x <= 0)
@@ -85,7 +85,7 @@ tb_bool_t gb_round_rect_is_rect(gb_round_rect_ref_t rect)
 tb_bool_t gb_round_rect_is_ellipse(gb_round_rect_ref_t rect)
 {
     // check
-    tb_assert_abort(rect);
+    tb_assert(rect);
 
     // the radius
     gb_float_t rx = gb_half(rect->bounds.w);

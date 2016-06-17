@@ -34,7 +34,7 @@
 tb_void_t gb_line_make(gb_line_ref_t line, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1)
 {
     // check
-    tb_assert_abort(line);
+    tb_assert(line);
 
     // make it
     line->p0.x = x0;
@@ -49,7 +49,7 @@ tb_void_t gb_line_imake(gb_line_ref_t line, tb_long_t x0, tb_long_t y0, tb_long_
 tb_void_t gb_line_apply(gb_line_ref_t line, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(line);
+    tb_assert(line);
     
     // apply it
 	gb_point_apply(&line->p0, matrix);
@@ -58,7 +58,7 @@ tb_void_t gb_line_apply(gb_line_ref_t line, gb_matrix_ref_t matrix)
 tb_void_t gb_line_apply2(gb_line_ref_t line, gb_line_ref_t applied, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(line && applied);
+    tb_assert(line && applied);
     
     // apply it
 	gb_point_apply2(&line->p0, &applied->p0, matrix);

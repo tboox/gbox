@@ -47,7 +47,7 @@
 static tb_bool_t gb_tessellator_active_region_leq(gb_tessellator_active_region_ref_t lregion, gb_tessellator_active_region_ref_t rregion)
 {
     // check
-    tb_assert_abort(lregion && lregion->edge && rregion && rregion->edge);
+    tb_assert(lregion && lregion->edge && rregion && rregion->edge);
 
     // the origin and destination of the left edge
     gb_mesh_vertex_ref_t ledge_org = gb_mesh_edge_org(lregion->edge);
@@ -197,7 +197,7 @@ static tb_bool_t gb_tessellator_active_region_leq(gb_tessellator_active_region_r
     }
 
     // failed
-    tb_assert_abort(0);
+    tb_assert(0);
     return 0;
 }
 static tb_long_t gb_tessellator_active_region_comp(tb_element_ref_t element, tb_cpointer_t ldata, tb_cpointer_t rdata)
@@ -254,7 +254,7 @@ static tb_long_t gb_tessellator_active_region_printf(tb_cpointer_t object, tb_ch
 static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_done(gb_tessellator_impl_t* impl, tb_size_t prev, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && region && region->edge);
+    tb_assert(impl && impl->active_regions && region && region->edge);
 
     // the edge must go up
     tb_assertf_abort(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
@@ -270,11 +270,11 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
 
     // insert the region to the next position
     itor = tb_list_insert_prev(impl->active_regions, itor, region);
-    tb_assert_abort(itor != tb_iterator_tail(impl->active_regions));
+    tb_assert(itor != tb_iterator_tail(impl->active_regions));
 
     // get the real region reference 
     region = (gb_tessellator_active_region_ref_t)tb_iterator_item(impl->active_regions, itor);
-    tb_assert_abort(region);
+    tb_assert(region);
 
     // save the region position
     region->position = itor;
@@ -296,7 +296,7 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
 static tb_void_t gb_tessellator_active_regions_insert_bounds(gb_tessellator_impl_t* impl, gb_float_t x, gb_float_t y_org, gb_float_t y_dst)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && impl->active_regions);
+    tb_assert(impl && impl->mesh && impl->active_regions);
 
     // init two points of the new edge
     gb_point_t org;
@@ -306,7 +306,7 @@ static tb_void_t gb_tessellator_active_regions_insert_bounds(gb_tessellator_impl
 
     // make edge
     gb_mesh_edge_ref_t edge = gb_tessellator_mesh_make_edge(impl, &org, &dst);
-    tb_assert_abort(edge);
+    tb_assert(edge);
 
     // update the current sweep event for inserting region in ascending order
     impl->event = gb_mesh_edge_dst(edge);
@@ -326,7 +326,7 @@ static tb_void_t gb_tessellator_active_regions_insert_bounds(gb_tessellator_impl
 static tb_void_t gb_tessellator_active_regions_test_insert(gb_tessellator_impl_t* impl, gb_float_t sweep_xb, gb_float_t sweep_xe, gb_float_t sweep_y)
 {
     // check
-    tb_assert_abort(impl && impl->mesh && impl->active_regions);
+    tb_assert(impl && impl->mesh && impl->active_regions);
 
     // init coordinates
     tb_long_t xb = tb_random_range(tb_null, gb_float_to_long(sweep_xb), gb_float_to_long(sweep_xe));
@@ -342,7 +342,7 @@ static tb_void_t gb_tessellator_active_regions_test_insert(gb_tessellator_impl_t
 
     // make edge
     gb_mesh_edge_ref_t edge = gb_tessellator_mesh_make_edge(impl, &org, &dst);
-    tb_assert_abort(edge);
+    tb_assert(edge);
 
     // make region
     gb_tessellator_active_region_t region;
@@ -357,7 +357,7 @@ static tb_void_t gb_tessellator_active_regions_test_insert(gb_tessellator_impl_t
 static tb_void_t gb_tessellator_active_regions_test(gb_tessellator_impl_t* impl, gb_float_t sweep_xb, gb_float_t sweep_xe, gb_float_t sweep_y)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions);
+    tb_assert(impl && impl->active_regions);
 
     // make the current sweep event point
     gb_point_t point;
@@ -403,7 +403,7 @@ static tb_void_t gb_tessellator_active_regions_test(gb_tessellator_impl_t* impl,
 tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rect_ref_t bounds)
 {
     // check
-    tb_assert_abort(impl && bounds && bounds->w > 0 && bounds->h > 0);
+    tb_assert(impl && bounds && bounds->w > 0 && bounds->h > 0);
 
     // init active regions
     if (!impl->active_regions) 
@@ -466,7 +466,7 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
 gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessellator_impl_t* impl, gb_mesh_edge_ref_t edge)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && edge);
+    tb_assert(impl && impl->active_regions && edge);
 
     // make a temporary region with the given edge for finding the real region containing it
     gb_tessellator_active_region_t region_temp;
@@ -499,8 +499,8 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessell
 gb_tessellator_active_region_ref_t gb_tessellator_active_regions_left(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions);
-    tb_assert_abort(region && region->position != tb_iterator_tail(impl->active_regions));
+    tb_assert(impl && impl->active_regions);
+    tb_assert(region && region->position != tb_iterator_tail(impl->active_regions));
     
     // get the prev position
     tb_size_t position = tb_iterator_prev(impl->active_regions, region->position);
@@ -514,8 +514,8 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_left(gb_tessell
 gb_tessellator_active_region_ref_t gb_tessellator_active_regions_right(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions);
-    tb_assert_abort(region && region->position != tb_iterator_tail(impl->active_regions));
+    tb_assert(impl && impl->active_regions);
+    tb_assert(region && region->position != tb_iterator_tail(impl->active_regions));
     
     // get the next position
     tb_size_t position = tb_iterator_next(impl->active_regions, region->position);
@@ -534,11 +534,11 @@ tb_bool_t gb_tessellator_active_regions_in_left(gb_tessellator_impl_t* impl, gb_
 tb_void_t gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && region && region->edge);
-    tb_assert_abort(region->position != tb_iterator_tail(impl->active_regions));
+    tb_assert(impl && impl->active_regions && region && region->edge);
+    tb_assert(region->position != tb_iterator_tail(impl->active_regions));
 
     // it can not be a real edge if the left edge need fix, then we will remove it 
-    tb_assert_abort(!region->fixedge || !gb_tessellator_edge_winding(region->edge));
+    tb_assert(!region->fixedge || !gb_tessellator_edge_winding(region->edge));
 
     // clear the region reference for the edge
     gb_tessellator_edge_region_set(region->edge, tb_null);
@@ -549,7 +549,7 @@ tb_void_t gb_tessellator_active_regions_remove(gb_tessellator_impl_t* impl, gb_t
 gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && region);
+    tb_assert(impl && impl->active_regions && region);
 
     // insert it
     return gb_tessellator_active_regions_insert_done(impl, tb_iterator_head(impl->active_regions), region);
@@ -557,11 +557,11 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert(gb_tesse
 gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_after(gb_tessellator_impl_t* impl, gb_tessellator_active_region_ref_t region_prev, gb_tessellator_active_region_ref_t region)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions && region_prev && region);
-    tb_assert_abort(region_prev->position != tb_iterator_tail(impl->active_regions));
+    tb_assert(impl && impl->active_regions && region_prev && region);
+    tb_assert(region_prev->position != tb_iterator_tail(impl->active_regions));
 
     // region_prev <= region
-    tb_assert_abort(tb_iterator_comp(impl->active_regions, region_prev, region) <= 0);
+    tb_assert(tb_iterator_comp(impl->active_regions, region_prev, region) <= 0);
 
     // insert it
     return gb_tessellator_active_regions_insert_done(impl, region_prev->position, region);
@@ -570,7 +570,7 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_after(gb
 tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && impl->active_regions);
+    tb_assert(impl && impl->active_regions);
 
     // done
     gb_tessellator_active_region_ref_t region_prev = tb_null;
@@ -596,7 +596,7 @@ tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
                 tb_trace_i("%{mesh_edge}", region->edge);
 
                 // abort it
-                tb_assert_abort(0);
+                tb_assert(0);
             }
         }
 

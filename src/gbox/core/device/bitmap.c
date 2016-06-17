@@ -65,15 +65,15 @@ static tb_void_t gb_device_bitmap_draw_clear(gb_device_impl_t* device, gb_color_
 
     // the pixels data
     tb_pointer_t pixels = gb_bitmap_data(impl->bitmap);
-    tb_assert_abort(pixels);
+    tb_assert(pixels);
 
     // the pixmap
     gb_pixmap_ref_t pixmap = impl->pixmap;
-    tb_assert_abort(pixmap && pixmap->pixel && pixmap->pixels_fill);
+    tb_assert(pixmap && pixmap->pixel && pixmap->pixels_fill);
 
     // the pixels count
     tb_size_t count = gb_bitmap_size(impl->bitmap) / pixmap->btp;
-    tb_assert_abort(count);
+    tb_assert(count);
 
     // clear it
     pixmap->pixels_fill(pixels, pixmap->pixel(color), count, 0xff);

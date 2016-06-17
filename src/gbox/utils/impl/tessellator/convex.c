@@ -39,19 +39,19 @@
 static tb_void_t gb_tessellator_convex_make_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
-    tb_assert_abort(impl && face);
+    tb_assert(impl && face);
 
     // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(mesh);
+    tb_assert(mesh);
 
     // the face edge
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
-    tb_assert_abort(edge);
+    tb_assert(edge);
 
     // the first vertex
     gb_mesh_vertex_ref_t vertex_first = gb_mesh_edge_org(edge);
-    tb_assert_abort(vertex_first);
+    tb_assert(vertex_first);
 
     // done
     gb_mesh_face_ref_t face_sym = tb_null;
@@ -129,7 +129,7 @@ static tb_void_t gb_tessellator_convex_make_face(gb_tessellator_impl_t* impl, gb
 tb_void_t gb_tessellator_convex_make(gb_tessellator_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && impl->mesh);
+    tb_assert(impl && impl->mesh);
 
     // done
     tb_for_all_if (gb_mesh_face_ref_t, face, gb_mesh_face_itor(impl->mesh), face)

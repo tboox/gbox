@@ -151,17 +151,17 @@
 static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* impl, gb_mesh_face_ref_t face)
 {
     // check
-    tb_assert_abort(impl && face);
+    tb_assert(impl && face);
 
     // the mesh
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort(mesh);
+    tb_assert(mesh);
 
     // the face edge
     gb_mesh_edge_ref_t edge = gb_mesh_face_edge(face);
 
     // must be triangle region at least
-    tb_assert_abort(edge && gb_mesh_edge_lnext(edge) != edge && gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)) != edge);
+    tb_assert(edge && gb_mesh_edge_lnext(edge) != edge && gb_mesh_edge_lnext(gb_mesh_edge_lnext(edge)) != edge);
 
     /* get the uppermost left edge
      *
@@ -312,7 +312,7 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
     }
     
     // the last region must be triangle at least
-    tb_assert_abort(gb_mesh_edge_lnext(right) != left);
+    tb_assert(gb_mesh_edge_lnext(right) != left);
 
     /* tessellate the remaining region
      *
@@ -341,14 +341,14 @@ static tb_void_t gb_tessellator_triangulation_make_face(gb_tessellator_impl_t* i
 tb_void_t gb_tessellator_triangulation_make(gb_tessellator_impl_t* impl)
 {
     // check
-    tb_assert_abort(impl && impl->mesh);
+    tb_assert(impl && impl->mesh);
 
     // the new face must be inserted to the head of faces
-    tb_assert_abort(gb_mesh_face_order(impl->mesh) == GB_MESH_ORDER_INSERT_HEAD);
+    tb_assert(gb_mesh_face_order(impl->mesh) == GB_MESH_ORDER_INSERT_HEAD);
 
     // the iterator
     tb_iterator_ref_t iterator = gb_mesh_face_itor(impl->mesh);
-    tb_assert_abort(iterator);
+    tb_assert(iterator);
 
     // done
     tb_size_t           itor = tb_iterator_head(iterator);
@@ -358,7 +358,7 @@ tb_void_t gb_tessellator_triangulation_make(gb_tessellator_impl_t* impl)
     {
         // the face
         face = (gb_mesh_face_ref_t)tb_iterator_item(iterator, itor);
-        tb_assert_abort(face);
+        tb_assert(face);
 
         /* the next face
          *

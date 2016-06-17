@@ -1,3 +1,5 @@
+-- project
+set_project("gbox")
 
 -- version
 set_version("1.0.4")
@@ -13,7 +15,7 @@ add_cxflags("-Wno-error=deprecated-declarations")
 add_mxflags("-Wno-error=deprecated-declarations")
 
 -- the debug mode
-if modes("debug") then
+if is_mode("debug") then
     
     -- enable the debug symbols
     set_symbols("debug")
@@ -25,18 +27,18 @@ if modes("debug") then
     add_defines("__tb_debug__")
 
     -- attempt to enable some checkers for pc
-    if archs("i386", "x86_64") then
+    if is_mode("check") and is_arch("i386", "x86_64") then
         add_cxflags("-fsanitize=address", "-ftrapv")
         add_mxflags("-fsanitize=address", "-ftrapv")
         add_ldflags("-fsanitize=address")
     end
 end
 
--- the release or profile modes
-if modes("release", "profile") then
+-- the release or profile is_mode
+if is_mode("release", "profile") then
 
     -- the release mode
-    if modes("release") then
+    if is_mode("release") then
         
         -- set the symbols visibility: hidden
         set_symbols("hidden")
@@ -56,24 +58,22 @@ if modes("release", "profile") then
 
     end
 
-    -- for pc
-    if archs("i386", "x86_64") then
+    -- smallest?
+    if is_option("smallest") then
  
-        -- enable fastest optimization
-        set_optimize("fastest")
-
-    -- for embed
-    else
         -- enable smallest optimization
         set_optimize("smallest")
+    else
+        -- enable fastest optimization
+        set_optimize("fastest")
     end
 
     -- attempt to add vector extensions 
     add_vectorexts("sse2", "sse3", "ssse3", "mmx")
 end
 
--- for embed
-if not archs("i386", "x86_64") then
+-- smallest?
+if is_option("smallest") then
 
     -- add defines for small
     add_defines("__tb_small__")
@@ -83,16 +83,16 @@ if not archs("i386", "x86_64") then
 end
 
 -- for the windows platform (msvc)
-if plats("windows") then 
+if is_plat("windows") then 
 
     -- the release mode
-    if modes("release") then
+    if is_mode("release") then
 
         -- link libcmt.lib
         add_cxflags("-MT") 
 
     -- the debug mode
-    elseif modes("debug") then
+    elseif is_mode("debug") then
 
         -- enable some checkers
         add_cxflags("-Gs", "-RTC1") 
@@ -106,15 +106,15 @@ if plats("windows") then
 end
 
 -- add option: demo
-add_option("demo")
-    set_option_enable(true)
-    set_option_showmenu(true)
-    set_option_category("option")
-    set_option_description("Enable or disable the demo module")
+option("demo")
+    set_enable(true)
+    set_showmenu(true)
+    set_category("option")
+    set_description("Enable or disable the demo module")
 
 -- add packages
-add_pkgdirs("pkg") 
+add_packagedirs("pkg") 
 
 -- add projects
 add_subdirs("src/gbox") 
-if options("demo") then add_subdirs("src/demo") end
+if is_option("demo") then add_subdirs("src/demo") end

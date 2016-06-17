@@ -38,7 +38,7 @@
 static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower)
 {
     // check
-    tb_assert_abort(center && upper && lower);
+    tb_assert(center && upper && lower);
 
     // must be upper <= center <= lower
     tb_assertf_abort(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
@@ -47,7 +47,7 @@ static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, g
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
     gb_float_t yl = lower->y - center->y;
-    tb_assert_abort(yu >= 0 && yl >= 0);
+    tb_assert(yu >= 0 && yl >= 0);
 
     // edge(upper, lower) is not horizontal?
     if (yu + yl > 0)
@@ -89,7 +89,7 @@ static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, g
 static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
 {
     // check
-    tb_assert_abort(center && left && right);
+    tb_assert(center && left && right);
 
     // must be left <= center <= right
     tb_assertf_abort(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
@@ -98,7 +98,7 @@ static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, g
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;
     gb_float_t xr = right->x - center->x;
-    tb_assert_abort(xl >= 0 && xr >= 0);
+    tb_assert(xl >= 0 && xr >= 0);
 
     // edge(left, right) is not vertical?
     if (xl + xr > 0)
@@ -182,7 +182,7 @@ static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_float_t x
 static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
     // check
-    tb_assert_abort(org1 && dst1 && org2 && dst2);
+    tb_assert(org1 && dst1 && org2 && dst2);
 
     /* sort edges in the order: org1.x <= org2.x <= (dst1/dst2).x
      *
@@ -202,8 +202,8 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
                                          tb_swap(gb_point_ref_t, dst1, dst2); }
 
     // check
-    tb_assert_abort(org1 != org2);
-    tb_assert_abort(dst1 != dst2);
+    tb_assert(org1 != org2);
+    tb_assert(dst1 != dst2);
 
     /* no intersection?
      *                              org2
@@ -340,7 +340,7 @@ static tb_bool_t gb_segment_intersection_x(gb_point_ref_t org1, gb_point_ref_t d
 static tb_long_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
     // check
-    tb_assert_abort(org1 && dst1 && org2 && dst2);
+    tb_assert(org1 && dst1 && org2 && dst2);
 
     // sort edges in the order: org1.y <= org2.y <= (dst1/dst2).y
     if (gb_point_in_bottom(org1, dst1)) { tb_swap(gb_point_ref_t, org1, dst1); }
@@ -349,8 +349,8 @@ static tb_long_t gb_segment_intersection_y(gb_point_ref_t org1, gb_point_ref_t d
                                           tb_swap(gb_point_ref_t, dst1, dst2); }
 
     // check
-    tb_assert_abort(org1 != org2);
-    tb_assert_abort(dst1 != dst2);
+    tb_assert(org1 != org2);
+    tb_assert(dst1 != dst2);
 
     // no intersection?
     if (gb_point_in_bottom(org2, dst1)) return tb_false;
@@ -435,7 +435,7 @@ static tb_bool_t gb_segment_near_parallel(gb_point_ref_t org1, gb_point_ref_t ds
 tb_long_t gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t p2)
 {
     // check
-    tb_assert_abort(p0 && p1 && p2);
+    tb_assert(p0 && p1 && p2);
 
     // the coordinates
     tb_fixed_t x0 = gb_float_to_fixed(p0->x);
@@ -457,7 +457,7 @@ tb_long_t gb_points_is_ccw(gb_point_ref_t p0, gb_point_ref_t p1, gb_point_ref_t 
 gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower)
 {
     // check
-    tb_assert_abort(center && upper && lower);
+    tb_assert(center && upper && lower);
 
     // must be upper <= center <= lower
     tb_assertf_abort(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
@@ -466,7 +466,7 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
     gb_float_t yl = lower->y - center->y;
-    tb_assert_abort(yu >= 0 && yl >= 0);
+    tb_assert(yu >= 0 && yl >= 0);
 
     // edge(upper, lower) is not horizontal?
     if (yu + yl > 0)
@@ -591,7 +591,7 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
 gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
 {
     // check
-    tb_assert_abort(center && left && right);
+    tb_assert(center && left && right);
 
     // must be left <= center <= right
     tb_assertf_abort(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
@@ -600,7 +600,7 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;
     gb_float_t xr = right->x - center->x;
-    tb_assert_abort(xl >= 0 && xr >= 0);
+    tb_assert(xl >= 0 && xr >= 0);
 
     // edge(left, right) is not vertical?
     if (xl + xr > 0)
@@ -635,7 +635,7 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
 tb_long_t gb_point_to_segment_position_h(gb_point_ref_t center, gb_point_ref_t upper, gb_point_ref_t lower)
 {
     // check
-    tb_assert_abort(center && upper && lower);
+    tb_assert(center && upper && lower);
 
     // compute the cheap distance quickly
     gb_double_t distance = gb_point_to_segment_distance_h_cheap(center, upper, lower);
@@ -646,7 +646,7 @@ tb_long_t gb_point_to_segment_position_h(gb_point_ref_t center, gb_point_ref_t u
 tb_long_t gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t left, gb_point_ref_t right)
 {
     // check
-    tb_assert_abort(center && left && right);
+    tb_assert(center && left && right);
 
     // compute the cheap distance quickly
     gb_double_t distance = gb_point_to_segment_distance_v_cheap(center, left, right);
@@ -657,7 +657,7 @@ tb_long_t gb_point_to_segment_position_v(gb_point_ref_t center, gb_point_ref_t l
 tb_long_t gb_segment_intersection(gb_point_ref_t org1, gb_point_ref_t dst1, gb_point_ref_t org2, gb_point_ref_t dst2, gb_point_ref_t result)
 {
     // check
-    tb_assert_abort(org1 && dst1 && org2 && dst2);
+    tb_assert(org1 && dst1 && org2 && dst2);
 
     // near parallel? no intersection
     if (gb_segment_near_parallel(org1, dst1, org2, dst2)) return 0;

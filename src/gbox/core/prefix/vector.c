@@ -40,7 +40,7 @@
 tb_void_t gb_vector_make(gb_vector_ref_t vector, gb_float_t x, gb_float_t y)
 {
     // check
-    tb_assert_abort(vector);
+    tb_assert(vector);
 
     // make it
     vector->x = x;
@@ -53,7 +53,7 @@ tb_void_t gb_vector_imake(gb_vector_ref_t vector, tb_long_t x, tb_long_t y)
 tb_void_t gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point)
 {
     // check
-    tb_assert_abort(vector && point);
+    tb_assert(vector && point);
 
     // make it
     *vector = *((gb_vector_ref_t)point);
@@ -61,7 +61,7 @@ tb_void_t gb_vector_make_from_point(gb_vector_ref_t vector, gb_point_ref_t point
 tb_void_t gb_vector_make_from_two_points(gb_vector_ref_t vector, gb_point_ref_t before, gb_point_ref_t after)
 {
     // check
-    tb_assert_abort(vector && before && after);
+    tb_assert(vector && before && after);
 
     // make it
     gb_vector_make(vector, after->x - before->x, after->y - before->y);
@@ -69,7 +69,7 @@ tb_void_t gb_vector_make_from_two_points(gb_vector_ref_t vector, gb_point_ref_t 
 tb_bool_t gb_vector_make_unit(gb_vector_ref_t vector, gb_float_t x, gb_float_t y)
 {
     // check
-    tb_assert_abort(vector);
+    tb_assert(vector);
 
     // attempt to make the unit vector
     gb_vector_t unit;
@@ -89,7 +89,7 @@ tb_bool_t gb_vector_imake_unit(gb_vector_ref_t vector, tb_long_t x, tb_long_t y)
 tb_void_t gb_vector_negate(gb_vector_ref_t vector)
 {
     // check
-    tb_assert_abort(vector);
+    tb_assert(vector);
 
     // negate it
     vector->x = -vector->x;
@@ -98,7 +98,7 @@ tb_void_t gb_vector_negate(gb_vector_ref_t vector)
 tb_void_t gb_vector_negate2(gb_vector_ref_t vector, gb_vector_ref_t negated)
 {
     // check
-    tb_assert_abort(vector && negated);
+    tb_assert(vector && negated);
 
     // negate it
     negated->x = -vector->x;
@@ -112,7 +112,7 @@ tb_void_t gb_vector_rotate(gb_vector_ref_t vector, tb_size_t direction)
 tb_void_t gb_vector_rotate2(gb_vector_ref_t vector, gb_vector_ref_t rotated, tb_size_t direction)
 {
     // check
-    tb_assert_abort(vector && rotated);
+    tb_assert(vector && rotated);
 
     /* rotate it
      *
@@ -139,7 +139,7 @@ tb_void_t gb_vector_scale(gb_vector_ref_t vector, gb_float_t scale)
 tb_void_t gb_vector_scale2(gb_vector_ref_t vector, gb_vector_ref_t scaled, gb_float_t scale)
 {
     // check
-    tb_assert_abort(vector && scaled);
+    tb_assert(vector && scaled);
 
     // scale it
     scaled->x = gb_mul(vector->x, scale);
@@ -148,7 +148,7 @@ tb_void_t gb_vector_scale2(gb_vector_ref_t vector, gb_vector_ref_t scaled, gb_fl
 gb_float_t gb_vector_length(gb_vector_ref_t vector)
 {
     // check
-    tb_assert_abort(vector);
+    tb_assert(vector);
 
     // the dx and dy
     gb_float_t dx = vector->x;
@@ -182,8 +182,8 @@ gb_float_t gb_vector_length(gb_vector_ref_t vector)
 tb_bool_t gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length)
 {
     // check
-    tb_assert_abort(vector);
-    tb_assert_abort(length > GB_NEAR0 && gb_isfinite(length));
+    tb_assert(vector);
+    tb_assert(length > GB_NEAR0 && gb_isfinite(length));
 
     // the self length
     gb_float_t length_self = gb_vector_length(vector);
@@ -232,7 +232,7 @@ tb_bool_t gb_vector_length_set(gb_vector_ref_t vector, gb_float_t length)
 tb_bool_t gb_vector_can_normalize(gb_vector_ref_t vector)
 {
     // check
-    tb_assert_abort(vector);
+    tb_assert(vector);
 
     // the dx and dy
     gb_float_t dx = vector->x;
@@ -252,7 +252,7 @@ tb_bool_t gb_vector_normalize(gb_vector_ref_t vector)
 tb_bool_t gb_vector_normalize2(gb_vector_ref_t vector, gb_vector_ref_t normalized)
 {
     // check
-    tb_assert_abort(vector && normalized);
+    tb_assert(vector && normalized);
 
     // attempt to normalize it
     gb_vector_t unit = *vector;
@@ -267,7 +267,7 @@ tb_bool_t gb_vector_normalize2(gb_vector_ref_t vector, gb_vector_ref_t normalize
 gb_float_t gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t other)
 {
     // check
-    tb_assert_abort(vector && other);
+    tb_assert(vector && other);
 
     // the factors
     gb_float_t ax = vector->x;
@@ -281,7 +281,7 @@ gb_float_t gb_vector_dot(gb_vector_ref_t vector, gb_vector_ref_t other)
 gb_float_t gb_vector_cross(gb_vector_ref_t vector, gb_vector_ref_t other)
 {
     // check
-    tb_assert_abort(vector && other);
+    tb_assert(vector && other);
 
     // the factors
     gb_float_t ax = vector->x;
@@ -295,7 +295,7 @@ gb_float_t gb_vector_cross(gb_vector_ref_t vector, gb_vector_ref_t other)
 tb_bool_t gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector_ref_t other)
 {
     // check
-    tb_assert_abort(vector && other);
+    tb_assert(vector && other);
 
     // is clockwise direction?
     return gb_mul(vector->x, other->y) > gb_mul(vector->y, other->x);
@@ -303,7 +303,7 @@ tb_bool_t gb_vector_is_clockwise(gb_vector_ref_t vector, gb_vector_ref_t other)
 tb_bool_t gb_vector_near_eq(gb_vector_ref_t vector, gb_vector_ref_t other)
 {
     // check
-    tb_assert_abort(vector && other);
+    tb_assert(vector && other);
 
     // equal?
     return (gb_near_eq(vector->x, other->x)) && (gb_near_eq(vector->y, other->y));

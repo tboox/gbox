@@ -131,7 +131,7 @@ tb_void_t gb_arc_make_quad(gb_arc_ref_t arc, gb_arc_quad_func_t func, tb_cpointe
 tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matrix_ref_t matrix, tb_size_t direction, gb_arc_quad_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(start && stop && func);
+    tb_assert(start && stop && func);
    
     // the cos and sin value of the sweep angle
     gb_float_t sweep_x = gb_vector_dot(start, stop);
@@ -182,7 +182,7 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         if (sweep_abs_y <= GB_NEAR0)
         {
             // cos(sweep_angle) must be -1
-            tb_assert_abort(gb_near0(sweep_x + GB_ONE));
+            tb_assert(gb_near0(sweep_x + GB_ONE));
 
             // 180 degrees
             count += 8;
@@ -190,7 +190,7 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         else if (sweep_abs_x <= GB_NEAR0)
         {
             // sin(sweep_angle) must be 1 or -1
-            tb_assert_abort(sweep_abs_y - GB_ONE <= GB_NEAR0);
+            tb_assert(sweep_abs_y - GB_ONE <= GB_NEAR0);
 
             // 90 or 270 degrees
             count += sweep_y > 0 ? 4 : 12;
@@ -214,7 +214,7 @@ tb_void_t gb_arc_make_quad2(gb_vector_ref_t start, gb_vector_ref_t stop, gb_matr
         }
  
         // check
-        tb_assert_abort((count & 0x1) && count <= tb_arrayn(g_quad_points_of_unit_circle));
+        tb_assert((count & 0x1) && count <= tb_arrayn(g_quad_points_of_unit_circle));
 
         // make points
         tb_memcpy(points, g_quad_points_of_unit_circle, count * sizeof(gb_point_t));

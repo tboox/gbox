@@ -39,12 +39,12 @@
 static tb_void_t gb_bitmap_biltter_solid_done_p(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y)
 {
     // check
-    tb_assert_abort(biltter && biltter->pixmap && biltter->pixmap->pixel_set);
-    tb_assert_abort(x >= 0 && y >= 0);
+    tb_assert(biltter && biltter->pixmap && biltter->pixmap->pixel_set);
+    tb_assert(x >= 0 && y >= 0);
 
     // the pixels
     tb_byte_t* pixels = (tb_byte_t*)gb_bitmap_data(biltter->bitmap);
-    tb_assert_abort(pixels);
+    tb_assert(pixels);
 
     // done
     biltter->pixmap->pixel_set(pixels + y * biltter->row_bytes + x * biltter->btp, biltter->u.solid.pixel, biltter->u.solid.alpha);
@@ -52,15 +52,15 @@ static tb_void_t gb_bitmap_biltter_solid_done_p(gb_bitmap_biltter_ref_t biltter,
 static tb_void_t gb_bitmap_biltter_solid_done_h(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t w)
 {
     // check
-    tb_assert_abort(biltter && biltter->pixmap && biltter->pixmap->pixels_fill);
-    tb_assert_abort(x >= 0 && y >= 0 && w >= 0);
+    tb_assert(biltter && biltter->pixmap && biltter->pixmap->pixels_fill);
+    tb_assert(x >= 0 && y >= 0 && w >= 0);
 
     // no width? ignore it
     tb_check_return(w);
 
     // the pixels
     tb_byte_t* pixels = (tb_byte_t*)gb_bitmap_data(biltter->bitmap);
-    tb_assert_abort(pixels);
+    tb_assert(pixels);
 
     // done
     biltter->pixmap->pixels_fill(pixels + y * biltter->row_bytes + x * biltter->btp, biltter->u.solid.pixel, w, biltter->u.solid.alpha);
@@ -68,15 +68,15 @@ static tb_void_t gb_bitmap_biltter_solid_done_h(gb_bitmap_biltter_ref_t biltter,
 static tb_void_t gb_bitmap_biltter_solid_done_v(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t h)
 {
     // check
-    tb_assert_abort(biltter && biltter->pixmap && biltter->pixmap->pixels_fill);
-    tb_assert_abort(x >= 0 && y >= 0 && h >= 0);
+    tb_assert(biltter && biltter->pixmap && biltter->pixmap->pixels_fill);
+    tb_assert(x >= 0 && y >= 0 && h >= 0);
 
     // no height? ignore it
     tb_check_return(h);
 
     // the pixels
     tb_byte_t* pixels = (tb_byte_t*)gb_bitmap_data(biltter->bitmap);
-    tb_assert_abort(pixels);
+    tb_assert(pixels);
 
     // the factors
     tb_size_t                       btp = biltter->btp;
@@ -91,15 +91,15 @@ static tb_void_t gb_bitmap_biltter_solid_done_v(gb_bitmap_biltter_ref_t biltter,
 static tb_void_t gb_bitmap_biltter_solid_done_r(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t w, tb_long_t h)
 {
     // check
-    tb_assert_abort(biltter && biltter->pixmap && biltter->pixmap->pixels_fill);
-    tb_assert_abort(x >= 0 && y >= 0 && w >= 0 && h >= 0);
+    tb_assert(biltter && biltter->pixmap && biltter->pixmap->pixels_fill);
+    tb_assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
 
     // no width and height? ignore it
     tb_check_return(h && w);
 
     // the pixels
     tb_byte_t* pixels = (tb_byte_t*)gb_bitmap_data(biltter->bitmap);
-    tb_assert_abort(pixels);
+    tb_assert(pixels);
 
     // the factors
     tb_size_t                       btp = biltter->btp;
@@ -127,7 +127,7 @@ static tb_void_t gb_bitmap_biltter_solid_done_r(gb_bitmap_biltter_ref_t biltter,
 tb_bool_t gb_bitmap_biltter_solid_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_t bitmap, gb_paint_ref_t paint)
 {
     // check
-    tb_assert_abort(biltter && bitmap && paint);
+    tb_assert(biltter && bitmap && paint);
  
     // init bitmap
     biltter->bitmap = bitmap;

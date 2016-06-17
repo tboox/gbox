@@ -212,7 +212,7 @@ static tb_char_t const* gb_demo_tiger_entry_init_style_stroke_width(gb_demo_tige
 static tb_void_t gb_demo_tiger_entry_init_style(gb_demo_tiger_entry_ref_t entry, tb_char_t const* style)
 {
     // check
-    tb_assert_abort(entry && style);
+    tb_assert(entry && style);
 
     // done
     tb_char_t const* p = style;
@@ -475,7 +475,7 @@ static tb_char_t const* gb_demo_tiger_entry_init_path_d_z(gb_demo_tiger_entry_re
 static tb_void_t gb_demo_tiger_entry_init_path(gb_demo_tiger_entry_ref_t entry, tb_char_t const* path)
 {
     // check
-    tb_assert_abort(entry && path);
+    tb_assert(entry && path);
 
     // trace
     tb_trace_d("path: d");
@@ -558,7 +558,7 @@ tb_void_t gb_demo_tiger_init(gb_window_ref_t window)
 
     // init entries
     g_tiger_entries = tb_nalloc0_type(tb_arrayn(g_demo_tiger) >> 1, gb_demo_tiger_entry_t);
-    tb_assert_abort(g_tiger_entries);
+    tb_assert(g_tiger_entries);
 
     // done
     tb_size_t index = 0;

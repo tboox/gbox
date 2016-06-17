@@ -432,7 +432,7 @@ tb_void_t           gb_matrix_apply_points(gb_matrix_ref_t matrix, gb_point_ref_
 static __tb_inline__ gb_float_t gb_matrix_apply_x(gb_matrix_ref_t matrix, gb_float_t x, gb_float_t y)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
     
     // apply it
 	return gb_mul(x, matrix->sx) + gb_mul(y, matrix->kx) + matrix->tx;
@@ -451,7 +451,7 @@ static __tb_inline__ gb_float_t gb_matrix_apply_x(gb_matrix_ref_t matrix, gb_flo
 static __tb_inline__ gb_float_t gb_matrix_apply_y(gb_matrix_ref_t matrix, gb_float_t x, gb_float_t y)
 { 
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
     
     // apply it
 	return gb_mul(x, matrix->ky) + gb_mul(y, matrix->sy) + matrix->ty;

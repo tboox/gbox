@@ -32,7 +32,7 @@
 tb_size_t gb_float_unit_divide(gb_float_t numer, gb_float_t denom, gb_float_t* result)
 {
     // check
-    tb_assert_abort(result);
+    tb_assert(result);
 
     // negate it
     if (numer < 0) 

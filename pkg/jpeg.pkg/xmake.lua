@@ -1,26 +1,26 @@
 -- add jpeg package
-add_option("jpeg")
+option("jpeg")
 
     -- show menu
-    set_option_showmenu(true)
+    set_showmenu(true)
 
     -- set category
-    set_option_category("package")
+    set_category("package")
 
     -- set description
-    set_option_description("The jpeg package")
+    set_description("The jpeg package")
     
     -- add defines to config.h if checking ok
-    add_option_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_JPEG")
+    add_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_JPEG")
 
     -- add links for checking
-    add_option_links("jpeg")
+    add_links("jpeg")
 
     -- add link directories
-    add_option_linkdirs("lib/$(plat)/$(arch)")
+    add_linkdirs("lib/$(plat)/$(arch)")
 
     -- add c includes for checking
-    add_option_cincludes("jpeg/jpeg.h")
+    add_cincludes("jpeg/jpeg.h")
 
     -- add include directories
-    add_option_includedirs("inc/$(plat)", "inc")
+    add_includedirs("inc/$(plat)", "inc")

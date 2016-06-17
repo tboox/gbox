@@ -35,7 +35,7 @@
 tb_void_t gb_point_make(gb_point_ref_t point, gb_float_t x, gb_float_t y) 
 {
     // check
-    tb_assert_abort(point);
+    tb_assert(point);
 
     // make it
     point->x = x;
@@ -48,7 +48,7 @@ tb_void_t gb_point_imake(gb_point_ref_t point, tb_long_t x, tb_long_t y)
 tb_void_t gb_point_apply(gb_point_ref_t point, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(point && matrix);
+    tb_assert(point && matrix);
     
     // apply it
 	gb_float_t x = point->x;
@@ -59,7 +59,7 @@ tb_void_t gb_point_apply(gb_point_ref_t point, gb_matrix_ref_t matrix)
 tb_void_t gb_point_apply2(gb_point_ref_t point, gb_point_ref_t applied, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(point && applied && matrix);
+    tb_assert(point && applied && matrix);
     
     // apply it
 	gb_float_t x = point->x;
@@ -70,7 +70,7 @@ tb_void_t gb_point_apply2(gb_point_ref_t point, gb_point_ref_t applied, gb_matri
 gb_float_t gb_point_distance(gb_point_ref_t point, gb_point_ref_t other)
 {
     // check
-    tb_assert_abort(point && other);
+    tb_assert(point && other);
  
     // make vector: point => other
     gb_vector_t vector;
@@ -82,7 +82,7 @@ gb_float_t gb_point_distance(gb_point_ref_t point, gb_point_ref_t other)
 tb_bool_t gb_point_near_eq(gb_point_ref_t point, gb_point_ref_t other)
 {
     // check
-    tb_assert_abort(point && other);
+    tb_assert(point && other);
  
     // equal?
     return (gb_near_eq(point->x, other->x)) && (gb_near_eq(point->y, other->y));

@@ -41,7 +41,7 @@
 tb_bool_t gb_bitmap_biltter_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_t bitmap, gb_paint_ref_t paint)
 {
     // check
-    tb_assert_abort(biltter && bitmap && paint);
+    tb_assert(biltter && bitmap && paint);
 
     // init it
     return gb_paint_shader(paint)? gb_bitmap_biltter_shader_init(biltter, bitmap, paint) : gb_bitmap_biltter_solid_init(biltter, bitmap, paint);
@@ -49,7 +49,7 @@ tb_bool_t gb_bitmap_biltter_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_
 tb_void_t gb_bitmap_biltter_exit(gb_bitmap_biltter_ref_t biltter)
 {
     // check
-    tb_assert_abort(biltter);
+    tb_assert(biltter);
 
     // exit it
     if (biltter->exit) biltter->exit(biltter);
@@ -57,7 +57,7 @@ tb_void_t gb_bitmap_biltter_exit(gb_bitmap_biltter_ref_t biltter)
 tb_void_t gb_bitmap_biltter_done_p(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y)
 {   
     // check
-    tb_assert_abort(biltter && biltter->done_p);
+    tb_assert(biltter && biltter->done_p);
 
     // done it
     biltter->done_p(biltter, x, y);
@@ -65,7 +65,7 @@ tb_void_t gb_bitmap_biltter_done_p(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
 tb_void_t gb_bitmap_biltter_done_h(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t w)
 {   
     // check
-    tb_assert_abort(biltter && biltter->done_h);
+    tb_assert(biltter && biltter->done_h);
 
     // done it
     biltter->done_h(biltter, x, y, w);
@@ -73,7 +73,7 @@ tb_void_t gb_bitmap_biltter_done_h(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
 tb_void_t gb_bitmap_biltter_done_v(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t h)
 {   
     // check
-    tb_assert_abort(biltter && biltter->done_v);
+    tb_assert(biltter && biltter->done_v);
 
     // done it
     biltter->done_v(biltter, x, y, h);
@@ -81,13 +81,13 @@ tb_void_t gb_bitmap_biltter_done_v(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
 tb_void_t gb_bitmap_biltter_done_r(gb_bitmap_biltter_ref_t biltter, tb_long_t x, tb_long_t y, tb_long_t w, tb_long_t h)
 {   
     // check
-    tb_assert_abort(biltter);
+    tb_assert(biltter);
 
     // horizontal?
     if (h == 1) 
     {
         // check
-        tb_assert_abort(biltter->done_h);
+        tb_assert(biltter->done_h);
 
         // done it
         biltter->done_h(biltter, x, y, w);
@@ -97,7 +97,7 @@ tb_void_t gb_bitmap_biltter_done_r(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
     else if (w == 1)
     {
         // check
-        tb_assert_abort(biltter->done_v);
+        tb_assert(biltter->done_v);
 
         // done it
         biltter->done_v(biltter, x, y, h);
@@ -108,7 +108,7 @@ tb_void_t gb_bitmap_biltter_done_r(gb_bitmap_biltter_ref_t biltter, tb_long_t x,
     else
     {
         // check
-        tb_assert_abort(biltter->done_h);
+        tb_assert(biltter->done_h);
 
         // scan it
         while (h--) biltter->done_h(biltter, x, y++, w);

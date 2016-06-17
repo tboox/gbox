@@ -137,7 +137,7 @@ gb_color_t const gb_color_from_name(tb_char_t const* name)
     // init iterator
     tb_array_iterator_t     array_iterator;
     tb_iterator_ref_t       iterator = tb_iterator_make_for_mem(&array_iterator, g_named_colors, tb_arrayn(g_named_colors), sizeof(gb_named_color_t));
-    tb_assert_abort(iterator);
+    tb_assert(iterator);
 
     // find it by the binary search
     tb_size_t itor = tb_binary_find_all_if(iterator, gb_named_color_comp, name);

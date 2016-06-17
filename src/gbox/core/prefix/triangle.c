@@ -34,7 +34,7 @@
 tb_void_t gb_triangle_make(gb_triangle_ref_t triangle, gb_float_t x0, gb_float_t y0, gb_float_t x1, gb_float_t y1, gb_float_t x2, gb_float_t y2)
 {
     // check
-    tb_assert_abort(triangle);
+    tb_assert(triangle);
 
     // make it
     triangle->p0.x = x0;
@@ -51,7 +51,7 @@ tb_void_t gb_triangle_imake(gb_triangle_ref_t triangle, tb_long_t x0, tb_long_t 
 tb_void_t gb_triangle_apply(gb_triangle_ref_t triangle, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(triangle);
+    tb_assert(triangle);
     
     // apply it
 	gb_point_apply(&triangle->p0, matrix);
@@ -61,7 +61,7 @@ tb_void_t gb_triangle_apply(gb_triangle_ref_t triangle, gb_matrix_ref_t matrix)
 tb_void_t gb_triangle_apply2(gb_triangle_ref_t triangle, gb_triangle_ref_t applied, gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(triangle && applied);
+    tb_assert(triangle && applied);
     
     // apply it
 	gb_point_apply2(&triangle->p0, &applied->p0, matrix);

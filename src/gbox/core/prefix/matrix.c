@@ -82,7 +82,7 @@ static __tb_inline__ tb_double_t gb_matrix_det(gb_float_t sx, gb_float_t sy, gb_
 tb_void_t gb_matrix_init(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t kx, gb_float_t ky, gb_float_t sy, gb_float_t tx, gb_float_t ty)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // init
     matrix->sx = sx;
@@ -142,7 +142,7 @@ tb_void_t gb_matrix_clear(gb_matrix_ref_t matrix)
 tb_void_t gb_matrix_copy(gb_matrix_ref_t matrix, gb_matrix_ref_t copied)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // copy it
     if (copied) *matrix = *copied;
@@ -152,7 +152,7 @@ tb_void_t gb_matrix_copy(gb_matrix_ref_t matrix, gb_matrix_ref_t copied)
 tb_bool_t gb_matrix_invert(gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // identity?
     if (gb_matrix_identity(matrix)) return tb_true;
@@ -223,7 +223,7 @@ tb_bool_t gb_matrix_invert(gb_matrix_ref_t matrix)
 tb_bool_t gb_matrix_identity(gb_matrix_ref_t matrix)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // is identity?
     return (    GB_ONE == matrix->sx
@@ -276,7 +276,7 @@ tb_bool_t gb_matrix_rotatep_lhs(gb_matrix_ref_t matrix, gb_float_t degrees, gb_f
 tb_bool_t gb_matrix_scale(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t sy)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // 1/1 ?
     tb_check_return_val(GB_ONE != sx || GB_ONE != sy, tb_true);
@@ -329,7 +329,7 @@ tb_bool_t gb_matrix_scalep_lhs(gb_matrix_ref_t matrix, gb_float_t sx, gb_float_t
 tb_bool_t gb_matrix_translate(gb_matrix_ref_t matrix, gb_float_t dx, gb_float_t dy)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // 0, 0 ?
     tb_check_return_val(dx != 0 || dy != 0, tb_true);
@@ -351,7 +351,7 @@ tb_bool_t gb_matrix_translate(gb_matrix_ref_t matrix, gb_float_t dx, gb_float_t 
 tb_bool_t gb_matrix_translate_lhs(gb_matrix_ref_t matrix, gb_float_t dx, gb_float_t dy)
 {
     // check
-    tb_assert_abort(matrix);
+    tb_assert(matrix);
 
     // 0, 0 ?
     tb_check_return_val(dx != 0 || dy != 0, tb_true);
@@ -429,7 +429,7 @@ tb_bool_t gb_matrix_sincosp_lhs(gb_matrix_ref_t matrix, gb_float_t sin, gb_float
 tb_bool_t gb_matrix_multiply(gb_matrix_ref_t matrix, gb_matrix_ref_t factor)
 {
     // check
-    tb_assert_abort(matrix && factor);
+    tb_assert(matrix && factor);
 
     // identity?
     if (gb_matrix_identity(factor)) return tb_true;

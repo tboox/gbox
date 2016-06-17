@@ -251,7 +251,7 @@ tb_bool_t gb_bitmap_resize(gb_bitmap_ref_t bitmap, tb_size_t width, tb_size_t he
     else
     {
         // must be owner
-        tb_assert_abort(impl->is_owner);
+        tb_assert(impl->is_owner);
         tb_check_return_val(impl->is_owner, tb_false);
 
 		// resize 

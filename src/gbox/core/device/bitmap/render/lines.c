@@ -85,7 +85,7 @@ static tb_size_t gb_bitmap_render_stroke_line_generic(gb_bitmap_biltter_ref_t bi
         tb_fixed_t start_y = tb_fixed6_to_fixed(yb) + ((slope * ((TB_FIXED6_HALF - xb) & 63)) >> 6);
 
         // check
-        tb_assert_abort(ixb < ixe);
+        tb_assert(ixb < ixe);
 
         // done
         do
@@ -132,7 +132,7 @@ static tb_size_t gb_bitmap_render_stroke_line_generic(gb_bitmap_biltter_ref_t bi
         tb_fixed_t start_x = tb_fixed6_to_fixed(xb) + ((slope * ((TB_FIXED6_HALF - yb) & 63)) >> 6);
 
         // check
-        tb_assert_abort(iyb < iye);
+        tb_assert(iyb < iye);
 
         // done
         do
@@ -180,7 +180,7 @@ static tb_void_t gb_bitmap_render_stroke_line_horizontal(gb_bitmap_biltter_ref_t
 tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_ref_t points, tb_size_t count)
 {
     // check
-    tb_assert_abort(device && points && count && !(count & 0x1));
+    tb_assert(device && points && count && !(count & 0x1));
 
     // done
     tb_size_t       i   = 0;
@@ -207,7 +207,7 @@ tb_void_t gb_bitmap_render_stroke_lines(gb_bitmap_device_ref_t device, gb_point_
         if ((ok = gb_bitmap_render_stroke_line_generic(&device->biltter, xb, yb, xe, ye)))
         {
             // check
-            tb_assert_abort(ok == 'h' || ok == 'v');
+            tb_assert(ok == 'h' || ok == 'v');
 
             // done horizontal line
             if (ok == 'h') gb_bitmap_render_stroke_line_horizontal(&device->biltter, xb, yb, xe, ye);

@@ -155,7 +155,7 @@ tb_bool_t gb_tessellator_profiler_init(gb_rect_ref_t bounds)
     do
     {
         // check
-        tb_assert_abort(!g_profiler);
+        tb_assert(!g_profiler);
 
         // init sequence
         static tb_size_t s_sequence = 0;

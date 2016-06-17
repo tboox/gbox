@@ -34,7 +34,7 @@
 tb_void_t gb_ellipse_make(gb_ellipse_ref_t ellipse, gb_float_t x0, gb_float_t y0, gb_float_t rx, gb_float_t ry)
 {
     // check
-    tb_assert_abort(ellipse);
+    tb_assert(ellipse);
 
     // make it
     ellipse->c.x    = x0;
@@ -49,7 +49,7 @@ tb_void_t gb_ellipse_imake(gb_ellipse_ref_t ellipse, tb_long_t x0, tb_long_t y0,
 tb_void_t gb_ellipse_make_from_rect(gb_ellipse_ref_t ellipse, gb_rect_ref_t rect)
 {
     // check
-    tb_assert_abort(ellipse && rect);
+    tb_assert(ellipse && rect);
 
     // the radius
     gb_float_t rx = gb_half(rect->w);

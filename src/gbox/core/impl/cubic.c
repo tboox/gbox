@@ -101,7 +101,7 @@ static tb_size_t gb_cubic_find_max_curvature(gb_point_t const points[4], gb_floa
 gb_float_t gb_cubic_near_distance(gb_point_t const points[4])
 {
     // check
-    tb_assert_abort(points);
+    tb_assert(points);
 
     /* compute the delat x and y 
      *
@@ -138,11 +138,11 @@ gb_float_t gb_cubic_near_distance(gb_point_t const points[4])
 tb_size_t gb_cubic_divide_line_count(gb_point_t const points[4])
 {
     // check
-    tb_assert_abort(points);
+    tb_assert(points);
 
     // compute the approximate distance
     gb_float_t distance = gb_cubic_near_distance(points);
-    tb_assert_abort(distance >= 0);
+    tb_assert(distance >= 0);
 
     // get the integer distance
     tb_size_t idistance = gb_ceil(distance);
@@ -159,7 +159,7 @@ tb_size_t gb_cubic_divide_line_count(gb_point_t const points[4])
 tb_void_t gb_cubic_chop_at(gb_point_t const points[4], gb_point_t output[7], gb_float_t factor)
 {
     // check
-    tb_assert_abort(points && output && gb_float_in_unit_range(factor));
+    tb_assert(points && output && gb_float_in_unit_range(factor));
 
     // chop x-coordinates at the factor
     gb_cubic_chop_xy_at(&points[0].x, &output[0].x, factor);
@@ -170,7 +170,7 @@ tb_void_t gb_cubic_chop_at(gb_point_t const points[4], gb_point_t output[7], gb_
 tb_void_t gb_cubic_chop_at2(gb_point_t const points[4], gb_point_ref_t output, tb_size_t maxn, gb_float_t const* factors, tb_size_t count)
 {
     // check
-    tb_assert_abort(points && output && maxn >= 7 && factors && count);
+    tb_assert(points && output && maxn >= 7 && factors && count);
     
     // done
     tb_size_t   index;
@@ -179,7 +179,7 @@ tb_void_t gb_cubic_chop_at2(gb_point_t const points[4], gb_point_ref_t output, t
     for (index = 0; index < count; index++) 
     {
         // check
-        tb_assert_abort(maxn >= 7);
+        tb_assert(maxn >= 7);
 
         // chop it
         gb_cubic_chop_at(points, output, factor);
@@ -196,9 +196,9 @@ tb_void_t gb_cubic_chop_at2(gb_point_t const points[4], gb_point_ref_t output, t
         points = buffer;
 
         // check
-        tb_assert_abort(gb_float_in_unit_range(factors[index]));
-        tb_assert_abort(gb_float_in_unit_range(factors[index + 1]));
-        tb_assert_abort(factors[index + 1] > factors[index]);
+        tb_assert(gb_float_in_unit_range(factors[index]));
+        tb_assert(gb_float_in_unit_range(factors[index + 1]));
+        tb_assert(factors[index + 1] > factors[index]);
 
         // compute the next factor for the new range: (factor[index], 1) => (0, 1)
         if (!gb_float_unit_divide(factors[index + 1] - factors[index], GB_ONE - factors[index], &factor))
@@ -212,7 +212,7 @@ tb_void_t gb_cubic_chop_at2(gb_point_t const points[4], gb_point_ref_t output, t
 tb_void_t gb_cubic_chop_at_half(gb_point_t const points[4], gb_point_t output[7])
 {
     // check
-    tb_assert_abort(points && output);
+    tb_assert(points && output);
 
     /* compute the chopped points
      *
@@ -255,12 +255,12 @@ tb_void_t gb_cubic_chop_at_half(gb_point_t const points[4], gb_point_t output[7]
 tb_size_t gb_cubic_chop_at_max_curvature(gb_point_t const points[4], gb_point_t output[13])
 {
     // check
-    tb_assert_abort(points);
+    tb_assert(points);
 
     // find the factors of the max curvature
     gb_float_t  factors[3];
     tb_size_t   factors_count = gb_cubic_find_max_curvature(points, factors);
-    tb_assert_abort(factors_count <= 3);
+    tb_assert(factors_count <= 3);
 
     // done
     if (output)
@@ -277,7 +277,7 @@ tb_size_t gb_cubic_chop_at_max_curvature(gb_point_t const points[4], gb_point_t 
 tb_void_t gb_cubic_make_line(gb_point_t const points[4], gb_cubic_line_func_t func, tb_cpointer_t priv)
 {
     // check
-    tb_assert_abort(func && points);
+    tb_assert(func && points);
 
     // compute the divided count first
     tb_size_t count = gb_cubic_divide_line_count(points);

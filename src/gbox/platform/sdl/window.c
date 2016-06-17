@@ -97,7 +97,7 @@ static tb_void_t gb_window_sdl_loop(gb_window_ref_t window)
 
     // init canvas
     if (!impl->canvas) impl->canvas = gb_canvas_init_from_window(window);
-    tb_assert_abort(impl->canvas);
+    tb_assert(impl->canvas);
 
     // done init
     if (impl->base.info.init && !impl->base.info.init((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv)) return ;
@@ -313,12 +313,12 @@ static tb_void_t gb_window_sdl_fullscreen(gb_window_ref_t window, tb_bool_t full
         // the screen width and height
         tb_uint16_t screen_width  = 0;//tb_screen_width();
         tb_uint16_t screen_height = 0;//tb_screen_height();
-        tb_assert_abort(screen_width && screen_height && screen_width <= GB_WIDTH_MAXN && screen_height <= GB_HEIGHT_MAXN);
+        tb_assert(screen_width && screen_height && screen_width <= GB_WIDTH_MAXN && screen_height <= GB_HEIGHT_MAXN);
 
         // init surface
         impl->surface = SDL_SetVideoMode(screen_width, screen_height, pixmap->bpp, mode | SDL_HWSURFACE);
         if (!impl->surface) impl->surface = SDL_SetVideoMode(screen_width, screen_height, pixmap->bpp, mode | SDL_SWSURFACE);
-        tb_assert_abort(impl->surface && impl->surface->pixels);
+        tb_assert(impl->surface && impl->surface->pixels);
 
         // update flag
         impl->base.flag |= GB_WINDOW_FLAG_FULLSCREEN;
@@ -348,7 +348,7 @@ static tb_void_t gb_window_sdl_fullscreen(gb_window_ref_t window, tb_bool_t full
         // init surface
         impl->surface = SDL_SetVideoMode(impl->normal_width, impl->normal_height, pixmap->bpp, mode | SDL_HWSURFACE);
         if (!impl->surface) impl->surface = SDL_SetVideoMode(impl->normal_width, impl->normal_height, pixmap->bpp, mode | SDL_SWSURFACE);
-        tb_assert_abort(impl->surface && impl->surface->pixels);
+        tb_assert(impl->surface && impl->surface->pixels);
 
         // update flag
         impl->base.flag &= ~GB_WINDOW_FLAG_FULLSCREEN;
@@ -372,11 +372,11 @@ static tb_void_t gb_window_sdl_fullscreen(gb_window_ref_t window, tb_bool_t full
 
         // init bitmap
         impl->base.bitmap = gb_bitmap_init(impl->surface->pixels, impl->base.pixfmt, impl->base.width, impl->base.height, impl->surface->pitch, tb_false);
-        tb_assert_abort(impl->base.bitmap);
+        tb_assert(impl->base.bitmap);
 
         // init canvas
         impl->canvas = gb_canvas_init_from_window(window);
-        tb_assert_abort(impl->canvas);
+        tb_assert(impl->canvas);
 
         // done resize
         if (impl->base.info.resize) impl->base.info.resize((gb_window_ref_t)impl, impl->canvas, impl->base.info.priv);

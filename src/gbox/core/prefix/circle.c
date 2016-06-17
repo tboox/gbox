@@ -33,7 +33,7 @@
 tb_void_t gb_circle_make(gb_circle_ref_t circle, gb_float_t x0, gb_float_t y0, gb_float_t r)
 {
     // check
-    tb_assert_abort(circle);
+    tb_assert(circle);
 
     // make it
     circle->c.x = x0;

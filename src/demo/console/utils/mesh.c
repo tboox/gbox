@@ -9,7 +9,7 @@
 static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
 {
     // check
-    tb_assert_abort(event);
+    tb_assert(event);
 
     // done
     switch (event->type)
@@ -39,7 +39,7 @@ static tb_void_t gb_demo_utils_mesh_listener(gb_mesh_event_ref_t event)
         }
         break;
     default:
-        tb_assert_abort(0);
+        tb_assert(0);
         break;
     }
 }
@@ -256,7 +256,7 @@ static tb_void_t gb_demo_utils_mesh_radiation()
         {
             // the face
             gb_mesh_face_ref_t face = gb_mesh_edge_lface(edge1);
-            tb_assert_abort(face == gb_mesh_edge_rface(edge1));
+            tb_assert(face == gb_mesh_edge_rface(edge1));
 
             // save face name
             gb_mesh_face_data_set(mesh, face, "face");
@@ -350,7 +350,7 @@ static tb_void_t gb_demo_utils_mesh_radiation()
             gb_mesh_edge_remove(mesh, edge4);
 
             // check
-            tb_assert_abort(gb_mesh_is_empty(mesh));
+            tb_assert(gb_mesh_is_empty(mesh));
         }
 
         // exit mesh
@@ -447,7 +447,7 @@ static tb_void_t gb_demo_utils_mesh_quadrangle()
             gb_mesh_edge_remove(mesh, edge1);
 
             // check
-            tb_assert_abort(gb_mesh_is_empty(mesh));
+            tb_assert(gb_mesh_is_empty(mesh));
         }
 
     
@@ -549,7 +549,7 @@ static tb_void_t gb_demo_utils_mesh_tetrahedron()
             gb_mesh_edge_remove(mesh, edge1);
 
             // check
-            tb_assert_abort(gb_mesh_is_empty(mesh));
+            tb_assert(gb_mesh_is_empty(mesh));
         }
     
         // exit mesh

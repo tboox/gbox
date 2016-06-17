@@ -39,7 +39,7 @@
 tb_bool_t gb_bitmap_biltter_shader_init(gb_bitmap_biltter_ref_t biltter, gb_bitmap_ref_t bitmap, gb_paint_ref_t paint)
 {
     // check
-    tb_assert_abort(biltter && bitmap && paint);
+    tb_assert(biltter && bitmap && paint);
  
     // init bitmap
     biltter->bitmap = bitmap;

@@ -39,7 +39,7 @@
 tb_void_t gb_bitmap_render_fill_rect(gb_bitmap_device_ref_t device, gb_rect_ref_t rect)
 {
     // check
-    tb_assert_abort(device && rect);
+    tb_assert(device && rect);
 
     // done biltter
     gb_bitmap_biltter_done_r(&device->biltter, gb_float_to_long(rect->x), gb_float_to_long(rect->y), gb_float_to_long(rect->w), gb_float_to_long(rect->h));

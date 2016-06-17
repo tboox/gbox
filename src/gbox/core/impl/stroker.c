@@ -221,7 +221,7 @@ static tb_bool_t gb_stroker_add_hint(gb_stroker_ref_t stroker, gb_shape_ref_t hi
 static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(path && end);
+    tb_assert(path && end);
 
     /* cap th butt
      *  
@@ -248,7 +248,7 @@ static tb_void_t gb_stroker_capper_butt(gb_path_ref_t path, gb_point_ref_t cente
 static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(path && center && end && normal);
+    tb_assert(path && center && end && normal);
 
     /* cap th round
      *                        
@@ -365,7 +365,7 @@ static tb_void_t gb_stroker_capper_round(gb_path_ref_t path, gb_point_ref_t cent
 static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t center, gb_point_ref_t end, gb_vector_ref_t normal, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(path && center && end && normal);
+    tb_assert(path && center && end && normal);
 
     // make the patched vector
     gb_vector_t patched;
@@ -414,7 +414,7 @@ static tb_void_t gb_stroker_capper_square(gb_path_ref_t path, gb_point_ref_t cen
 static gb_float_t gb_stroker_joiner_angle(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, tb_size_t* ptype)
 {
     // check
-    tb_assert_abort(normal_unit_before && normal_unit_after);
+    tb_assert(normal_unit_before && normal_unit_after);
 
     /* the cos(angle) value
      *
@@ -455,7 +455,7 @@ static tb_void_t gb_stroker_joiner_outer(gb_point_ref_t ctrl, gb_point_ref_t poi
 {
     // check
     gb_path_ref_t outer = (gb_path_ref_t)priv;
-    tb_assert_abort(outer && point);
+    tb_assert(outer && point);
 
     // add quadratic curve for the outer contour
     if (ctrl) gb_path_quad_to(outer, ctrl, point);
@@ -500,7 +500,7 @@ static tb_void_t gb_stroker_joiner_inner(gb_path_ref_t inner, gb_point_ref_t cen
 static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+    tb_assert(inner && outer && center && normal_unit_before && normal_unit_after);
 
     /*                   normal_before
      *                         | 
@@ -689,7 +689,7 @@ static tb_void_t gb_stroker_joiner_miter(gb_path_ref_t inner, gb_path_ref_t oute
 static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+    tb_assert(inner && outer && center && normal_unit_before && normal_unit_after);
 
     // compute the angle type
     tb_size_t type;
@@ -734,7 +734,7 @@ static tb_void_t gb_stroker_joiner_round(gb_path_ref_t inner, gb_path_ref_t oute
 static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t outer, gb_point_ref_t center, gb_float_t radius, gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after, gb_float_t miter_invert, tb_bool_t is_line_to_prev, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(inner && outer && center && normal_unit_before && normal_unit_after);
+    tb_assert(inner && outer && center && normal_unit_before && normal_unit_after);
 
     /* the after normal
      *
@@ -781,7 +781,7 @@ static tb_void_t gb_stroker_joiner_bevel(gb_path_ref_t inner, gb_path_ref_t oute
 static tb_bool_t gb_stroker_normals_make(gb_point_ref_t before, gb_point_ref_t after, gb_float_t radius, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
 {
     // check
-    tb_assert_abort(before && after && normal_unit);
+    tb_assert(before && after && normal_unit);
 
     // the radius
     tb_assert_and_check_return_val(!normal || radius > 0, tb_false);
@@ -840,7 +840,7 @@ static __tb_inline__ tb_bool_t gb_stroker_normals_too_curvy(gb_float_t cos_angle
 static __tb_inline__ tb_bool_t gb_stroker_normals_too_sharp(gb_vector_ref_t normal_unit_before, gb_vector_ref_t normal_unit_after)
 {
     // check
-    tb_assert_abort(normal_unit_before && normal_unit_after);
+    tb_assert(normal_unit_before && normal_unit_after);
 
     /*        
      *    curve
@@ -864,7 +864,7 @@ static __tb_inline__ tb_bool_t gb_stroker_normals_too_sharp(gb_vector_ref_t norm
 static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal)
 {
     // check
-    tb_assert_abort(impl && impl->path_inner && impl->path_outer && point && normal);
+    tb_assert(impl && impl->path_inner && impl->path_outer && point && normal);
 
     // line to the point for the inner and outer path
     gb_path_line2_to(impl->path_outer, point->x + normal->x, point->y + normal->y);
@@ -873,7 +873,7 @@ static tb_void_t gb_stroker_make_line_to(gb_stroker_impl_t* impl, gb_point_ref_t
 static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_01, gb_vector_ref_t normal_unit_01, gb_vector_ref_t normal_12, gb_vector_ref_t normal_unit_12, tb_size_t divided_count)
 {
     // check
-    tb_assert_abort(impl && points && normal_01 && normal_unit_01 && normal_12 && normal_unit_12);
+    tb_assert(impl && points && normal_01 && normal_unit_01 && normal_12 && normal_unit_12);
 
     // compute the normal and unit normal vectors for b => c
     if (!gb_stroker_normals_make(&points[1], &points[2], impl->radius, normal_12, normal_unit_12)) 
@@ -910,7 +910,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
     else if (!divided_count && gb_stroker_normals_too_curvy(cos_angle))
     {
         // check
-        tb_assert_abort(impl->path_other);
+        tb_assert(impl->path_other);
 
         // line-to it
         gb_stroker_make_line_to(impl, &points[1], normal_01);
@@ -923,7 +923,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
     else
     {
         // check
-        tb_assert_abort(impl->path_inner && impl->path_outer);
+        tb_assert(impl->path_inner && impl->path_outer);
 
         /* compute the approximate normal of the vector(p1, p1^)
          *
@@ -964,7 +964,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
         if (!gb_vector_length_set(&normal_1, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle)))))
         {
             // failed
-            tb_assert_abort(0);
+            tb_assert(0);
             return ;
         }
 
@@ -976,7 +976,7 @@ static tb_void_t gb_stroker_make_quad_to(gb_stroker_impl_t* impl, gb_point_ref_t
 static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_t points, gb_vector_ref_t normal_01, gb_vector_ref_t normal_unit_01, gb_vector_ref_t normal_23, gb_vector_ref_t normal_unit_23, tb_bool_t normal_23_is_valid, tb_size_t divided_count)
 {
     // check
-    tb_assert_abort(impl && points && normal_01 && normal_unit_01 && normal_23 && normal_unit_23);
+    tb_assert(impl && points && normal_01 && normal_unit_01 && normal_23 && normal_unit_23);
 
     // compute the normal and unit normal vectors of the vector(p1, p2)
     gb_vector_t normal_12;
@@ -1041,7 +1041,7 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
     else if (!divided_count && (gb_stroker_normals_too_curvy(cos_angle_012) || gb_stroker_normals_too_curvy(cos_angle_123)))
     {
         // check
-        tb_assert_abort(impl->path_other);
+        tb_assert(impl->path_other);
  
         // line-to it
         gb_stroker_make_line_to(impl, &points[1], normal_01);
@@ -1056,7 +1056,7 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
     else
     {
         // check
-        tb_assert_abort(impl->path_inner && impl->path_outer);
+        tb_assert(impl->path_inner && impl->path_outer);
 
         /* compute the approximate normal of the vector(p1, p1^) and vector(p2, p2^)
          *
@@ -1103,7 +1103,7 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
         if (!gb_vector_length_set(&normal_1, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle_012)))))
         {
             // failed
-            tb_assert_abort(0);
+            tb_assert(0);
             return ;
         }
  
@@ -1114,7 +1114,7 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
         if (!gb_vector_length_set(&normal_2, gb_div(impl->radius, gb_sqrt(gb_avg(GB_ONE, cos_angle_123)))))
         {
             // failed
-            tb_assert_abort(0);
+            tb_assert(0);
             return ;
         }
 
@@ -1126,8 +1126,8 @@ static tb_void_t gb_stroker_make_cubic_to(gb_stroker_impl_t* impl, gb_point_ref_
 static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit, tb_bool_t is_line_to)
 {
     // check
-    tb_assert_abort(impl && point && normal && normal_unit);
-    tb_assert_abort(impl->segment_count >= 0);
+    tb_assert(impl && point && normal && normal_unit);
+    tb_assert(impl->segment_count >= 0);
 
     // the radius
     gb_float_t radius = impl->radius;
@@ -1138,7 +1138,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
     {
         tb_trace_i("%{point} %{point}", &impl->point_prev, point);
         // failed
-        tb_assert_abort(0);
+        tb_assert(0);
         return tb_false;
     }
 
@@ -1146,7 +1146,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
     if (impl->segment_count > 0)
     {
         // check
-        tb_assert_abort(impl->joiner);
+        tb_assert(impl->joiner);
 
         // join it
         impl->joiner(impl->path_inner, impl->path_outer, &impl->point_prev, radius, &impl->normal_unit_prev, normal_unit, impl->miter_invert, impl->is_line_to_prev, is_line_to);
@@ -1180,7 +1180,7 @@ static tb_bool_t gb_stroker_enter_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
 static tb_void_t gb_stroker_leave_to(gb_stroker_impl_t* impl, gb_point_ref_t point, gb_vector_ref_t normal, gb_vector_ref_t normal_unit)
 {
     // check
-    tb_assert_abort(impl && point && normal && normal_unit);
+    tb_assert(impl && point && normal && normal_unit);
 
     // update the previous point
     impl->point_prev = *point;
@@ -1197,8 +1197,8 @@ static tb_void_t gb_stroker_leave_to(gb_stroker_impl_t* impl, gb_point_ref_t poi
 static tb_void_t gb_stroker_finish(gb_stroker_impl_t* impl, tb_bool_t closed)
 {
     // check
-    tb_assert_abort(impl && impl->path_inner && impl->path_outer);
-    tb_assert_abort(impl->capper && impl->joiner);
+    tb_assert(impl && impl->path_inner && impl->path_outer);
+    tb_assert(impl->capper && impl->joiner);
 
     // exists contour now?
     if (impl->segment_count > 0)
@@ -1394,7 +1394,7 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
 
     // the width
     gb_float_t width = gb_paint_stroke_width(paint);
-    tb_assert_abort(width >= 0);
+    tb_assert(width >= 0);
 
     // the miter
     gb_float_t miter = gb_paint_stroke_miter(paint);
@@ -1429,7 +1429,7 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     ,   gb_stroker_capper_round
     ,   gb_stroker_capper_square
     };
-    tb_assert_abort(impl->cap < tb_arrayn(s_cappers));
+    tb_assert(impl->cap < tb_arrayn(s_cappers));
 
     // the joiners
     static gb_stroker_joiner_t s_joiners[] = 
@@ -1438,7 +1438,7 @@ tb_void_t gb_stroker_apply_paint(gb_stroker_ref_t stroker, gb_paint_ref_t paint)
     ,   gb_stroker_joiner_round
     ,   gb_stroker_joiner_bevel
     };
-    tb_assert_abort(impl->join < tb_arrayn(s_joiners));
+    tb_assert(impl->join < tb_arrayn(s_joiners));
 
     // set capper
     impl->capper = s_cappers[impl->cap];
@@ -1546,7 +1546,7 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
             if (gb_stroker_normals_too_sharp(&normal_unit_01, &normal_unit_12))
             {
                 // check
-                tb_assert_abort(impl->path_inner && impl->path_outer && impl->path_other && impl->radius > 0);
+                tb_assert(impl->path_inner && impl->path_outer && impl->path_other && impl->radius > 0);
 
                 // compute the normal of (p1, p2)
                 gb_vector_scale2(&normal_unit_12, &normal_12, impl->radius);
@@ -1581,7 +1581,7 @@ tb_void_t gb_stroker_quad_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl, gb_p
             tb_trace_e("failed to make unit normal for %{point} => %{point}", &points[1], &points[2]);
 
             // failed
-            tb_assert_abort(0);
+            tb_assert(0);
         }
     }
     // only one curve? 
@@ -1637,7 +1637,7 @@ tb_void_t gb_stroker_cubic_to(gb_stroker_ref_t stroker, gb_point_ref_t ctrl0, gb
     // chop the cubic curve at the max curvature
     gb_point_t  output[13];
     tb_size_t   count = gb_cubic_chop_at_max_curvature(points, output);
-    tb_assert_abort(count);
+    tb_assert(count);
 
     // make every cubic sub-curves
     tb_size_t   index;

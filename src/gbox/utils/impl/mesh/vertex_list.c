@@ -185,7 +185,7 @@ tb_size_t gb_mesh_vertex_list_size(gb_mesh_vertex_list_ref_t list)
     // check
     gb_mesh_vertex_list_impl_t* impl = (gb_mesh_vertex_list_impl_t*)list;
     tb_assert_and_check_return_val(impl && impl->pool, 0);
-    tb_assert_abort(tb_list_entry_size(&impl->head) == tb_fixed_pool_size(impl->pool));
+    tb_assert(tb_list_entry_size(&impl->head) == tb_fixed_pool_size(impl->pool));
 
     // the size
     return tb_list_entry_size(&impl->head);
@@ -249,7 +249,7 @@ tb_void_t gb_mesh_vertex_list_kill(gb_mesh_vertex_list_ref_t list, gb_mesh_verte
 
 #ifdef __gb_debug__
     // check
-    tb_assert_abort(vertex->id);
+    tb_assert(vertex->id);
 
     // clear id
     vertex->id = 0;
