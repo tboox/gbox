@@ -1,6 +1,8 @@
 The Graphic Box Library
 ========================
 
+[![Join the chat at https://gitter.im/waruqi/gbox](https://badges.gitter.im/waruqi/gbox.svg)](https://gitter.im/waruqi/gbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 GBOX is a mutli-platform c graphic library, ui and game engine for unix, windows, mac, ios, android, etc.
 
 contact
