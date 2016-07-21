@@ -36,10 +36,14 @@ If you are interesting to this project, please view the source code.
 
 ####Build
 
-please install xmake first: [xmake](https://github.com/waruqi/xmake)
+please install xmake first: [xmake](http://www.xmake.io)
 
-    cd ./gbox
-    xmake
+    $ cd ./gbox
+    $ xmake
+
+####Run
+
+    $ xmake run core
 
 ####Documents
 
@@ -91,10 +95,14 @@ GBOX是一个用c语言实现的多平台图形库，支持windows、linux、mac
 
 ####编译
 
-请先安装: [xmake](https://github.com/waruqi/xmake)
+请先安装: [xmake](http://www.xmake.io)
 
     cd ./gbox
     xmake
+
+####运行
+
+    $ xmake run core
 
 ####文档
 
