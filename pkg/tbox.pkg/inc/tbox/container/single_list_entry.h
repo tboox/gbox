@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        single_list_entry.h
@@ -37,6 +39,24 @@
 /// the list entry
 #define tb_single_list_entry(head, entry)   ((((tb_byte_t*)(entry)) - (head)->eoff))
 
+/*! get the list entry with zero offset
+ *
+ * @code
+ *
+    // the xxxx entry type
+    typedef struct __tb_xxxx_entry_t 
+    {
+        // the list entry (be placed in header with zero offset)
+        tb_single_list_entry_t  entry;
+
+        // .. 
+
+    }tb_xxxx_entry_t;
+ *
+ * @endcode
+ */
+#define tb_single_list_entry0(entry)        (entry)
+
 /*! init the list entry 
  *
  * @code
@@ -56,7 +76,7 @@
     static tb_void_t tb_xxxx_entry_copy(tb_pointer_t litem, tb_pointer_t ritem)
     {
         // check
-        tb_assert_return(litem && ritem);
+        tb_assert(litem && ritem);
 
         // copy it
         ((tb_xxxx_entry_t*)litem)->data = ((tb_xxxx_entry_t*)ritem)->data;
@@ -150,7 +170,7 @@ tb_void_t                                       tb_single_list_entry_exit(tb_sin
 static __tb_inline__ tb_void_t                  tb_single_list_entry_clear(tb_single_list_entry_head_ref_t list)
 {
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // clear it
     list->next = tb_null;
@@ -167,7 +187,7 @@ static __tb_inline__ tb_void_t                  tb_single_list_entry_clear(tb_si
 static __tb_inline__ tb_size_t                  tb_single_list_entry_size(tb_single_list_entry_head_ref_t list)
 { 
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // done
     return list->size;
@@ -175,15 +195,14 @@ static __tb_inline__ tb_size_t                  tb_single_list_entry_size(tb_sin
 
 /*! the list next entry
  *
- * @param list                                  the list
  * @param entry                                 the entry
  *
  * @return                                      the next entry
  */
-static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_next(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t entry)
+static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_next(tb_single_list_entry_ref_t entry)
 {
     // check
-    tb_assert_abort(entry);
+    tb_assert(entry);
 
     // done
     return entry->next;
@@ -198,7 +217,7 @@ static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_next(tb_sin
 static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_head(tb_single_list_entry_head_ref_t list)
 {
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // done
     return list->next;
@@ -213,7 +232,7 @@ static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_head(tb_sin
 static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_last(tb_single_list_entry_head_ref_t list)
 { 
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // done
     return list->last;
@@ -239,7 +258,7 @@ static __tb_inline__ tb_single_list_entry_ref_t tb_single_list_entry_tail(tb_sin
 static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_null(tb_single_list_entry_head_ref_t list)
 { 
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // done
     return !list->size;
@@ -254,7 +273,7 @@ static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_null(tb_
 static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_head(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t entry)
 {
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // done
     return list->next == entry;
@@ -270,7 +289,7 @@ static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_head(tb_
 static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_last(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t entry)
 {
     // check
-    tb_assert_abort(list);
+    tb_assert(list);
 
     // done
     return list->last == entry;
@@ -285,8 +304,8 @@ static __tb_inline__ tb_bool_t                  tb_single_list_entry_is_last(tb_
 static __tb_inline__ tb_void_t                  tb_single_list_entry_insert_next(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t node, tb_single_list_entry_ref_t entry)
 {
     // check
-    tb_assert_abort(list && node && entry);
-    tb_assert_abort(node != entry);
+    tb_assert(list && node && entry);
+    tb_assert(node != entry);
 
     // update last
     if (node == list->last || !list->next) list->last = entry;
@@ -318,7 +337,7 @@ static __tb_inline__ tb_void_t                  tb_single_list_entry_insert_head
 static __tb_inline__ tb_void_t                  tb_single_list_entry_insert_tail(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t entry)
 {
     // check
-    tb_assert_abort(list && entry);
+    tb_assert(list && entry);
 
     // insert it
     if (list->last) tb_single_list_entry_insert_next(list, list->last, entry);
@@ -334,8 +353,8 @@ static __tb_inline__ tb_void_t                  tb_single_list_entry_insert_tail
 static __tb_inline__ tb_void_t                  tb_single_list_entry_replace_next(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t node, tb_single_list_entry_ref_t entry)
 {
     // check
-    tb_assert_abort(node && node->next);
-    tb_assert_abort(node != entry);
+    tb_assert(node && node->next);
+    tb_assert(node != entry);
 
     // update last
     if (node->next == list->last) list->last = entry;
@@ -365,7 +384,7 @@ static __tb_inline__ tb_void_t                  tb_single_list_entry_replace_hea
 static __tb_inline__ tb_void_t                  tb_single_list_entry_remove_safe(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t prev, tb_single_list_entry_ref_t next)
 {
     // check
-    tb_assert_abort(list && list->size && prev);
+    tb_assert(list && list->size && prev);
 
     // update last
     if (prev->next == list->last) list->last = next;
@@ -385,7 +404,7 @@ static __tb_inline__ tb_void_t                  tb_single_list_entry_remove_safe
 static __tb_inline__ tb_void_t                  tb_single_list_entry_remove_next(tb_single_list_entry_head_ref_t list, tb_single_list_entry_ref_t prev)
 {
     // check
-    tb_assert_abort(prev && prev->next);
+    tb_assert(prev && prev->next);
 
     // remove it
     tb_single_list_entry_remove_safe(list, prev, prev->next->next);
@@ -398,7 +417,7 @@ static __tb_inline__ tb_void_t                  tb_single_list_entry_remove_next
 static __tb_inline__ tb_void_t                  tb_single_list_entry_remove_head(tb_single_list_entry_head_ref_t list)
 {
     // check
-    tb_assert_abort(list->next);
+    tb_assert(list->next);
 
     // remove it
     tb_single_list_entry_remove_safe(list, (tb_single_list_entry_ref_t)list, list->next->next);

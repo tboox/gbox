@@ -238,7 +238,7 @@ tb_void_t gb_tessellator_done(gb_tessellator_ref_t tessellator, gb_polygon_ref_t
 {
     // check
     gb_tessellator_impl_t* impl = (gb_tessellator_impl_t*)tessellator;
-    tb_assert_abort_and_check_return(impl && impl->func && polygon && polygon->points && polygon->counts && bounds);
+    tb_assert_and_check_return(impl && impl->func && polygon && polygon->points && polygon->counts && bounds);
 
     // is convex polygon for each contour?
     if (polygon->convex)

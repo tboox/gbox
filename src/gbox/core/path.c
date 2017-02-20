@@ -116,7 +116,7 @@ static tb_size_t gb_path_itor_size(tb_iterator_ref_t iterator)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl && impl->codes, 0);
+    tb_assert_and_check_return_val(impl && impl->codes, 0);
 
     // size
     return tb_vector_size(impl->codes);
@@ -130,7 +130,7 @@ static tb_size_t gb_path_itor_last(tb_iterator_ref_t iterator)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl, 0);
+    tb_assert_and_check_return_val(impl, 0);
 
     // the last code index
     tb_size_t code_last = tb_vector_size(impl->codes);
@@ -154,7 +154,7 @@ static tb_size_t gb_path_itor_tail(tb_iterator_ref_t iterator)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl && impl->codes && impl->points, 0);
+    tb_assert_and_check_return_val(impl && impl->codes && impl->points, 0);
 
     // the code and point tail
     tb_size_t code_tail     = tb_vector_size(impl->codes);
@@ -168,7 +168,7 @@ static tb_size_t gb_path_itor_next(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl && impl->codes, 0);
+    tb_assert_and_check_return_val(impl && impl->codes, 0);
 
     // the code
     tb_long_t code = (tb_long_t)tb_iterator_item(impl->codes, itor >> 16);
@@ -185,7 +185,7 @@ static tb_size_t gb_path_itor_prev(tb_iterator_ref_t iterator, tb_size_t itor)
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl && impl->codes, 0);
+    tb_assert_and_check_return_val(impl && impl->codes, 0);
 
     // check the code index
     tb_assert(itor >> 16);
@@ -208,7 +208,7 @@ static tb_pointer_t gb_path_itor_item(tb_iterator_ref_t iterator, tb_size_t itor
 {
     // check
     gb_path_impl_t* impl = (gb_path_impl_t*)iterator;
-    tb_assert_return_val(impl && impl->codes && impl->points, tb_null);
+    tb_assert_and_check_return_val(impl && impl->codes && impl->points, tb_null);
     
     // the code and point index
     tb_size_t code_index    = itor >> 16;

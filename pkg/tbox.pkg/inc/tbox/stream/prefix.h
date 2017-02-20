@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        prefix.h
@@ -29,8 +31,8 @@
 #include "../prefix.h"
 #include "../libc/libc.h"
 #include "../network/url.h"
-#include "../asio/asio.h"
 #include "../memory/memory.h"
+#include "../platform/socket.h"
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
@@ -51,8 +53,8 @@
 typedef enum __tb_stream_mode_e
 {
     TB_STREAM_MODE_NONE     = 0
-,   TB_STREAM_MODE_AIOO     = 1 ///!< for bstream
-,   TB_STREAM_MODE_AICO     = 2 ///!< for astream
+,   TB_STREAM_MODE_AIOO     = 1 ///!< for stream
+,   TB_STREAM_MODE_AICO     = 2 ///!< for async_stream
 
 }tb_stream_mode_e;
 
@@ -72,10 +74,10 @@ typedef enum __tb_stream_type_e
 /// the stream wait enum
 typedef enum __tb_stream_wait_e
 {
-    TB_STREAM_WAIT_NONE     = TB_AIOE_CODE_NONE
-,   TB_STREAM_WAIT_READ     = TB_AIOE_CODE_RECV
-,   TB_STREAM_WAIT_WRIT     = TB_AIOE_CODE_SEND
-,   TB_STREAM_WAIT_EALL     = TB_AIOE_CODE_EALL
+    TB_STREAM_WAIT_NONE     = TB_SOCKET_EVENT_NONE
+,   TB_STREAM_WAIT_READ     = TB_SOCKET_EVENT_RECV
+,   TB_STREAM_WAIT_WRIT     = TB_SOCKET_EVENT_SEND
+,   TB_STREAM_WAIT_EALL     = TB_SOCKET_EVENT_EALL
 
 }tb_stream_wait_e;
 

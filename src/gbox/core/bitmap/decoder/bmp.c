@@ -143,38 +143,35 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
         if (!tb_stream_skip(stream, 2)) break;
 
         // read bpp
-        tb_size_t bpp = tb_stream_bread_u16_le(stream);
+        tb_uint16_t bpp = 0;
+        if (!tb_stream_bread_u16_le(stream, &bpp)) break;
         tb_assert_and_check_break(bpp && bpp <= 32);
 
         // trace
-        tb_trace_d("size: %lux%lu, bpp: %lu", width, height, bpp);
+        tb_trace_d("size: %lux%lu, bpp: %u", width, height, bpp);
 
         // compression? not support 
-        tb_size_t bc = tb_stream_bread_u32_le(stream);
+        tb_uint32_t bc = 0;
+        if (!tb_stream_bread_u32_le(stream, &bc)) break;
         tb_assert_and_check_break(bc != GB_BMP_RLE4 && bc != GB_BMP_RLE8);
 
         // the data size
-        tb_size_t linesize = (width * bpp) >> 3;
-        tb_size_t datasize = tb_stream_bread_u32_le(stream);
+        tb_uint32_t datasize = 0;
+        tb_size_t   linesize = (width * bpp) >> 3;
+        if (!tb_stream_bread_u32_le(stream, &datasize)) break;
         if (!datasize) datasize = tb_align4(linesize) * height;
         tb_assert_and_check_break(datasize && datasize < filesize);
 
         // trace
-        tb_trace_d("data: %lu bytes", datasize);
+        tb_trace_d("data: %u bytes", datasize);
 
         // has palette?
         gb_color_t  pals[256];
         tb_size_t   paln = 1 << bpp;
         if (bpp <= 8)
         {
-#if 0
-            // the palette count
-            if (!tb_stream_skip(stream, 8)) break;
-            paln = tb_stream_bread_u32_le(stream);
-            if (!tb_stream_skip(stream, 4)) break;
-#else
+            // skip the palette count
             if (!tb_stream_skip(stream, 16)) break;
-#endif
 
             // trace
             tb_trace_d("pal: %lu", paln);
@@ -183,9 +180,9 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
             tb_size_t i = 0;
             for (i = 0; i < paln; i++)
             {
-                pals[i].b = tb_stream_bread_u8(stream);
-                pals[i].g = tb_stream_bread_u8(stream);
-                pals[i].r = tb_stream_bread_u8(stream);
+                if (!tb_stream_bread_u8(stream, &pals[i].b)) break;
+                if (!tb_stream_bread_u8(stream, &pals[i].g)) break;
+                if (!tb_stream_bread_u8(stream, &pals[i].r)) break;
                 if (!tb_stream_skip(stream, 1)) break;
                 pals[i].a = 0xff;
             }
@@ -201,9 +198,12 @@ static gb_bitmap_ref_t gb_bitmap_decoder_bmp_done(gb_bitmap_decoder_impl_t* deco
             if (!tb_stream_skip(stream, 16)) break;
 
             // read r, g, b mask
-            tb_size_t rm = tb_stream_bread_u32_le(stream);
-            tb_size_t gm = tb_stream_bread_u32_le(stream);
-            tb_size_t bm = tb_stream_bread_u32_le(stream);
+            tb_uint32_t rm = 0;
+            tb_uint32_t gm = 0;
+            tb_uint32_t bm = 0;
+            if (!tb_stream_bread_u32_le(stream, &rm)) break;
+            if (!tb_stream_bread_u32_le(stream, &gm)) break;
+            if (!tb_stream_bread_u32_le(stream, &bm)) break;
 
             // 16-bits?
             if (bpp == 16)
@@ -414,8 +414,10 @@ gb_bitmap_decoder_ref_t gb_bitmap_decoder_bmp_init(tb_size_t pixfmt, tb_stream_r
         if (!tb_stream_skip(stream, 18)) break;
 
         // read width and height
-        tb_size_t width     = tb_stream_bread_u32_le(stream);
-        tb_size_t height    = tb_stream_bread_u32_le(stream);
+        tb_uint32_t width  = 0;
+        tb_uint32_t height = 0;
+        if (!tb_stream_bread_u32_le(stream, &width)) break;
+        if (!tb_stream_bread_u32_le(stream, &height)) break;
         tb_assert_and_check_break(width && height && width <= GB_WIDTH_MAXN && height <= GB_HEIGHT_MAXN);
 
         // make decoder

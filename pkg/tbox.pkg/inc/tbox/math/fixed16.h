@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        fixed16.h
@@ -334,15 +336,15 @@ tb_fixed16_t    tb_fixed16_exp_int32(tb_fixed16_t x);
 static __tb_inline__ tb_fixed16_t tb_long_to_fixed16_check(tb_long_t x)
 {
     // check overflow
-    tb_assert_abort(x == (tb_int16_t)x);
+    tb_assert(x == (tb_int16_t)x);
 
     // ok
-    return (x << 16);
+    return (tb_fixed16_t)(x << 16);
 }
 static __tb_inline__ tb_long_t tb_fixed16_to_long_check(tb_fixed16_t x)
 {
     // check overflow
-    tb_assert_abort(x >= TB_FIXED16_MIN && x <= TB_FIXED16_MAX);
+    tb_assert(x >= TB_FIXED16_MIN && x <= TB_FIXED16_MAX);
 
     // ok
     return (x >> 16);
@@ -353,7 +355,7 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_mul_check(tb_fixed16_t x, tb_fixed1
     tb_hong_t v = (((tb_hong_t)x * y) >> 16);
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;
@@ -361,13 +363,13 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_mul_check(tb_fixed16_t x, tb_fixed1
 static __tb_inline__ tb_fixed16_t tb_fixed16_div_check(tb_fixed16_t x, tb_fixed16_t y)
 {
     // check
-    tb_assert_abort(y);
+    tb_assert(y);
 
     // done
     tb_hong_t v = ((((tb_hong_t)x) << 16) / y);
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;
@@ -378,7 +380,7 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_sqre_check(tb_fixed16_t x)
     tb_hong_t v = (((tb_hong_t)x * x) >> 16);
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;
@@ -389,7 +391,7 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_imul_check(tb_fixed16_t x, tb_long_
     tb_hong_t v = ((tb_hong_t)x * y);
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;
@@ -397,10 +399,10 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_imul_check(tb_fixed16_t x, tb_long_
 static __tb_inline__ tb_fixed16_t tb_fixed16_idiv_check(tb_fixed16_t x, tb_long_t y)
 {
     // check
-    tb_assert_abort(y);
+    tb_assert(y);
 
     // ok
-    return x / y;
+    return (tb_fixed16_t)(x / y);
 }
 static __tb_inline__ tb_fixed16_t tb_fixed16_imuldiv_check(tb_fixed16_t x, tb_long_t y, tb_long_t z)
 {
@@ -408,7 +410,7 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_imuldiv_check(tb_fixed16_t x, tb_lo
     tb_hong_t v = ((tb_hong_t)x * y) / z;
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;
@@ -419,7 +421,7 @@ static __tb_inline__ tb_fixed16_t tb_fixed16_imulsub_check(tb_fixed16_t x, tb_lo
     tb_hong_t v = ((tb_hong_t)x * y) - z;
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;

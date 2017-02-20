@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        compiler.h
@@ -31,6 +33,19 @@
 /* //////////////////////////////////////////////////////////////////////////////////////
  * macros
  */
+
+// some help macros for making version string
+#ifndef __tb_mstring__
+#   define __tb_mstring__(x)                        #x
+#endif
+
+#ifndef __tb_mstring_ex__
+#   define __tb_mstring_ex__(x)                     __tb_mstring__(x)
+#endif
+
+#ifndef __tb_mstrcat4__
+#   define __tb_mstrcat4__(a, b, c, d)              a b c d
+#endif
 
 // intel c++
 #if defined(__INTEL_COMPILER)
@@ -127,46 +142,8 @@
 #       else
 #           define TB_COMPILER_VERSION_STRING       "gnu c/c++ > 3.4 && < 4.0"
 #       endif
-#   elif __GNUC__ == 4
-#       if __GNUC_MINOR__ == 1
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.1"
-#       elif __GNUC_MINOR__ == 2
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.2"
-#       elif __GNUC_MINOR__ == 3
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.3"
-#       elif __GNUC_MINOR__ == 4
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.4"
-#       elif __GNUC_MINOR__ == 5
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.5"
-#       elif __GNUC_MINOR__ == 6
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.6"
-#       elif __GNUC_MINOR__ == 7
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.7"
-#       elif __GNUC_MINOR__ == 8
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.8"
-#       elif __GNUC_MINOR__ == 9
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 4.9"
-#       endif
-#   elif __GNUC__ == 5
-#       if __GNUC_MINOR__ == 1
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.1"
-#       elif __GNUC_MINOR__ == 2
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.2"
-#       elif __GNUC_MINOR__ == 3
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.3"
-#       elif __GNUC_MINOR__ == 4
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.4"
-#       elif __GNUC_MINOR__ == 5
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.5"
-#       elif __GNUC_MINOR__ == 6
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.6"
-#       elif __GNUC_MINOR__ == 7
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.7"
-#       elif __GNUC_MINOR__ == 8
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.8"
-#       elif __GNUC_MINOR__ == 9
-#           define TB_COMPILER_VERSION_STRING       "gnu c/c++ 5.9"
-#       endif
+#   elif __GNUC__ >= 4 && defined(__GNUC_MINOR__)
+#       define TB_COMPILER_VERSION_STRING           __tb_mstrcat4__("gnu c/c++ ", __tb_mstring_ex__(__GNUC__), ".", __tb_mstring_ex__(__GNUC_MINOR__))
 #   else
 #       error Unknown gnu c/c++ Compiler Version
 #   endif
@@ -183,10 +160,24 @@
 #           undef TB_COMPILER_VERSION_STRING
 #           define TB_COMPILER_VERSION_STRING       __clang_version__
 #       endif
-        // ignore warning: empty struct has size 0 in C, size 1 in C++
+        // suppress warning: empty struct has size 0 in C, size 1 in C++
 #       ifdef __cplusplus
 #           pragma clang diagnostic ignored         "-Wextern-c-compat"
 #       endif
+        /* suppress warning (must be placed in the front)
+         *
+         * in old version clang:
+         *
+         * unknown warning group '-Wnullability-completeness', ignored [-Werror,-Wunknown-pragmas]
+         */
+#       pragma clang diagnostic ignored             "-Wunknown-pragmas" 
+
+        /* suppress warning
+         *
+         * signal.h
+         * pointer is missing a nullability type specifier (_Nonnull, _Nullable, or _Null_unspecified)
+         */
+#       pragma clang diagnostic ignored             "-Wnullability-completeness" 
 #   endif
 
 // watcom c/c++ 
@@ -295,6 +286,10 @@
 #       define TB_COMPILER_VERSION_STRING           "visual c++ .net 2012 (11.0)"
 #   elif (_MSC_VER == 1800)
 #       define TB_COMPILER_VERSION_STRING           "visual c++ .net 2013 (12.0)"
+#   elif (_MSC_VER == 1900)
+#       define TB_COMPILER_VERSION_STRING           "visual c++ .net 2015 (14.0)"
+#   elif (_MSC_VER == 2000)
+#       define TB_COMPILER_VERSION_STRING           "visual c++ .net 2017 (15.0)"
 #   else
 #       error Unknown visual c++ Compiler Version
 #   endif
@@ -304,6 +299,8 @@
 #   pragma warning(disable:4197)
 #   pragma warning(disable:4141)
 #   pragma warning(disable:4996)
+#   pragma warning(disable:4359)
+#   pragma warning(disable:4838)
 
 #else
 #   define TB_COMPILER_STRING                       "unknown compiler"

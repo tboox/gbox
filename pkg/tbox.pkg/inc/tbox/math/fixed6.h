@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        fixed6.h
@@ -146,15 +148,15 @@ static __tb_inline__ tb_fixed6_t tb_long_to_fixed6_check(tb_long_t x)
     tb_assert(x >= (TB_MINS32 >> 10) && x <= (TB_MAXS32 >> 10));
 
     // ok
-    return (x << 6);
+    return (tb_fixed6_t)(x << 6);
 }
 static __tb_inline__ tb_long_t tb_fixed6_to_int_check(tb_fixed6_t x)
 {
     // check overflow
-    tb_assert_abort(x >= TB_FIXED6_MIN && x <= TB_FIXED6_MAX);
+    tb_assert(x >= TB_FIXED6_MIN && x <= TB_FIXED6_MAX);
 
     // ok
-    return (x >> 6);
+    return (tb_fixed6_t)(x >> 6);
 }
 #endif
 static __tb_inline__ tb_fixed6_t tb_fixed6_mul_inline(tb_fixed6_t x, tb_fixed6_t y)
@@ -163,7 +165,7 @@ static __tb_inline__ tb_fixed6_t tb_fixed6_mul_inline(tb_fixed6_t x, tb_fixed6_t
     tb_hong_t v = (((tb_hong_t)x * y) >> 6);
 
     // check overflow
-    tb_assert_abort(v == (tb_int32_t)v);
+    tb_assert(v == (tb_int32_t)v);
 
     // ok
     return (tb_fixed16_t)v;
@@ -171,7 +173,7 @@ static __tb_inline__ tb_fixed6_t tb_fixed6_mul_inline(tb_fixed6_t x, tb_fixed6_t
 static __tb_inline__ tb_fixed16_t tb_fixed6_div_inline(tb_fixed6_t x, tb_fixed6_t y)
 {
     // check
-    tb_assert_abort(y);
+    tb_assert(y);
 
     // no overflow? compute it fastly
     if (x == (tb_int16_t)x) return (x << 16) / y;

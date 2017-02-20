@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        ltimer.h
@@ -53,10 +55,10 @@ typedef enum __tb_ltimer_tick_e
 typedef tb_timer_task_func_t    tb_ltimer_task_func_t;
 
 /// the ltimer ref type
-typedef struct{}*               tb_ltimer_ref_t;
+typedef __tb_typeref__(ltimer);
 
 /// the ltimer task ref type
-typedef struct{}*               tb_ltimer_task_ref_t;
+typedef __tb_typeref__(ltimer_task);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -66,19 +68,25 @@ typedef struct{}*               tb_ltimer_task_ref_t;
  *
  * lower tick and limit range, but faster
  * 
- * @param maxn          the timer maxn
+ * @param grow          the timer grow
  * @param tick          the timer tick
  * @param ctime         using ctime?
  *
  * @return              the timer
  */
-tb_ltimer_ref_t         tb_ltimer_init(tb_size_t maxn, tb_size_t tick, tb_bool_t ctime);
+tb_ltimer_ref_t         tb_ltimer_init(tb_size_t grow, tb_size_t tick, tb_bool_t ctime);
 
 /*! exit timer
  *
  * @param timer         the timer 
  */
 tb_void_t               tb_ltimer_exit(tb_ltimer_ref_t timer);
+
+/*! kill timer for tb_ltimer_loop()
+ *
+ * @param timer         the timer 
+ */
+tb_void_t               tb_ltimer_kill(tb_ltimer_ref_t timer);
 
 /*! clear timer
  *
@@ -105,17 +113,17 @@ tb_size_t               tb_ltimer_delay(tb_ltimer_ref_t timer);
 /*! spak timer for the external loop at the single thread
  *
  * @code
- * tb_void_t tb_ltimer_loop()
- * {
- *      while (1)
- *      {
- *          // wait
- *          wait(tb_ltimer_delay(timer))
- *
- *          // spak timer
- *          tb_ltimer_spak(timer);
- *      }
- * }
+   tb_void_t tb_ltimer_loop()
+   {
+        while (1)
+        {
+            // wait
+            wait(tb_ltimer_delay(timer))
+  
+            // spak timer
+            tb_ltimer_spak(timer);
+        }
+   }
  * @endcode
  *
  * @param timer         the timer 
@@ -127,11 +135,10 @@ tb_bool_t               tb_ltimer_spak(tb_ltimer_ref_t timer);
 /*! loop timer for the external thread
  *
  * @code
- * tb_void_t tb_ltimer_thread(tb_cpointer_t priv)
-
- * {
- *      tb_ltimer_loop(timer);
- * }
+   tb_void_t tb_ltimer_thread(tb_cpointer_t priv)
+   {
+        tb_ltimer_loop(timer);
+   }
  * @endcode
  *
  * @param timer         the timer 

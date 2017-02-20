@@ -120,7 +120,7 @@ static tb_void_t gb_tessellator_listener(gb_mesh_event_ref_t event)
         }
         break;
     default:
-        tb_assertf_abort(0, "unknown listener event: %lx", event->type);
+        tb_assertf(0, "unknown listener event: %lx", event->type);
         break;
     }
 }
@@ -135,7 +135,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
     // the points
     gb_point_ref_t      points = polygon->points;
     tb_uint16_t const*  counts = polygon->counts;
-    tb_assert_abort_and_check_return_val(points && counts, tb_false);
+    tb_assert_and_check_return_val(points && counts, tb_false);
 
     // not exists mesh?
     if (!impl->mesh) 
@@ -170,7 +170,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
 
     // check
     gb_mesh_ref_t mesh = impl->mesh;
-    tb_assert_abort_and_check_return_val(mesh, tb_false);
+    tb_assert_and_check_return_val(mesh, tb_false);
 
     // clear mesh first
     gb_mesh_clear(mesh);
@@ -190,7 +190,7 @@ tb_bool_t gb_tessellator_mesh_make(gb_tessellator_impl_t* impl, gb_polygon_ref_t
         if (!index) 
         {
             // must be closed contour
-            tb_assertf_abort(gb_point_eq(point, point + count - 1), "this contour(%lu: %{point} => %{point}) is not closed!", count, point, point + count - 1);
+            tb_assertf(gb_point_eq(point, point + count - 1), "this contour(%lu: %{point} => %{point}) is not closed!", count, point, point + count - 1);
             
             // clear the edge
             edge = tb_null;

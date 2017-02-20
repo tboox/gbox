@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        ifaddrs.h
@@ -74,7 +76,7 @@ typedef struct __tb_ifaddrs_interface_t
 }tb_ifaddrs_interface_t, *tb_ifaddrs_interface_ref_t;
 
 /// the ifaddrs type
-typedef struct{}*           tb_ifaddrs_ref_t;
+typedef __tb_typeref__(ifaddrs);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -127,7 +129,7 @@ tb_ifaddrs_interface_ref_t  tb_ifaddrs_interface(tb_ifaddrs_ref_t ifaddrs, tb_ch
 /*! the hardware address from the given interface name
  *
  * @param ifaddrs           the ifaddrs
- * @param name              the interface name, get the first ether address if ne null
+ * @param name              the interface name, get the first ether address if be null
  * @param reload            force to reload the ifaddrs list, will cache list if be false
  * @param hwaddr            the hardware address
  *
@@ -138,7 +140,7 @@ tb_bool_t                   tb_ifaddrs_hwaddr(tb_ifaddrs_ref_t ifaddrs, tb_char_
 /*! the hardware address from the given interface name
  *
  * @param ifaddrs           the ifaddrs
- * @param name              the interface name, get the first ether address if ne null
+ * @param name              the interface name, get the first ether address if be null
  * @param reload            force to reload the ifaddrs list, will cache list if be false
  * @param family            the address family 
  * @param ipaddr            the ip address

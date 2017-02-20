@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        ws2_32.h
@@ -115,6 +117,21 @@ typedef tb_int_t (WSAAPI* tb_ws2_32_gethostname_t)(tb_char_t* name, tb_int_t nam
 // the __WSAFDIsSet func type
 typedef tb_int_t (WSAAPI* tb_ws2_32___WSAFDIsSet_t)(SOCKET fd, fd_set* set);
 
+// the getaddrinfo func type
+typedef tb_int_t (WSAAPI* tb_ws2_32_getaddrinfo_t)(PCSTR pNodeName, PCSTR pServiceName, ADDRINFOA *pHints, PADDRINFOA *ppResult);
+
+// the freeaddrinfo func type
+typedef tb_void_t (WSAAPI* tb_ws2_32_freeaddrinfo_t)(struct addrinfo* ai);
+
+// the getnameinfo func type
+typedef tb_int_t (WSAAPI* tb_ws2_32_getnameinfo_t)(const struct sockaddr FAR *sa, socklen_t salen, tb_char_t FAR *host, DWORD hostlen, tb_char_t FAR *serv, DWORD servlen, tb_int_t flags);
+
+// the gethostbyname func type
+typedef struct hostent* (WSAAPI* tb_ws2_32_gethostbyname_t)(tb_char_t const* name);
+
+// the gethostbyaddr func type
+typedef struct hostent* (WSAAPI* tb_ws2_32_gethostbyaddr_t)(tb_char_t const* addr, tb_int_t len, tb_int_t type);
+
 // the ws2_32 interfaces type
 typedef struct __tb_ws2_32_t
 {
@@ -192,7 +209,22 @@ typedef struct __tb_ws2_32_t
     
     // gethostname
     tb_ws2_32_gethostname_t         gethostname;
+  
+    // getaddrinfo
+    tb_ws2_32_getaddrinfo_t         getaddrinfo;
+   
+    // freeaddrinfo
+    tb_ws2_32_freeaddrinfo_t        freeaddrinfo;
+  
+    // getnameinfo
+    tb_ws2_32_getnameinfo_t         getnameinfo;
  
+    // gethostbyname
+    tb_ws2_32_gethostbyname_t       gethostbyname;
+  
+    // gethostbyaddr
+    tb_ws2_32_gethostbyaddr_t       gethostbyaddr;
+  
     // __WSAFDIsSet
     tb_ws2_32___WSAFDIsSet_t        __WSAFDIsSet;
 

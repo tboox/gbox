@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        type.h
@@ -100,7 +102,7 @@ typedef __WCHAR_TYPE__              tb_wchar_t;
 #elif defined(__WCHAR_WIDTH__) && (__WCHAR_WIDTH__ == 2)
 typedef tb_int16_t                  tb_wchar_t;
 #elif defined(__WCHAR_WIDTH__) && (__WCHAR_WIDTH__ == 4)
-typedef tb_int16_t                  tb_wchar_t;
+typedef tb_int32_t                  tb_wchar_t;
 #else
 typedef tb_int32_t                  tb_wchar_t;
 #endif
@@ -118,13 +120,18 @@ typedef unsigned long long          tb_uint64_t;
 #endif
 typedef tb_int64_t                  tb_sint64_t;
 
-// hong & hize
+// hong and hize
 typedef tb_sint64_t                 tb_hong_t;
 typedef tb_uint64_t                 tb_hize_t;
 
-// long & size
+// long and size
+#if defined(TB_CONFIG_OS_WINDOWS) && TB_CPU_BIT64
+typedef tb_int64_t                  tb_long_t;
+typedef tb_uint64_t                 tb_ulong_t;
+#else
 typedef signed long                 tb_long_t;
 typedef unsigned long               tb_ulong_t;
+#endif
 typedef tb_ulong_t                  tb_size_t;
 
 // double
@@ -140,7 +147,11 @@ typedef tb_int32_t                  tb_fixed30_t;
 typedef tb_fixed16_t                tb_fixed_t;
 
 /// the atomic type
+#if TB_CPU_BIT64
+typedef __tb_volatile__ __tb_aligned__(8) tb_long_t     tb_atomic_t;
+#else
 typedef __tb_volatile__ __tb_aligned__(4) tb_long_t     tb_atomic_t;
+#endif
 
 /// the atomic64 type, need be aligned for arm, ..
 typedef __tb_volatile__  __tb_aligned__(8) tb_hong_t    tb_atomic64_t;
@@ -152,31 +163,31 @@ typedef tb_atomic_t                 tb_spinlock_t;
 typedef tb_spinlock_t*              tb_spinlock_ref_t;
 
 /// the pool ref type
-typedef struct{}*                   tb_pool_ref_t;
+typedef __tb_typeref__(pool);
 
 /// the file ref type
-typedef struct{}*                   tb_file_ref_t;
+typedef __tb_typeref__(file);
 
 /// the socket ref type
-typedef struct{}*                   tb_socket_ref_t;
+typedef __tb_typeref__(socket);
 
 /// the event ref type
-typedef struct{}*                   tb_event_ref_t;
+typedef __tb_typeref__(event);
 
 /// the mutex ref type
-typedef struct{}*                   tb_mutex_ref_t;
+typedef __tb_typeref__(mutex);
 
 /// the thread ref type
-typedef struct{}*                   tb_thread_ref_t;
+typedef __tb_typeref__(thread);
 
 /// the semaphore ref type
-typedef struct{}*                   tb_semaphore_ref_t;
+typedef __tb_typeref__(semaphore);
 
 /// the stream ref type
-typedef struct{}*                   tb_stream_ref_t;
+typedef __tb_typeref__(stream);
 
 /// the async stream ref type
-typedef struct{}*                   tb_async_stream_ref_t;
+typedef __tb_typeref__(async_stream);
 
 /// the time type
 typedef tb_hong_t                   tb_time_t;

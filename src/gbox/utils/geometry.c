@@ -43,8 +43,8 @@ static gb_double_t gb_point_to_segment_distance_h_cheap(gb_point_ref_t center, g
     tb_assert(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assertf_abort(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
-    tb_assertf_abort(gb_point_in_top_or_horizontal(center, lower), "%{point} <=? %{point}", center, lower);
+    tb_assertf(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
+    tb_assertf(gb_point_in_top_or_horizontal(center, lower), "%{point} <=? %{point}", center, lower);
 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
@@ -94,8 +94,8 @@ static gb_double_t gb_point_to_segment_distance_v_cheap(gb_point_ref_t center, g
     tb_assert(center && left && right);
 
     // must be left <= center <= right
-    tb_assertf_abort(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
-    tb_assertf_abort(gb_point_in_left_or_vertical(center, right), "%{point} <=? %{point}", center, right);
+    tb_assertf(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
+    tb_assertf(gb_point_in_left_or_vertical(center, right), "%{point} <=? %{point}", center, right);
 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;
@@ -132,7 +132,7 @@ static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_float_t x
 #ifdef GB_CONFIG_FLOAT_FIXED
         // calculate the factor
         gb_float_t factor = (gb_float_t)((b << 16) / (a + b));
-        tb_assertf_abort(b == (b << 16) >> 16, "the factors are too large: %lld %lld", a, b);
+        tb_assertf(b == (b << 16) >> 16, "the factors are too large: %lld %lld", a, b);
 
         // calculate the intersection
         return x + gb_mul(y - x, factor);
@@ -146,7 +146,7 @@ static __tb_inline__ gb_float_t gb_segment_intersection_interpolate(gb_float_t x
 #ifdef GB_CONFIG_FLOAT_FIXED
         // calculate the factor
         gb_float_t factor = (gb_float_t)((a << 16) / (a + b));
-        tb_assertf_abort(a == (a << 16) >> 16, "the factors are too large: %lld %lld", a, b);
+        tb_assertf(a == (a << 16) >> 16, "the factors are too large: %lld %lld", a, b);
 
         // calculate the intersection
         return y + gb_mul(x - y, factor);
@@ -462,8 +462,8 @@ gb_float_t gb_point_to_segment_distance_h(gb_point_ref_t center, gb_point_ref_t 
     tb_assert(center && upper && lower);
 
     // must be upper <= center <= lower
-    tb_assertf_abort(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
-    tb_assertf_abort(gb_point_in_top_or_horizontal(center, lower), "%{point} <=? %{point}", center, lower);
+    tb_assertf(gb_point_in_top_or_horizontal(upper, center), "%{point} <=? %{point}", upper, center);
+    tb_assertf(gb_point_in_top_or_horizontal(center, lower), "%{point} <=? %{point}", center, lower);
 
     // compute the upper and lower y-distances
     gb_float_t yu = center->y - upper->y;
@@ -596,8 +596,8 @@ gb_float_t gb_point_to_segment_distance_v(gb_point_ref_t center, gb_point_ref_t 
     tb_assert(center && left && right);
 
     // must be left <= center <= right
-    tb_assertf_abort(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
-    tb_assertf_abort(gb_point_in_left_or_vertical(center, right), "%{point} <=? %{point}", center, right);
+    tb_assertf(gb_point_in_left_or_vertical(left, center), "%{point} <=? %{point}", left, center);
+    tb_assertf(gb_point_in_left_or_vertical(center, right), "%{point} <=? %{point}", center, right);
 
     // compute the left and right x-distances
     gb_float_t xl = center->x - left->x;

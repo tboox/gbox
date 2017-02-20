@@ -1,7 +1,7 @@
 
 -- add option: fixed
 option("fixed")
-    set_enable(true)
+    set_default(true)
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the fixed type")
@@ -9,7 +9,7 @@ option("fixed")
 
 -- add option: bitmap
 option("bitmap")
-    set_enable(true)
+    set_default(true)
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the bitmap device")
@@ -17,7 +17,7 @@ option("bitmap")
 
 -- add option: smallest
 option("smallest")
-    set_enable(false)
+    set_default(false)
     set_showmenu(true)
     set_category("option")
     set_description("Enable the smallest compile mode and disable all modules.")

@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        environment.h
@@ -110,11 +112,11 @@ tb_size_t               tb_environment_load(tb_environment_ref_t environment, tb
     tb_environment_ref_t environment = tb_environment_init();
     if (environment)
     {
-        // set values
-        tb_environment_set(environment, "/xxx/0", tb_false);
-        tb_environment_set(environment, "/xxx/1", tb_false);
-        tb_environment_set(environment, "/xxx/2", tb_false);
-        tb_environment_set(environment, "/xxx/3", tb_false);
+        // insert values
+        tb_environment_insert(environment, "/xxx/0", tb_false);
+        tb_environment_insert(environment, "/xxx/1", tb_false);
+        tb_environment_insert(environment, "/xxx/2", tb_false);
+        tb_environment_insert(environment, "/xxx/3", tb_false);
 
         // save variable
         tb_environment_save(environment, "PATH");
@@ -143,7 +145,7 @@ tb_bool_t               tb_environment_save(tb_environment_ref_t environment, tb
         // load variable
         if (tb_environment_load(environment, "PATH"))
         {
-            tb_char_t const* value = tb_environment_get(environment, 0);
+            tb_char_t const* value = tb_environment_at(environment, 0);
             if (value)
             {
                 // ...
@@ -161,19 +163,28 @@ tb_bool_t               tb_environment_save(tb_environment_ref_t environment, tb
  *
  * @return              the variable value
  */
-tb_char_t const*        tb_environment_get(tb_environment_ref_t environment, tb_size_t index);
+tb_char_t const*        tb_environment_at(tb_environment_ref_t environment, tb_size_t index);
 
-/*! set the environment variable and will overwrite it
+/*! replace the environment variable and will overwrite it
  *
- * we will clear environment if value == null and overwrite
+ * we will clear environment and overwrite it
  *
  * @param environment   the environment variable
- * @param value         the variable value
- * @param overwrite     is overwrite or insert value into the head?
+ * @param value         the variable value, will clear it if be null
  *
  * @return              tb_true or tb_false
  */
-tb_bool_t               tb_environment_set(tb_environment_ref_t environment, tb_char_t const* value, tb_bool_t overwrite);
+tb_bool_t               tb_environment_replace(tb_environment_ref_t environment, tb_char_t const* value);
+
+/*! set the environment variable 
+ *
+ * @param environment   the environment variable
+ * @param value         the variable value
+ * @param to_head       insert value into the head?
+ *
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               tb_environment_insert(tb_environment_ref_t environment, tb_char_t const* value, tb_bool_t to_head);
 
 #ifdef __tb_debug__
 /*! dump the environment variable
@@ -189,7 +200,7 @@ tb_void_t               tb_environment_dump(tb_environment_ref_t environment, tb
  * @code
  
     tb_char_t value[TB_PATH_MAXN];
-    if (tb_environment_get_one("HOME", value, sizeof(value)))
+    if (tb_environment_first("HOME", value, sizeof(value)))
     {
         // ...
     }
@@ -202,19 +213,56 @@ tb_void_t               tb_environment_dump(tb_environment_ref_t environment, tb
  *
  * @return              the variable value size
  */
-tb_size_t               tb_environment_get_one(tb_char_t const* name, tb_char_t* value, tb_size_t maxn);
+tb_size_t               tb_environment_first(tb_char_t const* name, tb_char_t* value, tb_size_t maxn);
 
-/*! set the environment variable value
+/*! get the environment variable values 
  *
- * we will set only one value and overwrite it,
- * and remove this environment variable if the value is null 
+ * @code
+ 
+    tb_char_t value[TB_PATH_MAXN];
+    if (tb_environment_get("HOME", value, sizeof(value)))
+    {
+        // ...
+    }
+
+ * @endcode
  *
  * @param name          the variable name
- * @param value         the variable value
+ * @param values        the variable values, separator: windows(';') or other(';')
+ * @param maxn          the variable values maxn
+ *
+ * @return              the variable values size
+ */
+tb_size_t               tb_environment_get(tb_char_t const* name, tb_char_t* values, tb_size_t maxn);
+
+/*! set the environment variable values
+ *
+ * we will set all values and overwrite it
+ *
+ * @param name          the variable name
+ * @param values        the variable values, separator: windows(';') or other(';')
  *
  * @return              tb_true or tb_false
  */
-tb_bool_t               tb_environment_set_one(tb_char_t const* name, tb_char_t const* value);
+tb_bool_t               tb_environment_set(tb_char_t const* name, tb_char_t const* values);
+
+/*! add the environment variable values and not overwrite it
+ *
+ * @param name          the variable name
+ * @param values        the variable values, separator: windows(';') or other(';')
+ * @param to_head       add value into the head?
+ *
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               tb_environment_add(tb_char_t const* name, tb_char_t const* values, tb_bool_t to_head);
+
+/*! remove the given environment variable 
+ *
+ * @param name          the variable name
+ *
+ * @return              tb_true or tb_false
+ */
+tb_bool_t               tb_environment_remove(tb_char_t const* name);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

@@ -23,29 +23,29 @@ tb_void_t gb_demo_lines_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     // make points
     gb_point_t points[] = 
     {
-        { gb_long_to_float(-100),   gb_long_to_float(-100)  }
+        { -gb_long_to_float(100),   -gb_long_to_float(100)  }
     ,   { gb_long_to_float(100),    gb_long_to_float(100)   }
 
-    ,   { gb_long_to_float(-100),   gb_long_to_float(-50)   }
+    ,   { -gb_long_to_float(100),   -gb_long_to_float(50)   }
     ,   { gb_long_to_float(100),    gb_long_to_float(50)    }
 
-    ,   { gb_long_to_float(-50),    gb_long_to_float(-100)  }
+    ,   { -gb_long_to_float(50),    -gb_long_to_float(100)  }
     ,   { gb_long_to_float(50),     gb_long_to_float(100)   }
 
-    ,   { gb_long_to_float(-100),   gb_long_to_float(100)   }
-    ,   { gb_long_to_float(100),    gb_long_to_float(-100)  }
+    ,   { -gb_long_to_float(100),   gb_long_to_float(100)   }
+    ,   { gb_long_to_float(100),    -gb_long_to_float(100)  }
 
-    ,   { gb_long_to_float(-100),   gb_long_to_float(50)    }
-    ,   { gb_long_to_float(100),    gb_long_to_float(-50)   }
+    ,   { -gb_long_to_float(100),   gb_long_to_float(50)    }
+    ,   { gb_long_to_float(100),    -gb_long_to_float(50)   }
 
-    ,   { gb_long_to_float(-50),   gb_long_to_float(100)    }
-    ,   { gb_long_to_float(50),    gb_long_to_float(-100)   }
+    ,   { -gb_long_to_float(50),   gb_long_to_float(100)    }
+    ,   { gb_long_to_float(50),    -gb_long_to_float(100)   }
 
     ,   { gb_long_to_float(0),      gb_long_to_float(100)   }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-100)  }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(100)  }
 
     ,   { gb_long_to_float(100),    gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-100),   gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(100),   gb_long_to_float(0)     }
     };
 
     // stroke

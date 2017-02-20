@@ -23,95 +23,95 @@ tb_void_t gb_demo_points_draw(gb_window_ref_t window, gb_canvas_ref_t canvas)
     // make points
     gb_point_t points[] = 
     {
-        { gb_long_to_float(-100),   gb_long_to_float(-100)  }
+        { -gb_long_to_float(100),   -gb_long_to_float(100)  }
     ,   { gb_long_to_float(100),    gb_long_to_float(100)   }
-    ,   { gb_long_to_float(-100),   gb_long_to_float(100)   }
-    ,   { gb_long_to_float(100),    gb_long_to_float(-100)  }
+    ,   { -gb_long_to_float(100),   gb_long_to_float(100)   }
+    ,   { gb_long_to_float(100),    -gb_long_to_float(100)  }
     ,   { gb_long_to_float(0),      gb_long_to_float(100)   }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-100)  }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(100)  }
     ,   { gb_long_to_float(100),    gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-100),   gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(100),   gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-90),    gb_long_to_float(-90)   }
+    ,   { -gb_long_to_float(90),    -gb_long_to_float(90)   }
     ,   { gb_long_to_float(90),     gb_long_to_float(90)    }
-    ,   { gb_long_to_float(-90),    gb_long_to_float(90)    }
-    ,   { gb_long_to_float(90),     gb_long_to_float(-90)   }
+    ,   { -gb_long_to_float(90),    gb_long_to_float(90)    }
+    ,   { gb_long_to_float(90),     -gb_long_to_float(90)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(90)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-90)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(90)   }
     ,   { gb_long_to_float(90),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-90),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(90),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-80),    gb_long_to_float(-80)   }
+    ,   { -gb_long_to_float(80),    -gb_long_to_float(80)   }
     ,   { gb_long_to_float(80),     gb_long_to_float(80)    }
-    ,   { gb_long_to_float(-80),    gb_long_to_float(80)    }
-    ,   { gb_long_to_float(80),     gb_long_to_float(-80)   }
+    ,   { -gb_long_to_float(80),    gb_long_to_float(80)    }
+    ,   { gb_long_to_float(80),     -gb_long_to_float(80)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(80)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-80)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(80)   }
     ,   { gb_long_to_float(80),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-80),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(80),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-70),    gb_long_to_float(-70)   }
+    ,   { -gb_long_to_float(70),    -gb_long_to_float(70)   }
     ,   { gb_long_to_float(70),     gb_long_to_float(70)    }
-    ,   { gb_long_to_float(-70),    gb_long_to_float(70)    }
-    ,   { gb_long_to_float(70),     gb_long_to_float(-70)   }
+    ,   { -gb_long_to_float(70),    gb_long_to_float(70)    }
+    ,   { gb_long_to_float(70),     -gb_long_to_float(70)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(70)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-70)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(70)   }
     ,   { gb_long_to_float(70),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-70),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(70),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-60),    gb_long_to_float(-60)   }
+    ,   { -gb_long_to_float(60),    -gb_long_to_float(60)   }
     ,   { gb_long_to_float(60),     gb_long_to_float(60)    }
-    ,   { gb_long_to_float(-60),    gb_long_to_float(60)    }
-    ,   { gb_long_to_float(60),     gb_long_to_float(-60)   }
+    ,   { -gb_long_to_float(60),    gb_long_to_float(60)    }
+    ,   { gb_long_to_float(60),     -gb_long_to_float(60)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(60)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-60)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(60)   }
     ,   { gb_long_to_float(60),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-60),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(60),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-50),    gb_long_to_float(-50)   }
+    ,   { -gb_long_to_float(50),    -gb_long_to_float(50)   }
     ,   { gb_long_to_float(50),     gb_long_to_float(50)    }
-    ,   { gb_long_to_float(-50),    gb_long_to_float(50)    }
-    ,   { gb_long_to_float(50),     gb_long_to_float(-50)   }
+    ,   { -gb_long_to_float(50),    gb_long_to_float(50)    }
+    ,   { gb_long_to_float(50),     -gb_long_to_float(50)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(50)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-50)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(50)   }
     ,   { gb_long_to_float(50),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-50),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(50),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-40),    gb_long_to_float(-40)   }
+    ,   { -gb_long_to_float(40),    -gb_long_to_float(40)   }
     ,   { gb_long_to_float(40),     gb_long_to_float(40)    }
-    ,   { gb_long_to_float(-40),    gb_long_to_float(40)    }
-    ,   { gb_long_to_float(40),     gb_long_to_float(-40)   }
+    ,   { -gb_long_to_float(40),    gb_long_to_float(40)    }
+    ,   { gb_long_to_float(40),     -gb_long_to_float(40)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(40)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-40)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(40)   }
     ,   { gb_long_to_float(40),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-40),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(40),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-30),    gb_long_to_float(-30)   }
+    ,   { -gb_long_to_float(30),    -gb_long_to_float(30)   }
     ,   { gb_long_to_float(30),     gb_long_to_float(30)    }
-    ,   { gb_long_to_float(-30),    gb_long_to_float(30)    }
-    ,   { gb_long_to_float(30),     gb_long_to_float(-30)   }
+    ,   { -gb_long_to_float(30),    gb_long_to_float(30)    }
+    ,   { gb_long_to_float(30),     -gb_long_to_float(30)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(30)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-30)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(30)   }
     ,   { gb_long_to_float(30),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-30),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(30),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-20),    gb_long_to_float(-20)   }
+    ,   { -gb_long_to_float(20),    -gb_long_to_float(20)   }
     ,   { gb_long_to_float(20),     gb_long_to_float(20)    }
-    ,   { gb_long_to_float(-20),    gb_long_to_float(20)    }
-    ,   { gb_long_to_float(20),     gb_long_to_float(-20)   }
+    ,   { -gb_long_to_float(20),    gb_long_to_float(20)    }
+    ,   { gb_long_to_float(20),     -gb_long_to_float(20)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(20)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-20)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(20)   }
     ,   { gb_long_to_float(20),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-20),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(20),    gb_long_to_float(0)     }
 
-    ,   { gb_long_to_float(-10),    gb_long_to_float(-10)   }
+    ,   { -gb_long_to_float(10),    -gb_long_to_float(10)   }
     ,   { gb_long_to_float(10),     gb_long_to_float(10)    }
-    ,   { gb_long_to_float(-10),    gb_long_to_float(10)    }
-    ,   { gb_long_to_float(10),     gb_long_to_float(-10)   }
+    ,   { -gb_long_to_float(10),    gb_long_to_float(10)    }
+    ,   { gb_long_to_float(10),     -gb_long_to_float(10)   }
     ,   { gb_long_to_float(0),      gb_long_to_float(10)    }
-    ,   { gb_long_to_float(0),      gb_long_to_float(-10)   }
+    ,   { gb_long_to_float(0),      -gb_long_to_float(10)   }
     ,   { gb_long_to_float(10),     gb_long_to_float(0)     }
-    ,   { gb_long_to_float(-10),    gb_long_to_float(0)     }
+    ,   { -gb_long_to_float(10),    gb_long_to_float(0)     }
     };
 
     // stroke

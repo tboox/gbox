@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        singleton.h
@@ -47,44 +49,58 @@ typedef enum __tb_singleton_type_e
     /// the static allocator
 ,   TB_SINGLETON_TYPE_STATIC_ALLOCATOR      = 1
 
+#ifdef TB_CONFIG_MICRO_ENABLE
+
+    /// the user defined type
+,   TB_SINGLETON_TYPE_USER                  = 2
+
+#else
+
     /// the lock profiler type
 ,   TB_SINGLETON_TYPE_LOCK_PROFILER         = 2
 
-    /// the random type
-,   TB_SINGLETON_TYPE_RANDOM                = 3
-
     /// the ifaddrs type
-,   TB_SINGLETON_TYPE_IFADDRS               = 4
+,   TB_SINGLETON_TYPE_IFADDRS               = 3
 
-    /// the aicp type
-,   TB_SINGLETON_TYPE_AICP                  = 5
+    /// the timer type
+,   TB_SINGLETON_TYPE_TIMER                 = 4
+
+    /// the ltimer type
+,   TB_SINGLETON_TYPE_LTIMER                = 5
+
+    /// the aicp type, TODO deprecated
+,   TB_SINGLETON_TYPE_AICP                  = 6
 
     /// the openssl library type
-,   TB_SINGLETON_TYPE_LIBRARY_OPENSSL       = 6
+,   TB_SINGLETON_TYPE_LIBRARY_OPENSSL       = 7
 
     /// the mysql library type
-,   TB_SINGLETON_TYPE_LIBRARY_MYSQL         = 7
+,   TB_SINGLETON_TYPE_LIBRARY_MYSQL         = 8
 
     /// the sqlite3 library type
-,   TB_SINGLETON_TYPE_LIBRARY_SQLITE3       = 8
+,   TB_SINGLETON_TYPE_LIBRARY_SQLITE3       = 9
 
     /// the thread pool type
-,   TB_SINGLETON_TYPE_THREAD_POOL           = 9
+,   TB_SINGLETON_TYPE_THREAD_POOL           = 10
 
     /// the transfer pool type
-,   TB_SINGLETON_TYPE_TRANSFER_POOL         = 10
+,   TB_SINGLETON_TYPE_TRANSFER_POOL         = 11
 
     /// the cookies type
-,   TB_SINGLETON_TYPE_COOKIES               = 11
+,   TB_SINGLETON_TYPE_COOKIES               = 12
 
     /// the user defined type
-,   TB_SINGLETON_TYPE_USER                  = 12
+,   TB_SINGLETON_TYPE_USER                  = 13
+
+#endif
 
     /// the max count of the singleton type
-#ifdef __tb_small__
-,   TB_SINGLETON_TYPE_MAXN                  = 32
+#if defined(TB_CONFIG_MICRO_ENABLE)
+,   TB_SINGLETON_TYPE_MAXN                  = TB_SINGLETON_TYPE_USER + 2
+#elif defined(__tb_small__)
+,   TB_SINGLETON_TYPE_MAXN                  = TB_SINGLETON_TYPE_USER + 8
 #else
-,   TB_SINGLETON_TYPE_MAXN                  = 128
+,   TB_SINGLETON_TYPE_MAXN                  = TB_SINGLETON_TYPE_USER + 64
 #endif
 
 }tb_singleton_type_e;

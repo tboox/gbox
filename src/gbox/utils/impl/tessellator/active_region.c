@@ -64,8 +64,8 @@ static tb_bool_t gb_tessellator_active_region_leq(gb_tessellator_active_region_r
      *  / \     / \
      *   |       |
      */
-    tb_assertf_abort(gb_tessellator_edge_go_up(lregion->edge), "%{mesh_edge}", lregion->edge);
-    tb_assertf_abort(gb_tessellator_edge_go_up(rregion->edge), "%{mesh_edge}", rregion->edge);
+    tb_assertf(gb_tessellator_edge_go_up(lregion->edge), "%{mesh_edge}", lregion->edge);
+    tb_assertf(gb_tessellator_edge_go_up(rregion->edge), "%{mesh_edge}", rregion->edge);
 
     /* 
      *             .
@@ -259,7 +259,7 @@ static gb_tessellator_active_region_ref_t gb_tessellator_active_regions_insert_d
     tb_assert(impl && impl->active_regions && region && region->edge);
 
     // the edge must go up
-    tb_assertf_abort(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
+    tb_assertf(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
 
     // trace
     tb_trace_d("insert: %{mesh_edge}", region->edge);
@@ -435,7 +435,7 @@ tb_bool_t gb_tessellator_active_regions_make(gb_tessellator_impl_t* impl, gb_rec
         // make active regions
         impl->active_regions = tb_list_init(0, element);
     }
-    tb_assert_abort_and_check_return_val(impl->active_regions, tb_false);
+    tb_assert_and_check_return_val(impl->active_regions, tb_false);
 
     // clear active regions first
     tb_list_clear(impl->active_regions);
@@ -475,7 +475,7 @@ gb_tessellator_active_region_ref_t gb_tessellator_active_regions_find(gb_tessell
     region_temp.edge = edge;
 
     // the edge must go up
-    tb_assertf_abort(gb_tessellator_edge_go_up(edge), "%{mesh_edge}", edge);
+    tb_assertf(gb_tessellator_edge_go_up(edge), "%{mesh_edge}", edge);
 
     /* reverse to find the region containing the given edge from the regions
      *
@@ -603,7 +603,7 @@ tb_void_t gb_tessellator_active_regions_check(gb_tessellator_impl_t* impl)
         }
 
         // the edge must go up
-        tb_assertf_abort(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
+        tb_assertf(gb_tessellator_edge_go_up(region->edge), "%{mesh_edge}", region->edge);
 
         // update the previous region
         region_prev = region;

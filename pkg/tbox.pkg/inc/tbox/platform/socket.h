@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        socket.h
@@ -66,8 +68,22 @@ typedef enum __tb_socket_ctrl_e
 ,   TB_SOCKET_CTRL_GET_RECV_BUFF_SIZE   = 3
 ,   TB_SOCKET_CTRL_SET_SEND_BUFF_SIZE   = 4
 ,   TB_SOCKET_CTRL_GET_SEND_BUFF_SIZE   = 5
+,   TB_SOCKET_CTRL_SET_TCP_NODELAY      = 6
+,   TB_SOCKET_CTRL_GET_TCP_NODELAY      = 7
 
 }tb_socket_ctrl_e;
+
+/// the socket event enum, only for sock
+typedef enum __tb_socket_event_e
+{
+    TB_SOCKET_EVENT_NONE                = 0x0000
+,   TB_SOCKET_EVENT_RECV                = 0x0001
+,   TB_SOCKET_EVENT_SEND                = 0x0002
+,   TB_SOCKET_EVENT_CONN                = TB_SOCKET_EVENT_SEND
+,   TB_SOCKET_EVENT_ACPT                = TB_SOCKET_EVENT_RECV
+,   TB_SOCKET_EVENT_EALL                = TB_SOCKET_EVENT_RECV | TB_SOCKET_EVENT_SEND
+
+}tb_socket_event_e;
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -257,6 +273,16 @@ tb_long_t           tb_socket_urecvv(tb_socket_ref_t sock, tb_ipaddr_ref_t addr,
  * @return          the real size or -1
  */
 tb_long_t           tb_socket_usendv(tb_socket_ref_t sock, tb_ipaddr_ref_t addr, tb_iovec_t const* list, tb_size_t size);
+
+/*! wait socket events
+ *
+ * @param sock      the sock 
+ * @param events    the socket events
+ * @param timeout   the timeout, infinity: -1
+ *
+ * @return          > 0: the events code, 0: timeout, -1: failed
+ */
+tb_long_t           tb_socket_wait(tb_socket_ref_t sock, tb_size_t events, tb_long_t timeout);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * extern

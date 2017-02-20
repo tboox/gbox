@@ -1,20 +1,22 @@
 /*!The Treasure Box Library
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
- * TBox is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or
- * (at your option) any later version.
- * 
- * TBox is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with TBox; 
- * If not, see <a href="http://www.gnu.org/licenses/"> http://www.gnu.org/licenses/</a>
- * 
- * Copyright (C) 2009 - 2015, ruki All rights reserved.
+ * Copyright (C) 2009 - 2017, TBOOX Open Source Group.
  *
  * @author      ruki
  * @file        ssl.h
@@ -73,7 +75,7 @@ typedef tb_long_t   (*tb_ssl_func_writ_t)(tb_cpointer_t priv, tb_byte_t const* d
 /*! the ssl wait func type 
  *
  * @param priv      the priv data for context
- * @param code      the aioe code
+ * @param code      the events code
  * @param timeout   the timeout
  *
  * @return          the real code, no event: 0, failed or closed: -1
@@ -81,7 +83,7 @@ typedef tb_long_t   (*tb_ssl_func_writ_t)(tb_cpointer_t priv, tb_byte_t const* d
 typedef tb_long_t   (*tb_ssl_func_wait_t)(tb_cpointer_t priv, tb_size_t code, tb_long_t timeout);
 
 /// the ssl ref type
-typedef struct{}*   tb_ssl_ref_t;
+typedef __tb_typeref__(ssl);
 
 /* //////////////////////////////////////////////////////////////////////////////////////
  * interfaces
@@ -91,26 +93,26 @@ typedef struct{}*   tb_ssl_ref_t;
  *
  * @param bserver   is server endpoint?
  *
- * @return          the ssl handle 
+ * @return          the ssl 
  */
 tb_ssl_ref_t        tb_ssl_init(tb_bool_t bserver);
 
 /*! exit ssl
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  */
 tb_void_t           tb_ssl_exit(tb_ssl_ref_t ssl);
 
 /*! set ssl bio sock
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  * @param sock      the sock handle, non-blocking 
  */
 tb_void_t           tb_ssl_set_bio_sock(tb_ssl_ref_t ssl, tb_socket_ref_t sock);
 
 /*! set ssl bio read and writ func 
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  * @param read      the read func
  * @param writ      the writ func
  * #param wait      the wait func only for tb_ssl_open and tb_ssl_wait
@@ -120,7 +122,7 @@ tb_void_t           tb_ssl_set_bio_func(tb_ssl_ref_t ssl, tb_ssl_func_read_t rea
 
 /*! set ssl timeout for opening
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  * @param timeout   the timeout
  */
 tb_void_t           tb_ssl_set_timeout(tb_ssl_ref_t ssl, tb_long_t timeout);
@@ -129,7 +131,7 @@ tb_void_t           tb_ssl_set_timeout(tb_ssl_ref_t ssl, tb_long_t timeout);
  *
  * @note need wait func
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  *
  * @return          tb_true or tb_false
  */
@@ -144,13 +146,13 @@ tb_bool_t           tb_ssl_open(tb_ssl_ref_t ssl);
     while (!(ok = tb_ssl_open_try(handle)))
     {
         // wait it
-        ok = tb_ssl_wait(handle, TB_AIOE_CODE_RECV | TB_AIOE_CODE_SEND, timeout);
+        ok = tb_ssl_wait(handle, TB_SOCKET_EVENT_RECV | TB_SOCKET_EVENT_SEND, timeout);
         tb_check_break(ok > 0);
     }
 
  * @endcode
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  *
  * @return          ok: 1, continue: 0, failed: -1
  */
@@ -158,7 +160,7 @@ tb_long_t           tb_ssl_open_try(tb_ssl_ref_t ssl);
 
 /*! clos ssl 
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  *
  * @return          tb_true or tb_false
  */
@@ -173,13 +175,13 @@ tb_bool_t           tb_ssl_clos(tb_ssl_ref_t ssl);
     while (!(ok = tb_ssl_clos_try(handle)))
     {
         // wait it
-        ok = tb_ssl_wait(handle, TB_AIOE_CODE_RECV | TB_AIOE_CODE_SEND, timeout);
+        ok = tb_ssl_wait(handle, TB_SOCKET_EVENT_RECV | TB_SOCKET_EVENT_SEND, timeout);
         tb_check_break(ok > 0);
     }
 
  * @endcode
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  *
  * @return          ok: 1, continue: 0, failed: -1
  */
@@ -187,7 +189,7 @@ tb_long_t           tb_ssl_clos_try(tb_ssl_ref_t ssl);
 
 /*! read ssl data
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  * @param data      the data
  * @param size      the size
  *
@@ -197,7 +199,7 @@ tb_long_t           tb_ssl_read(tb_ssl_ref_t ssl, tb_byte_t* data, tb_size_t siz
 
 /*! writ ssl data
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  * @param data      the data
  * @param size      the size
  *
@@ -207,17 +209,17 @@ tb_long_t           tb_ssl_writ(tb_ssl_ref_t ssl, tb_byte_t const* data, tb_size
 
 /*! wait ssl data
  *
- * @param ssl       the ssl handle
- * @param code      the aioe code
+ * @param ssl       the ssl
+ * @param events    the events 
  * @param timeout   the timeout
  *
- * @return          the real code, no event: 0, failed or closed: -1
+ * @return          the real events, no event: 0, failed or closed: -1
  */
-tb_long_t           tb_ssl_wait(tb_ssl_ref_t ssl, tb_size_t code, tb_long_t timeout);
+tb_long_t           tb_ssl_wait(tb_ssl_ref_t ssl, tb_size_t events, tb_long_t timeout);
 
 /*! the ssl state see the stream ssl state
  *
- * @param ssl       the ssl handle
+ * @param ssl       the ssl
  *
  * @return          the ssl state
  */

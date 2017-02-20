@@ -97,7 +97,7 @@ static tb_void_t gb_demo_utils_geometry_intersection()
     gb_point_t intersection;
 
     // clear random
-    tb_random_clear(tb_null);
+    tb_random_reset(tb_true);
 
     // test results
     __tb_volatile__ tb_size_t count = 256;
@@ -108,10 +108,10 @@ static tb_void_t gb_demo_utils_geometry_intersection()
         tb_long_t y_range = ((count + 1) * GB_HEIGHT_MAXN >> 8);
 
         // make line segments
-        gb_point_imake(&org1, tb_random_range(tb_null, -x_range, x_range), tb_random_range(tb_null, -y_range, y_range));
-        gb_point_imake(&dst1, tb_random_range(tb_null, -x_range, x_range), tb_random_range(tb_null, -y_range, y_range));
-        gb_point_imake(&org2, tb_random_range(tb_null, -x_range, x_range), tb_random_range(tb_null, -y_range, y_range));
-        gb_point_imake(&dst2, tb_random_range(tb_null, -x_range, x_range), tb_random_range(tb_null, -y_range, y_range));
+        gb_point_imake(&org1, tb_random_range(-x_range, x_range), tb_random_range(-y_range, y_range));
+        gb_point_imake(&dst1, tb_random_range(-x_range, x_range), tb_random_range(-y_range, y_range));
+        gb_point_imake(&org2, tb_random_range(-x_range, x_range), tb_random_range(-y_range, y_range));
+        gb_point_imake(&dst2, tb_random_range(-x_range, x_range), tb_random_range(-y_range, y_range));
 
         // calculate intersection
         if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection))
@@ -122,7 +122,7 @@ static tb_void_t gb_demo_utils_geometry_intersection()
     }
 
     // clear random
-    tb_random_clear(tb_null);
+    tb_random_reset(tb_true);
 
     // test performance
     count = 1000000;
@@ -131,10 +131,10 @@ static tb_void_t gb_demo_utils_geometry_intersection()
     while (count--)
     {
         // make line segments
-        gb_point_imake(&org1, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
-        gb_point_imake(&dst1, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
-        gb_point_imake(&org2, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
-        gb_point_imake(&dst2, tb_random_range(tb_null, -GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(tb_null, -GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&org1, tb_random_range(-GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(-GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&dst1, tb_random_range(-GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(-GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&org2, tb_random_range(-GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(-GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
+        gb_point_imake(&dst2, tb_random_range(-GB_WIDTH_MAXN, GB_WIDTH_MAXN), tb_random_range(-GB_HEIGHT_MAXN, GB_HEIGHT_MAXN));
 
         // calculate intersection
         if (gb_segment_intersection(&org1, &dst1, &org2, &dst2, &intersection) > 0)

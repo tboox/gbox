@@ -102,7 +102,7 @@ tb_bool_t gb_tessellator_event_queue_make(gb_tessellator_impl_t* impl)
         // make event queue
         impl->event_queue = tb_priority_queue_init(0, element);
     }
-    tb_assert_abort_and_check_return_val(impl->event_queue, tb_false);
+    tb_assert_and_check_return_val(impl->event_queue, tb_false);
 
     // clear event queue first
     tb_priority_queue_clear(impl->event_queue);

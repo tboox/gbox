@@ -1021,7 +1021,7 @@ tb_void_t gb_polygon_raster_done(gb_polygon_raster_ref_t raster, gb_polygon_ref_
 {
     // check
     gb_polygon_raster_impl_t* impl = (gb_polygon_raster_impl_t*)raster;
-    tb_assert_abort_and_check_return(impl && polygon && polygon->points && polygon->counts && bounds && func);
+    tb_assert_and_check_return(impl && polygon && polygon->points && polygon->counts && bounds && func);
 
     // is convex polygon for each contour?
     if (polygon->convex)

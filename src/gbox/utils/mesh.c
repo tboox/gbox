@@ -80,9 +80,9 @@
 
 // check
 #ifdef __gb_debug__
-#   define gb_mesh_check_vertex(vertex)         tb_assertf_abort((vertex) && (vertex)->id && (vertex)->edge, "invalid vertex: %p, id: %lu", vertex, (vertex)? (vertex)->id : 0)
-#   define gb_mesh_check_face(face)             tb_assertf_abort((face) && (face)->id && (face)->edge, "invalid face: %p, id: %lu", face, (face)? (face)->id : 0)
-#   define gb_mesh_check_edge(edge)             do { tb_assertf_abort((edge) && (edge)->sym && (edge)->id && (edge)->sym->id, "invalid edge: %p => %p, id: %lu => %lu", edge, (edge)? (edge)->sym : tb_null, (edge)? (edge)->id : 0, (edge)->sym? (edge)->sym->id : 0); gb_mesh_check_face((edge)->lface); gb_mesh_check_vertex((edge)->org); } while (0)
+#   define gb_mesh_check_vertex(vertex)         tb_assertf((vertex) && (vertex)->id && (vertex)->edge, "invalid vertex: %p, id: %lu", vertex, (vertex)? (vertex)->id : 0)
+#   define gb_mesh_check_face(face)             tb_assertf((face) && (face)->id && (face)->edge, "invalid face: %p, id: %lu", face, (face)? (face)->id : 0)
+#   define gb_mesh_check_edge(edge)             do { tb_assertf((edge) && (edge)->sym && (edge)->id && (edge)->sym->id, "invalid edge: %p => %p, id: %lu => %lu", edge, (edge)? (edge)->sym : tb_null, (edge)? (edge)->id : 0, (edge)->sym? (edge)->sym->id : 0); gb_mesh_check_face((edge)->lface); gb_mesh_check_vertex((edge)->org); } while (0)
 #else
 #   define gb_mesh_check_vertex(vertex)
 #   define gb_mesh_check_face(face)
@@ -1345,11 +1345,11 @@ tb_void_t gb_mesh_edge_remove(gb_mesh_ref_t mesh, gb_mesh_edge_ref_t edge_del)
 
     // get the destinate edge
     gb_mesh_edge_ref_t edge_dst = gb_mesh_edge_lnext(edge_del);
-    tb_assert_abort_and_check_return(edge_dst);
+    tb_assert_and_check_return(edge_dst);
 
     // get the original sym edge
     gb_mesh_edge_ref_t edge_sym_org = gb_mesh_edge_oprev(edge_del);
-    tb_assert_abort_and_check_return(edge_sym_org);
+    tb_assert_and_check_return(edge_sym_org);
 
     // the sym edge
     gb_mesh_edge_ref_t edge_sym = gb_mesh_edge_sym(edge_del);
