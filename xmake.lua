@@ -3,6 +3,7 @@ set_project("gbox")
 
 -- version
 set_version("1.0.4")
+set_xmakever("2.1.6")
 
 -- set warning all as error
 set_warnings("all", "error")
