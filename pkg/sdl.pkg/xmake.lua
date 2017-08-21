@@ -11,7 +11,7 @@ option("sdl")
     set_description("The sdl package")
 
     -- add defines to config.h if checking ok
-    add_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_SDL")
+    add_defines_h("$(prefix)_PACKAGE_HAVE_SDL")
 
     -- add links for checking
     add_links("SDL")

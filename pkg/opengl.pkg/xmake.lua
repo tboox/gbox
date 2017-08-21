@@ -11,11 +11,11 @@ option("opengl")
     set_description("The opengl package")
 
     -- add defines to config.h if checking ok
-    add_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_OPENGL")
+    add_defines_h("$(prefix)_PACKAGE_HAVE_OPENGL")
     if is_plat("windows", "mingw") then
-        add_defines_h_if_ok("$(prefix)_GL_APICALL=__tb_stdcall__")
+        add_defines_h("$(prefix)_GL_APICALL=__tb_stdcall__")
     else
-        add_defines_h_if_ok("$(prefix)_GL_APICALL=__tb_cdecl__")
+        add_defines_h("$(prefix)_GL_APICALL=__tb_cdecl__")
     end
 
     -- add links for checking

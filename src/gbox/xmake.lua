@@ -5,7 +5,7 @@ option("fixed")
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the fixed type")
-    add_defines_h_if_ok("$(prefix)_FLOAT_FIXED")
+    add_defines_h("$(prefix)_FLOAT_FIXED")
 
 -- add option: bitmap
 option("bitmap")
@@ -13,7 +13,7 @@ option("bitmap")
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the bitmap device")
-    add_defines_h_if_ok("$(prefix)_DEVICE_HAVE_BITMAP")
+    add_defines_h("$(prefix)_DEVICE_HAVE_BITMAP")
 
 -- add option: smallest
 option("smallest")
@@ -33,8 +33,7 @@ target("gbox")
     add_defines("__tb_prefix__=\"gbox\"")
 
     -- set the auto-generated config.h
-    set_config_h("$(buildir)/gbox/gbox.config.h")
-    set_config_h_prefix("GB_CONFIG")
+    set_config_header("$(buildir)/gbox/gbox.config.h", {prefix = "GB_CONFIG"})
 
     -- set the object files directory
     set_objectdir("$(buildir)/.objs")

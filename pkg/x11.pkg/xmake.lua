@@ -11,7 +11,7 @@ option("x11")
     set_description("The x11 package")
     
     -- add defines to config.h if checking ok
-    add_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_X11")
+    add_defines_h("$(prefix)_PACKAGE_HAVE_X11")
 
     -- add link directories
     add_linkdirs("lib/$(plat)/$(arch)")

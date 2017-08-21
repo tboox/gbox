@@ -14,16 +14,6 @@ target("core")
     -- set the object files directory
     set_objectdir("$(buildir)/.objs")
 
-    -- add links directory
-    add_linkdirs("$(buildir)")
-
-    -- add includes directory
-    add_includedirs("$(buildir)")
-    add_includedirs("$(buildir)/gbox")
-
-    -- add links
-    add_links("gbox")
-
     -- add packages for window
     if is_os("ios", "android") then 
     elseif is_option("x11") then add_options("x11")

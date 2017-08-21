@@ -11,7 +11,7 @@ option("glut")
     set_description("The glut package")
 
     -- add defines to config.h if checking ok
-    add_defines_h_if_ok("$(prefix)_PACKAGE_HAVE_GLUT")
+    add_defines_h("$(prefix)_PACKAGE_HAVE_GLUT")
 
     -- set language: c99, c++11
     set_languages("c99", "cxx11")
