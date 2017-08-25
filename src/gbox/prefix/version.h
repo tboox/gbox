@@ -44,6 +44,9 @@
 #define GB_VERSION_ALTER            GB_CONFIG_VERSION_ALTER
 
 /// the build version
+#ifndef GB_CONFIG_VERSION_BUILD
+#   define GB_CONFIG_VERSION_BUILD  0
+#endif
 #define GB_VERSION_BUILD            GB_CONFIG_VERSION_BUILD
 
 /// the build version string
