@@ -3,7 +3,7 @@
   <h1>gbox</h1>
 
   <div>
-    <a href="https://github.com/tboox/vm86/blob/master/LICENSE.md">
+    <a href="https://github.com/tboox/gbox/blob/master/LICENSE.md">
       <img src="https://img.shields.io/github/license/tboox/vm86.svg?colorB=f48041&style=flat-square" alt="license" />
     </a>
     <a href="https://gitter.im/tboox/tboox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
