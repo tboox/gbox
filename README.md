@@ -35,7 +35,7 @@ It is now in the early stages of development only for reference and learning.
 
 If you are interesting to this project, please view the source code.
 
-####Features
+#### Features
 
 - Support 2d vector drawing
 - Support matrix transform
@@ -51,7 +51,7 @@ If you are interesting to this project, please view the source code.
 - Implement polygon scanning algorithm
 - Provide multi-platform windows(.e.g glut, sdl and x11, framebuffer, ios, android in the feature)
 
-####In the plans
+#### In the plans
 
 - Draw svg images
 - Implement anti-aliasing
@@ -59,23 +59,23 @@ If you are interesting to this project, please view the source code.
 - Draw text 
 - Development ui and game engine
 
-####Build
+#### Build
 
 please install xmake first: [xmake](http://www.xmake.io)
 
     $ cd ./gbox
     $ xmake
 
-####Run
+#### Run
 
     $ xmake run core
 
-####Documents
+#### Documents
 
 * [Documents](https://github.com/tboox/gbox/wiki/documents)
 * [Codes](https://github.com/tboox/gbox)
 
-####Contacts
+#### Contacts
 
 - Email:   	    
 	- waruqi@gmail.com
@@ -91,7 +91,7 @@ GBOX是一个用c语言实现的多平台图形库，支持windows、linux、mac
 
 如果您感兴趣，可以阅读源码
 
-####已实现的功能
+#### 已实现的功能
 
 - 矢量2d渲染，支持矩阵变换，画刷、画笔的设置和渲染
 - 支持复杂矢量路径渲染和填充
@@ -103,7 +103,7 @@ GBOX是一个用c语言实现的多平台图形库，支持windows、linux、mac
 - 实现多边形扫描算法
 - 支持多平台窗口扩展，目前支持glut、sdl窗口，后续会支持（x11，framebuffer, ios/android，windows等原生窗口）
 
-####后续工作
+#### 后续工作
 
 - svg矢量图形渲染（之前的版本实现过一整套，最近正在重构，所以暂时移除了）
 - 反走样支持
@@ -112,28 +112,28 @@ GBOX是一个用c语言实现的多平台图形库，支持windows、linux、mac
 - ui框架的实现
 - 有时间的话，再整整游戏引擎，当然这个是后话，看心情和时间了。
 
-####测试效果
+#### 测试效果
 
 - 目前基于opengl的渲染设备，绘制tiger.svg可达到60fps
 - 基于bitmap的纯算法渲染设备，绘制tiger.svg可达到30-40fps（pc上测试，数据仅供参考）
 
-####编译
+#### 编译
 
 请先安装: [xmake](http://www.xmake.io)
 
     cd ./gbox
     xmake
 
-####运行
+#### 运行
 
     $ xmake run core
 
-####文档
+#### 文档
 
 * [Documents](https://github.com/tboox/gbox/wiki/documents)
 * [Codes](https://github.com/tboox/gbox)
 
-####联系
+#### 联系
 
 - Email:   	    
 	- waruqi@gmail.com
