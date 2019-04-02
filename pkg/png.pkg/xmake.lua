@@ -11,7 +11,7 @@ option("png")
     set_description("The png package")
     
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_PNG")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_PNG", 1)
 
     -- add links for checking
     add_links("png")

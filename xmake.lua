@@ -2,7 +2,7 @@
 set_project("gbox")
 
 -- version
-set_version("1.0.4")
+set_version("1.0.4", {build = "%Y%m%d%H%M"})
 set_xmakever("2.2.5")
 
 -- set warning all as error
@@ -60,7 +60,7 @@ if is_mode("release", "profile") then
     end
 
     -- smallest?
-    if is_option("smallest") then
+    if has_config("smallest") then
  
         -- enable smallest optimization
         set_optimize("smallest")
@@ -74,13 +74,13 @@ if is_mode("release", "profile") then
 end
 
 -- smallest?
-if is_option("smallest") then
+if has_config("smallest") then
 
     -- add defines for small
     add_defines("__tb_small__")
 
     -- add defines to config.h
-    add_defines_h("$(prefix)_SMALL")
+    set_configvar("GB_CONFIG_SMALL", 1)
 end
 
 -- for the windows platform (msvc)
@@ -104,6 +104,17 @@ if is_plat("windows") then
 
     -- no msvcrt.lib
     add_ldflags("-nodefaultlib:\"msvcrt.lib\"")
+    add_syslinks("ws2_32")
+elseif is_plat("android") then
+    add_syslinks("m", "c") 
+elseif is_plat("mingw") then
+    add_syslinks("ws2_32", "pthread", "m")
+elseif is_plat("macosx") then
+    add_frameworks("Foundation", "Cocoa", "AppKit")
+elseif is_plat("iphoneos") then
+    add_frameworks("Foundation", "UIKit")
+else 
+    add_syslinks("pthread", "dl", "m", "c") 
 end
 
 -- add option: demo
@@ -118,4 +129,4 @@ add_packagedirs("pkg")
 
 -- add projects
 includes("src/gbox") 
-if is_option("demo") then includes("src/demo") end
+if has_config("demo") then includes("src/demo") end

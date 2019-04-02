@@ -11,7 +11,7 @@ option("skia")
     set_description("The skia package")
     
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_SKIA")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_SKIA", 1)
 
     -- add link directories
     add_linkdirs("lib/$(plat)/$(arch)")

@@ -11,7 +11,7 @@ option("jpeg")
     set_description("The jpeg package")
     
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_JPEG")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_JPEG", 1)
 
     -- add links for checking
     add_links("jpeg")

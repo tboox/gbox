@@ -11,7 +11,7 @@ option("glut")
     set_description("The glut package")
 
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_GLUT")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_GLUT", 1)
 
     -- set language: c99, c++11
     set_languages("c99", "cxx11")
@@ -28,11 +28,11 @@ option("glut")
     -- add links for checking
     before_check(function (option)
         if is_plat("windows", "mingw") then
-            option:add("links", "glut32", "glu32")
+            option:add("syslinks", "glut32", "glu32")
         elseif is_plat("macosx") then
             option:add("frameworks", "GLUT")
         else
-            option:add("links", "glut")
+            option:add("syslinks", "glut")
         end
     end)
 

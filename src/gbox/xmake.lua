@@ -5,7 +5,7 @@ option("fixed")
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the fixed type")
-    add_defines_h("$(prefix)_FLOAT_FIXED")
+    set_configvar("GB_CONFIG_FLOAT_FIXED", 1)
 
 -- add option: bitmap
 option("bitmap")
@@ -13,7 +13,7 @@ option("bitmap")
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the bitmap device")
-    add_defines_h("$(prefix)_DEVICE_HAVE_BITMAP")
+    set_configvar("GB_CONFIG_DEVICE_HAVE_BITMAP", 1)
 
 -- add option: smallest
 option("smallest")
@@ -33,30 +33,29 @@ target("gbox")
     add_defines("__tb_prefix__=\"gbox\"")
 
     -- set the auto-generated config.h
-    set_config_header("$(buildir)/gbox/gbox.config.h", {prefix = "GB_CONFIG"})
+    set_configdir("$(buildir)/$(plat)/$(arch)/$(mode)")
+    add_configfiles("gbox.config.h.in")
 
-    -- set the object files directory
-    set_objectdir("$(buildir)/.objs")
-
-    -- add includes directory
-    add_includedirs("$(buildir)")
-    add_includedirs("$(buildir)/gbox")
+    -- add include directories
+    add_includedirs("..", {public = true})
+    add_includedirs("$(buildir)/$(plat)/$(arch)/$(mode)", {public = true})
 
     -- add the header files for installing
-    add_headers("../(gbox/**.h)|**/impl/**.h")
+    add_headerfiles("../(gbox/**.h)|**/impl/**.h")
+    add_headerfiles("$(buildir)/$(plat)/$(arch)/$(mode)/gbox.config.h", {prefixdir = "gbox"})
 
-    -- add is_option
+    -- add has_config
     add_options("bitmap", "fixed")
 
     -- add packages for window
-    if is_os("ios", "android") then 
-    elseif is_option("x11") then add_options("x11")
-    elseif is_option("glut") then add_options("glut") 
-    elseif is_option("sdl") then add_options("sdl")
+    if is_plat("iphoneos", "android") then 
+    elseif has_config("x11") then add_options("x11")
+    elseif has_config("glut") then add_options("glut") 
+    elseif has_config("sdl") then add_options("sdl")
     end
 
     -- add packages
-    add_options("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib", "base")
+    add_options("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib")
 
     -- add the common source files
     add_files("*.c")
@@ -69,16 +68,16 @@ target("gbox")
     if is_mode("debug") then add_files("utils/impl/tessellator/profiler.c") end
 
     -- add the source files for device
-    if is_option("opengl") then add_files("core/device/gl.c", "core/device/gl/**.c") end
-    if is_option("bitmap") then add_files("core/device/bitmap.c", "core/device/bitmap/**.c") end
-    if is_option("skia") then add_files("core/device/skia.cpp") end
+    if has_config("opengl") then add_files("core/device/gl.c", "core/device/gl/**.c") end
+    if has_config("bitmap") then add_files("core/device/bitmap.c", "core/device/bitmap/**.c") end
+    if has_config("skia") then add_files("core/device/skia.cpp") end
 
     -- add the source files for window
-    if is_os("ios") then add_files("platform/ios/window.c") 
+    if is_plat("iphoneos") then add_files("platform/ios/window.c") 
     elseif is_os("android") then add_files("platform/android/window.c") 
-    elseif is_option("x11") then add_files("platform/x11/window.c") 
-    elseif is_option("glut") then add_files("platform/glut/window.c") 
-    elseif is_option("sdl") then add_files("platform/sdl/window.c") 
+    elseif has_config("x11") then add_files("platform/x11/window.c") 
+    elseif has_config("glut") then add_files("platform/glut/window.c") 
+    elseif has_config("sdl") then add_files("platform/sdl/window.c") 
     end
 
 

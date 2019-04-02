@@ -11,7 +11,7 @@ option("zlib")
     set_description("The zlib package")
     
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_ZLIB")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_ZLIB", 1)
 
     -- add links for checking
     add_links("z")

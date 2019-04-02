@@ -11,7 +11,7 @@ option("sdl")
     set_description("The sdl package")
 
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_SDL")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_SDL", 1)
 
     -- add link directories
     add_linkdirs("lib/$(plat)/$(arch)")
@@ -26,7 +26,7 @@ option("sdl")
     add_links("SDL")
     before_check(function (option)
         if is_plat("macosx") then
-            option:add("links", "SDLmain")
+            option:add("syslinks", "SDLmain")
             option:add("defines", "main=SDL_main")
             option:add("frameworks", "Foundation", "Cocoa")
         end

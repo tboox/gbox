@@ -15,7 +15,7 @@ option("tbox")
     set_languages("c99", "cxx11")
 
     -- add defines to config.h if checking ok
-    add_defines_h("$(prefix)_PACKAGE_HAVE_TBOX")
+    set_configvar("GB_CONFIG_PACKAGE_HAVE_TBOX", 1)
 
     -- add links for checking
     add_links("tbox")

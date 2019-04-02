@@ -22,18 +22,18 @@ option("opengl")
     -- add links for checking
     before_check(function (option)
         if is_plat("windows", "mingw") then
-            option:add("links", "opengl32")
+            option:add("syslinks", "opengl32")
         elseif is_plat("macosx") then
             option:add("frameworks", "OpenGL")
         else
-            option:add("links", "GL")
+            option:add("syslinks", "GL")
         end
 
         -- add defines to config.h if checking ok
-        option:add("defines_h", "$(prefix)_PACKAGE_HAVE_OPENGL")
+        option:set("configvar", "GB_CONFIG_PACKAGE_HAVE_OPENGL", 1)
         if is_plat("windows", "mingw") then
-            option:add("defines_h", "$(prefix)_GL_APICALL=__tb_stdcall__")
+            option:set("configvar", "GB_CONFIG_GL_APICALL", "__tb_stdcall__")
         else
-            option:add("defines_h", "$(prefix)_GL_APICALL=__tb_cdecl__")
+            option:set("configvar", "GB_CONFIG_GL_APICALL", "__tb_cdecl__")
         end
     end)
