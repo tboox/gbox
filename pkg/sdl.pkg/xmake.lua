@@ -13,14 +13,6 @@ option("sdl")
     -- add defines to config.h if checking ok
     add_defines_h("$(prefix)_PACKAGE_HAVE_SDL")
 
-    -- add links for checking
-    add_links("SDL")
-    if is_plat("macosx") then 
-        add_links("SDLmain") 
-        add_defines("main=SDL_main")
-        add_ldflags("-framework Foundation", "-framework Cocoa") 
-    end
-
     -- add link directories
     add_linkdirs("lib/$(plat)/$(arch)")
 
@@ -29,5 +21,15 @@ option("sdl")
 
     -- add include directories
     add_includedirs("inc/$(plat)", "inc")
+
+    -- add links for checking
+    add_links("SDL")
+    before_check(function (option)
+        if is_plat("macosx") then
+            option:add("links", "SDLmain")
+            option:add("defines", "main=SDL_main")
+            option:add("frameworks", "Foundation", "Cocoa")
+        end
+    end)
 
 

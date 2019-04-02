@@ -13,14 +13,6 @@ option("skia")
     -- add defines to config.h if checking ok
     add_defines_h("$(prefix)_PACKAGE_HAVE_SKIA")
 
-    -- add links for checking
-    add_links("skia")
-    if is_os("macosx") then 
-        add_cxflags("-framework AGL") 
-        add_mxflags("-framework AGL") 
-        add_ldflags("-framework AGL") 
-    end
-
     -- add link directories
     add_linkdirs("lib/$(plat)/$(arch)")
 
@@ -29,3 +21,11 @@ option("skia")
 
     -- add include directories
     add_includedirs("inc/$(plat)", "inc")
+
+    -- add links for checking
+    add_links("skia")
+    before_check(function (option)
+        if is_plat("macosx") then 
+            option:add("frameworks", "AGL")
+        end
+    end)

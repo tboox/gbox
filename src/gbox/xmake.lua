@@ -21,7 +21,7 @@ option("smallest")
     set_showmenu(true)
     set_category("option")
     set_description("Enable the smallest compile mode and disable all modules.")
-    add_rbindings("bitmap")
+--    add_rbindings("bitmap")
 
 -- add target
 target("gbox")

@@ -3,7 +3,7 @@ set_project("gbox")
 
 -- version
 set_version("1.0.4")
-set_xmakever("2.1.6")
+set_xmakever("2.2.5")
 
 -- set warning all as error
 set_warnings("all", "error")
@@ -117,5 +117,5 @@ option("demo")
 add_packagedirs("pkg") 
 
 -- add projects
-add_subdirs("src/gbox") 
-if is_option("demo") then add_subdirs("src/demo") end
+includes("src/gbox") 
+if is_option("demo") then includes("src/demo") end
