@@ -13,15 +13,45 @@ option("bitmap")
     set_showmenu(true)
     set_category("option")
     set_description("Enable or disable the bitmap device")
+    add_deps("small")
     set_configvar("GB_CONFIG_DEVICE_HAVE_BITMAP", 1)
+    after_check(function (option)
+            if option:dep("small"):enabled() then
+                option:enable(false)
+            end
+        end)
 
--- add option: smallest
-option("smallest")
+-- add option: small
+option("small")
     set_default(false)
     set_showmenu(true)
     set_category("option")
     set_description("Enable the smallest compile mode and disable all modules.")
---    add_rbindings("bitmap")
+
+-- define options for package
+for _, name in ipairs({"libjpeg", "libpng", "zlib"}) do
+    option(name)
+        add_deps("small")
+        set_default(true)
+        set_showmenu(true)
+        set_description("Enable the " .. name .. " package.")
+        before_check(function (option)
+            if option:dep("small"):enabled() then
+                option:enable(false)
+            end
+        end)
+    option_end()
+end
+
+-- add requires
+for idx, require_name in ipairs({"libjpeg", "libpng", "zlib"}) do
+    local name = require_name:split('%s')[1]
+    if has_config(name) then
+        add_requires(require_name, {optional = true, on_load = function (package)
+            package:set("configvar", {["GB_CONFIG_PACKAGE_HAVE_" .. name:upper()] = 1})
+        end})
+    end
+end
 
 -- add target
 target("gbox")
