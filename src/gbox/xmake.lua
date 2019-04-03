@@ -29,7 +29,7 @@ option("small")
     set_description("Enable the smallest compile mode and disable all modules.")
 
 -- define options for package
-for _, name in ipairs({"libjpeg", "libpng", "zlib"}) do
+for _, name in ipairs({"tbox", "libjpeg", "libpng", "zlib"}) do
     option(name)
         add_deps("small")
         set_default(true)
@@ -44,7 +44,7 @@ for _, name in ipairs({"libjpeg", "libpng", "zlib"}) do
 end
 
 -- add requires
-for idx, require_name in ipairs({"libjpeg", "libpng", "zlib"}) do
+for idx, require_name in ipairs({"tbox", "libjpeg", "libpng", "zlib"}) do
     local name = require_name:split('%s')[1]
     if has_config(name) then
         add_requires(require_name, {optional = true, on_load = function (package)
@@ -85,7 +85,7 @@ target("gbox")
     end
 
     -- add packages
-    add_options("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib")
+    add_packages("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib")
 
     -- add the common source files
     add_files("*.c")

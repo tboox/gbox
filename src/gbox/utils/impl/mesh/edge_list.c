@@ -271,17 +271,27 @@ gb_mesh_edge_list_ref_t gb_mesh_edge_list_init(tb_element_t element)
         // init edge size
         impl->edge_size = tb_align_cpu(sizeof(gb_mesh_edge_t) + element.size);
 
+        // init operation
+        static tb_iterator_op_t op = 
+        {
+            gb_mesh_edge_itor_size
+        ,   gb_mesh_edge_itor_head
+        ,   gb_mesh_edge_itor_last
+        ,   gb_mesh_edge_itor_tail
+        ,   gb_mesh_edge_itor_prev
+        ,   gb_mesh_edge_itor_next
+        ,   gb_mesh_edge_itor_item
+        ,   tb_null
+        ,   tb_null
+        ,   tb_null
+        ,   tb_null
+        };
+
         // init iterator
         impl->itor.mode = TB_ITERATOR_MODE_FORWARD | TB_ITERATOR_MODE_REVERSE | TB_ITERATOR_MODE_READONLY;
         impl->itor.priv = tb_null;
         impl->itor.step = impl->edge_size << 1;
-        impl->itor.size = gb_mesh_edge_itor_size;
-        impl->itor.head = gb_mesh_edge_itor_head;
-        impl->itor.last = gb_mesh_edge_itor_last;
-        impl->itor.tail = gb_mesh_edge_itor_tail;
-        impl->itor.prev = gb_mesh_edge_itor_prev;
-        impl->itor.next = gb_mesh_edge_itor_next;
-        impl->itor.item = gb_mesh_edge_itor_item;
+        impl->itor.op   = &op;
 
         // init pool, item = (edge + data) + (edge->sym + data)
         impl->pool = tb_fixed_pool_init(tb_null, GB_MESH_EDGE_LIST_GROW, impl->edge_size << 1, tb_null, gb_mesh_edge_exit, (tb_cpointer_t)impl);

@@ -770,17 +770,27 @@ gb_path_ref_t gb_path_init()
         impl->points = tb_vector_init(GB_PATH_POINTS_GROW, tb_element_mem(sizeof(gb_point_t), tb_null, tb_null));
         tb_assert_and_check_break(impl->points);
 
+        // init operation
+        static tb_iterator_op_t op = 
+        {
+            gb_path_itor_size
+        ,   gb_path_itor_head
+        ,   gb_path_itor_last
+        ,   gb_path_itor_tail
+        ,   gb_path_itor_prev
+        ,   gb_path_itor_next
+        ,   gb_path_itor_item
+        ,   tb_null
+        ,   tb_null
+        ,   tb_null
+        ,   tb_null
+        };
+
         // init iterator
         impl->itor.mode = TB_ITERATOR_MODE_FORWARD | TB_ITERATOR_MODE_REVERSE | TB_ITERATOR_MODE_READONLY;
         impl->itor.priv = tb_null;
         impl->itor.step = sizeof(gb_path_item_t);
-        impl->itor.size = gb_path_itor_size;
-        impl->itor.head = gb_path_itor_head;
-        impl->itor.last = gb_path_itor_last;
-        impl->itor.tail = gb_path_itor_tail;
-        impl->itor.next = gb_path_itor_next;
-        impl->itor.prev = gb_path_itor_prev;
-        impl->itor.item = gb_path_itor_item;
+        impl->itor.op   = &op;
 
         // ok
         ok = tb_true;

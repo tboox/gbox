@@ -11,18 +11,8 @@ target("core")
     -- add defines
     add_defines("__tb_prefix__=\"demo\"")
 
-    -- set the object files directory
-    set_objectdir("$(buildir)/.objs")
-
-    -- add packages for window
-    if is_os("ios", "android") then 
-    elseif has_config("x11") then add_options("x11")
-    elseif has_config("glut") then add_options("glut") 
-    elseif has_config("sdl") then add_options("sdl")
-    end
-
     -- add packages
-    add_options("tbox", "opengl", "skia", "png", "jpeg", "freetype", "zlib")
+    add_packages("tbox", "glut", "opengl")
 
     -- add the source files
     add_files("*.c") 

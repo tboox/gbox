@@ -74,7 +74,7 @@ static __tb_inline__ tb_bool_t gb_check_mode(tb_size_t mode)
 static __tb_inline__ tb_bool_t gb_version_check(tb_hize_t build)
 {
     // the version oly for link the static vtag string
-    tb_version_t const* version = tb_version(); tb_used(version);
+    tb_version_t const* version = gb_version(); tb_used(version);
 
     // ok
     if ((build / 100) == (GB_VERSION_BUILD / 100))
