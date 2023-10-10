@@ -27,6 +27,10 @@
 </div>
 </p>
 
+## No longer maintained
+
+See new project: [lanox2d](https://github.com/lanox2d/lanox2d)
+
 ## Introduction
 
 gbox is a mutli-platform c graphic library. 
